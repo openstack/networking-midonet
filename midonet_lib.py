@@ -75,26 +75,6 @@ class MidoClient:
         return cls._fill_dto(dto, fields).update()
 
     @handle_api_error
-    def create_bridge(self, **kwargs):
-        """Create a new bridge
-
-        :param \**kwargs: configuration of the new bridge
-        :returns: newly created bridge
-        """
-        LOG.debug(_("MidoClient.create_bridge called: "
-                    "kwargs=%(kwargs)s"), {'kwargs': kwargs})
-        return self._create_dto(self.mido_api.add_bridge(), kwargs)
-
-    @handle_api_error
-    def delete_bridge(self, id):
-        """Delete a bridge
-
-        :param id: id of the bridge
-        """
-        LOG.debug(_("MidoClient.delete_bridge called: id=%(id)s"), {'id': id})
-        return self.mido_api.delete_bridge(id)
-
-    @handle_api_error
     def get_bridge(self, id):
         """Get a bridge
 
@@ -106,43 +86,6 @@ class MidoClient:
             return self.mido_api.get_bridge(id)
         except w_exc.HTTPNotFound:
             raise MidonetResourceNotFound(resource_type='Bridge', id=id)
-
-    @handle_api_error
-    def update_bridge(self, id, **kwargs):
-        """Update a bridge of the given id with the new fields
-
-        :param id: id of the bridge
-        :param \**kwargs: the fields to update and their values
-        :returns: bridge object
-        """
-        LOG.debug(_("MidoClient.update_bridge called: "
-                    "id=%(id)s, kwargs=%(kwargs)s"),
-                  {'id': id, 'kwargs': kwargs})
-        try:
-            return self._update_dto(self.mido_api.get_bridge(id), kwargs)
-        except w_exc.HTTPNotFound:
-            raise MidonetResourceNotFound(resource_type='Bridge', id=id)
-
-    @handle_api_error
-    def create_dhcp(self, bridge, gateway_ip, cidr, host_rts=None,
-                    dns_servers=None):
-        """Create a new DHCP entry
-
-        :param bridge: bridge object to add dhcp to
-        :param gateway_ip: IP address of gateway
-        :param cidr: subnet represented as x.x.x.x/y
-        :param host_rts: list of routes set in the host
-        :param dns_servers: list of dns servers
-        :returns: newly created dhcp
-        """
-        LOG.debug(_("MidoClient.create_dhcp called: bridge=%(bridge)s, "
-                    "cidr=%(cidr)s, gateway_ip=%(gateway_ip)s, "
-                    "host_rts=%(host_rts)s, dns_servers=%(dns_servers)s"),
-                  {'bridge': bridge, 'cidr': cidr, 'gateway_ip': gateway_ip,
-                   'host_rts': host_rts, 'dns_servers': dns_servers})
-        self.mido_api.add_bridge_dhcp(bridge, gateway_ip, cidr,
-                                      host_rts=host_rts,
-                                      dns_nservers=dns_servers)
 
     @handle_api_error
     def add_dhcp_host(self, bridge, cidr, ip, mac):
@@ -202,26 +145,6 @@ class MidoClient:
                                      'ip': ip, 'mac': mac})
         bridge = self.get_bridge(bridge_id)
         self.remove_dhcp_host(bridge, net_util.subnet_str(cidr), ip, mac)
-
-    @handle_api_error
-    def delete_dhcp(self, bridge, cidr):
-        """Delete a DHCP entry
-
-        :param bridge: bridge to remove DHCP from
-        :param cidr: subnet represented as x.x.x.x/y
-        """
-        LOG.debug(_("MidoClient.delete_dhcp called: bridge=%(bridge)s, "
-                    "cidr=%(cidr)s"),
-                  {'bridge': bridge, 'cidr': cidr})
-        dhcp_subnets = bridge.get_dhcp_subnets()
-        net_addr, net_len = net_util.net_addr(cidr)
-        if not dhcp_subnets:
-            raise MidonetApiException(
-                msg=_("Tried to delete non-existent DHCP"))
-        for dhcp in dhcp_subnets:
-            if dhcp.get_subnet_prefix() == net_addr:
-                dhcp.delete()
-                break
 
     @handle_api_error
     def delete_port(self, id, delete_chains=False):
@@ -497,7 +420,7 @@ class MidoClient:
                          weight=100):
         """Setup a route on the router."""
         return self.mido_api.add_router_route(
-            router, type=type, src_network_addr=src_network_addr,
+            router, route_type=type, src_network_addr=src_network_addr,
             src_network_length=src_network_length,
             dst_network_addr=dst_network_addr,
             dst_network_length=dst_network_length,
