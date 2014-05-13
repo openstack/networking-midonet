@@ -26,7 +26,6 @@ from webob import exc as w_exc
 
 from neutron.common import exceptions as n_exc
 from neutron.openstack.common import log as logging
-from neutron.plugins.midonet.common import net_util
 
 LOG = logging.getLogger(__name__)
 
@@ -88,65 +87,6 @@ class MidoClient:
             raise MidonetResourceNotFound(resource_type='Bridge', id=id)
 
     @handle_api_error
-    def add_dhcp_host(self, bridge, cidr, ip, mac):
-        """Add DHCP host entry
-
-        :param bridge: bridge the DHCP is configured for
-        :param cidr: subnet represented as x.x.x.x/y
-        :param ip: IP address
-        :param mac: MAC address
-        """
-        LOG.debug(_("MidoClient.add_dhcp_host called: bridge=%(bridge)s, "
-                    "cidr=%(cidr)s, ip=%(ip)s, mac=%(mac)s"),
-                  {'bridge': bridge, 'cidr': cidr, 'ip': ip, 'mac': mac})
-        subnet = bridge.get_dhcp_subnet(net_util.subnet_str(cidr))
-        if subnet is None:
-            raise MidonetApiException(msg=_("Tried to add to"
-                                            "non-existent DHCP"))
-
-        subnet.add_dhcp_host().ip_addr(ip).mac_addr(mac).create()
-
-    @handle_api_error
-    def remove_dhcp_host(self, bridge, cidr, ip, mac):
-        """Remove DHCP host entry
-
-        :param bridge: bridge the DHCP is configured for
-        :param cidr: subnet represented as x.x.x.x/y
-        :param ip: IP address
-        :param mac: MAC address
-        """
-        LOG.debug(_("MidoClient.remove_dhcp_host called: bridge=%(bridge)s, "
-                    "cidr=%(cidr)s, ip=%(ip)s, mac=%(mac)s"),
-                  {'bridge': bridge, 'cidr': cidr, 'ip': ip, 'mac': mac})
-        subnet = bridge.get_dhcp_subnet(net_util.subnet_str(cidr))
-        if subnet is None:
-            LOG.warn(_("Tried to delete mapping from non-existent subnet"))
-            return
-
-        for dh in subnet.get_dhcp_hosts():
-            if dh.get_mac_addr() == mac and dh.get_ip_addr() == ip:
-                LOG.debug(_("MidoClient.remove_dhcp_host: Deleting %(dh)r"),
-                          {"dh": dh})
-                dh.delete()
-
-    @handle_api_error
-    def delete_dhcp_host(self, bridge_id, cidr, ip, mac):
-        """Delete DHCP host entry
-
-        :param bridge_id: id of the bridge of the DHCP
-        :param cidr: subnet represented as x.x.x.x/y
-        :param ip: IP address
-        :param mac: MAC address
-        """
-        LOG.debug(_("MidoClient.delete_dhcp_host called: "
-                    "bridge_id=%(bridge_id)s, cidr=%(cidr)s, ip=%(ip)s, "
-                    "mac=%(mac)s"), {'bridge_id': bridge_id,
-                                     'cidr': cidr,
-                                     'ip': ip, 'mac': mac})
-        bridge = self.get_bridge(bridge_id)
-        self.remove_dhcp_host(bridge, net_util.subnet_str(cidr), ip, mac)
-
-    @handle_api_error
     def delete_port(self, id, delete_chains=False):
         """Delete a port
 
@@ -185,21 +125,6 @@ class MidoClient:
                     "bridge=%(bridge)s, kwargs=%(kwargs)s"),
                   {'bridge': bridge, 'kwargs': kwargs})
         return self._create_dto(self.mido_api.add_bridge_port(bridge), kwargs)
-
-    @handle_api_error
-    def update_port(self, id, **kwargs):
-        """Update a port of the given id with the new fields
-
-        :param id: id of the port
-        :param \**kwargs: the fields to update and their values
-        """
-        LOG.debug(_("MidoClient.update_port called: "
-                    "id=%(id)s, kwargs=%(kwargs)s"),
-                  {'id': id, 'kwargs': kwargs})
-        try:
-            return self._update_dto(self.mido_api.get_port(id), kwargs)
-        except w_exc.HTTPNotFound:
-            raise MidonetResourceNotFound(resource_type='Port', id=id)
 
     @handle_api_error
     def add_router_port(self, router, **kwargs):
@@ -263,32 +188,6 @@ class MidoClient:
     @handle_api_error
     def delete_route(self, id):
         return self.mido_api.delete_route(id)
-
-    @handle_api_error
-    def add_dhcp_route_option(self, bridge, cidr, gw_ip, dst_ip):
-        """Add Option121 route to subnet
-
-        :param bridge: Bridge to add the option route to
-        :param cidr: subnet represented as x.x.x.x/y
-        :param gw_ip: IP address of the next hop
-        :param dst_ip: IP address of the destination, in x.x.x.x/y format
-        """
-        LOG.debug(_("MidoClient.add_dhcp_route_option called: "
-                    "bridge=%(bridge)s, cidr=%(cidr)s, gw_ip=%(gw_ip)s"
-                    "dst_ip=%(dst_ip)s"),
-                  {"bridge": bridge, "cidr": cidr, "gw_ip": gw_ip,
-                   "dst_ip": dst_ip})
-        subnet = bridge.get_dhcp_subnet(net_util.subnet_str(cidr))
-        if subnet is None:
-            raise MidonetApiException(
-                msg=_("Tried to access non-existent DHCP"))
-        prefix, length = dst_ip.split("/")
-        routes = [{'destinationPrefix': prefix, 'destinationLength': length,
-                   'gatewayAddr': gw_ip}]
-        cur_routes = subnet.get_opt121_routes()
-        if cur_routes:
-            routes = routes + cur_routes
-        subnet.opt121_routes(routes).update()
 
     @handle_api_error
     def link(self, port, peer_id):
@@ -382,21 +281,6 @@ class MidoClient:
 
         if (router.get_outbound_filter_id()):
             self.mido_api.delete_chain(router.get_outbound_filter_id())
-
-    @handle_api_error
-    def delete_port_chains(self, id):
-        """Deletes chains of a port.
-
-        :param id: port ID to delete chains of
-        """
-        LOG.debug(_("MidoClient.delete_port_chains called: "
-                    "id=%(id)s"), {'id': id})
-        port = self.get_port(id)
-        if (port.get_inbound_filter_id()):
-            self.mido_api.delete_chain(port.get_inbound_filter_id())
-
-        if (port.get_outbound_filter_id()):
-            self.mido_api.delete_chain(port.get_outbound_filter_id())
 
     @handle_api_error
     def get_link_port(self, router, peer_router_id):
@@ -507,17 +391,6 @@ class MidoClient:
             if (r.get_dst_network_addr() == ip and
                     r.get_dst_network_length() == 32):
                 self.mido_api.delete_route(r.get_id())
-
-    @handle_api_error
-    def update_port_chains(self, port, inbound_chain_id, outbound_chain_id):
-        """Bind inbound and outbound chains to the port."""
-        LOG.debug(_("MidoClient.update_port_chains called: port=%(port)s"
-                    "inbound_chain_id=%(inbound_chain_id)s, "
-                    "outbound_chain_id=%(outbound_chain_id)s"),
-                  {"port": port, "inbound_chain_id": inbound_chain_id,
-                   "outbound_chain_id": outbound_chain_id})
-        port.inbound_filter_id(inbound_chain_id).outbound_filter_id(
-            outbound_chain_id).update()
 
     @handle_api_error
     def create_chain(self, tenant_id, name):

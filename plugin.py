@@ -31,11 +31,11 @@ from midonetclient.neutron import client as n_client
 from oslo.config import cfg
 from sqlalchemy.orm import exc as sa_exc
 
-from neutron.api.v2 import attributes
 from neutron.common import constants
 from neutron.common import exceptions as n_exc
 from neutron.common import rpc as n_rpc
 from neutron.common import topics
+from neutron.common import utils
 from neutron.db import agents_db
 from neutron.db import agentschedulers_db
 from neutron.db import db_base_plugin_v2
@@ -45,7 +45,6 @@ from neutron.db import l3_db
 from neutron.db import models_v2
 from neutron.db import portbindings_db
 from neutron.db import securitygroups_db
-from neutron.extensions import external_net as ext_net
 from neutron.extensions import l3
 from neutron.extensions import portbindings
 from neutron.extensions import securitygroup as ext_sg
@@ -187,11 +186,11 @@ def _check_resource_exists(func, id, name, raise_exc=False):
     """Check whether the given resource exists in MidoNet data store."""
     try:
         func(id)
-    except midonet_lib.MidonetResourceNotFound as exc:
+    except midonet_lib.MidonetResourceNotFound as ex:
         LOG.error(_("There is no %(name)s with ID %(id)s in MidoNet."),
                   {"name": name, "id": id})
         if raise_exc:
-            raise MidonetPluginException(msg=exc)
+            raise MidonetPluginException(msg=ex)
 
 
 class MidonetApiException(n_exc.NeutronException):
@@ -267,85 +266,6 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                     tenant_id=self.admin_project_id)
         return self.provider_router
 
-    def _dhcp_mappings(self, context, fixed_ips, mac):
-        for fixed_ip in fixed_ips:
-            subnet = self._get_subnet(context, fixed_ip["subnet_id"])
-            if subnet["ip_version"] == 6:
-                # TODO(ryu) handle IPv6
-                continue
-            if not subnet["enable_dhcp"]:
-                # Skip if DHCP is disabled
-                continue
-            yield subnet['cidr'], fixed_ip["ip_address"], mac
-
-    def _metadata_subnets(self, context, fixed_ips):
-        for fixed_ip in fixed_ips:
-            subnet = self._get_subnet(context, fixed_ip["subnet_id"])
-            if subnet["ip_version"] == 6:
-                continue
-            yield subnet['cidr'], fixed_ip["ip_address"]
-
-    def _initialize_port_chains(self, port, in_chain, out_chain, sg_ids):
-
-        tenant_id = port["tenant_id"]
-
-        position = 1
-        # mac spoofing protection
-        self._add_chain_rule(in_chain, action='drop',
-                             dl_src=port["mac_address"], inv_dl_src=True,
-                             position=position)
-
-        # ip spoofing protection
-        for fixed_ip in port["fixed_ips"]:
-            position += 1
-            self._add_chain_rule(in_chain, action="drop",
-                                 src_addr=fixed_ip["ip_address"] + "/32",
-                                 inv_nw_src=True, dl_type=0x0800,  # IPv4
-                                 position=position)
-
-        # conntrack
-        position += 1
-        self._add_chain_rule(in_chain, action='accept',
-                             match_forward_flow=True,
-                             position=position)
-
-        # Reset the position to process egress
-        position = 1
-
-        # Add rule for SGs
-        if sg_ids:
-            for sg_id in sg_ids:
-                chain_name = _sg_chain_names(sg_id)["ingress"]
-                chain = self.client.get_chain_by_name(tenant_id, chain_name)
-                self._add_chain_rule(out_chain, action='jump',
-                                     jump_chain_id=chain.get_id(),
-                                     jump_chain_name=chain_name,
-                                     position=position)
-                position += 1
-
-        # add reverse flow matching at the end
-        self._add_chain_rule(out_chain, action='accept',
-                             match_return_flow=True,
-                             position=position)
-        position += 1
-
-        # fall back DROP rule at the end except for ARP
-        self._add_chain_rule(out_chain, action='drop',
-                             dl_type=0x0806,  # ARP
-                             inv_dl_type=True, position=position)
-
-    def _bind_port_to_sgs(self, context, port, sg_ids):
-        self._process_port_create_security_group(context, port, sg_ids)
-        if sg_ids is not None:
-            for sg_id in sg_ids:
-                pg_name = _sg_port_group_name(sg_id)
-                self.client.add_port_to_port_group_by_name(
-                    port["tenant_id"], pg_name, port["id"])
-
-    def _unbind_port_from_sgs(self, context, port_id):
-        self._delete_port_security_group_bindings(context, port_id)
-        self.client.remove_port_from_port_groups(port_id)
-
     def _create_accept_chain_rule(self, context, sg_rule, chain=None):
         direction = sg_rule["direction"]
         tenant_id = sg_rule["tenant_id"]
@@ -418,7 +338,12 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
             net_data = network['network']
             net = super(MidonetPluginV2, self).create_network(context, network)
             self._process_l3_create(context, net, net_data)
-            return net
+
+        tenant_id = self._get_tenant_id_for_create(context, net)
+        net['tenant_id'] = tenant_id
+        self._ensure_default_security_group(context, tenant_id)
+
+        return net
 
     @handle_api_error
     def create_network(self, context, network):
@@ -456,6 +381,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
             net = super(MidonetPluginV2, self).update_network(
                 context, id, network)
 
+            self._process_l3_update(context, net, network['network'])
             self.api_cli.update_network(id, net)
 
         LOG.info(_("MidonetPluginV2.update_network exiting: net=%r"), net)
@@ -521,196 +447,85 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         return s
 
-    def create_port(self, context, port):
+    def _process_create_port(self, context, port):
         """Create a L2 port in Neutron/MidoNet."""
-        LOG.debug(_("MidonetPluginV2.create_port called: port=%r"), port)
         port_data = port['port']
+        with context.session.begin(subtransactions=True):
+            # Create a Neutron port
+            new_port = super(MidonetPluginV2, self).create_port(context, port)
 
-        # Create a bridge port in MidoNet and set the bridge port ID as the
-        # port ID in Neutron.
-        bridge = self.client.get_bridge(port_data["network_id"])
-        tenant_id = bridge.get_tenant_id()
-        asu = port_data.get("admin_state_up", True)
-        bridge_port = self.client.add_bridge_port(bridge,
-                                                  admin_state_up=asu)
-        port_data["id"] = bridge_port.get_id()
+            # Make sure that the port created is valid
+            if "id" not in new_port:
+                raise n_exc.BadRequest(resource='port',
+                                       msg="Invalid port created")
 
-        try:
-            session = context.session
-            with session.begin(subtransactions=True):
-                # Create a Neutron port
-                new_port = super(MidonetPluginV2, self).create_port(context,
-                                                                    port)
-                port_data.update(new_port)
-                self._ensure_default_security_group_on_port(context,
-                                                            port)
-                if _is_vif_port(port_data):
-                    # Bind security groups to the port
-                    sg_ids = self._get_security_groups_on_port(context, port)
-                    self._bind_port_to_sgs(context, new_port, sg_ids)
+            # Update fields
+            port_data.update(new_port)
 
-                    # Create port chains
-                    port_chains = {}
-                    for d, name in _port_chain_names(
-                            new_port["id"]).iteritems():
-                        port_chains[d] = self.client.create_chain(tenant_id,
-                                                                  name)
+            self._process_portbindings_create_and_update(context, port_data,
+                                                         new_port)
 
-                    self._initialize_port_chains(port_data,
-                                                 port_chains['inbound'],
-                                                 port_chains['outbound'],
-                                                 sg_ids)
+        # Bind security groups to the port
+        self._ensure_default_security_group_on_port(context, port)
+        sg_ids = self._get_security_groups_on_port(context, port)
+        self._process_port_create_security_group(context, new_port, sg_ids)
 
-                    # Update the port with the chain
-                    self.client.update_port_chains(
-                        bridge_port, port_chains["inbound"].get_id(),
-                        port_chains["outbound"].get_id())
-
-                    # DHCP mapping is only for VIF ports
-                    for cidr, ip, mac in self._dhcp_mappings(
-                            context, port_data["fixed_ips"],
-                            port_data["mac_address"]):
-                        self.client.add_dhcp_host(bridge, cidr, ip, mac)
-
-                elif _is_dhcp_port(port_data):
-                    # For DHCP port, add a metadata route
-                    for cidr, ip in self._metadata_subnets(
-                            context, port_data["fixed_ips"]):
-                        self.client.add_dhcp_route_option(bridge, cidr, ip,
-                                                          METADATA_DEFAULT_IP)
-
-            self._process_portbindings_create_and_update(context,
-                                                         port_data, new_port)
-        except Exception as ex:
-            # Try removing the MidoNet port before raising an exception.
-            with excutils.save_and_reraise_exception():
-                LOG.error(_("Failed to create a port on network %(net_id)s: "
-                            "%(err)s"),
-                          {"net_id": port_data["network_id"], "err": ex})
-                self.client.delete_port(bridge_port.get_id())
-
-        LOG.debug(_("MidonetPluginV2.create_port exiting: port=%r"), new_port)
         return new_port
 
-    def get_port(self, context, id, fields=None):
-        """Retrieve port."""
-        LOG.debug(_("MidonetPluginV2.get_port called: id=%(id)s "
-                    "fields=%(fields)r"), {'id': id, 'fields': fields})
-        port = super(MidonetPluginV2, self).get_port(context, id, fields)
-        "Check if the port exists in MidoNet DB"""
+    @handle_api_error
+    @utils.synchronized('port-critical-section', external=True)
+    def create_port(self, context, port):
+        """Create a L2 port in Neutron/MidoNet."""
+        LOG.info(_("MidonetPluginV2.create_port called: port=%r"), port)
+
+        new_port = self._process_create_port(context, port)
+
         try:
-            self.client.get_port(id)
-        except midonet_lib.MidonetResourceNotFound as exc:
-            LOG.error(_("There is no port with ID %(id)s in MidoNet."),
-                      {"id": id})
-            port['status'] = constants.PORT_STATUS_ERROR
-            raise exc
-        LOG.debug(_("MidonetPluginV2.get_port exiting: port=%r"), port)
-        return port
+            self.api_cli.create_port(new_port)
+        except Exception as ex:
+            LOG.error(_("Failed to create a port %(new_port)s: %(err)s"),
+                      {"new_port": new_port, "err": ex})
+            with excutils.save_and_reraise_exception():
+                super(MidonetPluginV2, self).delete_port(context,
+                                                         new_port['id'])
 
-    def get_ports(self, context, filters=None, fields=None):
-        """List neutron ports and verify that they exist in MidoNet."""
-        LOG.debug(_("MidonetPluginV2.get_ports called: filters=%(filters)s "
-                    "fields=%(fields)r"),
-                  {'filters': filters, 'fields': fields})
-        ports = super(MidonetPluginV2, self).get_ports(context, filters,
-                                                       fields)
-        return ports
+        LOG.info(_("MidonetPluginV2.create_port exiting: port=%r"), new_port)
+        return new_port
 
+    @handle_api_error
     def delete_port(self, context, id, l3_port_check=True):
         """Delete a neutron port and corresponding MidoNet bridge port."""
-        LOG.debug(_("MidonetPluginV2.delete_port called: id=%(id)s "
-                    "l3_port_check=%(l3_port_check)r"),
-                  {'id': id, 'l3_port_check': l3_port_check})
+        LOG.info(_("MidonetPluginV2.delete_port called: id=%(id)s "
+                   "l3_port_check=%(l3_port_check)r"),
+                 {'id': id, 'l3_port_check': l3_port_check})
+
         # if needed, check to see if this is a port owned by
         # and l3-router.  If so, we should prevent deletion.
         if l3_port_check:
             self.prevent_l3_port_deletion(context, id)
 
-        self.disassociate_floatingips(context, id)
-        port = self.get_port(context, id)
-        device_id = port['device_id']
-        # If this port is for router interface/gw, unlink and delete.
-        if _is_router_interface_port(port):
-            self._unlink_bridge_from_router(device_id, id)
-        elif _is_router_gw_port(port):
-            # Gateway removed
-            # Remove all the SNAT rules that are tagged.
-            router = self._get_router(context, device_id)
-            tenant_id = router["tenant_id"]
-            chain_names = _nat_chain_names(device_id)
-            for _type, name in chain_names.iteritems():
-                self.client.remove_rules_by_property(
-                    tenant_id, name, OS_TENANT_ROUTER_RULE_KEY,
-                    SNAT_RULE)
-            # Remove the default routes and unlink
-            self._remove_router_gateway(port['device_id'])
+        with context.session.begin(subtransactions=True):
+            super(MidonetPluginV2, self).disassociate_floatingips(context, id)
+            super(MidonetPluginV2, self).delete_port(context, id)
+            self.api_cli.delete_port(id)
 
-        self.client.delete_port(id, delete_chains=True)
-        try:
-            for cidr, ip, mac in self._dhcp_mappings(
-                    context, port["fixed_ips"], port["mac_address"]):
-                self.client.delete_dhcp_host(port["network_id"], cidr, ip,
-                                             mac)
-        except Exception:
-            LOG.error(_("Failed to delete DHCP mapping for port %(id)s"),
-                      {"id": id})
+        LOG.info(_("MidonetPluginV2.delete_port exiting: id=%r"), id)
 
-        super(MidonetPluginV2, self).delete_port(context, id)
-
+    @handle_api_error
     def update_port(self, context, id, port):
         """Handle port update, including security groups and fixed IPs."""
+        LOG.info(_("MidonetPluginV2.update_port called: id=%(id)s "
+                   "port=%(port)r"), {'id': id, 'port': port})
         with context.session.begin(subtransactions=True):
 
-            # Get the port and save the fixed IPs
-            old_port = self._get_port(context, id)
-            net_id = old_port["network_id"]
-            mac = old_port["mac_address"]
-            old_ips = old_port["fixed_ips"]
             # update the port DB
             p = super(MidonetPluginV2, self).update_port(context, id, port)
 
-            if "admin_state_up" in port["port"]:
-                asu = port["port"]["admin_state_up"]
-                mido_port = self.client.update_port(id, admin_state_up=asu)
-
-                # If we're changing the admin_state_up flag and the port is
-                # associated with a router, then we also need to update the
-                # peer port.
-                if _is_router_interface_port(p):
-                    self.client.update_port(mido_port.get_peer_id(),
-                                            admin_state_up=asu)
-
-            new_ips = p["fixed_ips"]
-            if new_ips:
-                bridge = self.client.get_bridge(net_id)
-                # If it's a DHCP port, add a route to reach the MD server
-                if _is_dhcp_port(p):
-                    for cidr, ip in self._metadata_subnets(
-                        context, new_ips):
-                        self.client.add_dhcp_route_option(
-                            bridge, cidr, ip, METADATA_DEFAULT_IP)
-                else:
-                # IPs have changed.  Re-map the DHCP entries
-                    for cidr, ip, mac in self._dhcp_mappings(
-                            context, old_ips, mac):
-                        self.client.remove_dhcp_host(
-                            bridge, cidr, ip, mac)
-
-                    for cidr, ip, mac in self._dhcp_mappings(
-                        context, new_ips, mac):
-                        self.client.add_dhcp_host(
-                            bridge, cidr, ip, mac)
-
-            if (self._check_update_deletes_security_groups(port) or
-                    self._check_update_has_security_groups(port)):
-                self._unbind_port_from_sgs(context, p["id"])
-                sg_ids = self._get_security_groups_on_port(context, port)
-                self._bind_port_to_sgs(context, p, sg_ids)
-
             self._process_portbindings_create_and_update(context,
-                                                         port['port'],
-                                                         p)
+                                                         port['port'], p)
+            self.api_cli.update_port(id, p)
+
+        LOG.info(_("MidonetPluginV2.update_port exiting: p=%r"), p)
         return p
 
     def create_router(self, context, router):
@@ -964,34 +779,6 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         for port in bridge_ports_to_delete:
             self.client.delete_port(port.get_id())
 
-    def _link_bridge_to_router(self, router, bridge_port, net_addr, net_len,
-                               gw_ip, metadata_gw_ip):
-        router_port = self.client.add_router_port(
-            router, network_length=net_len, network_address=net_addr,
-            port_address=gw_ip, admin_state_up=bridge_port['admin_state_up'])
-        self.client.link(router_port, bridge_port['id'])
-        self.client.add_router_route(router, type='Normal',
-                                     src_network_addr='0.0.0.0',
-                                     src_network_length=0,
-                                     dst_network_addr=net_addr,
-                                     dst_network_length=net_len,
-                                     next_hop_port=router_port.get_id(),
-                                     weight=100)
-
-        if metadata_gw_ip:
-            # Add a route for the metadata server.
-            # Not all VM images supports DHCP option 121.  Add a route for the
-            # Metadata server in the router to forward the packet to the bridge
-            # that will send them to the Metadata Proxy.
-            md_net_addr, md_net_len = net_util.net_addr(METADATA_DEFAULT_IP)
-            self.client.add_router_route(
-                router, type='Normal', src_network_addr=net_addr,
-                src_network_length=net_len,
-                dst_network_addr=md_net_addr,
-                dst_network_length=md_net_len,
-                next_hop_port=router_port.get_id(),
-                next_hop_gateway=metadata_gw_ip)
-
     def _unlink_bridge_from_router(self, router_id, bridge_port_id):
         """Unlink a bridge from a router."""
 
@@ -1000,52 +787,6 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         routes = self.client.get_router_routes(router_id)
         self.client.delete_port_routes(routes, bridge_port.get_peer_id())
         self.client.unlink(bridge_port)
-
-    def add_router_interface(self, context, router_id, interface_info):
-        """Handle router linking with network."""
-        LOG.debug(_("MidonetPluginV2.add_router_interface called: "
-                    "router_id=%(router_id)s "
-                    "interface_info=%(interface_info)r"),
-                  {'router_id': router_id, 'interface_info': interface_info})
-
-        with context.session.begin(subtransactions=True):
-            info = super(MidonetPluginV2, self).add_router_interface(
-                context, router_id, interface_info)
-
-        try:
-            subnet = self._get_subnet(context, info["subnet_id"])
-            cidr = subnet["cidr"]
-            net_addr, net_len = net_util.net_addr(cidr)
-            router = self.client.get_router(router_id)
-
-            # Get the metadata GW IP
-            metadata_gw_ip = None
-            rport_qry = context.session.query(models_v2.Port)
-            dhcp_ports = rport_qry.filter_by(
-                network_id=subnet["network_id"],
-                device_owner=constants.DEVICE_OWNER_DHCP).all()
-            if dhcp_ports and dhcp_ports[0].fixed_ips:
-                metadata_gw_ip = dhcp_ports[0].fixed_ips[0].ip_address
-            else:
-                LOG.warn(_("DHCP agent is not working correctly. No port "
-                           "to reach the Metadata server on this network"))
-            # Link the router and the bridge
-            port = super(MidonetPluginV2, self).get_port(context,
-                                                         info["port_id"])
-            self._link_bridge_to_router(router, port, net_addr,
-                                        net_len, subnet["gateway_ip"],
-                                        metadata_gw_ip)
-        except Exception:
-            LOG.error(_("Failed to create MidoNet resources to add router "
-                        "interface. info=%(info)s, router_id=%(router_id)s"),
-                      {"info": info, "router_id": router_id})
-            with excutils.save_and_reraise_exception():
-                with context.session.begin(subtransactions=True):
-                    self.remove_router_interface(context, router_id, info)
-
-        LOG.debug(_("MidonetPluginV2.add_router_interface exiting: "
-                    "info=%r"), info)
-        return info
 
     def _assoc_fip(self, fip):
         router = self.client.get_router(fip["router_id"])
