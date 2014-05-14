@@ -225,7 +225,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
     supported_extension_aliases = ['external-net', 'router', 'security-group',
                                    'agent', 'dhcp_agent_scheduler', 'binding']
-    __native_bulk_support = False
+    __native_bulk_support = True
 
     def __init__(self):
         super(MidonetPluginV2, self).__init__()
@@ -334,14 +334,14 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
     def _process_create_network(self, context, network):
 
+        net_data = network['network']
+        tenant_id = self._get_tenant_id_for_create(context, net_data)
+        net_data['tenant_id'] = tenant_id
+        self._ensure_default_security_group(context, tenant_id)
+
         with context.session.begin(subtransactions=True):
-            net_data = network['network']
             net = super(MidonetPluginV2, self).create_network(context, network)
             self._process_l3_create(context, net, net_data)
-
-        tenant_id = self._get_tenant_id_for_create(context, net)
-        net['tenant_id'] = tenant_id
-        self._ensure_default_security_group(context, tenant_id)
 
         return net
 
