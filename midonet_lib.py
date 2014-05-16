@@ -148,15 +148,6 @@ class MidoClient:
         return self._create_dto(self.mido_api.add_router(), kwargs)
 
     @handle_api_error
-    def delete_router(self, id):
-        """Delete a router
-
-        :param id: id of the router
-        """
-        LOG.debug(_("MidoClient.delete_router called: id=%(id)s"), {'id': id})
-        return self.mido_api.delete_router(id)
-
-    @handle_api_error
     def get_router(self, id):
         """Get a router with the given id
 
@@ -166,22 +157,6 @@ class MidoClient:
         LOG.debug(_("MidoClient.get_router called: id=%(id)s"), {'id': id})
         try:
             return self.mido_api.get_router(id)
-        except w_exc.HTTPNotFound:
-            raise MidonetResourceNotFound(resource_type='Router', id=id)
-
-    @handle_api_error
-    def update_router(self, id, **kwargs):
-        """Update a router of the given id with the new name
-
-        :param id: id of the router
-        :param \**kwargs: the fields to update and their values
-        :returns: router object
-        """
-        LOG.debug(_("MidoClient.update_router called: "
-                    "id=%(id)s, kwargs=%(kwargs)s"),
-                  {'id': id, 'kwargs': kwargs})
-        try:
-            return self._update_dto(self.mido_api.get_router(id), kwargs)
         except w_exc.HTTPNotFound:
             raise MidonetResourceNotFound(resource_type='Router', id=id)
 
@@ -266,21 +241,6 @@ class MidoClient:
         router.inbound_filter_id(inbound_chain.get_id()).outbound_filter_id(
             outbound_chain.get_id()).update()
         return inbound_chain, outbound_chain
-
-    @handle_api_error
-    def delete_router_chains(self, id):
-        """Deletes chains of a router.
-
-        :param id: router ID to delete chains of
-        """
-        LOG.debug(_("MidoClient.delete_router_chains called: "
-                    "id=%(id)s"), {'id': id})
-        router = self.get_router(id)
-        if (router.get_inbound_filter_id()):
-            self.mido_api.delete_chain(router.get_inbound_filter_id())
-
-        if (router.get_outbound_filter_id()):
-            self.mido_api.delete_chain(router.get_outbound_filter_id())
 
     @handle_api_error
     def get_link_port(self, router, peer_router_id):

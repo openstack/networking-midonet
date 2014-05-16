@@ -407,6 +407,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         LOG.info(_("MidonetPluginV2.update_port exiting: p=%r"), p)
         return p
 
+    @handle_api_error
     def create_router(self, context, router):
         """Handle router creation.
 
@@ -417,63 +418,50 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         :param router: Router information provided to create a new router.
         """
-
-        # NOTE(dcahill): Similar to the NSX plugin, we completely override
-        # this method in order to be able to use the MidoNet ID as Neutron ID
-        # TODO(dcahill): Propose upstream patch for allowing
-        # 3rd parties to specify IDs as we do with l2 plugin
-        LOG.debug(_("MidonetPluginV2.create_router called: router=%(router)s"),
-                  {"router": router})
-        r = router['router']
-        tenant_id = self._get_tenant_id_for_create(context, r)
-        r['tenant_id'] = tenant_id
-        mido_router = self.client.create_router(**r)
-        mido_router_id = mido_router.get_id()
-
+        LOG.info(_("MidonetPluginV2.create_router called: router=%(router)s"),
+                 {"router": router})
+        r = super(MidonetPluginV2, self).create_router(context, router)
         try:
-            has_gw_info = False
-            if EXTERNAL_GW_INFO in r:
-                has_gw_info = True
-                gw_info = r.pop(EXTERNAL_GW_INFO)
-            with context.session.begin(subtransactions=True):
-                # pre-generate id so it will be available when
-                # configuring external gw port
-                router_db = l3_db.Router(id=mido_router_id,
-                                         tenant_id=tenant_id,
-                                         name=r['name'],
-                                         admin_state_up=r['admin_state_up'],
-                                         status="ACTIVE")
-                context.session.add(router_db)
-                if has_gw_info:
-                    self._update_router_gw_info(context, router_db['id'],
-                                                gw_info)
-
-            router_data = self._make_router_dict(router_db,
-                                                 process_extensions=False)
-
-        except Exception:
-            # Try removing the midonet router
+            self.api_cli.create_router(r)
+        except Exception as ex:
+            LOG.error(_("Failed to create a router %(r_id)s in Midonet:"
+                        "%(err)s"), {"r_id": r["id"], "err": ex})
             with excutils.save_and_reraise_exception():
-                self.client.delete_router(mido_router_id)
+                super(MidonetPluginV2, self).delete_router(context, r['id'])
 
-        # Create router chains
-        chain_names = _nat_chain_names(mido_router_id)
-        try:
-            self.client.add_router_chains(mido_router,
-                                          chain_names["pre-routing"],
-                                          chain_names["post-routing"])
-        except Exception:
-            # Set the router status to Error
-            with context.session.begin(subtransactions=True):
-                r = self._get_router(context, router_data["id"])
-                router_data['status'] = constants.NET_STATUS_ERROR
-                r['status'] = router_data['status']
-                context.session.add(r)
+        LOG.info(_("MidonetPluginV2.create_router exiting: "
+                   "router=%(router)s."), {"router": r})
+        return r
 
-        LOG.debug(_("MidonetPluginV2.create_router exiting: "
-                    "router_data=%(router_data)s."),
-                  {"router_data": router_data})
-        return router_data
+    @handle_api_error
+    def update_router(self, context, id, router):
+        """Handle router updates."""
+        LOG.info(_("MidonetPluginV2.update_router called: id=%(id)s "
+                   "router=%(router)r"), {"id": id, "router": router})
+
+        with context.session.begin(subtransactions=True):
+            r = super(MidonetPluginV2, self).update_router(context, id, router)
+            self.api_cli.update_router(id, r)
+
+        LOG.info(_("MidonetPluginV2.update_router exiting: router=%r"), r)
+        return r
+
+    @handle_api_error
+    def delete_router(self, context, id):
+        """Handler for router deletion.
+
+        Deleting a router on Neutron simply means deleting its corresponding
+        router in MidoNet.
+
+        :param id: router ID to remove
+        """
+        LOG.info(_("MidonetPluginV2.delete_router called: id=%s"), id)
+
+        with context.session.begin(subtransactions=True):
+            super(MidonetPluginV2, self).delete_router(context, id)
+            self.api_cli.delete_router(id)
+
+        LOG.info(_("MidonetPluginV2.delete_router exiting: id=%s"), id)
 
     def _set_router_gateway(self, id, gw_router, gw_ip):
         """Set router uplink gateway
@@ -543,66 +531,6 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
             if (r.get_dst_network_addr() == '0.0.0.0' and
                     r.get_dst_network_length() == 0):
                 self.client.delete_route(r.get_id())
-
-    def update_router(self, context, id, router):
-        """Handle router updates."""
-        LOG.debug(_("MidonetPluginV2.update_router called: id=%(id)s "
-                    "router=%(router)r"), {"id": id, "router": router})
-
-        router_data = router["router"]
-
-        # Check if the update included changes to the gateway.
-        gw_updated = l3_db.EXTERNAL_GW_INFO in router_data
-        with context.session.begin(subtransactions=True):
-
-            # Update the Neutron DB
-            r = super(MidonetPluginV2, self).update_router(context, id,
-                                                           router)
-            tenant_id = r["tenant_id"]
-            if gw_updated:
-                if (l3_db.EXTERNAL_GW_INFO in r and
-                        r[l3_db.EXTERNAL_GW_INFO] is not None):
-                    # Gateway created
-                    gw_port_neutron = self._get_port(
-                        context.elevated(), r["gw_port_id"])
-                    gw_ip = gw_port_neutron['fixed_ips'][0]['ip_address']
-
-                    # First link routers and set up the routes
-                    self._set_router_gateway(r["id"],
-                                             self._get_provider_router(),
-                                             gw_ip)
-                    gw_port_midonet = self.client.get_link_port(
-                        self._get_provider_router(), r["id"])
-
-                    # Get the NAT chains and add dynamic SNAT rules.
-                    chain_names = _nat_chain_names(r["id"])
-                    props = {OS_TENANT_ROUTER_RULE_KEY: SNAT_RULE}
-                    self.client.add_dynamic_snat(tenant_id,
-                                                 chain_names['pre-routing'],
-                                                 chain_names['post-routing'],
-                                                 gw_ip,
-                                                 gw_port_midonet.get_id(),
-                                                 **props)
-
-            self.client.update_router(id, **router_data)
-
-        LOG.debug(_("MidonetPluginV2.update_router exiting: router=%r"), r)
-        return r
-
-    def delete_router(self, context, id):
-        """Handler for router deletion.
-
-        Deleting a router on Neutron simply means deleting its corresponding
-        router in MidoNet.
-
-        :param id: router ID to remove
-        """
-        LOG.debug(_("MidonetPluginV2.delete_router called: id=%s"), id)
-
-        self.client.delete_router_chains(id)
-        self.client.delete_router(id)
-
-        super(MidonetPluginV2, self).delete_router(context, id)
 
     def _link_bridge_to_gw_router(self, bridge, gw_router, gw_ip, cidr):
         """Link a bridge to the gateway router
