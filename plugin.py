@@ -42,7 +42,6 @@ from neutron.db import db_base_plugin_v2
 from neutron.db import dhcp_rpc_base
 from neutron.db import external_net_db
 from neutron.db import l3_db
-from neutron.db import models_v2
 from neutron.db import portbindings_db
 from neutron.db import securitygroups_db
 from neutron.extensions import l3
@@ -59,17 +58,10 @@ LOG = logging.getLogger(__name__)
 
 EXTERNAL_GW_INFO = l3.EXTERNAL_GW_INFO
 
-METADATA_DEFAULT_IP = "169.254.169.254/32"
 OS_FLOATING_IP_RULE_KEY = 'OS_FLOATING_IP'
-OS_SG_RULE_KEY = 'OS_SG_RULE_ID'
 OS_TENANT_ROUTER_RULE_KEY = 'OS_TENANT_ROUTER_RULE'
 PRE_ROUTING_CHAIN_NAME = "OS_PRE_ROUTING_%s"
-PORT_INBOUND_CHAIN_NAME = "OS_PORT_%s_INBOUND"
-PORT_OUTBOUND_CHAIN_NAME = "OS_PORT_%s_OUTBOUND"
 POST_ROUTING_CHAIN_NAME = "OS_POST_ROUTING_%s"
-SG_INGRESS_CHAIN_NAME = "OS_SG_%s_INGRESS"
-SG_EGRESS_CHAIN_NAME = "OS_SG_%s_EGRESS"
-SG_PORT_GROUP_NAME = "OS_PG_%s"
 SNAT_RULE = 'SNAT'
 PROVIDER_ROUTER_ID = '11111111-2222-3333-4444-555555555555'
 PROVIDER_ROUTER_NAME = 'MidoNet Provider Router'
@@ -110,87 +102,6 @@ def _nat_chain_names(router_id):
     pre_routing_name = PRE_ROUTING_CHAIN_NAME % router_id
     post_routing_name = POST_ROUTING_CHAIN_NAME % router_id
     return {'pre-routing': pre_routing_name, 'post-routing': post_routing_name}
-
-
-def _sg_chain_names(sg_id):
-    """Get the chain names for security group.
-
-    These names are used to associate a security group to MidoNet chains.
-    There are two names for ingress and egress security group directions.
-    """
-    ingress = SG_INGRESS_CHAIN_NAME % sg_id
-    egress = SG_EGRESS_CHAIN_NAME % sg_id
-    return {'ingress': ingress, 'egress': egress}
-
-
-def _port_chain_names(port_id):
-    """Get the chain names for a port.
-
-    These are chains to hold security group chains.
-    """
-    inbound = PORT_INBOUND_CHAIN_NAME % port_id
-    outbound = PORT_OUTBOUND_CHAIN_NAME % port_id
-    return {'inbound': inbound, 'outbound': outbound}
-
-
-def _sg_port_group_name(sg_id):
-    """Get the port group name for security group..
-
-    This name is used to associate a security group to MidoNet  port groups.
-    """
-    return SG_PORT_GROUP_NAME % sg_id
-
-
-def _rule_direction(sg_direction):
-    """Convert the SG direction to MidoNet direction
-
-    MidoNet terms them 'inbound' and 'outbound' instead of 'ingress' and
-    'egress'.  Also, the direction is reversed since MidoNet sees it
-    from the network port's point of view, not the VM's.
-    """
-    if sg_direction == 'ingress':
-        return 'outbound'
-    elif sg_direction == 'egress':
-        return 'inbound'
-    else:
-        raise ValueError(_("Unrecognized direction %s") % sg_direction)
-
-
-def _is_router_interface_port(port):
-    """Check whether the given port is a router interface port."""
-    device_owner = port['device_owner']
-    return (device_owner in l3_db.DEVICE_OWNER_ROUTER_INTF)
-
-
-def _is_router_gw_port(port):
-    """Check whether the given port is a router gateway port."""
-    device_owner = port['device_owner']
-    return (device_owner in l3_db.DEVICE_OWNER_ROUTER_GW)
-
-
-def _is_vif_port(port):
-    """Check whether the given port is a standard VIF port."""
-    device_owner = port['device_owner']
-    return (not _is_dhcp_port(port) and
-            device_owner not in (l3_db.DEVICE_OWNER_ROUTER_GW,
-                                 l3_db.DEVICE_OWNER_ROUTER_INTF))
-
-
-def _is_dhcp_port(port):
-    """Check whether the given port is a DHCP port."""
-    device_owner = port['device_owner']
-    return device_owner.startswith(constants.DEVICE_OWNER_DHCP)
-
-
-def _check_resource_exists(func, id, name, raise_exc=False):
-    """Check whether the given resource exists in MidoNet data store."""
-    try:
-        func(id)
-    except midonet_lib.MidonetResourceNotFound as ex:
-        LOG.error(_("There is no %(name)s with ID %(id)s in MidoNet."),
-                  {"name": name, "id": id})
-        if raise_exc:
-            raise MidonetPluginException(msg=ex)
 
 
 class MidonetApiException(n_exc.NeutronException):
@@ -265,50 +176,6 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                     id=PROVIDER_ROUTER_ID, name=PROVIDER_ROUTER_NAME,
                     tenant_id=self.admin_project_id)
         return self.provider_router
-
-    def _create_accept_chain_rule(self, context, sg_rule, chain=None):
-        direction = sg_rule["direction"]
-        tenant_id = sg_rule["tenant_id"]
-        sg_id = sg_rule["security_group_id"]
-        chain_name = _sg_chain_names(sg_id)[direction]
-
-        if chain is None:
-            chain = self.client.get_chain_by_name(tenant_id, chain_name)
-
-        pg_id = None
-        if sg_rule["remote_group_id"] is not None:
-            pg_name = _sg_port_group_name(sg_id)
-            pg = self.client.get_port_group_by_name(tenant_id, pg_name)
-            pg_id = pg.get_id()
-
-        props = {OS_SG_RULE_KEY: str(sg_rule["id"])}
-
-        # Determine source or destination address by looking at direction
-        src_pg_id = dst_pg_id = None
-        src_addr = dst_addr = None
-        src_port_to = dst_port_to = None
-        src_port_from = dst_port_from = None
-        if direction == "egress":
-            dst_pg_id = pg_id
-            dst_addr = sg_rule["remote_ip_prefix"]
-            dst_port_from = sg_rule["port_range_min"]
-            dst_port_to = sg_rule["port_range_max"]
-        else:
-            src_pg_id = pg_id
-            src_addr = sg_rule["remote_ip_prefix"]
-            src_port_from = sg_rule["port_range_min"]
-            src_port_to = sg_rule["port_range_max"]
-
-        return self._add_chain_rule(
-            chain, action='accept', port_group_src=src_pg_id,
-            port_group_dst=dst_pg_id,
-            src_addr=src_addr, src_port_from=src_port_from,
-            src_port_to=src_port_to,
-            dst_addr=dst_addr, dst_port_from=dst_port_from,
-            dst_port_to=dst_port_to,
-            nw_proto=net_util.get_protocol_value(sg_rule["protocol"]),
-            dl_type=net_util.get_ethertype_value(sg_rule["ethertype"]),
-            properties=props)
 
     def _remove_nat_rules(self, context, fip):
         router = self.client.get_router(fip["router_id"])
@@ -462,13 +329,13 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
             # Update fields
             port_data.update(new_port)
 
+            # Bind security groups to the port
+            self._ensure_default_security_group_on_port(context, port)
+            sg_ids = self._get_security_groups_on_port(context, port)
+            self._process_port_create_security_group(context, new_port, sg_ids)
+
             self._process_portbindings_create_and_update(context, port_data,
                                                          new_port)
-
-        # Bind security groups to the port
-        self._ensure_default_security_group_on_port(context, port)
-        sg_ids = self._get_security_groups_on_port(context, port)
-        self._process_port_create_security_group(context, new_port, sg_ids)
 
         return new_port
 
@@ -511,6 +378,17 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         LOG.info(_("MidonetPluginV2.delete_port exiting: id=%r"), id)
 
+    def _process_port_update(self, context, id, in_port, out_port):
+
+        has_sg = self._check_update_has_security_groups(in_port)
+        delete_sg = self._check_update_deletes_security_groups(in_port)
+
+        if delete_sg or has_sg:
+            # delete the port binding and read it with the new rules.
+            self._delete_port_security_group_bindings(context, id)
+            sg_ids = self._get_security_groups_on_port(context, in_port)
+            self._process_port_create_security_group(context, out_port, sg_ids)
+
     @handle_api_error
     def update_port(self, context, id, port):
         """Handle port update, including security groups and fixed IPs."""
@@ -521,6 +399,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
             # update the port DB
             p = super(MidonetPluginV2, self).update_port(context, id, port)
 
+            self._process_port_update(context, id, port, p)
             self._process_portbindings_create_and_update(context,
                                                          port['port'], p)
             self.api_cli.update_port(id, p)
@@ -857,6 +736,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         super(MidonetPluginV2, self).disassociate_floatingips(context, port_id)
 
+    @handle_api_error
     def create_security_group(self, context, security_group, default_sg=False):
         """Create security group.
 
@@ -864,10 +744,10 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         In MidoNet, this means creating a pair of chains, inbound and outbound,
         as well as a new port group.
         """
-        LOG.debug(_("MidonetPluginV2.create_security_group called: "
-                    "security_group=%(security_group)s "
-                    "default_sg=%(default_sg)s "),
-                  {'security_group': security_group, 'default_sg': default_sg})
+        LOG.info(_("MidonetPluginV2.create_security_group called: "
+                   "security_group=%(security_group)s "
+                   "default_sg=%(default_sg)s "),
+                 {'security_group': security_group, 'default_sg': default_sg})
 
         sg = security_group.get('security_group')
         tenant_id = self._get_tenant_id_for_create(context, sg)
@@ -880,128 +760,104 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         try:
             # Process the MidoNet side
-            self.client.create_port_group(tenant_id,
-                                          _sg_port_group_name(sg["id"]))
-            chain_names = _sg_chain_names(sg["id"])
-            chains = {}
-            for direction, chain_name in chain_names.iteritems():
-                c = self.client.create_chain(tenant_id, chain_name)
-                chains[direction] = c
-
-            # Create all the rules for this SG.  Only accept rules are created
-            for r in sg['security_group_rules']:
-                self._create_accept_chain_rule(context, r,
-                                               chain=chains[r['direction']])
+            self.api_cli.create_security_group(sg)
         except Exception:
             LOG.error(_("Failed to create MidoNet resources for sg %(sg)r"),
                       {"sg": sg})
             with excutils.save_and_reraise_exception():
-                with context.session.begin(subtransactions=True):
-                    sg = self._get_security_group(context, sg["id"])
-                    context.session.delete(sg)
+                super(MidonetPluginV2, self).delete_security_group(context,
+                                                                   sg['id'])
 
-        LOG.debug(_("MidonetPluginV2.create_security_group exiting: sg=%r"),
-                  sg)
+        LOG.info(_("MidonetPluginV2.create_security_group exiting: sg=%r"), sg)
         return sg
 
+    @handle_api_error
     def delete_security_group(self, context, id):
         """Delete chains for Neutron security group."""
-        LOG.debug(_("MidonetPluginV2.delete_security_group called: id=%s"), id)
+        LOG.info(_("MidonetPluginV2.delete_security_group called: id=%s"), id)
+
+        sg = super(MidonetPluginV2, self).get_security_group(context, id)
+        if not sg:
+            raise ext_sg.SecurityGroupNotFound(id=id)
+
+        if sg["name"] == 'default' and not context.is_admin:
+            raise ext_sg.SecurityGroupCannotRemoveDefault()
 
         with context.session.begin(subtransactions=True):
-            sg = super(MidonetPluginV2, self).get_security_group(context, id)
-            if not sg:
-                raise ext_sg.SecurityGroupNotFound(id=id)
-
-            if sg["name"] == 'default' and not context.is_admin:
-                raise ext_sg.SecurityGroupCannotRemoveDefault()
-
-            sg_id = sg['id']
-            filters = {'security_group_id': [sg_id]}
-            if super(MidonetPluginV2, self)._get_port_security_group_bindings(
-                    context, filters):
-                raise ext_sg.SecurityGroupInUse(id=sg_id)
-
-            # Delete MidoNet Chains and portgroup for the SG
-            tenant_id = sg['tenant_id']
-            self.client.delete_chains_by_names(
-                tenant_id, _sg_chain_names(sg["id"]).values())
-
-            self.client.delete_port_group_by_name(
-                tenant_id, _sg_port_group_name(sg["id"]))
-
             super(MidonetPluginV2, self).delete_security_group(context, id)
+            self.api_cli.delete_security_group(id)
 
+        LOG.info(_("MidonetPluginV2.delete_security_group exiting: id=%r"), id)
+
+    @handle_api_error
     def create_security_group_rule(self, context, security_group_rule):
         """Create a security group rule
 
         Create a security group rule in the Neutron DB and corresponding
         MidoNet resources in its data store.
         """
-        LOG.debug(_("MidonetPluginV2.create_security_group_rule called: "
-                    "security_group_rule=%(security_group_rule)r"),
-                  {'security_group_rule': security_group_rule})
+        LOG.info(_("MidonetPluginV2.create_security_group_rule called: "
+                   "security_group_rule=%(security_group_rule)r"),
+                 {'security_group_rule': security_group_rule})
 
-        with context.session.begin(subtransactions=True):
-            rule = super(MidonetPluginV2, self).create_security_group_rule(
-                context, security_group_rule)
+        rule = super(MidonetPluginV2, self).create_security_group_rule(
+            context, security_group_rule)
 
-            self._create_accept_chain_rule(context, rule)
+        try:
+            self.api_cli.create_security_group_rule(rule)
+        except Exception as ex:
+            LOG.error(_('Failed to create security group rule %(sg)s,'
+                      'error: %(err)s'), {'sg': rule, 'err': ex})
+            with excutils.save_and_reraise_exception():
+                super(MidonetPluginV2, self).delete_security_group_rule(
+                    context, rule['id'])
 
-            LOG.debug(_("MidonetPluginV2.create_security_group_rule exiting: "
-                        "rule=%r"), rule)
-            return rule
+        LOG.info(_("MidonetPluginV2.create_security_group_rule exiting: "
+                   "rule=%r"), rule)
+        return rule
 
+    @handle_api_error
+    def create_security_group_rule_bulk(self, context, security_group_rules):
+        """Create multiple security group rules
+
+        Create multiple security group rules in the Neutron DB and
+        corresponding MidoNet resources in its data store.
+        """
+        LOG.info(_("MidonetPluginV2.create_security_group_rule_bulk called: "
+                   "security_group_rules=%(security_group_rules)r"),
+                 {'security_group_rules': security_group_rules})
+
+        rules = super(
+            MidonetPluginV2, self).create_security_group_rule_bulk_native(
+                context, security_group_rules)
+        try:
+            self.api_cli.create_security_group_rule_bulk(rules)
+        except Exception as ex:
+            LOG.error(_("Failed to create bulk security group rules %(sg)s, "
+                        "error: %(err)s"), {"sg": rules, "err": ex})
+            with excutils.save_and_reraise_exception():
+                for rule in rules:
+                    super(MidonetPluginV2, self).delete_security_group_rule(
+                        context, rule['id'])
+
+        LOG.info(_("MidonetPluginV2.create_security_group_rule_bulk exiting: "
+                   "rules=%r"), rules)
+        return rules
+
+    @handle_api_error
     def delete_security_group_rule(self, context, sg_rule_id):
         """Delete a security group rule
 
         Delete a security group rule from the Neutron DB and corresponding
         MidoNet resources from its data store.
         """
-        LOG.debug(_("MidonetPluginV2.delete_security_group_rule called: "
-                    "sg_rule_id=%s"), sg_rule_id)
+        LOG.info(_("MidonetPluginV2.delete_security_group_rule called: "
+                   "sg_rule_id=%s"), sg_rule_id)
+
         with context.session.begin(subtransactions=True):
-            rule = super(MidonetPluginV2, self).get_security_group_rule(
-                context, sg_rule_id)
+            super(MidonetPluginV2, self).delete_security_group_rule(context,
+                                                                    sg_rule_id)
+            self.api_cli.delete_security_group_rule(sg_rule_id)
 
-            if not rule:
-                raise ext_sg.SecurityGroupRuleNotFound(id=sg_rule_id)
-
-            sg = self._get_security_group(context,
-                                          rule["security_group_id"])
-            chain_name = _sg_chain_names(sg["id"])[rule["direction"]]
-            self.client.remove_rules_by_property(rule["tenant_id"], chain_name,
-                                                 OS_SG_RULE_KEY,
-                                                 str(rule["id"]))
-            super(MidonetPluginV2, self).delete_security_group_rule(
-                context, sg_rule_id)
-
-    def _add_chain_rule(self, chain, action, **kwargs):
-
-        nw_proto = kwargs.get("nw_proto")
-        src_addr = kwargs.pop("src_addr", None)
-        dst_addr = kwargs.pop("dst_addr", None)
-        src_port_from = kwargs.pop("src_port_from", None)
-        src_port_to = kwargs.pop("src_port_to", None)
-        dst_port_from = kwargs.pop("dst_port_from", None)
-        dst_port_to = kwargs.pop("dst_port_to", None)
-
-        # Convert to the keys and values that midonet client understands
-        if src_addr:
-            kwargs["nw_src_addr"], kwargs["nw_src_length"] = net_util.net_addr(
-                src_addr)
-
-        if dst_addr:
-            kwargs["nw_dst_addr"], kwargs["nw_dst_length"] = net_util.net_addr(
-                dst_addr)
-
-        kwargs["tp_src"] = {"start": src_port_from, "end": src_port_to}
-
-        kwargs["tp_dst"] = {"start": dst_port_from, "end": dst_port_to}
-
-        if nw_proto == 1:  # ICMP
-            # Overwrite port fields regardless of the direction
-            kwargs["tp_src"] = {"start": src_port_from, "end": src_port_from}
-            kwargs["tp_dst"] = {"start": dst_port_to, "end": dst_port_to}
-
-        return self.client.add_chain_rule(chain, action=action, **kwargs)
+        LOG.info(_("MidonetPluginV2.delete_security_group_rule exiting: "
+                   "id=%r"), id)

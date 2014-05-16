@@ -407,17 +407,6 @@ class MidoClient:
         self.mido_api.delete_chain(id)
 
     @handle_api_error
-    def delete_chains_by_names(self, tenant_id, names):
-        """Delete chains matching the names given for a tenant."""
-        LOG.debug(_("MidoClient.delete_chains_by_names called: "
-                    "tenant_id=%(tenant_id)s names=%(names)s "),
-                  {"tenant_id": tenant_id, "names": names})
-        chains = self.mido_api.get_chains({'tenant_id': tenant_id})
-        for c in chains:
-            if c.get_name() in names:
-                self.mido_api.delete_chain(c.get_id())
-
-    @handle_api_error
     def get_chain_by_name(self, tenant_id, name):
         """Get the chain by its name."""
         LOG.debug(_("MidoClient.get_chain_by_name called: "
@@ -427,64 +416,6 @@ class MidoClient:
             if c.get_name() == name:
                 return c
         return None
-
-    @handle_api_error
-    def get_port_group_by_name(self, tenant_id, name):
-        """Get the port group by name."""
-        LOG.debug(_("MidoClient.get_port_group_by_name called: "
-                    "tenant_id=%(tenant_id)s name=%(name)s "),
-                  {"tenant_id": tenant_id, "name": name})
-        for p in self.mido_api.get_port_groups({'tenant_id': tenant_id}):
-            if p.get_name() == name:
-                return p
-        return None
-
-    @handle_api_error
-    def create_port_group(self, tenant_id, name):
-        """Create a port group
-
-        Create a new port group for a given name and ID.
-        """
-        LOG.debug(_("MidoClient.create_port_group called: "
-                    "tenant_id=%(tenant_id)s name=%(name)s"),
-                  {"tenant_id": tenant_id, "name": name})
-        return self.mido_api.add_port_group().tenant_id(tenant_id).name(
-            name).create()
-
-    @handle_api_error
-    def delete_port_group_by_name(self, tenant_id, name):
-        """Delete port group matching the name given for a tenant."""
-        LOG.debug(_("MidoClient.delete_port_group_by_name called: "
-                    "tenant_id=%(tenant_id)s name=%(name)s "),
-                  {"tenant_id": tenant_id, "name": name})
-        pgs = self.mido_api.get_port_groups({'tenant_id': tenant_id})
-        for pg in pgs:
-            if pg.get_name() == name:
-                LOG.debug(_("Deleting pg %(id)s"), {"id": pg.get_id()})
-                self.mido_api.delete_port_group(pg.get_id())
-
-    @handle_api_error
-    def add_port_to_port_group_by_name(self, tenant_id, name, port_id):
-        """Add a port to a port group with the given name."""
-        LOG.debug(_("MidoClient.add_port_to_port_group_by_name called: "
-                    "tenant_id=%(tenant_id)s name=%(name)s "
-                    "port_id=%(port_id)s"),
-                  {"tenant_id": tenant_id, "name": name, "port_id": port_id})
-        pg = self.get_port_group_by_name(tenant_id, name)
-        if pg is None:
-            raise MidonetResourceNotFound(resource_type='PortGroup', id=name)
-
-        pg = pg.add_port_group_port().port_id(port_id).create()
-        return pg
-
-    @handle_api_error
-    def remove_port_from_port_groups(self, port_id):
-        """Remove a port binding from all the port groups."""
-        LOG.debug(_("MidoClient.remove_port_from_port_groups called: "
-                    "port_id=%(port_id)s"), {"port_id": port_id})
-        port = self.get_port(port_id)
-        for pg in port.get_port_groups():
-            pg.delete()
 
     @handle_api_error
     def add_chain_rule(self, chain, action='accept', **kwargs):
