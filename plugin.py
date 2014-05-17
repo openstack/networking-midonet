@@ -463,6 +463,47 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         LOG.info(_("MidonetPluginV2.delete_router exiting: id=%s"), id)
 
+    @handle_api_error
+    def add_router_interface(self, context, router_id, interface_info):
+        """Handle router linking with network."""
+        LOG.info(_("MidonetPluginV2.add_router_interface called: "
+                   "router_id=%(router_id)s "
+                   "interface_info=%(interface_info)r"),
+                 {'router_id': router_id, 'interface_info': interface_info})
+
+        info = super(MidonetPluginV2, self).add_router_interface(
+            context, router_id, interface_info)
+
+        try:
+            self.api_cli.add_router_interface(router_id, info)
+        except Exception:
+            LOG.error(_("Failed to create MidoNet resources to add router "
+                        "interface. info=%(info)s, router_id=%(router_id)s"),
+                      {"info": info, "router_id": router_id})
+            with excutils.save_and_reraise_exception():
+                self.remove_router_interface(context, router_id, info)
+
+        LOG.info(_("MidonetPluginV2.add_router_interface exiting: info=%r"),
+                 info)
+        return info
+
+    @handle_api_error
+    def remove_router_interface(self, context, router_id, interface_info):
+        """Handle router un-linking with network."""
+        LOG.info(_("MidonetPluginV2.remove_router_interface called: "
+                   "router_id=%(router_id)s "
+                   "interface_info=%(interface_info)r"),
+                 {'router_id': router_id, 'interface_info': interface_info})
+
+        with context.session.begin(subtransactions=True):
+            info = super(MidonetPluginV2, self).remove_router_interface(
+                context, router_id, interface_info)
+            self.api_cli.remove_router_interface(router_id, interface_info)
+
+        LOG.info(_("MidonetPluginV2.remove_router_interface exiting: "
+                   "info=%r"), info)
+        return info
+
     def _set_router_gateway(self, id, gw_router, gw_ip):
         """Set router uplink gateway
 
