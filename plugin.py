@@ -31,7 +31,6 @@ from midonetclient.neutron import client as n_client
 from oslo.config import cfg
 from sqlalchemy.orm import exc as sa_exc
 
-from neutron.common import constants
 from neutron.common import exceptions as n_exc
 from neutron.common import rpc as n_rpc
 from neutron.common import topics
@@ -42,27 +41,22 @@ from neutron.db import db_base_plugin_v2
 from neutron.db import dhcp_rpc_base
 from neutron.db import external_net_db
 from neutron.db import l3_db
+from neutron.db import l3_gwmode_db
 from neutron.db import portbindings_db
 from neutron.db import securitygroups_db
-from neutron.extensions import l3
 from neutron.extensions import portbindings
 from neutron.extensions import securitygroup as ext_sg
 from neutron.openstack.common import excutils
 from neutron.openstack.common import log as logging
 from neutron.openstack.common import rpc
 from neutron.plugins.midonet.common import config  # noqa
-from neutron.plugins.midonet.common import net_util
 from neutron.plugins.midonet import midonet_lib
 
 LOG = logging.getLogger(__name__)
 
-EXTERNAL_GW_INFO = l3.EXTERNAL_GW_INFO
-
 OS_FLOATING_IP_RULE_KEY = 'OS_FLOATING_IP'
-OS_TENANT_ROUTER_RULE_KEY = 'OS_TENANT_ROUTER_RULE'
 PRE_ROUTING_CHAIN_NAME = "OS_PRE_ROUTING_%s"
 POST_ROUTING_CHAIN_NAME = "OS_POST_ROUTING_%s"
-SNAT_RULE = 'SNAT'
 PROVIDER_ROUTER_ID = '11111111-2222-3333-4444-555555555555'
 PROVIDER_ROUTER_NAME = 'MidoNet Provider Router'
 
@@ -130,12 +124,16 @@ class MidonetPluginException(n_exc.NeutronException):
 class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                       portbindings_db.PortBindingMixin,
                       external_net_db.External_net_db_mixin,
-                      l3_db.L3_NAT_db_mixin,
+                      l3_gwmode_db.L3_NAT_db_mixin,
                       agentschedulers_db.DhcpAgentSchedulerDbMixin,
                       securitygroups_db.SecurityGroupDbMixin):
 
-    supported_extension_aliases = ['external-net', 'router', 'security-group',
-                                   'agent', 'dhcp_agent_scheduler', 'binding']
+    supported_extension_aliases = ['agent',
+                                   'binding',
+                                   'dhcp_agent_scheduler',
+                                   'external-net',
+                                   'router',
+                                   'security-group']
     __native_bulk_support = True
 
     def __init__(self):
@@ -503,138 +501,6 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         LOG.info(_("MidonetPluginV2.remove_router_interface exiting: "
                    "info=%r"), info)
         return info
-
-    def _set_router_gateway(self, id, gw_router, gw_ip):
-        """Set router uplink gateway
-
-        :param ID: ID of the router
-        :param gw_router: gateway router to link to
-        :param gw_ip: gateway IP address
-        """
-        LOG.debug(_("MidonetPluginV2.set_router_gateway called: id=%(id)s, "
-                    "gw_router=%(gw_router)s, gw_ip=%(gw_ip)s"),
-                  {'id': id, 'gw_router': gw_router, 'gw_ip': gw_ip}),
-
-        router = self.client.get_router(id)
-
-        # Create a port in the gw router
-        gw_port = self.client.add_router_port(gw_router,
-                                              port_address='169.254.255.1',
-                                              network_address='169.254.255.0',
-                                              network_length=30)
-
-        # Create a port in the router
-        port = self.client.add_router_port(router,
-                                           port_address='169.254.255.2',
-                                           network_address='169.254.255.0',
-                                           network_length=30)
-
-        # Link them
-        self.client.link(gw_port, port.get_id())
-
-        # Add a route for gw_ip to bring it down to the router
-        self.client.add_router_route(gw_router, type='Normal',
-                                     src_network_addr='0.0.0.0',
-                                     src_network_length=0,
-                                     dst_network_addr=gw_ip,
-                                     dst_network_length=32,
-                                     next_hop_port=gw_port.get_id(),
-                                     weight=100)
-
-        # Add default route to uplink in the router
-        self.client.add_router_route(router, type='Normal',
-                                     src_network_addr='0.0.0.0',
-                                     src_network_length=0,
-                                     dst_network_addr='0.0.0.0',
-                                     dst_network_length=0,
-                                     next_hop_port=port.get_id(),
-                                     weight=100)
-
-    def _remove_router_gateway(self, id):
-        """Clear router gateway
-
-        :param ID: ID of the router
-        """
-        LOG.debug(_("MidonetPluginV2.remove_router_gateway called: "
-                    "id=%(id)s"), {'id': id})
-        router = self.client.get_router(id)
-
-        # delete the port that is connected to the gateway router
-        for p in router.get_ports():
-            if p.get_port_address() == '169.254.255.2':
-                peer_port_id = p.get_peer_id()
-                if peer_port_id is not None:
-                    self.client.unlink(p)
-                    self.client.delete_port(peer_port_id)
-
-        # delete default route
-        for r in router.get_routes():
-            if (r.get_dst_network_addr() == '0.0.0.0' and
-                    r.get_dst_network_length() == 0):
-                self.client.delete_route(r.get_id())
-
-    def _link_bridge_to_gw_router(self, bridge, gw_router, gw_ip, cidr):
-        """Link a bridge to the gateway router
-
-        :param bridge:  bridge
-        :param gw_router: gateway router to link to
-        :param gw_ip: IP address of gateway
-        :param cidr: network CIDR
-        """
-        net_addr, net_len = net_util.net_addr(cidr)
-
-        # create a port on the gateway router
-        gw_port = self.client.add_router_port(gw_router, port_address=gw_ip,
-                                              network_address=net_addr,
-                                              network_length=net_len)
-
-        # create a bridge port, then link it to the router.
-        port = self.client.add_bridge_port(bridge)
-        self.client.link(gw_port, port.get_id())
-
-        # add a route for the subnet in the gateway router
-        self.client.add_router_route(gw_router, type='Normal',
-                                     src_network_addr='0.0.0.0',
-                                     src_network_length=0,
-                                     dst_network_addr=net_addr,
-                                     dst_network_length=net_len,
-                                     next_hop_port=gw_port.get_id(),
-                                     weight=100)
-
-    def _unlink_bridge_from_gw_router(self, bridge, gw_router):
-        """Unlink a bridge from the gateway router
-
-        :param bridge: bridge to unlink
-        :param gw_router: gateway router to unlink from
-        """
-        # Delete routes and unlink the router and the bridge.
-        routes = self.client.get_router_routes(gw_router.get_id())
-
-        bridge_ports_to_delete = [
-            p for p in gw_router.get_peer_ports()
-            if p.get_device_id() == bridge.get_id()]
-
-        for p in bridge.get_peer_ports():
-            if p.get_device_id() == gw_router.get_id():
-                # delete the routes going to the bridge
-                for r in routes:
-                    if r.get_next_hop_port() == p.get_id():
-                        self.client.delete_route(r.get_id())
-                self.client.unlink(p)
-                self.client.delete_port(p.get_id())
-
-        # delete bridge port
-        for port in bridge_ports_to_delete:
-            self.client.delete_port(port.get_id())
-
-    def _unlink_bridge_from_router(self, router_id, bridge_port_id):
-        """Unlink a bridge from a router."""
-
-        # Remove the routes to the port and unlink the port
-        bridge_port = self.client.get_port(bridge_port_id)
-        routes = self.client.get_router_routes(router_id)
-        self.client.delete_port_routes(routes, bridge_port.get_peer_id())
-        self.client.unlink(bridge_port)
 
     def _assoc_fip(self, fip):
         router = self.client.get_router(fip["router_id"])
