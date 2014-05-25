@@ -32,15 +32,6 @@ midonet_opts = [
                default='77777777-7777-7777-7777-777777777777',
                help=_('ID of the project that MidoNet admin user'
                       'belongs to.')),
-    cfg.StrOpt('provider_router_id',
-               default=None,
-               help=_('Virtual provider router ID.')),
-    cfg.StrOpt('mode',
-               default='dev',
-               help=_('Operational mode. Internal dev use only.')),
-    cfg.StrOpt('midonet_host_uuid_path',
-               default='/etc/midolman/host_uuid.properties',
-               help=_('Path to midonet host uuid file'))
 ]
 
 

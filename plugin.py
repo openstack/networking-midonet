@@ -24,12 +24,10 @@
 
 from webob import exc as w_exc
 
-from midonetclient import api
 from midonetclient import exc
 from midonetclient.neutron import client as n_client
 
 from oslo.config import cfg
-from sqlalchemy.orm import exc as sa_exc
 
 from neutron.common import exceptions as n_exc
 from neutron.common import rpc as n_rpc
@@ -40,7 +38,6 @@ from neutron.db import agentschedulers_db
 from neutron.db import db_base_plugin_v2
 from neutron.db import dhcp_rpc_base
 from neutron.db import external_net_db
-from neutron.db import l3_db
 from neutron.db import l3_gwmode_db
 from neutron.db import portbindings_db
 from neutron.db import securitygroups_db
@@ -50,15 +47,8 @@ from neutron.openstack.common import excutils
 from neutron.openstack.common import log as logging
 from neutron.openstack.common import rpc
 from neutron.plugins.midonet.common import config  # noqa
-from neutron.plugins.midonet import midonet_lib
 
 LOG = logging.getLogger(__name__)
-
-OS_FLOATING_IP_RULE_KEY = 'OS_FLOATING_IP'
-PRE_ROUTING_CHAIN_NAME = "OS_PRE_ROUTING_%s"
-POST_ROUTING_CHAIN_NAME = "OS_POST_ROUTING_%s"
-PROVIDER_ROUTER_ID = '11111111-2222-3333-4444-555555555555'
-PROVIDER_ROUTER_NAME = 'MidoNet Provider Router'
 
 
 def handle_api_error(fn):
@@ -69,33 +59,6 @@ def handle_api_error(fn):
         except (w_exc.HTTPException, exc.MidoApiConnectionError) as ex:
             raise MidonetApiException(msg=ex)
     return wrapped
-
-
-def _get_nat_ips(type, fip):
-    """Get NAT IP address information.
-
-    From the route type given, determine the source and target IP addresses
-    from the provided floating IP DB object.
-    """
-    if type == 'pre-routing':
-        return fip["floating_ip_address"], fip["fixed_ip_address"]
-    elif type == 'post-routing':
-        return fip["fixed_ip_address"], fip["floating_ip_address"]
-    else:
-        raise ValueError(_("Invalid nat_type %s") % type)
-
-
-def _nat_chain_names(router_id):
-    """Get the chain names for NAT.
-
-    These names are used to associate MidoNet chains to the NAT rules
-    applied to the router.  For each of these, there are two NAT types,
-    'dnat' and 'snat' that are returned as keys, and the corresponding
-    chain names as their values.
-    """
-    pre_routing_name = PRE_ROUTING_CHAIN_NAME % router_id
-    post_routing_name = POST_ROUTING_CHAIN_NAME % router_id
-    return {'pre-routing': pre_routing_name, 'post-routing': post_routing_name}
 
 
 class MidonetApiException(n_exc.NeutronException):
@@ -138,22 +101,12 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
     def __init__(self):
         super(MidonetPluginV2, self).__init__()
-        # Read config values
-        midonet_conf = cfg.CONF.MIDONET
-        midonet_uri = midonet_conf.midonet_uri
-        admin_user = midonet_conf.username
-        admin_pass = midonet_conf.password
-        self.admin_project_id = midonet_conf.project_id
-        self.provider_router_id = midonet_conf.provider_router_id
-        self.provider_router = None
 
-        self.mido_api = api.MidonetApi(midonet_uri, admin_user,
-                                       admin_pass,
-                                       project_id=self.admin_project_id)
-        self.api_cli = n_client.MidonetClient(midonet_uri, admin_user,
-                                              admin_pass,
-                                              project_id=self.admin_project_id)
-        self.client = midonet_lib.MidoClient(self.mido_api)
+        # Instantiate MidoNet API client
+        conf = cfg.CONF.MIDONET
+        self.api_cli = n_client.MidonetClient(conf.midonet_uri, conf.username,
+                                              conf.password,
+                                              project_id=conf.project_id)
 
         self.setup_rpc()
 
@@ -163,28 +116,6 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                 # TODO(rkukura): Replace with new VIF security details
                 portbindings.CAP_PORT_FILTER:
                 'security-group' in self.supported_extension_aliases}}
-
-    def _get_provider_router(self):
-        if self.provider_router is None:
-            try:
-                self.provider_router = self.client.get_router(
-                    PROVIDER_ROUTER_ID)
-            except midonet_lib.MidonetResourceNotFound:
-                self.provider_router = self.client.create_router(
-                    id=PROVIDER_ROUTER_ID, name=PROVIDER_ROUTER_NAME,
-                    tenant_id=self.admin_project_id)
-        return self.provider_router
-
-    def _remove_nat_rules(self, context, fip):
-        router = self.client.get_router(fip["router_id"])
-        self.client.remove_static_route(self._get_provider_router(),
-                                        fip["floating_ip_address"])
-
-        chain_names = _nat_chain_names(router.get_id())
-        for _type, name in chain_names.iteritems():
-            self.client.remove_rules_by_property(
-                router.get_tenant_id(), name,
-                OS_FLOATING_IP_RULE_KEY, fip["id"])
 
     def setup_rpc(self):
         # RPC support
@@ -502,74 +433,52 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                    "info=%r"), info)
         return info
 
-    def _assoc_fip(self, fip):
-        router = self.client.get_router(fip["router_id"])
-        link_port = self.client.get_link_port(
-            self._get_provider_router(), router.get_id())
-        self.client.add_router_route(
-            self._get_provider_router(),
-            src_network_addr='0.0.0.0',
-            src_network_length=0,
-            dst_network_addr=fip["floating_ip_address"],
-            dst_network_length=32,
-            next_hop_port=link_port.get_peer_id())
-        props = {OS_FLOATING_IP_RULE_KEY: fip['id']}
-        tenant_id = router.get_tenant_id()
-        chain_names = _nat_chain_names(router.get_id())
-        for chain_type, name in chain_names.items():
-            src_ip, target_ip = _get_nat_ips(chain_type, fip)
-            if chain_type == 'pre-routing':
-                nat_type = 'dnat'
-            else:
-                nat_type = 'snat'
-            self.client.add_static_nat(tenant_id, name, src_ip,
-                                       target_ip,
-                                       link_port.get_id(),
-                                       nat_type, **props)
-
+    @handle_api_error
     def create_floatingip(self, context, floatingip):
-        session = context.session
-        with session.begin(subtransactions=True):
-            fip = super(MidonetPluginV2, self).create_floatingip(
-                context, floatingip)
-            if fip['port_id']:
-                self._assoc_fip(fip)
+        """Handle floating IP creation."""
+        LOG.info(_("MidonetPluginV2.create_floatingip called: ip=%r"),
+                 floatingip)
+
+        fip = super(MidonetPluginV2, self).create_floatingip(context,
+                                                             floatingip)
+        try:
+            self.api_cli.create_floating_ip(fip)
+        except Exception as ex:
+            LOG.error(_("Failed to create floating ip %(fip)s: %(err)s"),
+                      {"fip": fip, "err": ex})
+            with excutils.save_and_reraise_exception():
+                # Try removing the fip
+                self.delete_floatingip(context, fip['id'])
+
+        LOG.info(_("MidonetPluginV2.create_floatingip exiting: fip=%r"),
+                 fip)
         return fip
 
+    @handle_api_error
+    def delete_floatingip(self, context, id):
+        """Handle floating IP deletion."""
+        LOG.info(_("MidonetPluginV2.delete_floatingip called: id=%s"), id)
+
+        with context.session.begin(subtransactions=True):
+            super(MidonetPluginV2, self).delete_floatingip(context, id)
+            self.api_cli.delete_floating_ip(id)
+
+        LOG.info(_("MidonetPluginV2.delete_floatingip exiting: id=%r"), id)
+
+    @handle_api_error
     def update_floatingip(self, context, id, floatingip):
         """Handle floating IP association and disassociation."""
-        LOG.debug(_("MidonetPluginV2.update_floatingip called: id=%(id)s "
-                    "floatingip=%(floatingip)s "),
-                  {'id': id, 'floatingip': floatingip})
+        LOG.info(_("MidonetPluginV2.update_floatingip called: id=%(id)s "
+                   "floatingip=%(floatingip)s "),
+                 {'id': id, 'floatingip': floatingip})
 
-        session = context.session
-        with session.begin(subtransactions=True):
-            if floatingip['floatingip']['port_id']:
-                fip = super(MidonetPluginV2, self).update_floatingip(
-                    context, id, floatingip)
+        with context.session.begin(subtransactions=True):
+            fip = super(MidonetPluginV2, self).update_floatingip(context, id,
+                                                                 floatingip)
+            self.api_cli.update_floating_ip(id, fip)
 
-                self._assoc_fip(fip)
-
-            # disassociate floating IP
-            elif floatingip['floatingip']['port_id'] is None:
-                fip = super(MidonetPluginV2, self).get_floatingip(context, id)
-                self._remove_nat_rules(context, fip)
-                super(MidonetPluginV2, self).update_floatingip(context, id,
-                                                               floatingip)
-
-        LOG.debug(_("MidonetPluginV2.update_floating_ip exiting: fip=%s"), fip)
+        LOG.info(_("MidonetPluginV2.update_floating_ip exiting: fip=%s"), fip)
         return fip
-
-    def disassociate_floatingips(self, context, port_id):
-        """Disassociate floating IPs (if any) from this port."""
-        try:
-            fip_qry = context.session.query(l3_db.FloatingIP)
-            fip_db = fip_qry.filter_by(fixed_port_id=port_id).one()
-            self._remove_nat_rules(context, fip_db)
-        except sa_exc.NoResultFound:
-            pass
-
-        super(MidonetPluginV2, self).disassociate_floatingips(context, port_id)
 
     @handle_api_error
     def create_security_group(self, context, security_group, default_sg=False):
