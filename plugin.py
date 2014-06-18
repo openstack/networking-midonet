@@ -97,6 +97,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                                    'dhcp_agent_scheduler',
                                    'external-net',
                                    'router',
+                                   'quotas',
                                    'security-group']
     __native_bulk_support = True
 
