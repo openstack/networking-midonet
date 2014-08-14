@@ -206,6 +206,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         return net
 
     @handle_api_error
+    @utils.synchronized('midonet-critical-section', external=True)
     def delete_network(self, context, id):
         """Delete a network and its corresponding MidoNet bridge."""
         LOG.info(_("MidonetPluginV2.delete_network called: id=%r"), id)
@@ -291,7 +292,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         return new_port
 
     @handle_api_error
-    @utils.synchronized('port-critical-section', external=True)
+    @utils.synchronized('midonet-critical-section', external=True)
     def create_port(self, context, port):
         """Create a L2 port in Neutron/MidoNet."""
         LOG.info(_("MidonetPluginV2.create_port called: port=%r"), port)
@@ -311,6 +312,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         return new_port
 
     @handle_api_error
+    @utils.synchronized('midonet-critical-section', external=True)
     def delete_port(self, context, id, l3_port_check=True):
         """Delete a neutron port and corresponding MidoNet bridge port."""
         LOG.info(_("MidonetPluginV2.delete_port called: id=%(id)s "
@@ -323,7 +325,8 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
             self.prevent_l3_port_deletion(context, id)
 
         with context.session.begin(subtransactions=True):
-            super(MidonetPluginV2, self).disassociate_floatingips(context, id)
+            super(MidonetPluginV2, self).disassociate_floatingips(
+                context, id, do_notify=False)
             super(MidonetPluginV2, self).delete_port(context, id)
             self.api_cli.delete_port(id)
 
