@@ -36,20 +36,24 @@ from neutron.common import rpc as n_rpc
 from neutron.common import topics
 from neutron.common import utils
 from neutron.db import agents_db
-from neutron.db import api as db
 from neutron.db import agentschedulers_db
+from neutron.db import api as db
 from neutron.db import db_base_plugin_v2
 from neutron.db import dhcp_rpc_base
 from neutron.db import external_net_db
 from neutron.db import l3_gwmode_db
+from neutron.db.loadbalancer import loadbalancer_db
 from neutron.db import portbindings_db
+from neutron.db import routedserviceinsertion_db as rsi_db
 from neutron.db import securitygroups_db
 from neutron.extensions import portbindings
+from neutron.extensions import routedserviceinsertion as rsi
 from neutron.extensions import securitygroup as ext_sg
 from neutron.openstack.common import excutils
 from neutron.openstack.common import importutils
 from neutron.openstack.common import log as logging
 from neutron.openstack.common import rpc
+from neutron.plugins.common import constants
 from neutron.plugins.midonet.common import config  # noqa
 
 LOG = logging.getLogger(__name__)
@@ -93,7 +97,9 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                       external_net_db.External_net_db_mixin,
                       l3_gwmode_db.L3_NAT_db_mixin,
                       agentschedulers_db.DhcpAgentSchedulerDbMixin,
-                      securitygroups_db.SecurityGroupDbMixin):
+                      securitygroups_db.SecurityGroupDbMixin,
+                      rsi_db.RoutedServiceInsertionDbMixin,
+                      loadbalancer_db.LoadBalancerPluginDb):
 
     supported_extension_aliases = ['agent',
                                    'binding',
@@ -101,7 +107,9 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                                    'external-net',
                                    'router',
                                    'quotas',
-                                   'security-group']
+                                   'security-group',
+                                   'routed-service-insertion',
+                                   'lbaas']
     __native_bulk_support = True
 
     def __init__(self):
@@ -630,3 +638,223 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         LOG.info(_("MidonetPluginV2.delete_security_group_rule exiting: "
                    "id=%r"), id)
+
+    @handle_api_error
+    def create_vip(self, context, vip):
+        LOG.debug("MidonetPluginV2.create_vip called: %(vip)r",
+                  {'vip': vip})
+
+        with context.session.begin(subtransactions=True):
+            v = super(MidonetPluginV2, self).create_vip(context, vip)
+            self.api_cli.create_vip(v)
+            v['status'] = constants.ACTIVE
+            self.update_status(context, loadbalancer_db.Vip, v['id'],
+                               v['status'])
+
+        LOG.debug("MidonetPluginV2.create_vip exiting: id=%r", v['id'])
+        return v
+
+    @handle_api_error
+    def delete_vip(self, context, id):
+        LOG.debug("MidonetPluginV2.delete_vip called: id=%(id)r",
+                  {'id': id})
+
+        with context.session.begin(subtransactions=True):
+            super(MidonetPluginV2, self).delete_vip(context, id)
+            self.api_cli.delete_vip(id)
+
+        LOG.debug("MidonetPluginV2.delete_vip existing: id=%(id)r",
+                  {'id': id})
+
+    @handle_api_error
+    def update_vip(self, context, id, vip):
+        LOG.debug("MidonetPluginV2.update_vip called: id=%(id)r, "
+                  "vip=%(vip)r", {'id': id, 'vip': vip})
+
+        with context.session.begin(subtransactions=True):
+            v = super(MidonetPluginV2, self).update_vip(context, id, vip)
+            self.api_cli.update_vip(id, v)
+
+        LOG.debug("MidonetPluginV2.update_vip exiting: id=%(id)r, "
+                  "vip=%(vip)r", {'id': id, 'vip': v})
+        return v
+
+    @handle_api_error
+    def create_pool(self, context, pool):
+        LOG.debug("MidonetPluginV2.create_pool called: %(pool)r",
+                  {'pool': pool})
+
+        router_id = pool['pool'].get(rsi.ROUTER_ID)
+        if not router_id:
+            msg = _("router_id is required for pool")
+            raise n_exc.BadRequest(resource='router', msg=msg)
+
+        if self._get_resource_router_id_binding(context, loadbalancer_db.Pool,
+                                                router_id=router_id):
+            msg = _("A pool is already associated with the router")
+            raise n_exc.BadRequest(resource='router', msg=msg)
+
+        with context.session.begin(subtransactions=True):
+            p = super(MidonetPluginV2, self).create_pool(context, pool)
+            res = {
+                'id': p['id'],
+                rsi.ROUTER_ID: router_id
+            }
+            self._process_create_resource_router_id(context, res,
+                                                    loadbalancer_db.Pool)
+            p[rsi.ROUTER_ID] = router_id
+
+            self.api_cli.create_pool(p)
+
+            p['status'] = constants.ACTIVE
+            self.update_status(context, loadbalancer_db.Pool, p['id'],
+                               p['status'])
+
+        LOG.debug("MidonetPluginV2.create_pool exiting: %(pool)r",
+                  {'pool': p})
+        return p
+
+    @handle_api_error
+    def update_pool(self, context, id, pool):
+        LOG.debug("MidonetPluginV2.update_pool called: id=%(id)r, "
+                  "pool=%(pool)r", {'id': id, 'pool': pool})
+
+        with context.session.begin(subtransactions=True):
+            p = super(MidonetPluginV2, self).update_pool(context, id, pool)
+            self.api_cli.update_pool(id, p)
+
+        LOG.debug("MidonetPluginV2.update_pool exiting: id=%(id)r, "
+                  "pool=%(pool)r", {'id': id, 'pool': pool})
+        return p
+
+    @handle_api_error
+    def delete_pool(self, context, id):
+        LOG.debug("MidonetPluginV2.delete_pool called: %(id)r", {'id': id})
+
+        with context.session.begin(subtransactions=True):
+            self._delete_resource_router_id_binding(context, id,
+                                                    loadbalancer_db.Pool)
+            super(MidonetPluginV2, self).delete_pool(context, id)
+            self.api_cli.delete_pool(id)
+
+        LOG.debug("MidonetPluginV2.delete_pool exiting: %(id)r", {'id': id})
+
+    @handle_api_error
+    def create_member(self, context, member):
+        LOG.debug("MidonetPluginV2.create_member called: %(member)r",
+                  {'member': member})
+
+        with context.session.begin(subtransactions=True):
+            m = super(MidonetPluginV2, self).create_member(context, member)
+            self.api_cli.create_member(m)
+            m['status'] = constants.ACTIVE
+            self.update_status(context, loadbalancer_db.Member, m['id'],
+                               m['status'])
+
+        LOG.debug("MidonetPluginV2.create_member exiting: %(member)r",
+                  {'member': m})
+        return m
+
+    @handle_api_error
+    def update_member(self, context, id, member):
+        LOG.debug("MidonetPluginV2.update_member called: id=%(id)r, "
+                  "member=%(member)r", {'id': id, 'member': member})
+
+        with context.session.begin(subtransactions=True):
+            m = super(MidonetPluginV2, self).update_member(context, id, member)
+            self.api_cli.update_member(id, m)
+
+        LOG.debug("MidonetPluginV2.update_member exiting: id=%(id)r, "
+                  "member=%(member)r", {'id': id, 'member': m})
+        return m
+
+    @handle_api_error
+    def delete_member(self, context, id):
+        LOG.debug("MidonetPluginV2.delete_member called: %(id)r",
+                  {'id': id})
+
+        with context.session.begin(subtransactions=True):
+            super(MidonetPluginV2, self).delete_member(context, id)
+            self.api_cli.delete_member(id)
+
+        LOG.debug("MidonetPluginV2.delete_member exiting: %(id)r",
+                  {'id': id})
+
+    @handle_api_error
+    def create_health_monitor(self, context, health_monitor):
+        LOG.debug("MidonetPluginV2.create_health_monitor called: "
+                  " %(health_monitor)r", {'health_monitor': health_monitor})
+
+        with context.session.begin(subtransactions=True):
+            hm = super(MidonetPluginV2, self).create_health_monitor(
+                context, health_monitor)
+            self.api_cli.create_health_monitor(hm)
+
+        LOG.debug("MidonetPluginV2.create_health_monitor exiting: "
+                  "%(health_monitor)r", {'health_monitor': hm})
+        return hm
+
+    @handle_api_error
+    def update_health_monitor(self, context, id, health_monitor):
+        LOG.debug("MidonetPluginV2.update_health_monitor called: id=%(id)r, "
+                  "health_monitor=%(health_monitor)r",
+                  {'id': id, 'health_monitor': health_monitor})
+
+        with context.session.begin(subtransactions=True):
+            hm = super(MidonetPluginV2, self).update_health_monitor(
+                context, id, health_monitor)
+            self.api_cli.update_health_monitor(id, hm)
+
+        LOG.debug("MidonetPluginV2.update_health_monitor exiting: id=%(id)r, "
+                  "health_monitor=%(health_monitor)r",
+                  {'id': id, 'health_monitor': hm})
+        return hm
+
+    @handle_api_error
+    def delete_health_monitor(self, context, id):
+        LOG.debug("MidonetPluginV2.delete_health_monitor called: %(id)r",
+                  {'id': id})
+
+        with context.session.begin(subtransactions=True):
+            super(MidonetPluginV2, self).delete_health_monitor(context, id)
+            self.api_cli.delete_health_monitor(id)
+
+        LOG.debug("MidonetPluginV2.delete_health_monitor exiting: %(id)r",
+                  {'id': id})
+
+    @handle_api_error
+    def create_pool_health_monitor(self, context, health_monitor, pool_id):
+        LOG.debug("MidonetPluginV2.create_pool_health_monitor called: "
+                  "hm=%(health_monitor)r, pool_id=%(pool_id)r",
+                  {'health_monitor': health_monitor, 'pool_id': pool_id})
+
+        pool = self.get_pool(context, pool_id)
+        monitors = pool.get('health_monitors')
+        if len(monitors) > 0:
+            msg = _("MidoNet right now can only support one monitor per pool")
+            raise n_exc.BadRequest(resource='pool_health_monitor', msg=msg)
+
+        hm = health_monitor['health_monitor']
+        with context.session.begin(subtransactions=True):
+            monitors = super(MidonetPluginV2, self).create_pool_health_monitor(
+                context, health_monitor, pool_id)
+            self.api_cli.create_pool_health_monitor(hm, pool_id)
+
+        LOG.debug("MidonetPluginV2.create_pool_health_monitor exiting: "
+                  "%(health_monitor)r, %(pool_id)r",
+                  {'health_monitor': health_monitor, 'pool_id': pool_id})
+        return monitors
+
+    @handle_api_error
+    def delete_pool_health_monitor(self, context, id, pool_id):
+        LOG.debug("MidonetPluginV2.delete_pool_health_monitor called: "
+                  "id=%(id)r, pool_id=%(pool_id)r",
+                  {'id': id, 'pool_id': pool_id})
+
+        with context.session.begin(subtransactions=True):
+            super(MidonetPluginV2, self).delete_pool_health_monitor(
+                context, id, pool_id)
+            self.api_cli.delete_pool_health_monitor(id, pool_id)
+
+        LOG.debug("MidonetPluginV2.delete_pool_health_monitor exiting: "
+                  "%(id)r, %(pool_id)r", {'id': id, 'pool_id': pool_id})
