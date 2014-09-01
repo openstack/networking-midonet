@@ -1,13 +1,6 @@
-python-neutron-plugin-midonet
-=============================
+# -- Welcome!
 
 This is the downstream Midonet Neutron plugin.
-
-To generate deb and rpm packages:
-
-```
-./package.sh <version>
-```
 
 In neutron.conf, set the core_plugin to:
 
