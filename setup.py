@@ -27,6 +27,6 @@ setup(
     name='neutron-plugin-midonet',
     packages=find_packages(),
     url='https://github.com/midokura/python-neutron-plugin-midonet',
-    version='1:2014.2-mido0',
+    version='2014.2-mido1',
     zip_safe=False,
 )
