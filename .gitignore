@@ -54,3 +54,10 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# tests
+.testrepository/
+.venv/
+
+# vim
+*.swp
