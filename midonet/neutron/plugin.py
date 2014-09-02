@@ -31,6 +31,7 @@ from oslo.config import cfg
 
 from sqlalchemy import exc as sa_exc
 
+from neutron.api.rpc.handlers import dhcp_rpc
 from neutron.common import exceptions as n_exc
 from neutron.common import rpc as n_rpc
 from neutron.common import topics
@@ -39,7 +40,6 @@ from neutron.db import agents_db
 from neutron.db import agentschedulers_db
 from neutron.db import api as db
 from neutron.db import db_base_plugin_v2
-from neutron.db import dhcp_rpc_base
 from neutron.db import external_net_db
 from neutron.db import l3_gwmode_db
 from neutron.db.loadbalancer import loadbalancer_db
@@ -52,7 +52,6 @@ from neutron.extensions import securitygroup as ext_sg
 from neutron.openstack.common import excutils
 from neutron.openstack.common import importutils
 from neutron.openstack.common import log as logging
-from neutron.openstack.common import rpc
 from neutron.plugins.common import constants
 from neutron.plugins.midonet.common import config  # noqa
 
@@ -71,21 +70,6 @@ def handle_api_error(fn):
 
 class MidonetApiException(n_exc.NeutronException):
         message = _("MidoNet API error: %(msg)s")
-
-
-class MidoRpcCallbacks(dhcp_rpc_base.DhcpRpcCallbackMixin):
-    RPC_API_VERSION = '1.1'
-
-    def create_rpc_dispatcher(self):
-        """Get the rpc dispatcher for this manager.
-
-        This a basic implementation that will call the plugin like get_ports
-        and handle basic events
-        If a manager would like to set an rpc API version, or support more than
-        one class as the target of rpc messages, override this method.
-        """
-        return n_rpc.PluginRpcDispatcher([self,
-                                          agents_db.AgentExtRpcCallback()])
 
 
 class MidonetPluginException(n_exc.NeutronException):
@@ -137,13 +121,13 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
     def setup_rpc(self):
         # RPC support
         self.topic = topics.PLUGIN
-        self.conn = rpc.create_connection(new=True)
-        self.callbacks = MidoRpcCallbacks()
-        self.dispatcher = self.callbacks.create_rpc_dispatcher()
-        self.conn.create_consumer(self.topic, self.dispatcher,
+        self.conn = n_rpc.create_connection(new=True)
+        self.endpoints = [dhcp_rpc.DhcpRpcCallback(),
+                          agents_db.AgentExtRpcCallback()]
+        self.conn.create_consumer(self.topic, self.endpoints,
                                   fanout=False)
         # Consume from all consumers in a thread
-        self.conn.consume_in_thread()
+        self.conn.consume_in_threads()
 
     def repair_quotas_table(self):
         query = ("CREATE TABLE `quotas` ( `id` varchar(36) NOT NULL, "
