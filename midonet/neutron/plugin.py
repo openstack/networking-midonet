@@ -76,6 +76,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                                    'host',
                                    'quotas',
                                    'security-group',
+                                   'system',
                                    'routed-service-insertion',
                                    'lbaas']
     __native_bulk_support = True
