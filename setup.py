@@ -14,18 +14,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from distutils.core import setup
-from setuptools import find_packages
+from distutils import core
+import setuptools
 
 
-setup(
+core.setup(
     author='Midokura',
     author_email='mido-openstack-dev@midokura.com',
     description='Neutron is a virtual network service for Openstack',
     license="Apache License, Version 2.0",
     long_description=open("README.rst").read(),
     name='neutron-plugin-midonet',
-    packages=find_packages(),
+    packages=setuptools.find_packages(),
     url='https://github.com/midokura/python-neutron-plugin-midonet',
     version='2014.2-mido1',
     zip_safe=False,

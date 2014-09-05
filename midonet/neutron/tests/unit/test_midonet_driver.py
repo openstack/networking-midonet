@@ -25,6 +25,7 @@ sys.modules["midonetclient"] = mock.Mock()
 from neutron.agent.common import config
 from neutron.agent.linux import dhcp
 from neutron.common import config as base_config
+
 import midonet.neutron.agent.midonet_driver as driver
 from neutron.tests import base
 

@@ -4,7 +4,7 @@ set -eu
 
 function usage {
   echo "Usage: $0 [OPTION]..."
-  echo "Run Neutron's test suite(s)"
+  echo "Run Midonet neutron's test suite(s)"
   echo ""
   echo "  -V, --virtual-env           Always use virtualenv.  Install automatically if not present"
   echo "  -N, --no-virtual-env        Don't use virtualenv.  Run tests in local environment"
@@ -114,7 +114,7 @@ function run_tests {
     if [ "$testopts" = "" ] && [ "$testargs" = "" ]; then
       # Default to running all tests if specific test is not
       # provided.
-      testargs="discover ./neutron/tests"
+      testargs="discover ./midonet/neutron/tests"
     fi
     ${wrapper} python -m testtools.run $testopts $testargs
 
@@ -134,7 +134,7 @@ function run_tests {
   set +e
   testargs=`echo "$testargs" | sed -e's/^\s*\(.*\)\s*$/\1/'`
   TESTRTESTS="$TESTRTESTS --testr-args='--subunit $testopts $testargs'"
-  OS_TEST_PATH=`echo $testargs|grep -o 'neutron\.tests[^[:space:]:]*\+'|tr . /`
+  OS_TEST_PATH=`echo $testargs|grep -o 'midonet\.neutron\.tests[^[:space:]:]*\+'|tr . /`
   if [ -d "$OS_TEST_PATH" ]; then
       wrapper="OS_TEST_PATH=$OS_TEST_PATH $wrapper"
   elif [ -d "$(dirname $OS_TEST_PATH)" ]; then
@@ -151,7 +151,7 @@ function run_tests {
     echo "Generating coverage report in covhtml/"
     # Don't compute coverage for common code, which is tested elsewhere
     ${wrapper} coverage combine
-    ${wrapper} coverage html --include='neutron/*' --omit='neutron/openstack/common/*' -d covhtml -i
+    ${wrapper} coverage html --include='midonet/neutron/*' --omit='midonet/neutron/openstack/common/*' -d covhtml -i
   fi
 
   return $RESULT
