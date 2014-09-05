@@ -19,18 +19,21 @@
 # @author: Rossella Sblendido, Midokura Europe SARL
 # @author: Ryu Ishimoto, Midokura Japan KK
 # @author: Tomoe Sugihara, Midokura Japan KK
-
 import mock
+import os
 
 from neutron.extensions import portbindings
+from neutron.openstack.common import importutils
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 import neutron.tests.unit.test_db_plugin as test_plugin
 import neutron.tests.unit.test_extension_ext_gw_mode as test_gw_mode
 import neutron.tests.unit.test_extension_security_group as sg
 import neutron.tests.unit.test_l3_plugin as test_l3_plugin
+from oslo.config import cfg
 
 
 MIDOKURA_PKG_PATH = "midonet.neutron.plugin"
+MIDOKURA_EXT_PATH = "midonet.neutron.extensions"
 MIDONET_PLUGIN_NAME = ('%s.MidonetPluginV2' % MIDOKURA_PKG_PATH)
 
 
@@ -59,6 +62,10 @@ class MidonetPluginV2TestCase(test_plugin.NeutronDbPluginV2TestCase):
         client_class = MidonetClient
         self.mock_class = client_class()
 
+        extensions_path = importutils.import_module(
+            MIDOKURA_EXT_PATH).__file__
+        cfg.CONF.set_override('api_extensions_path',
+                              os.path.dirname(extensions_path))
         super(MidonetPluginV2TestCase, self).setUp(plugin=plugin)
 
     def tearDown(self):
