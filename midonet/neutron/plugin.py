@@ -28,8 +28,10 @@ from midonetclient import client
 from oslo.config import cfg
 
 from midonet.neutron.common import util
+from midonet.neutron import extensions
 from sqlalchemy import exc as sa_exc
 
+from neutron.api import extensions as neutron_extensions
 from neutron.api.rpc.handlers import dhcp_rpc
 from neutron.common import exceptions as n_exc
 from neutron.common import rpc as n_rpc
@@ -87,6 +89,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         # Instantiate MidoNet API client
         conf = cfg.CONF.MIDONET
+        neutron_extensions.append_api_extensions_path(extensions.__path__)
         self.api_cli = client.MidonetClient(conf.midonet_uri, conf.username,
                                             conf.password,
                                             project_id=conf.project_id)
