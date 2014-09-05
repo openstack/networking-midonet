@@ -69,6 +69,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
     supported_extension_aliases = ['agent',
                                    'binding',
+                                   'midonet-network',
                                    'dhcp_agent_scheduler',
                                    'external-net',
                                    'router',
