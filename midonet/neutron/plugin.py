@@ -23,7 +23,7 @@
 # @author: Rossella Sblendido, Midokura Japan KK
 # @author: Duarte Nunes, Midokura Japan KK
 
-from midonetclient.neutron import client as n_client
+from midonetclient import client
 
 from oslo.config import cfg
 
@@ -87,9 +87,9 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         # Instantiate MidoNet API client
         conf = cfg.CONF.MIDONET
-        self.api_cli = n_client.MidonetClient(conf.midonet_uri, conf.username,
-                                              conf.password,
-                                              project_id=conf.project_id)
+        self.api_cli = client.MidonetClient(conf.midonet_uri, conf.username,
+                                            conf.password,
+                                            project_id=conf.project_id)
 
         self.setup_rpc()
         self.repair_quotas_table()
