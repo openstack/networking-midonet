@@ -27,6 +27,7 @@ from midonetclient import client
 
 from oslo.config import cfg
 
+from midonet.neutron import api
 from midonet.neutron.common import util
 from midonet.neutron import extensions
 from sqlalchemy import exc as sa_exc
@@ -67,7 +68,8 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                       agentschedulers_db.DhcpAgentSchedulerDbMixin,
                       securitygroups_db.SecurityGroupDbMixin,
                       rsi_db.RoutedServiceInsertionDbMixin,
-                      loadbalancer_db.LoadBalancerPluginDb):
+                      loadbalancer_db.LoadBalancerPluginDb,
+                      api.MidoNetApiMixin):
 
     supported_extension_aliases = ['agent',
                                    'binding',
@@ -89,7 +91,8 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                                    'routed-service-insertion',
                                    'route',
                                    'vtep',
-                                   'lbaas']
+                                   'lbaas',
+                                   'tunnelzone']
     __native_bulk_support = True
 
     def __init__(self):

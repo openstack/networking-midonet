@@ -33,6 +33,7 @@ class TunnelzoneHandlerMixin(object):
 @util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
 class TunnelzonehostHandlerMixin(object):
     """The mixin of the request handler for the tunnel zone hosts."""
+    PARENT = TunnelzoneHandlerMixin.ALIAS
 
 
 class MidoNetApiMixin(TunnelzoneHandlerMixin,
