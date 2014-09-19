@@ -91,7 +91,15 @@ def generate_methods(methods):
         alias = capitalized_resource.lower()
         setattr(cls, 'ALIAS', alias)
         for method in required_methods:
-            method_name = method + '_' + alias
+            if method in [base.Controller.LIST, base.Controller.SHOW]:
+                if method == base.Controller.LIST:
+                    pluralized_alias = PLURAL_NAME_MAP.get(
+                        alias, '%ss' % alias)
+                    method_name = 'get_' + pluralized_alias
+                else:
+                    method_name = 'get_' + alias
+            else:
+                method_name = method + '_' + alias
             try:
                 getattr(cls, method_name)
             except AttributeError:
