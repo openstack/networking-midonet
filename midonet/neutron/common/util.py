@@ -46,7 +46,7 @@ class MidonetPluginException(n_exc.NeutronException):
     message = _("%(msg)s")
 
 
-def generate_methods(methods):
+def generate_methods(*methods):
     """Decorator for classes that represents which methods are required by the
     classes.
 
