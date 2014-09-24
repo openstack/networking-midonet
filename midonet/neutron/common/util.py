@@ -90,6 +90,9 @@ def generate_methods(*methods):
         [capitalized_resource] = re.findall('^[A-Z][a-z0-9]*', cls.__name__)
         alias = capitalized_resource.lower()
         setattr(cls, 'ALIAS', alias)
+        parent = getattr(cls, 'PARENT', None)
+        if parent:
+            alias = '%s_%s' % (parent, alias)
         for method in required_methods:
             if method in [base.Controller.LIST, base.Controller.SHOW]:
                 if method == base.Controller.LIST:
