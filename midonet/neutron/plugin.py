@@ -88,6 +88,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                                    'system',
                                    'routed-service-insertion',
                                    'route',
+                                   'vtep',
                                    'lbaas']
     __native_bulk_support = True
 
