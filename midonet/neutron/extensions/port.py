@@ -71,7 +71,7 @@ RESOURCE_ATTRIBUTE_MAP = {
 }
 
 
-class Midonet_port(object):
+class Port(object):
     """Port extension."""
 
     @classmethod
