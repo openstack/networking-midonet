@@ -18,7 +18,6 @@ import abc
 import six
 
 from neutron.api import extensions
-from neutron.api.v2 import attributes as attr
 from neutron.api.v2 import base
 from neutron import manager
 

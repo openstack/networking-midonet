@@ -69,7 +69,8 @@ class Route(object):
 
     @classmethod
     def get_description(cls):
-        return ("Route abstraction for basic route-related features") 
+        return ("Route abstraction for basic route-related features")
+
     @classmethod
     def get_namespace(cls):
         return "http://docs.openstack.org/ext/route/api/v1.0"
@@ -108,6 +109,7 @@ class Route(object):
             return RESOURCE_ATTRIBUTE_MAP
         else:
             return {}
+
 
 @six.add_metaclass(abc.ABCMeta)
 class RoutePluginBase(object):

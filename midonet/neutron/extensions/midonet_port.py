@@ -125,6 +125,7 @@ class Midonet_port(object):
         else:
             return {}
 
+
 @six.add_metaclass(abc.ABCMeta)
 class PortPluginBase(object):
 

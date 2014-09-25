@@ -145,6 +145,7 @@ class ChainRuleExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         instance.delete_rule.assert_called_once_with(mock.ANY, rule_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
 
+
 class ChainRuleExtensionTestCaseXml(ChainRuleExtensionTestCase):
 
     fmt = "xml"

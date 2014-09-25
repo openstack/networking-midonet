@@ -80,7 +80,7 @@ class VtepExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
     def test_vtep_create(self):
 
         vtep_ip = "1.1.1.1"
-        data = {'vtep':{'management_ip': vtep_ip,
+        data = {'vtep': {'management_ip': vtep_ip,
                         'management_port': 4,
                         'description': "bank holiday",
                         'tenant_id': _uuid(),

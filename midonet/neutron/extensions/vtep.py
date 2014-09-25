@@ -23,7 +23,7 @@ from neutron.api.v2 import base
 from neutron import manager
 
 VTEP = 'vtep'
-VTEPS= '%ss' % VTEP
+VTEPS = '%ss' % VTEP
 
 VTEP_PORT = 'vtep_port'
 VTEP_PORTS = '%ss' % VTEP_PORT
@@ -56,7 +56,7 @@ RESOURCE_ATTRIBUTE_MAP = {
             'validate': {'type:uuid': None},
             'is_visible': True},
         'tunnel_ip_addrs': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:list_of_string_or_none': None},
+            'validate': {'type:list_of_string': None},
             'is_visible': True},
     },
     VTEP_PORTS: {
@@ -83,7 +83,8 @@ RESOURCE_ATTRIBUTE_MAP = {
     }
 }
 
-def _validate_list_of_string_or_none(data, key_spec=None):
+
+def _validate_list_of_string(data, key_spec=None):
     if data is not None:
         if not isinstance(data, list):
             msg = _("must be a list of strings %s") % data
@@ -94,7 +95,8 @@ def _validate_list_of_string_or_none(data, key_spec=None):
                 msg = _("must be a list of strings %s") % data
                 return msg
 
-attr.validators['type:list_of_string_or_none'] = _validate_list_of_string_or_none
+attr.validators['type:list_of_string'] = _validate_list_of_string
+
 
 class Vtep(object):
     """Vtep extension."""

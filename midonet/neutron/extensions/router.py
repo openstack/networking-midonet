@@ -19,7 +19,6 @@ import abc
 import six
 
 from neutron.api import extensions
-from neutron.api.v2 import attributes as attr
 from neutron.api.v2 import base
 from neutron import manager
 
@@ -113,7 +112,6 @@ class MidonetRouterPluginBase(object):
 
     def get_plugin_description(self):
         return "Router extension base plugin"
-
 
     @abc.abstractmethod
     def create_router(self, context, id, router):

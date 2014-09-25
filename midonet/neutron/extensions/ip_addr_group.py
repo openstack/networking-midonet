@@ -18,12 +18,11 @@ import abc
 import six
 
 from neutron.api import extensions
-from neutron.api.v2 import attributes as attr
 from neutron.api.v2 import base
 from neutron import manager
 
 IP_ADDR_GROUP = 'ip_addr_group'
-IP_ADDR_GROUPS= '%ss' % IP_ADDR_GROUP
+IP_ADDR_GROUPS = '%ss' % IP_ADDR_GROUP
 
 IP_ADDR_GROUP_ADDR = 'ip_addr_group_addr'
 IP_ADDR_GROUP_ADDRS = '%ss' % IP_ADDR_GROUP_ADDR

@@ -25,7 +25,8 @@ _get_path = test_api_v2._get_path
 
 
 class IpAddrGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
-    """Test the endpoints for the ip_addr_group and ip_addr_group_addr extension."""
+    """Test the endpoints for the ip_addr_group and ip_addr_group_addr
+       extension."""
     fmt = "json"
 
     def setUp(self):
@@ -62,7 +63,8 @@ class IpAddrGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         instance = self.plugin.return_value
         instance.get_ip_addr_group.return_value = return_value
 
-        res = self.api.get(_get_path('ip_addr_groups/%s' % ip_addr_group_id, fmt=self.fmt))
+        res = self.api.get(_get_path('ip_addr_groups/%s' % ip_addr_group_id,
+                                     fmt=self.fmt))
         self.assertEqual(exc.HTTPOk.code, res.status_int)
 
         instance.get_ip_addr_group.assert_called_once_with(
@@ -78,7 +80,8 @@ class IpAddrGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
         res = self.api.delete(_get_path('ip_addr_groups', id=ip_addr_group_id))
 
-        instance.delete_ip_addr_group.assert_called_once_with(mock.ANY, ip_addr_group_id)
+        instance.delete_ip_addr_group.assert_called_once_with(mock.ANY,
+                                                              ip_addr_group_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
 
     def test_ip_addr_group_addr_list(self):
@@ -107,7 +110,8 @@ class IpAddrGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         instance.get_ip_addr_group_addr.return_value = return_value
 
         res = self.api.get(
-            _get_path('ip_addr_group_addrs/%s' % ip_addr_group_addr_id, fmt=self.fmt))
+            _get_path('ip_addr_group_addrs/%s' % ip_addr_group_addr_id,
+                      fmt=self.fmt))
         self.assertEqual(exc.HTTPOk.code, res.status_int)
 
         instance.get_ip_addr_group_addr.assert_called_once_with(
@@ -121,12 +125,13 @@ class IpAddrGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
         instance = self.plugin.return_value
 
-        res = self.api.delete(_get_path('ip_addr_group_addrs', 
+        res = self.api.delete(_get_path('ip_addr_group_addrs',
                                         id=ip_addr_group_addr_id))
 
         instance.delete_ip_addr_group_addr.assert_called_once_with(mock.ANY,
             ip_addr_group_addr_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
+
 
 class IpAddrGroupExtensionTestCaseXml(IpAddrGroupExtensionTestCase):
 

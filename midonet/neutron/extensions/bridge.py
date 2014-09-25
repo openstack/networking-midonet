@@ -19,7 +19,6 @@ import abc
 import six
 
 from neutron.api import extensions
-from neutron.api.v2 import attributes as attr
 from neutron.api.v2 import base
 from neutron import manager
 
@@ -110,7 +109,6 @@ class BridgePluginBase(object):
 
     def get_plugin_description(self):
         return "Bridge extension base plugin"
-
 
     @abc.abstractmethod
     def create_bridge(self, context, id, bridge):

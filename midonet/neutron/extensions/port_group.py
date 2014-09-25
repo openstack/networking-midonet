@@ -18,12 +18,11 @@ import abc
 import six
 
 from neutron.api import extensions
-from neutron.api.v2 import attributes as attr
 from neutron.api.v2 import base
 from neutron import manager
 
 PORT_GROUP = 'port_group'
-PORT_GROUPS= '%ss' % PORT_GROUP
+PORT_GROUPS = '%ss' % PORT_GROUP
 
 PORT_GROUP_PORT = 'port_group_port'
 PORT_GROUP_PORTS = '%ss' % PORT_GROUP_PORT

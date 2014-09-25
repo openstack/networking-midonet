@@ -18,7 +18,6 @@ import abc
 import six
 
 from neutron.api import extensions
-from neutron.api.v2 import attributes as attr
 from neutron.api.v2 import base
 from neutron import manager
 
@@ -98,8 +97,8 @@ class Bgp(object):
         # AdRoute
         collection_name = ADROUTES
         params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller_host = base.create_resource(collection_name, ADROUTE, plugin,
-                                               params)
+        controller_host = base.create_resource(collection_name, ADROUTE,
+                                               plugin, params)
 
         ex = extensions.ResourceExtension(collection_name, controller_host)
         exts.append(ex)

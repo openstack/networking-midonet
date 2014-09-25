@@ -30,7 +30,8 @@ class PortGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
     def setUp(self):
         super(PortGroupExtensionTestCase, self).setUp()
-        plural_mappings = {'port_group': 'port_groups', 'port_group_port': 'port_group_ports'}
+        plural_mappings = {'port_group': 'port_groups',
+                           'port_group_port': 'port_group_ports'}
         self._setUpExtension(
             'midonet.neutron.extensions.port_group.PortGroupPluginBase',
             None, port_group.RESOURCE_ATTRIBUTE_MAP,
@@ -63,7 +64,8 @@ class PortGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         instance = self.plugin.return_value
         instance.get_port_group.return_value = return_value
 
-        res = self.api.get(_get_path('port_groups/%s' % port_group_id, fmt=self.fmt))
+        res = self.api.get(_get_path('port_groups/%s' % port_group_id,
+                                     fmt=self.fmt))
         self.assertEqual(exc.HTTPOk.code, res.status_int)
 
         instance.get_port_group.assert_called_once_with(
@@ -79,7 +81,8 @@ class PortGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
         res = self.api.delete(_get_path('port_groups', id=port_group_id))
 
-        instance.delete_port_group.assert_called_once_with(mock.ANY, port_group_id)
+        instance.delete_port_group.assert_called_once_with(mock.ANY,
+                                                           port_group_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
 
     def test_port_group_port_list(self):
@@ -108,7 +111,9 @@ class PortGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         instance.get_port_group_port.return_value = return_value
 
         res = self.api.get(
-            _get_path('port_group_ports/%s' % port_group_port_id, fmt=self.fmt))
+            _get_path('port_group_ports/%s' % port_group_port_id,
+                      fmt=self.fmt))
+
         self.assertEqual(exc.HTTPOk.code, res.status_int)
 
         instance.get_port_group_port.assert_called_once_with(
@@ -122,12 +127,13 @@ class PortGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
         instance = self.plugin.return_value
 
-        res = self.api.delete(_get_path('port_group_ports', 
+        res = self.api.delete(_get_path('port_group_ports',
                                         id=port_group_port_id))
 
         instance.delete_port_group_port.assert_called_once_with(mock.ANY,
             port_group_port_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
+
 
 class PortGroupExtensionTestCaseXml(PortGroupExtensionTestCase):
 

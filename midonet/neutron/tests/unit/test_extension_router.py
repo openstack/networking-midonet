@@ -23,6 +23,7 @@ from midonet.neutron.extensions import router
 _uuid = uuidutils.generate_uuid
 _get_path = test_api_v2._get_path
 
+
 class RouterExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
     fmt = "json"
 

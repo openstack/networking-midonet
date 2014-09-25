@@ -23,6 +23,7 @@ from midonet.neutron.extensions import midonet_port
 _uuid = uuidutils.generate_uuid
 _get_path = test_api_v2._get_path
 
+
 class PortExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
     fmt = "json"
 
@@ -71,7 +72,8 @@ class PortExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         instance = self.plugin.return_value
         instance.get_midonet_port.return_value = return_value
 
-        res = self.api.get(_get_path('midonet_ports/%s' % port_id, fmt=self.fmt))
+        res = self.api.get(_get_path('midonet_ports/%s' % port_id,
+                           fmt=self.fmt))
         self.assertEqual(exc.HTTPOk.code, res.status_int)
 
         instance.get_midonet_port.assert_called_once_with(
@@ -96,7 +98,8 @@ class PortExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         instance = self.plugin.return_value
         instance.update_midonet_port.return_value = return_value
 
-        res = self.api.put(_get_path('midonet_ports', id=port_id, fmt=self.fmt),
+        res = self.api.put(_get_path('midonet_ports', id=port_id,
+                                     fmt=self.fmt),
                            self.serialize(update_data))
 
         instance.update_midonet_port.assert_called_once_with(

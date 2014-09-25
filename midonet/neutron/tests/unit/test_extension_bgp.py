@@ -24,6 +24,7 @@ from midonet.neutron.extensions import bgp
 _uuid = uuidutils.generate_uuid
 _get_path = test_api_v2._get_path
 
+
 class BgpExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
     fmt = "json"
 
@@ -108,7 +109,8 @@ class BgpExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         instance = self.plugin.return_value
         instance.get_ad_route.return_value = return_value
 
-        res = self.api.get(_get_path('ad_routes/%s' % ad_route_id, fmt=self.fmt))
+        res = self.api.get(_get_path('ad_routes/%s' % ad_route_id,
+                                     fmt=self.fmt))
         self.assertEqual(exc.HTTPOk.code, res.status_int)
 
         instance.get_ad_route.assert_called_once_with(
@@ -126,6 +128,7 @@ class BgpExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
         instance.delete_ad_route.assert_called_once_with(mock.ANY, ad_route_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
+
 
 class BgpExtensionTestCaseXml(BgpExtensionTestCase):
 
