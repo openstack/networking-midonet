@@ -18,7 +18,7 @@ from neutron.openstack.common import uuidutils
 from neutron.tests.unit import test_api_v2
 from neutron.tests.unit import test_api_v2_extension
 
-from midonet.neutron.extensions import midonet_port
+from midonet.neutron.extensions import port
 
 _uuid = uuidutils.generate_uuid
 _get_path = test_api_v2._get_path
@@ -31,9 +31,9 @@ class PortExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         super(PortExtensionTestCase, self).setUp()
         plural_mappings = {'midonet_port': 'midonet_ports'}
         self._setUpExtension(
-            'midonet.neutron.extensions.midonet_port.PortPluginBase',
-            midonet_port.PORT, midonet_port.RESOURCE_ATTRIBUTE_MAP,
-            midonet_port.Midonet_port, '', plural_mappings=plural_mappings)
+            'midonet.neutron.extensions.port.PortPluginBase',
+            port.PORT, port.RESOURCE_ATTRIBUTE_MAP,
+            port.Port, '', plural_mappings=plural_mappings)
 
     def test_port_list(self):
         return_value = [{'device_id': _uuid(),
