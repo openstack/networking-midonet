@@ -21,7 +21,7 @@ from neutron.api import extensions
 from neutron.api.v2 import base
 from neutron import manager
 
-ROUTE = 'route'
+ROUTE = 'routing_table'
 ROUTES = '%ss' % ROUTE
 
 RESOURCE_ATTRIBUTE_MAP = {
@@ -41,7 +41,7 @@ RESOURCE_ATTRIBUTE_MAP = {
         'next_hop_port': {'allow_post': True, 'allow_put': True,
             'validate': {'type:uuid': None},
             'is_visible': True},
-        'router_id': {'allow_post': True, 'allow_put': True,
+        'routing_tabler_id': {'allow_post': True, 'allow_put': True,
             'validate': {'type:uuid': None},
             'is_visible': True},
         'src_cidr': {'allow_post': True, 'allow_put': True,
@@ -56,24 +56,24 @@ RESOURCE_ATTRIBUTE_MAP = {
 }
 
 
-class Route(object):
-    """Route extension."""
+class Routing_table(object):
+    """Routing Table extension."""
 
     @classmethod
     def get_name(cls):
-        return "Midonet Route Extension"
+        return "Midonet RoutingTable Extension"
 
     @classmethod
     def get_alias(cls):
-        return "route"
+        return "routing-table"
 
     @classmethod
     def get_description(cls):
-        return ("Route abstraction for basic route-related features")
+        return ("RoutingTable abstraction for basic routing_table-related features")
 
     @classmethod
     def get_namespace(cls):
-        return "http://docs.openstack.org/ext/route/api/v1.0"
+        return "http://docs.openstack.org/ext/routing_table/api/v1.0"
 
     @classmethod
     def get_updated(cls):
@@ -112,33 +112,33 @@ class Route(object):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class RoutePluginBase(object):
+class RoutingTablePluginBase(object):
 
     def get_plugin_name(self):
-        return "route plugin"
+        return "routing_table plugin"
 
     def get_plugin_type(self):
-        return "route"
+        return "routing_table"
 
     def get_plugin_description(self):
-        return "route extension base plugin"
+        return "routing_table extension base plugin"
 
     @abc.abstractmethod
-    def create_route(self, context, id, route):
+    def create_routing_table(self, context, id, routing_table):
         pass
 
     @abc.abstractmethod
-    def update_route(self, context, id, route):
+    def update_routing_table(self, context, id, routing_table):
         pass
 
     @abc.abstractmethod
-    def get_route(self, context, route, fields=None):
+    def get_routing_table(self, context, routing_table, fields=None):
         pass
 
     @abc.abstractmethod
-    def delete_route(self, context, id):
+    def delete_routing_table(self, context, id):
         pass
 
     @abc.abstractmethod
-    def get_routes(self, context, filters=None, fields=None):
+    def get_routing_tables(self, context, filters=None, fields=None):
         pass

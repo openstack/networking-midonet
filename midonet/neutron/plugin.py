@@ -90,7 +90,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                                    'security-group',
                                    'system',
                                    'routed-service-insertion',
-                                   'route',
+                                   'routing-table',
                                    'vtep',
                                    'lbaas',
                                    'tunnelzone']
