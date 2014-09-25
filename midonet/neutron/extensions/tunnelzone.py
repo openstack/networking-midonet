@@ -14,6 +14,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import abc
+
+import six
+
 from neutron.api import extensions
 from neutron.api.v2 import base
 from neutron import manager
@@ -112,3 +116,64 @@ class Tunnelzone(extensions.ExtensionDescriptor):
         exts.append(tunnelzonehost_extension)
 
         return exts
+
+
+@six.add_metaclass(abc.ABCMeta)
+class TunnelzonePluginBase(object):
+    """Abstract class for unit tests and further extensions for Tunnelzones and
+    Tunnelzonehosts.
+    """
+
+    def get_plugin_name(self):
+        return "Tunnelzone"
+
+    def get_plugin_type(self):
+        return "tunnelzone"
+
+    def get_plugin_description(self):
+        return "Tunnelzone extension base plugin"
+
+    @abc.abstractmethod
+    def create_tunnelzone(self, context, tunnelzone):
+        pass
+
+    @abc.abstractmethod
+    def delete_tunnelzone(self, context, id):
+        pass
+
+    @abc.abstractmethod
+    def get_tunnelzone(self, context, id, fields=None):
+        pass
+
+    @abc.abstractmethod
+    def get_tunnelzones(self, context, filter=None, fields=None):
+        pass
+
+    @abc.abstractmethod
+    def update_tunnelzone(self, context, id, tunnelzone):
+        pass
+
+    @abc.abstractmethod
+    def create_tunnelzone_tunnelzonehost(self, context, tunnelzonehost,
+                                         tunnelzone_id=None):
+        pass
+
+    @abc.abstractmethod
+    def delete_tunnelzone_tunnelzonehost(self, context, id,
+                                         tunneozone_id=None):
+        pass
+
+    @abc.abstractmethod
+    def get_tunnelzone_tunnelzonehost(self, context, id, tunelzone_id=None,
+                                      fields=None):
+        pass
+
+    @abc.abstractmethod
+    def get_tunnelzone_tunnelzonehosts(self, context, tunnelzone_id=None,
+                                       filter=None, fields=None):
+        pass
+
+    @abc.abstractmethod
+    def update_tunnelzone_tunnelzonehost(self, context, id, tunnelzone_id,
+                                         tunnelzonehost=None):
+        pass
