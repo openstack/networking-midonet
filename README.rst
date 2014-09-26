@@ -45,11 +45,12 @@ To know more detail about command options, please execute it with ``---help``.::
 Creating Packages
 -----------------
 
+Run the following command to generate both both the RPM and Debian packages 
+with the provided version:
 ::
-    $ ./package.sh v1.0
-    
-``package.sh`` generates both the RPM and Debian packages with the provided version.
 
+    $ ./package.sh some_version
+    
 
 HACKING
 -------
