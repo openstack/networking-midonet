@@ -94,3 +94,12 @@ class UtilTestCase(base.BaseTestCase):
         self.assertIsNot(getattr(BarPlugin, 'create_foo_bar', None), None)
         self.assertIsNot(getattr(BarPlugin, 'update_foo_bar', None), None)
         self.assertIsNot(getattr(BarPlugin, 'delete_foo_bar', None), None)
+
+    def test_generated_methods_underscore(self):
+        @util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
+        class Foo_barPlugin(object):
+            """Foo plugin description."""
+
+        self.assertEquals(Foo_barPlugin.ALIAS, 'foo_bar')
+
+        self._check_methods(Foo_barPlugin)
