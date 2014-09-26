@@ -63,7 +63,8 @@ class RoutingTableExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         instance = self.plugin.return_value
         instance.get_routing_table.return_value = return_value
 
-        res = self.api.get(_get_path('routing_tables/%s' % routing_table_id, fmt=self.fmt))
+        res = self.api.get(_get_path('routing_tables/%s' % routing_table_id,
+                                     fmt=self.fmt))
         self.assertEqual(exc.HTTPOk.code, res.status_int)
 
         instance.get_routing_table.assert_called_once_with(
@@ -82,7 +83,8 @@ class RoutingTableExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         instance = self.plugin.return_value
         instance.update_routing_table.return_value = return_value
 
-        res = self.api.put(_get_path('routing_tables', id=routing_table_id, fmt=self.fmt),
+        res = self.api.put(_get_path('routing_tables', id=routing_table_id,
+                                     fmt=self.fmt),
                            self.serialize(update_data))
 
         instance.update_routing_table.assert_called_once_with(
@@ -96,7 +98,8 @@ class RoutingTableExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
         res = self.api.delete(_get_path('routing_tables', id=routing_table_id))
 
-        instance.delete_routing_table.assert_called_once_with(mock.ANY, routing_table_id)
+        instance.delete_routing_table.assert_called_once_with(mock.ANY,
+            routing_table_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
 
 

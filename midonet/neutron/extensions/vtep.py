@@ -25,11 +25,11 @@ from neutron import manager
 VTEP = 'vtep'
 VTEPS = '%ss' % VTEP
 
-VTEP_PORT = 'vtep_port'
-VTEP_PORTS = '%ss' % VTEP_PORT
-
-VTEP_BINDING = 'vtep_binding'
+VTEP_BINDING = 'binding'
 VTEP_BINDINGS = '%ss' % VTEP_BINDING
+
+VXLAN = 'vxlan'
+VXLANS = '%ss' % VXLAN
 
 RESOURCE_ATTRIBUTE_MAP = {
     VTEPS: {
@@ -57,14 +57,6 @@ RESOURCE_ATTRIBUTE_MAP = {
             'is_visible': True},
         'tunnel_ip_addrs': {'allow_post': True, 'allow_put': False,
             'validate': {'type:list_of_string': None},
-            'is_visible': True},
-    },
-    VTEP_PORTS: {
-        'name': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:string': None},
-            'is_visible': True},
-        'description': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:string': None},
             'is_visible': True},
     },
     VTEP_BINDINGS: {
@@ -138,22 +130,25 @@ class Vtep(object):
         exts.append(ex)
 
         # vtep binding
+        parent = dict(member_name=VTEP, collection_name=VTEPS)
         collection_name = VTEP_BINDINGS
         params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller_host = base.create_resource(collection_name,
-                                               VTEP_BINDING, plugin,
-                                               params)
+        controller_host = base.create_resource(collection_name, VTEP_BINDING,
+                                               plugin, params, parent=parent)
 
-        ex = extensions.ResourceExtension(collection_name, controller_host)
+        ex = extensions.ResourceExtension(collection_name, controller_host,
+                                          parent)
         exts.append(ex)
 
-        # vtep port
-        collection_name = VTEP_PORTS
+        # vxlan binding
+        parent = dict(member_name=VTEP, collection_name=VTEPS)
+        collection_name = VXLANS
         params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller_host = base.create_resource(collection_name, VTEP_PORT,
-                                               plugin, params)
+        controller_host = base.create_resource(collection_name, VXLAN,
+                                               plugin, params, parent=parent)
 
-        ex = extensions.ResourceExtension(collection_name, controller_host)
+        ex = extensions.ResourceExtension(collection_name, controller_host,
+                                          parent)
         exts.append(ex)
 
         return exts
@@ -183,7 +178,7 @@ class VtepPluginBase(object):
     def get_plugin_description(self):
         return "vtep extension base plugin"
 
-    # VTEPS
+    """VTEPS"""
     @abc.abstractmethod
     def create_vtep(self, context, vtep):
         pass
@@ -200,29 +195,29 @@ class VtepPluginBase(object):
     def delete_vtep(self, context, ip_addr):
         pass
 
-    # VTEP BINDINGS
+    """VTEP BINDINGS"""
     @abc.abstractmethod
     def create_vtep_binding(self, context, vtep_binding):
         pass
 
     @abc.abstractmethod
-    def get_vtep_binding(self, context, port_name, vlan_id, fields=None):
+    def get_vtep_binding(self, context, binding, vtep_id, fields=None):
         pass
 
     @abc.abstractmethod
-    def get_vtep_bindings(self, context, filters=None, fields=None):
+    def get_vtep_bindings(self, context, vtep_id, filters=None, fields=None):
         pass
 
     @abc.abstractmethod
-    def delete_vtep_bindings(self, context, port_name, vlan_id, filters=None,
-                             fields=None):
+    def delete_vtep_binding(self, context, ip_addr, port_name_vlan_id,
+                            filters=None, fields=None):
         pass
 
-    # VTEP BINDINGS
+    """VTEP BINDINGS"""
     @abc.abstractmethod
-    def get_vxlan_port(self, context, port_name, vlan_id, fields=None):
+    def get_vtep_vxlan(self, context, vxlan_port, vtep_id, fields=None):
         pass
 
     @abc.abstractmethod
-    def get_vxlan_ports(self, context, filters=None, fields=None):
+    def get_vtep_vxlans(self, context, vtep_id, filters=None, fields=None):
         pass
