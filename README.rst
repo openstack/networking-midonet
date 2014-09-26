@@ -3,6 +3,15 @@ python-neutron-plugin-midonet
 
 This is the downstream Midonet Neutron plugin.
 
+
+How to Install
+--------------
+
+Run the following command to install the plugin in the system.
+
+    $ sudo python ./setup.py
+
+
 In ``neutron.conf``, set the core_plugin to:
 
 ::
@@ -29,6 +38,15 @@ always turned on.
 To know more detail about command options, please execute it with ``---help``.::
 
     $ ./run_tests.sh --help
+
+
+Creating Packages
+-----------------
+
+    $ ./package.sh v1.0
+    
+``package.sh`` generates both the RPM and Debian packages with the provided version.
+
 
 HACKING
 -------
