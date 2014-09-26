@@ -69,7 +69,8 @@ class Routing_table(object):
 
     @classmethod
     def get_description(cls):
-        return ("RoutingTable abstraction for basic routing_table-related features")
+        return ("RoutingTable abstraction for basic routing_table-related"
+                " features")
 
     @classmethod
     def get_namespace(cls):
