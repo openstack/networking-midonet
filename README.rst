@@ -7,7 +7,9 @@ This is the downstream Midonet Neutron plugin.
 How to Install
 --------------
 
-Run the following command to install the plugin in the system.
+Run the following command to install the plugin in the system:
+
+::
 
     $ sudo python ./setup.py
 
@@ -43,6 +45,7 @@ To know more detail about command options, please execute it with ``---help``.::
 Creating Packages
 -----------------
 
+::
     $ ./package.sh v1.0
     
 ``package.sh`` generates both the RPM and Debian packages with the provided version.
