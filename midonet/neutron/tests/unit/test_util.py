@@ -24,7 +24,7 @@ CREATE = api_base.Controller.CREATE
 DELETE = api_base.Controller.DELETE
 LIST = api_base.Controller.LIST
 SHOW = api_base.Controller.SHOW
-UPDATE= api_base.Controller.UPDATE
+UPDATE = api_base.Controller.UPDATE
 
 _uuid = uuidutils.generate_uuid
 
@@ -63,7 +63,7 @@ class UtilTestCase(base.BaseTestCase):
 
         foo_plugin = FooPlugin()
         foo_id = _uuid()
-        self.assertEquals(foo_plugin.get_foo(dict(), foo_id), foo_id)
+        self.assertEqual(foo_plugin.get_foo(dict(), foo_id), foo_id)
 
     def test_generated_methods_without_some_predefinitions(self):
         @util.generate_methods(LIST, SHOW)
@@ -100,6 +100,30 @@ class UtilTestCase(base.BaseTestCase):
         class Foo_barPlugin(object):
             """Foo plugin description."""
 
-        self.assertEquals(Foo_barPlugin.ALIAS, 'foo_bar')
+        self.assertEqual(Foo_barPlugin.ALIAS, 'foo_bar')
 
         self._check_methods(Foo_barPlugin)
+
+    def test_generated_methods_inheritance(self):
+        @util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
+        class FooPlugin(object):
+            """Foo plugin description."""
+
+        @util.generate_methods(SHOW, UPDATE, DELETE)
+        class BarOfFooPlugin(object):
+            """Bar plugin description."""
+
+        @util.generate_methods(LIST, CREATE)
+        class BarPlugin(BarOfFooPlugin):
+            """FooBar plugin description."""
+            PARENT = FooPlugin.ALIAS
+
+        self.assertEqual(FooPlugin.ALIAS, 'foo')
+
+        self._check_methods(FooPlugin)
+
+        self.assertIsNot(getattr(BarPlugin, 'get_bar', None), None)
+        self.assertIsNot(getattr(BarPlugin, 'get_foo_bars', None), None)
+        self.assertIsNot(getattr(BarPlugin, 'create_foo_bar', None), None)
+        self.assertIsNot(getattr(BarPlugin, 'update_bar', None), None)
+        self.assertIsNot(getattr(BarPlugin, 'delete_bar', None), None)
