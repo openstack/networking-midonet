@@ -28,30 +28,41 @@ ADROUTE = 'ad_route'
 ADROUTES = '%ss' % ADROUTE
 
 RESOURCE_ATTRIBUTE_MAP = {
-    BGP: {
-        'id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+    BGPS: {
+        'id': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:uuid': None},
+               'is_visible': True},
         'local_as': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
-        'peer_as': {'allow_post': False, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                     'validate': {'type:range': [0, 65535]},
+                     'is_visible': True},
+        'peer_as': {'allow_post': True, 'allow_put': False,
+                    'validate': {'type:range': [0, 65535]},
+                    'is_visible': True},
         'peer_addr': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                      'validate': {'type:ip_address': None},
+                      'is_visible': True},
+        'tenant_id': {'allow_post': True, 'allow_put': False,
+                      'required_by_policy': True,
+                      'validate': {'type:uuid': None},
+                      'is_visible': True}
     },
-    ADROUTE: {
-        'id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+    ADROUTES: {
+        'id': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:uuid': None},
+               'is_visible': True},
         'nw_prefix': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                      'validate': {'type:ip_address': None},
+                      'is_visible': True},
         'prefix_length': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:range': [0, 32]},
-            'is_visible': True},
+                          'validate': {'type:range': [0, 32]},
+                          'is_visible': True},
+        'bgp_id': {'allow_post': False, 'allow_put': False,
+                   'validate': {'type:uuid': None},
+                   'is_visible': True},
+        'tenant_id': {'allow_post': True, 'allow_put': False,
+                      'required_by_policy': True,
+                      'validate': {'type:uuid': None},
+                      'is_visible': True}
     }
 }
 
@@ -86,21 +97,21 @@ class Bgp(object):
         plugin = manager.NeutronManager.get_plugin()
 
         # Bgp
+        resource_name = BGP
         collection_name = BGPS
         params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller_host = base.create_resource(collection_name, BGP, plugin,
-                                               params)
-
-        ex = extensions.ResourceExtension(collection_name, controller_host)
+        bgp_controller = base.create_resource(
+            collection_name, resource_name, plugin, params)
+        ex = extensions.ResourceExtension(collection_name, bgp_controller)
         exts.append(ex)
 
         # AdRoute
+        resource_name = ADROUTE
         collection_name = ADROUTES
-        params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller_host = base.create_resource(collection_name, ADROUTE,
-                                               plugin, params)
-
-        ex = extensions.ResourceExtension(collection_name, controller_host)
+        ad_route_params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
+        ad_route_controller = base.create_resource(
+            collection_name, resource_name, plugin, ad_route_params)
+        ex = extensions.ResourceExtension(collection_name, ad_route_controller)
         exts.append(ex)
 
         return exts
