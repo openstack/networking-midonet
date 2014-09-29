@@ -209,8 +209,8 @@ class VtepPluginBase(object):
         pass
 
     @abc.abstractmethod
-    def delete_vtep_binding(self, context, ip_addr, port_name_vlan_id,
-                            filters=None, fields=None):
+    def delete_vtep_binding(self, context, binding, vtep_id, filters=None,
+                            fields=None):
         pass
 
     """VTEP BINDINGS"""
