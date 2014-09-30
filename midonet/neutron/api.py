@@ -15,6 +15,7 @@
 #    under the License.
 
 from midonet.neutron.common import util
+from midonet.neutron.extensions import bridge
 from midonet.neutron.extensions import chain_rule
 
 from neutron.api.v2 import base
@@ -35,6 +36,11 @@ class BgpHandlerMixin(object):
 class AdRouteHandlerMixin(object):
     """The mixin of the request handler for the advertised routes."""
     ALIAS = 'ad_route'
+
+
+@util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
+class BridgeHandlerMixin(bridge.BridgePluginBase):
+    """The mixin of the request handler for the bridges."""
 
 
 @util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
@@ -60,6 +66,7 @@ class TunnelzonehostHandlerMixin(object):
 
 class MidoNetApiMixin(AdRouteHandlerMixin,
                       BgpHandlerMixin,
+                      BridgeHandlerMixin,
                       ChainHandlerMixin,
                       RuleHandlerMixin,
                       TunnelzoneHandlerMixin,

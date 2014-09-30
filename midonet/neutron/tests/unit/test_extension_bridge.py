@@ -11,6 +11,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+import copy
 import mock
 from webob import exc
 
@@ -32,7 +34,7 @@ class BridgeExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         plural_mappings = {'bridge': 'bridges'}
         self._setUpExtension(
             'midonet.neutron.extensions.bridge.BridgePluginBase',
-            bridge.BRIDGE, bridge.RESOURCE_ATTRIBUTE_MAP,
+            None, bridge.RESOURCE_ATTRIBUTE_MAP,
             bridge.Bridge, '', plural_mappings=plural_mappings)
 
     def test_bridge_list(self):
@@ -75,6 +77,27 @@ class BridgeExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
         res = self.deserialize(res)
         self.assertIn('bridge', res)
+
+    def test_bridge_create(self):
+        bridge_id = _uuid()
+        data = {'bridge': {'name': 'BLAH BLAH',
+                           'inbound_filter_id': None,
+                           'outbound_filter_id': None,
+                           'tenant_id': _uuid()}}
+        return_value = copy.deepcopy(data['bridge'])
+        return_value.update({'id': bridge_id})
+        instance = self.plugin.return_value
+        instance.create_bridge.return_value = return_value
+
+        res = self.api.post(_get_path('bridges', fmt=self.fmt),
+                            self.serialize(data),
+                            content_type='appliction/%s' % self.fmt)
+        self.assertEqual(exc.HTTPCreated.code, res.status_int)
+        instance.create_bridge.assert_called_once_with(
+            mock.ANY, bridge=data)
+        res = self.deserialize(res)
+        self.assertIn('bridge', res)
+        self.assertEqual(res['bridge'], return_value)
 
     def test_bridge_update(self):
         bridge_id = _uuid()

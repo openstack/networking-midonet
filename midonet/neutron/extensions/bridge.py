@@ -27,15 +27,15 @@ BRIDGES = '%ss' % BRIDGE
 
 RESOURCE_ATTRIBUTE_MAP = {
     BRIDGES: {
-        'id': {'allow_post': True, 'allow_put': False,
+        'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
-               'is_visible': True, 'default': None},
+               'is_visible': True},
         'inbound_filter_id': {'allow_post': True, 'allow_put': True,
                               'validate': {'type:uuid_or_none': None},
                               'is_visible': True, 'default': None},
         'name': {'allow_post': True, 'allow_put': True,
                  'validate': {'type:string': None},
-                 'is_visible': True, 'default': None},
+                 'is_visible': True, 'default': ''},
         'outbound_filter_id': {'allow_post': True, 'allow_put': True,
                                'validate': {'type:uuid_or_none': None},
                                'is_visible': True, 'default': None},
@@ -61,7 +61,7 @@ class Bridge(extensions.ExtensionDescriptor):
 
     @classmethod
     def get_description(cls):
-        return ("midonet bridge extension")
+        return "midonet bridge extension"
 
     @classmethod
     def get_namespace(cls):
@@ -77,11 +77,11 @@ class Bridge(extensions.ExtensionDescriptor):
         plugin = manager.NeutronManager.get_plugin()
         collection_name = BRIDGES
         params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller_host = base.create_resource(collection_name, BRIDGE, plugin,
-                                               params)
-
-        ex = extensions.ResourceExtension(collection_name, controller_host)
+        controller = base.create_resource(
+            collection_name, BRIDGE, plugin, params)
+        ex = extensions.ResourceExtension(collection_name, controller)
         exts.append(ex)
+
         return exts
 
     def update_attributes_map(self, attributes):
@@ -101,17 +101,8 @@ class Bridge(extensions.ExtensionDescriptor):
 @six.add_metaclass(abc.ABCMeta)
 class BridgePluginBase(object):
 
-    def get_plugin_name(self):
-        return "bridge plugin"
-
-    def get_plugin_type(self):
-        return "bridge"
-
-    def get_plugin_description(self):
-        return "Bridge extension base plugin"
-
     @abc.abstractmethod
-    def create_bridge(self, context, id, bridge):
+    def create_bridge(self, context, bridge):
         pass
 
     @abc.abstractmethod
