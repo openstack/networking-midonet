@@ -87,9 +87,13 @@ def generate_methods(*methods):
 
     def wrapper(cls):
         # Use the first capitalzed word as an alias.
-        [capitalized_resource] = re.findall('^[A-Z][a-z0-9_]*', cls.__name__)
-        alias = capitalized_resource.lower()
-        setattr(cls, 'ALIAS', alias)
+        try:
+            alias = getattr(cls, 'ALIAS')
+        except AttributeError:
+            [capitalized_resource] = re.findall(
+                '^[A-Z][a-z0-9_]*', cls.__name__)
+            alias = capitalized_resource.lower()
+            setattr(cls, 'ALIAS', alias)
         parent = getattr(cls, 'PARENT', None)
         if parent:
             alias = '%s_%s' % (parent, alias)
