@@ -18,6 +18,7 @@ import abc
 import six
 
 from neutron.api import extensions
+from neutron.api.v2 import attributes as attr
 from neutron.api.v2 import base
 from neutron import manager
 
@@ -27,143 +28,222 @@ CHAINS = '%ss' % CHAIN
 RULE = 'rule'
 RULES = '%ss' % RULE
 
+
+# Monkey patches to add validations.
+def _validate_non_negative_or_none(data, valid_values=None):
+    if data is not None:
+        attr._validate_non_negative_or_none(data, valid_values)
+
+
+def _validate_range_or_none(data, valid_values=None):
+    if data is not None:
+        attr._validate_range(data, valid_values)
+
+
+attr.validators['type:non_negative_or_none'] = _validate_non_negative_or_none
+attr.validators['type:range_or_none'] = _validate_range_or_none
+
+
 RESOURCE_ATTRIBUTE_MAP = {
     CHAINS: {
-        'id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+        'id': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:uuid': None},
+               'is_visible': True},
         'name': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                 'validate': {'type:string': None},
+                 'is_visible': True},
         'rules': {'allow_post': False, 'allow_put': False,
-            'is_visible': True},
+                  'validate': {
+                      'type:list_or_empty': {
+                          'value': {'type:uuid': None}
+                      }
+                  },
+                  'is_visible': True},
         'tenant_id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                      'validate': {'type:uuid': None},
+                      'is_visible': True}
     },
     RULES: {
         'chain_id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                     'validate': {'type:uuid': None},
+                     'is_visible': True},
         'cond_invert': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                        'validate': {'type:boolean': None},
+                        'is_visible': True, 'default': None},
         'dl_dst': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:mac_address': None},
-            'is_visible': True},
+                   'validate': {'type:mac_address_or_none': None},
+                   'is_visible': True, 'default': None},
         'dl_dst_mask': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:mac_address': None},
-            'is_visible': True},
+                        'validate': {'type:mac_address_or_none': None},
+                        'is_visible': True, 'default': None},
         'dl_src': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:mac_address': None},
-            'is_visible': True},
+                   'validate': {'type:mac_address_or_none': None},
+                   'is_visible': True, 'default': None},
         'dl_src_mask': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:mac_address': None},
-            'is_visible': True},
+                        'validate': {'type:mac_address_or_none': None},
+                        'is_visible': True, 'default': None},
         'dlType': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:non_negative': None},
-            'is_visible': True},
+                   'validate': {'type:non_negative_or_none': None},
+                   'is_visible': True, 'default': None},
         'flow_action': {'allow_post': True, 'allow_put': False,
-            'is_visible': True},
+                        'validate': {
+                            'type:string_or_none': [
+                                'accept',
+                                'continue',
+                                'return'
+                            ]},
+                        'default': None,
+                        'is_visible': True},
         'fragment_policy': {'allow_post': True, 'allow_put': False,
-            'is_visible': True},
-        'id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                            'is_visible': True,
+                            'validate': {
+                                'type:string_or_none': [
+                                    'any',
+                                    'header',
+                                    'nonheader',
+                                    'unfragmented'
+                                ]
+                            },
+                            'default': None},
+        'id': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:uuid': None},
+               'is_visible': True},
         'in_ports': {'allow_post': True, 'allow_put': False,
-            'is_visible': True},
+                     'is_visible': True,
+                     'validates': {
+                         'type:list_or_none': {
+                             'value': {'type:uuid': None}
+                         }
+                     }},
         'inv_dl_dst': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                       'validate': {'type:boolean': None},
+                       'is_visible': True, 'default': False},
         'inv_dl_src': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                       'validate': {'type:boolean': None},
+                       'is_visible': True, 'default': False},
         'inv_dlType': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                       'validate': {'type:boolean': None},
+                       'is_visible': True, 'default': False},
         'inv_in_ports': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                         'validate': {'type:boolean': None},
+                         'is_visible': True, 'default': False},
         'inv_ip_addr_group_dst': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                                  'validate': {'type:boolean': None},
+                                  'is_visible': True, 'default': False},
         'inv_ip_addr_group_src': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                                  'validate': {'type:boolean': None},
+                                  'is_visible': True, 'default': False},
         'inv_nw_dst': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                       'validate': {'type:boolean': None},
+                       'is_visible': True, 'default': False},
         'inv_nw_proto': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                         'validate': {'type:boolean': None},
+                         'is_visible': True, 'default': False},
         'inv_nw_src': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                       'validate': {'type:boolean': None},
+                       'is_visible': True, 'default': False},
         'inv_nw_tos': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                       'validate': {'type:boolean': None},
+                       'is_visible': True, 'default': False},
         'inv_out_ports': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                          'validate': {'type:boolean': None},
+                          'is_visible': True, 'default': False},
         'inv_port_group': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                           'validate': {'type:boolean': None},
+                           'is_visible': True, 'default': False},
         'inv_tp_dst': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                       'validate': {'type:boolean': None},
+                       'is_visible': True, 'default': False},
         'inv_tp_src': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                       'validate': {'type:boolean': None},
+                       'is_visible': True, 'default': False},
         'ip_addr_group_dst': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                              'validate': {'type:uuid_or_none': None},
+                              'is_visible': True, 'default': None},
         'ip_addr_group_src': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                              'validate': {'type:uuid_or_none': None},
+                              'is_visible': True, 'default': None},
         'jump_chain_id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                          'validate': {'type:uuid_or_none': None},
+                          'is_visible': True, 'default': None},
         'jump_chainName': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                           'validate': {'type:string_or_none': None},
+                           'is_visible': True, 'default': None},
         'match_forward_flow': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                               'validate': {'type:boolean': None},
+                               'is_visible': True, 'default': False},
         'match_return_flow': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                              'validate': {'type:boolean': None},
+                              'is_visible': True, 'default': False},
         'nat_targets': {'allow_post': True, 'allow_put': False,
-            'is_visible': True},
+                        'is_visible': True,
+                        'validate': {
+                            'type:list_of_dict_or_none': {
+                                'addressFrom': {'type:ip_address': None,
+                                                'required': True},
+                                'addressTo': {'type:ip_address': None,
+                                              'required': True},
+                                'portFrom': {'type:range_or_none': [0, 65535],
+                                             'required': True,
+                                             'default': None},
+                                'portTo': {'type:range_or_none': [0, 65535],
+                                           'required': True,
+                                           'default': None}
+                            }
+                        },
+                        'default': None},
         'nw_dst_cidr': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                        'validate': {'type:subnet_or_none': None},
+                        'is_visible': True, 'default': None},
         'nw_proto': {'allow_post': True, 'allow_put': False,
-            'is_visible': True},
+                     'is_visible': True,
+                     'validate': {'type:range_or_none': [0, 255]},
+                     'default': None},
         'nw_src_cidr': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                        'validate': {'type:subnet_or_none': None},
+                        'is_visible': True, 'default': None},
         'nw_tos': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:range': [0, 65335]},
-            'is_visible': True},
+                   'validate': {'type:range_or_none': [0, 255]},
+                   'is_visible': True, 'default': None},
         'out_ports': {'allow_post': True, 'allow_put': False,
-            'is_visible': True},
+                      'is_visible': True,
+                      'validates': {
+                          'type:list_or_none': {
+                              'value': {'type:uuid': None}
+                          }
+                      },
+                      'default': None},
         'port_group': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                       'validate': {'type:uuid_or_none': None},
+                       'is_visible': True, 'default': None},
         'position': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:range': [0, 65335]},
-            'is_visible': True},
+                     'validate': {'type:range_or_none': [0, 65335]},
+                     'is_visible': True, 'default': None},
         'properties': {'allow_post': True, 'allow_put': False,
-            'is_visible': True},
+                       'is_visible': True, 'default': None},
+        'tenant_id': {'allow_post': True, 'allow_put': True,
+                      'validate': {'type:uuid': None},
+                      'is_visible': True, 'default': None},
         'tp_dst': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:range': [0, 65335]},
-            'is_visible': True},
+                   'validate': {'type:range_or_none': [0, 65335]},
+                   'is_visible': True, 'default': None},
         'tp_src': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:range': [0, 65335]},
-            'is_visible': True},
+                   'validate': {'type:range_or_none': [0, 65335]},
+                   'is_visible': True, 'default': None},
         'type': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                 'validate': {'type:string': [
+                     'accept',
+                     'dnat',
+                     'drop',
+                     'jump',
+                     'rev_dnat',
+                     'rev_snat',
+                     'reject',
+                     'return',
+                     'snat'
+                 ]},
+                 'is_visible': True,
+                 'default': None}
     }
 }
 
@@ -181,7 +261,7 @@ class Chain_rule(object):
 
     @classmethod
     def get_description(cls):
-        return ("Chain abstraction for basic chain-related features")
+        return "Chain abstraction for basic chain-related features"
 
     @classmethod
     def get_namespace(cls):
@@ -200,19 +280,17 @@ class Chain_rule(object):
         # Chains
         collection_name = CHAINS
         params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller_host = base.create_resource(collection_name, CHAIN, plugin,
-                                               params)
-
-        ex = extensions.ResourceExtension(collection_name, controller_host)
+        chain_controller = base.create_resource(
+            collection_name, CHAIN, plugin, params)
+        ex = extensions.ResourceExtension(collection_name, chain_controller)
         exts.append(ex)
 
         # Rules
         collection_name = RULES
         params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller_host = base.create_resource(collection_name, RULE, plugin,
-                                               params)
-
-        ex = extensions.ResourceExtension(collection_name, controller_host)
+        rule_controller = base.create_resource(
+            collection_name, RULE, plugin, params)
+        ex = extensions.ResourceExtension(collection_name, rule_controller)
         exts.append(ex)
 
         return exts
@@ -231,19 +309,10 @@ class Chain_rule(object):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class ChainRulePluginBase(object):
-
-    def get_plugin_name(self):
-        return "chain-rule plugin"
-
-    def get_plugin_type(self):
-        return "chain-rule"
-
-    def get_plugin_description(self):
-        return "Chain-rule extension base plugin"
+class ChainPluginBase(object):
 
     @abc.abstractmethod
-    def create_chain(self, context, id, chain):
+    def create_chain(self, context, chain):
         pass
 
     @abc.abstractmethod
@@ -262,8 +331,12 @@ class ChainRulePluginBase(object):
     def get_chains(self, context, filters=None, fields=None):
         pass
 
+
+@six.add_metaclass(abc.ABCMeta)
+class RulePluginBase(object):
+
     @abc.abstractmethod
-    def create_rule(self, context, id, rule):
+    def create_rule(self, context, rule):
         pass
 
     @abc.abstractmethod

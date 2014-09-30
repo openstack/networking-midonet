@@ -15,6 +15,7 @@
 #    under the License.
 
 from midonet.neutron.common import util
+from midonet.neutron.extensions import chain_rule
 
 from neutron.api.v2 import base
 
@@ -37,6 +38,16 @@ class AdRouteHandlerMixin(object):
 
 
 @util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
+class ChainHandlerMixin(chain_rule.ChainPluginBase):
+    """The mixin of the request handler for the chains."""
+
+
+@util.generate_methods(LIST, SHOW, CREATE, DELETE)
+class RuleHandlerMixin(chain_rule.RulePluginBase):
+    """The mixin of the request handler for the rules."""
+
+
+@util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
 class TunnelzoneHandlerMixin(object):
     """The mixin of the request handler for the tunnel zones."""
 
@@ -49,6 +60,8 @@ class TunnelzonehostHandlerMixin(object):
 
 class MidoNetApiMixin(AdRouteHandlerMixin,
                       BgpHandlerMixin,
+                      ChainHandlerMixin,
+                      RuleHandlerMixin,
                       TunnelzoneHandlerMixin,
                       TunnelzonehostHandlerMixin):
     """MidoNet REST API plugin."""
