@@ -35,33 +35,33 @@ HOST_INTERFACE = 'host_interfaces'
 HOST_INTERFACES = '%ss' % HOST_INTERFACE
 
 HOST_INTERFACE_ATTRIBUTE_MAP = {
-        'host_id': {'allow_post': False, 'allow_put': False,
-                    'validate': {'type:uuid': None},
-                    'is_visible': True, 'primary_key': True},
-        'name': {'allow_post': False, 'allow_put': False,
+    'host_id': {'allow_post': False, 'allow_put': False,
+                'validate': {'type:uuid': None},
+                'is_visible': True, 'primary_key': True},
+    'name': {'allow_post': False, 'allow_put': False,
+             'validate': {'type:string': None},
+             'is_visible': True, 'default': ''},
+    'mac': {'allow_post': False, 'allow_put': False,
+            'validate': {'type:string': None},
+            'is_visible': True, 'default': ''},
+    'mtu': {'allow_post': False, 'allow_put': False,
+            'validate': {'type:string': None},
+            'is_visible': True, 'default': ''},
+    'status': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:string': None},
+               'is_visible': True, 'default': ''},
+    'type': {'allow_post': False, 'allow_put': False,
+             'validate': {'type:string': None},
+             'is_visible': True, 'default': ''},
+    'endpoint': {'allow_post': False, 'allow_put': False,
                  'validate': {'type:string': None},
                  'is_visible': True, 'default': ''},
-        'mac': {'allow_post': False, 'allow_put': False,
-                'validate': {'type:string': None},
-                'is_visible': True, 'default': ''},
-        'mtu': {'allow_post': False, 'allow_put': False,
-                'validate': {'type:string': None},
-                'is_visible': True, 'default': ''},
-        'status': {'allow_post': False, 'allow_put': False,
-                   'validate': {'type:string': None},
-                   'is_visible': True, 'default': ''},
-        'type': {'allow_post': False, 'allow_put': False,
-                 'validate': {'type:string': None},
-                 'is_visible': True, 'default': ''},
-        'endpoint': {'allow_post': False, 'allow_put': False,
-                     'validate': {'type:string': None},
-                     'is_visible': True, 'default': ''},
-        'port_type': {'allow_post': False, 'allow_put': False,
-                      'validate': {'type:string': None},
-                      'is_visible': True, 'default': ''},
-        'addresses': {'allow_post': False, 'allow_put': False,
-                      'validate': {'type:string': None},
-                      'is_visible': True, 'default': ''},
+    'port_type': {'allow_post': False, 'allow_put': False,
+                  'validate': {'type:string': None},
+                  'is_visible': True, 'default': ''},
+    'addresses': {'allow_post': False, 'allow_put': False,
+                  'validate': {'type:string': None},
+                  'is_visible': True, 'default': ''},
 }
 
 RESOURCE_ATTRIBUTE_MAP = {
@@ -158,15 +158,6 @@ class Host(object):
 
 @six.add_metaclass(abc.ABCMeta)
 class HostPluginBase(object):
-
-    def get_plugin_name(self):
-        return "Host plugin"
-
-    def get_plugin_type(self):
-        return "host"
-
-    def get_plugin_description(self):
-        return "Host extension base plugin"
 
     @abc.abstractmethod
     def update_host(self, context, id, host):

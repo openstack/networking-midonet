@@ -17,6 +17,7 @@
 from midonet.neutron.common import util
 from midonet.neutron.extensions import bridge
 from midonet.neutron.extensions import chain_rule
+from midonet.neutron.extensions import host
 from midonet.neutron.extensions import ip_addr_group
 
 from neutron.api.v2 import base
@@ -37,6 +38,11 @@ class BgpHandlerMixin(object):
 class AdRouteHandlerMixin(object):
     """The mixin of the request handler for the advertised routes."""
     ALIAS = 'ad_route'
+
+
+@util.generate_methods(LIST, SHOW, UPDATE, DELETE)
+class HostHandlerMixin(host.HostPluginBase):
+    """The mixin of the request handler for the hosts."""
 
 
 @util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
@@ -80,6 +86,7 @@ class MidoNetApiMixin(AdRouteHandlerMixin,
                       BridgeHandlerMixin,
                       ChainHandlerMixin,
                       RuleHandlerMixin,
+                      HostHandlerMixin,
                       IpAddrGroupHandlerMixin,
                       IpAddrGrouAddrHandlerMixin,
                       TunnelzoneHandlerMixin,
