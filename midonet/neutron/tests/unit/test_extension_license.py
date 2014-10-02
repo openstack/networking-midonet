@@ -33,7 +33,7 @@ class LicenseExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         plural_mappings = {'license': 'licenses'}
         self._setUpExtension(
             'midonet.neutron.extensions.license.LicensePluginBase',
-            license.LICENSE, license.RESOURCE_ATTRIBUTE_MAP,
+            None, license.RESOURCE_ATTRIBUTE_MAP,
             license.License, '', plural_mappings=plural_mappings)
 
     def test_license_list(self):

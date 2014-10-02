@@ -27,35 +27,35 @@ LICENSES = '%ss' % LICENSE
 RESOURCE_ATTRIBUTE_MAP = {
     LICENSES: {
         'description': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                        'validate': {'type:string': None},
+                        'is_visible': True},
         'end_date': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                     'validate': {'type:string': None},
+                     'is_visible': True},
         'extra': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                  'validate': {'type:string': None},
+                  'is_visible': True},
         'holder_x500': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                        'validate': {'type:string': None},
+                        'is_visible': True},
         'id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+               'validate': {'type:string': None},
+               'is_visible': True},
         'issue_date': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                       'validate': {'type:string': None},
+                       'is_visible': True},
         'issuer_x500': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                        'validate': {'type:string': None},
+                        'is_visible': True},
         'product': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                    'validate': {'type:string': None},
+                    'is_visible': True},
         'start_date': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                       'validate': {'type:string': None},
+                       'is_visible': True},
         'valid': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                  'validate': {'type:boolean': None},
+                  'is_visible': True},
     }
 }
 
@@ -73,7 +73,7 @@ class License(object):
 
     @classmethod
     def get_description(cls):
-        return ("License abstraction for basic license-related features")
+        return "License abstraction for basic license-related features"
 
     @classmethod
     def get_namespace(cls):
@@ -92,12 +92,9 @@ class License(object):
         resource_name = LICENSE
         collection_name = LICENSES
         params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller_host = base.create_resource(collection_name,
-                                               resource_name,
-                                               plugin,
-                                               params)
-
-        ex = extensions.ResourceExtension(collection_name, controller_host)
+        controller = base.create_resource(
+            collection_name, resource_name, plugin, params)
+        ex = extensions.ResourceExtension(collection_name, controller)
         exts.append(ex)
 
         return exts
@@ -117,15 +114,6 @@ class License(object):
 
 @six.add_metaclass(abc.ABCMeta)
 class LicensePluginBase(object):
-
-    def get_plugin_name(self):
-        return "License plugin"
-
-    def get_plugin_type(self):
-        return "license"
-
-    def get_plugin_description(self):
-        return "License extension base plugin"
 
     @abc.abstractmethod
     def update_license(self, context, id, license):
