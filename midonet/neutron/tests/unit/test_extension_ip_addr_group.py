@@ -11,6 +11,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+import copy
 import mock
 from webob import exc
 
@@ -25,14 +27,13 @@ _get_path = test_api_v2._get_path
 
 
 class IpAddrGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
-    """Test the endpoints for the ip_addr_group and ip_addr_group_addr
-       extension."""
+    """Test the endpoints for the ip_addr_group extension."""
+
     fmt = "json"
 
     def setUp(self):
         super(IpAddrGroupExtensionTestCase, self).setUp()
-        plural_mappings = {'ip_addr_group': 'ip_addr_groups',
-                           'ip_addr_group_addr': 'ip_addr_group_addrs'}
+        plural_mappings = {'ip_addr_group': 'ip_addr_groups'}
         self._setUpExtension(
             'midonet.neutron.extensions.ip_addr_group.IpAddrGroupPluginBase',
             None, ip_addr_group.RESOURCE_ATTRIBUTE_MAP,
@@ -73,6 +74,25 @@ class IpAddrGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         res = self.deserialize(res)
         self.assertIn('ip_addr_group', res)
 
+    def test_ip_addr_group_create(self):
+        ip_addr_group_id = _uuid()
+        data = {'ip_addr_group': {'name': 'dummp_ip_addr_group',
+                                  'tenant_id': _uuid()}}
+        return_value = copy.deepcopy(data['ip_addr_group'])
+        return_value.update({'id': ip_addr_group_id})
+        instance = self.plugin.return_value
+        instance.create_ip_addr_group.return_value = return_value
+
+        res = self.api.post(_get_path('ip_addr_groups', fmt=self.fmt),
+                            self.serialize(data),
+                            content_type='application/%s' % self.fmt)
+        self.assertEqual(exc.HTTPCreated.code, res.status_int)
+        instance.create_ip_addr_group.assert_called_once_with(
+            mock.ANY, ip_addr_group=data)
+        res = self.deserialize(res)
+        self.assertIn('ip_addr_group', res)
+        self.assertEqual(res['ip_addr_group'], return_value)
+
     def test_ip_addr_group_delete(self):
         ip_addr_group_id = _uuid()
 
@@ -83,6 +103,26 @@ class IpAddrGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         instance.delete_ip_addr_group.assert_called_once_with(mock.ANY,
                                                               ip_addr_group_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
+
+
+class IpAddrGroupExtensionTestCaseXml(IpAddrGroupExtensionTestCase):
+    fmt = "xml"
+
+
+class IpAddrGroupAddrExtensionTestCase(
+        test_api_v2_extension.ExtensionTestCase):
+    """Test the endpoints for the ip_addr_group_addr extension."""
+
+    fmt = "json"
+
+    def setUp(self):
+        super(IpAddrGroupAddrExtensionTestCase, self).setUp()
+        plural_mappings = {'ip_addr_group_addr': 'ip_addr_group_addrs'}
+        self._setUpExtension(
+            'midonet.neutron.extensions.ip_addr_group.' +
+            'IpAddrGroupAddrPluginBase',
+            None, ip_addr_group.RESOURCE_ATTRIBUTE_MAP,
+            ip_addr_group.Ip_addr_group, '', plural_mappings=plural_mappings)
 
     def test_ip_addr_group_addr_list(self):
         return_value = [{'addr': "10.0.0.0",
@@ -120,6 +160,24 @@ class IpAddrGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         res = self.deserialize(res)
         self.assertIn('ip_addr_group_addr', res)
 
+    def test_ip_addr_group_addr_create(self):
+        data = {'ip_addr_group_addr': {'addr': '10.0.0.0',
+                                       'ip_addr_group_id': _uuid(),
+                                       'tenant_id': _uuid()}}
+        return_value = copy.deepcopy(data['ip_addr_group_addr'])
+        instance = self.plugin.return_value
+        instance.create_ip_addr_group_addr.return_value = return_value
+
+        res = self.api.post(_get_path('ip_addr_group_addrs', fmt=self.fmt),
+                            self.serialize(data),
+                            content_type='application/%s' % self.fmt)
+        self.assertEqual(exc.HTTPCreated.code, res.status_int)
+        instance.create_ip_addr_group_addr.assert_called_once_with(
+            mock.ANY, ip_addr_group_addr=data)
+        res = self.deserialize(res)
+        self.assertIn('ip_addr_group_addr', res)
+        self.assertEqual(res['ip_addr_group_addr'], return_value)
+
     def test_ip_addr_group_addr_delete(self):
         ip_addr_group_addr_id = _uuid()
 
@@ -133,6 +191,5 @@ class IpAddrGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
 
 
-class IpAddrGroupExtensionTestCaseXml(IpAddrGroupExtensionTestCase):
-
+class IpAddrGroupAddrExtensionTestCaseXml(IpAddrGroupAddrExtensionTestCase):
     fmt = "xml"

@@ -17,6 +17,7 @@
 from midonet.neutron.common import util
 from midonet.neutron.extensions import bridge
 from midonet.neutron.extensions import chain_rule
+from midonet.neutron.extensions import ip_addr_group
 
 from neutron.api.v2 import base
 
@@ -53,6 +54,16 @@ class RuleHandlerMixin(chain_rule.RulePluginBase):
     """The mixin of the request handler for the rules."""
 
 
+@util.generate_methods(LIST, SHOW, CREATE, DELETE)
+class IpAddrGroupHandlerMixin(ip_addr_group.IpAddrGroupPluginBase):
+    ALIAS = 'ip_addr_group'
+
+
+@util.generate_methods(LIST, SHOW, CREATE, DELETE)
+class IpAddrGrouAddrHandlerMixin(ip_addr_group.IpAddrGroupAddrPluginBase):
+    ALIAS = 'ip_addr_group_addr'
+
+
 @util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
 class TunnelzoneHandlerMixin(object):
     """The mixin of the request handler for the tunnel zones."""
@@ -69,6 +80,8 @@ class MidoNetApiMixin(AdRouteHandlerMixin,
                       BridgeHandlerMixin,
                       ChainHandlerMixin,
                       RuleHandlerMixin,
+                      IpAddrGroupHandlerMixin,
+                      IpAddrGrouAddrHandlerMixin,
                       TunnelzoneHandlerMixin,
                       TunnelzonehostHandlerMixin):
     """MidoNet REST API plugin."""

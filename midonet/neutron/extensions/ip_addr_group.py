@@ -28,21 +28,27 @@ IP_ADDR_GROUP_ADDR = 'ip_addr_group_addr'
 IP_ADDR_GROUP_ADDRS = '%ss' % IP_ADDR_GROUP_ADDR
 
 RESOURCE_ATTRIBUTE_MAP = {
-    IP_ADDR_GROUP: {
-        'id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+    IP_ADDR_GROUPS: {
+        'id': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:uuid': None},
+               'is_visible': True},
         'name': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                 'validate': {'type:string': None},
+                 'is_visible': True},
+        'tenant_id': {'allow_post': True, 'allow_put': False,
+                      'validate': {'type:uuid': None},
+                      'is_visible': True}
     },
-    IP_ADDR_GROUP_ADDR: {
+    IP_ADDR_GROUP_ADDRS: {
         'ip_addr_group_id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                             'validate': {'type:uuid': None},
+                             'is_visible': True},
         'addr': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                 'validate': {'type:ip_address': None},
+                 'is_visible': True},
+        'tenant_id': {'allow_post': True, 'allow_put': False,
+                      'validate': {'type:uuid': None},
+                      'is_visible': True}
     }
 }
 
@@ -80,20 +86,19 @@ class Ip_addr_group(object):
         # IP Addr Groups
         collection_name = IP_ADDR_GROUPS
         params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller_host = base.create_resource(collection_name, IP_ADDR_GROUP,
-                                               plugin, params)
-
-        ex = extensions.ResourceExtension(collection_name, controller_host)
+        ip_addr_group_controller = base.create_resource(
+            collection_name, IP_ADDR_GROUP, plugin, params)
+        ex = extensions.ResourceExtension(
+            collection_name, ip_addr_group_controller)
         exts.append(ex)
 
         # IP Addr Group Addrs
         collection_name = IP_ADDR_GROUP_ADDRS
         params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller_host = base.create_resource(collection_name,
-                                               IP_ADDR_GROUP_ADDR, plugin,
-                                               params)
-
-        ex = extensions.ResourceExtension(collection_name, controller_host)
+        ip_addr_group_addr_controller = base.create_resource(
+            collection_name, IP_ADDR_GROUP_ADDR, plugin, params)
+        ex = extensions.ResourceExtension(
+            collection_name, ip_addr_group_addr_controller)
         exts.append(ex)
 
         return exts
@@ -114,17 +119,8 @@ class Ip_addr_group(object):
 @six.add_metaclass(abc.ABCMeta)
 class IpAddrGroupPluginBase(object):
 
-    def get_plugin_name(self):
-        return "ip-addr-group plugin"
-
-    def get_plugin_type(self):
-        return "ip-addr-group"
-
-    def get_plugin_description(self):
-        return "ip-addr-group extension base plugin"
-
     @abc.abstractmethod
-    def create_ip_addr_group(self, context, id, ip_addr_group):
+    def create_ip_addr_group(self, context, ip_addr_group):
         pass
 
     @abc.abstractmethod
@@ -139,12 +135,16 @@ class IpAddrGroupPluginBase(object):
     def get_ip_addr_groups(self, context, filters=None, fields=None):
         pass
 
+
+@six.add_metaclass(abc.ABCMeta)
+class IpAddrGroupAddrPluginBase(object):
+
     @abc.abstractmethod
-    def create_ip_addr_group_addr(self, context, id, Ip_addr_group_addr):
+    def create_ip_addr_group_addr(self, context, ip_addr_group_addr):
         pass
 
     @abc.abstractmethod
-    def get_ip_addr_group_addr(self, context, Ip_addr_group_addr, fields=None):
+    def get_ip_addr_group_addr(self, context, ip_addr_group_addr, fields=None):
         pass
 
     @abc.abstractmethod
