@@ -19,6 +19,7 @@ FPM_BASE_ARGS=$(cat <<EOF
 --description 'Neutron is a virtual network service for Openstack - Python library
   Neutron MidoNet plugin is a MidoNet virtual network service plugin for Openstack Neutron.' \
 -d 'python-neutron' \
+-d 'python-midonetclient' \
 -s dir \
 -C midonet/ \
 --version $pkgver
