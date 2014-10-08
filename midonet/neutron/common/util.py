@@ -56,7 +56,7 @@ def generate_methods(*methods):
     """
 
     @handle_api_error
-    def create_resource(self, context, id, resource):
+    def create_resource(self, context, resource):
         pass
 
     @handle_api_error
@@ -64,11 +64,11 @@ def generate_methods(*methods):
         pass
 
     @handle_api_error
-    def get_resource(self, context, id, fields):
+    def get_resource(self, context, id, fields=None):
         pass
 
     @handle_api_error
-    def get_resources(self, context, filters, fields):
+    def get_resources(self, context, filters=None, fields=None):
         pass
 
     @handle_api_error
@@ -109,6 +109,13 @@ def generate_methods(*methods):
                 method_name = method + '_' + alias
             try:
                 getattr(cls, method_name)
+                abstract_methods = getattr(cls, '__abstractmethods__', None)
+                if abstract_methods is not None and (
+                        method_name in abstract_methods):
+                    setattr(cls, method_name, AVAILABLE_METHOD_MAP[method])
+                    implemented_method = frozenset([method_name])
+                    abstract_methods = abstract_methods - implemented_method
+                    setattr(cls, '__abstractmethods__', abstract_methods)
             except AttributeError:
                 setattr(cls, method_name, AVAILABLE_METHOD_MAP[method])
         return cls

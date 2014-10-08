@@ -14,6 +14,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import abc
+
+import six
+
 from neutron.api.v2 import base as api_base
 from neutron.openstack.common import uuidutils
 from neutron.tests import base
@@ -136,3 +140,23 @@ class UtilTestCase(base.BaseTestCase):
         self.assertEqual(_FooPlugin.ALIAS, 'foo')
 
         self._check_methods(_FooPlugin)
+
+    def test_generate_methods_with_abc(self):
+        @six.add_metaclass(abc.ABCMeta)
+        class FooPluginBase(object):
+            @abc.abstractmethod
+            def get_foos(self, context, fields=None, filters=None):
+                pass
+
+        @util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
+        class FooPlugin(FooPluginBase):
+            """Foo plugin description."""
+
+        self._check_methods(FooPlugin)
+
+        self.assertIsNot(getattr(FooPlugin, 'get_foos', None), None)
+
+        # If methods are not generated, the exception is thrown here by abc.
+        FooPlugin()
+        self.assertIn('get_foos', FooPlugin.__dict__.keys())
+        self.assertNotIn('get_foos', FooPlugin.__abstractmethods__)
