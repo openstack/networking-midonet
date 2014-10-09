@@ -28,14 +28,12 @@ EOF
 
 RPM_ARGS=$(cat <<EOF
 --prefix /usr/lib/python2.6/site-packages/midonet \
---provides 'python2.6-neutron-plugin-midonet' \
 --epoch 1
 EOF
 )
 
 DEB_ARGS=$(cat <<EOF
 --prefix /usr/lib/python2.7/dist-packages/midonet \
---provides 'python2.7-neutron-plugin-midonet' \
 --deb-priority 'optional'
 EOF
 )
