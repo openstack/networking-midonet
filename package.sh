@@ -31,25 +31,44 @@ FPM_BASE_ARGS=$(cat <<EOF
 -d 'python-neutron' \
 -d 'python-midonetclient' \
 -s dir \
--C midonet/ \
 --version $pkgver
 EOF
 )
 
+
+function clean() {
+    rm -rf build
+}
+
 RPM_ARGS=$(cat <<EOF
---prefix /usr/lib/python2.6/site-packages/midonet \
+-d 'python >= 2.6' -d 'python < 2.8' \
 --epoch 1
 EOF
 )
+function package_rpm() {
+    RPM_BUILD_DIR=build/rpm/
+    mkdir -p  $RPM_BUILD_DIR/usr/lib/python2.6/site-packages/
+    mkdir -p  $RPM_BUILD_DIR/usr/lib/python2.7/site-packages/
+
+    cp -r midonet $RPM_BUILD_DIR/usr/lib/python2.6/site-packages/
+    cp -r midonet $RPM_BUILD_DIR/usr/lib/python2.7/site-packages/
+
+    eval fpm $FPM_BASE_ARGS $RPM_ARGS -C $RPM_BUILD_DIR -t rpm .
+}
+
 
 DEB_ARGS=$(cat <<EOF
 --prefix /usr/lib/python2.7/dist-packages/midonet \
---deb-priority 'optional'
+--deb-priority 'optional' \
+-C midonet/
 EOF
 )
+function package_deb() {
+    eval fpm $FPM_BASE_ARGS $DEB_ARGS -t deb .
+}
 
-# Package rpm
-eval fpm $FPM_BASE_ARGS $RPM_ARGS -t rpm .
 
-# Package debian
-eval fpm $FPM_BASE_ARGS $DEB_ARGS -t deb .
+# Main
+clean
+package_rpm
+package_deb
