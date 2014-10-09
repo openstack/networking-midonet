@@ -18,55 +18,87 @@ import abc
 import six
 
 from neutron.api import extensions
+from neutron.api.v2 import attributes as attr
 from neutron.api.v2 import base
 from neutron import manager
 
 PORT = 'midonet_port'
 PORTS = '%ss' % PORT
 
+
+# Monkey patches to add validations.
+def _validate_non_negative_or_none(data, valid_values=None):
+    if data is not None:
+        attr._validate_non_negative_or_none(data, valid_values)
+
+
+def _validate_range_or_none(data, valid_values=None):
+    if data is not None:
+        attr._validate_range(data, valid_values)
+
+
+attr.validators['type:non_negative_or_none'] = _validate_non_negative_or_none
+attr.validators['type:range_or_none'] = _validate_range_or_none
+
+
 RESOURCE_ATTRIBUTE_MAP = {
     PORTS: {
-        'device_id': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
-        'host_id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
-        'id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+        'device_id': {'allow_post': False, 'allow_put': False,
+                      'validate': {'type:uuid': None},
+                      'is_visible': True},
+        'host_id': {'allow_post': False, 'allow_put': False,
+                    'validate': {'type:uuid_or_none': None},
+                    'is_visible': True, 'default': None},
+        'id': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:uuid': None},
+               'is_visible': True},
         'inbound_filter_id': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                              'validate': {'type:uuid_or_none': None},
+                              'is_visible': True, 'default': None},
         'interface_name': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                           'validate': {'type:string_or_none': None},
+                           'is_visible': True, 'default': None},
         'network_cidr': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:subnet': None},
-            'is_visible': True},
+                         'validate': {'type:subnet_or_none': None},
+                         'is_visible': True, 'default': None},
         'outbound_filter_id': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                               'validate': {'type:uuid_or_none': None},
+                               'is_visible': True, 'default': None},
         'peer_id': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                    'validate': {'type:uuid_or_none': None},
+                    'is_visible': True, 'default': None},
         'port_address': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                         'validate': {'type:ip_address_or_none': None},
+                         'is_visible': True, 'default': None},
         'port_mac': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:mac_address': None},
-            'is_visible': True},
+                     'validate': {'type:mac_address_or_none': None},
+                     'is_visible': True, 'default': None},
         'type': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                 'validate': {
+                     'type:values': [
+                         'Bridge',
+                         'Router',
+                         'ExteriorBridge',
+                         'ExteriorRouter',
+                         'InteriorBridge',
+                         'InteriorRouter',
+                         'Vxlan'
+                     ]
+                 },
+                 'is_visible': True},
         'vif_id': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                   'validate': {'type:uuid_or_none': None},
+                   'is_visible': True, 'default': None},
         'vlan_id': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:range': [0, 65335]},
-            'is_visible': True},
+                    'validate': {'type:range_or_none': [0, 65335]},
+                    'is_visible': True, 'default': None},
         'vni': {'allow_post': True, 'allow_put': True,
-            'is_visible': True},
+                'validate': {'type:non_negative_or_none': None},
+                'is_visible': True, 'default': None},
+        'tenant_id': {'allow_post': True, 'allow_put': False,
+                      'required_by_policy': True,
+                      'validate': {'type:uuid': None},
+                      'is_visible': True}
     }
 }
 
@@ -84,7 +116,7 @@ class Port(object):
 
     @classmethod
     def get_description(cls):
-        return ("Port abstraction for basic port-related features")
+        return "Port abstraction for basic port-related features"
 
     @classmethod
     def get_namespace(cls):
@@ -103,11 +135,8 @@ class Port(object):
         resource_name = PORT
         collection_name = PORTS
         params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller = base.create_resource(collection_name,
-                                          resource_name,
-                                          plugin,
-                                          params)
-
+        controller = base.create_resource(
+            collection_name, resource_name, plugin, params)
         ex = extensions.ResourceExtension(collection_name, controller)
         exts.append(ex)
 
@@ -129,27 +158,22 @@ class Port(object):
 @six.add_metaclass(abc.ABCMeta)
 class PortPluginBase(object):
 
-    def get_plugin_name(self):
-        return "Port plugin"
+    @abc.abstractmethod
+    def get_midonet_port(self, context, midonet_port, fields=None):
+        pass
 
-    def get_plugin_type(self):
-        return "midonet-port"
+    @abc.abstractmethod
+    def get_midonet_ports(self, context, fields=None, filters=None):
+        pass
 
-    def get_plugin_description(self):
-        return "Port extension base plugin"
+    @abc.abstractmethod
+    def create_midonet_port(self, context, midonet_port):
+        pass
 
     @abc.abstractmethod
     def update_midonet_port(self, context, id, midonet_port):
         pass
 
     @abc.abstractmethod
-    def get_midonet_port(self, context, midonet_port, fields=None):
-        pass
-
-    @abc.abstractmethod
     def delete_midonet_port(self, context, id):
-        pass
-
-    @abc.abstractmethod
-    def get_midonet_ports(self, context, filters=None, fields=None):
         pass

@@ -20,6 +20,7 @@ from midonet.neutron.extensions import chain_rule
 from midonet.neutron.extensions import host
 from midonet.neutron.extensions import ip_addr_group
 from midonet.neutron.extensions import license
+from midonet.neutron.extensions import port
 
 from neutron.api.v2 import base
 
@@ -74,6 +75,12 @@ class IpAddrGrouAddrHandlerMixin(ip_addr_group.IpAddrGroupAddrPluginBase):
 @util.generate_methods(LIST, SHOW, UPDATE, DELETE)
 class LicenseHandlerMixin(license.LicensePluginBase):
     """The mixin of the request handler for the licenses."""
+
+
+@util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
+class PortHandlerMixin(port.PortPluginBase):
+    """The mixin of the request handler for the ports."""
+    ALIAS = 'midonet_port'
 
 
 @util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)

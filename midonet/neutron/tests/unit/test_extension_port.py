@@ -11,6 +11,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+import copy
 import mock
 from webob import exc
 
@@ -32,7 +34,7 @@ class PortExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         plural_mappings = {'midonet_port': 'midonet_ports'}
         self._setUpExtension(
             'midonet.neutron.extensions.port.PortPluginBase',
-            port.PORT, port.RESOURCE_ATTRIBUTE_MAP,
+            None, port.RESOURCE_ATTRIBUTE_MAP,
             port.Port, '', plural_mappings=plural_mappings)
 
     def test_port_list(self):
@@ -82,6 +84,35 @@ class PortExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         res = self.deserialize(res)
         self.assertIn('midonet_port', res)
 
+    def test_port_create(self):
+        port_id = _uuid()
+        data = {'midonet_port': {'inbound_filter_id': None,
+                                 'interface_name': None,
+                                 'network_cidr': '10.0.0.0/24',
+                                 'outbound_filter_id': None,
+                                 'peer_id': None,
+                                 'port_address': '10.0.0.1',
+                                 'port_mac': '01:23:45:67:89:ab',
+                                 'type': 'Router',
+                                 'vif_id': None,
+                                 'vlan_id': None,
+                                 'vni': None,
+                                 'tenant_id': _uuid()}}
+        return_value = copy.deepcopy(data['midonet_port'])
+        return_value.update({'id': port_id})
+        instance = self.plugin.return_value
+        instance.create_midonet_port.return_value = return_value
+
+        res = self.api.post(_get_path('midonet_ports', fmt=self.fmt),
+                            self.serialize(data),
+                            content_type='application/%s' % self.fmt)
+        self.assertEqual(exc.HTTPCreated.code, res.status_int)
+        instance.create_midonet_port.assert_called_once_with(
+            mock.ANY, midonet_port=data)
+        res = self.deserialize(res)
+        self.assertIn('midonet_port', res)
+        self.assertEqual(res['midonet_port'], return_value)
+
     def test_port_update(self):
         port_id = _uuid()
         return_value = {'device_id': _uuid(),
@@ -118,5 +149,4 @@ class PortExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
 
 class PortExtensionTestCaseXml(PortExtensionTestCase):
-
     fmt = "xml"
