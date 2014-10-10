@@ -24,6 +24,7 @@ from midonet.neutron.extensions import port
 from midonet.neutron.extensions import port_group
 from midonet.neutron.extensions import router
 from midonet.neutron.extensions import routing_table
+from midonet.neutron.extensions import subnet
 from midonet.neutron.extensions import system
 
 from neutron.api.v2 import base
@@ -111,6 +112,19 @@ class RoutingTableHandlerMixin(routing_table.RoutingTablePluginBase):
     ALIAS = 'routing_table'
 
 
+@util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
+class SubnetHandlerMixin(subnet.SubnetPluginBase):
+    """The mixin of the request handler for the subnets."""
+    ALIAS = 'midonet_subnet'
+
+
+@util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
+class SubnetDhcpHostHandlerMixin(subnet.SubnetDhcpHostPluginBase):
+    """The mixin of the request handler for the subnet dhcp hosts."""
+    ALIAS = 'dhcp_host'
+    PARENT = SubnetHandlerMixin.ALIAS
+
+
 @util.generate_methods(SHOW, UPDATE)
 class SystemHandlerMixin(system.SystemPluginBase):
     """The mixin of the request handler for the system."""
@@ -140,6 +154,8 @@ class MidoNetApiMixin(AdRouteHandlerMixin,
                       PortGroupPortHandlerMixin,
                       RouterHandlerMixin,
                       RoutingTableHandlerMixin,
+                      SubnetHandlerMixin,
+                      SubnetDhcpHostHandlerMixin,
                       SystemHandlerMixin,
                       TunnelzoneHandlerMixin,
                       TunnelzonehostHandlerMixin):

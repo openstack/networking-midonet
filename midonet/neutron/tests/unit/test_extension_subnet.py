@@ -1,32 +1,27 @@
 # Copyright 2014 Midokura SARL
+# All Rights Reserved.
 #
-# Licensed under the Apache License, Version 2.0 (the "License"); you may
-# not use this file except in compliance with the License. You may obtain
-# a copy of the License at
+#   Licensed under the Apache License, Version 2.0 (the "License"); you may
+#   not use this file except in compliance with the License. You may obtain
+#   a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#       http://www.apache.org/licenses/LICENSE-2.0
 #
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
-# License for the specific language governing permissions and limitations
-# under the License.
+#   Unless required by applicable law or agreed to in writing, software
+#   distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#   License for the specific language governing permissions and limitations
+#   under the License.
 #
-# @author Jaume Devesa
+#   @author Jaume Devesa
 
 import copy
-import os
-
 import mock
-from neutron.db import db_base_plugin_v2 as base_db
-from neutron import manager
-from neutron.openstack.common import importutils
+from webob import exc
+
 from neutron.openstack.common import uuidutils
 from neutron.tests.unit import test_api_v2
 from neutron.tests.unit import test_api_v2_extension
-from neutron.tests.unit import test_db_plugin
-from oslo.config import cfg
-from webob import exc
 
 from midonet.neutron.extensions import subnet
 
@@ -36,16 +31,133 @@ _get_path = test_api_v2._get_path
 MIDOKURA_EXT_PATH = "midonet.neutron.extensions"
 
 
-class DhcpHostsExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
+class SubnetExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
     """Test the endpoints for the host."""
+
     fmt = "json"
 
     def setUp(self):
-        super(DhcpHostsExtensionTestCase, self).setUp()
-        plural_mappings = {'dhcp_host': 'dhcp_hosts',
-                           'midonet_subnet': 'midonet_subnets'}
+        super(SubnetExtensionTestCase, self).setUp()
+        plural_mappings = {'midonet_subnet': 'midonet_subnets'}
         self._setUpExtension(
-            'midonet.neutron.extensions.subnet.SubnetsPluginBase',
+            'midonet.neutron.extensions.subnet.SubnetPluginBase',
+            None, subnet.RESOURCE_ATTRIBUTE_MAP,
+            subnet.Subnet, '', plural_mappings=plural_mappings)
+
+    def test_list_subnet(self):
+        return_value = [{'default_gateway': '10.0.0.1',
+                         'enabled': True,
+                         'server_addr': '88.123.43.1',
+                         'subnet_prefix': "10.0.0.0",
+                         'dns_server_addrs': None,
+                         'tenant_id': _uuid(),
+                         'interface_mtu': 400,
+                         'subnet_length': 24}]
+        instance = self.plugin.return_value
+        instance.get_midonet_subnets.return_value = return_value
+
+        res = self.api.get(_get_path('midonet_subnets', fmt=self.fmt))
+        self.assertEqual(exc.HTTPOk.code, res.status_int)
+        instance.get_midonet_subnets.assert_called_once_with(
+            mock.ANY, fields=mock.ANY, filters=mock.ANY)
+        res = self.deserialize(res)
+        self.assertIn('midonet_subnets', res)
+        self.assertEqual(1, len(res['midonet_subnets']))
+
+    def test_show_subnet(self):
+        subnet_id = _uuid()
+        return_value = {'id': subnet_id,
+                        'enabled': True,
+                        'default_gateway': '10.0.0.1',
+                        'server_addr': '88.123.43.1',
+                        'subnet_prefix': "10.0.0.0",
+                        'dns_server_addrs': None,
+                        'tenant_id': _uuid(),
+                        'interface_mtu': 400,
+                        'subnet_length': 24}
+        instance = self.plugin.return_value
+        instance.get_midonet_subnets.return_value = return_value
+
+        res = self.api.get(
+            _get_path('midonet_subnets', id=subnet_id, fmt=self.fmt))
+        self.assertEqual(exc.HTTPOk.code, res.status_int)
+        instance.get_midonet_subnet.assert_called_once_with(
+            mock.ANY, str(subnet_id), fields=mock.ANY)
+        res = self.deserialize(res)
+        self.assertIn('midonet_subnet', res)
+
+    def test_create_subnet(self):
+        default_gateway = '10.0.0.1'
+        data = {'midonet_subnet': {'default_gateway': default_gateway,
+                                   'enabled': True,
+                                   'server_addr': '88.123.43.1',
+                                   'subnet_prefix': "10.0.0.0",
+                                   'dns_server_addrs': None,
+                                   'tenant_id': _uuid(),
+                                   'interface_mtu': 400,
+                                   'subnet_length': 24}}
+
+        return_value = copy.deepcopy(data['midonet_subnet'])
+        instance = self.plugin.return_value
+        instance.create_midonet_subnet.return_value = return_value
+
+        res = self.api.post(_get_path('midonet_subnets', fmt=self.fmt),
+                            self.serialize(data),
+                            content_type='application/%s' % self.fmt)
+        instance.create_midonet_subnet.assert_called_once_with(
+            mock.ANY, midonet_subnet=data)
+        self.assertEqual(exc.HTTPCreated.code, res.status_int)
+        res = self.deserialize(res)
+        self.assertIn('midonet_subnet', res)
+        result = res['midonet_subnet']['default_gateway']
+        self.assertIn(default_gateway, result)
+
+    def test_update_subnet(self):
+        subnet_id = _uuid()
+        return_value = {'id': subnet_id,
+                        'default_gateway': '10.0.0.1',
+                        'enabled': True,
+                        'server_addr': '88.123.43.1',
+                        'subnet_prefix': "10.0.0.0",
+                        'dns_server_addrs': None,
+                        'tenant_id': _uuid(),
+                        'interface_mtu': 400,
+                        'subnet_length': 24}
+        update_data = {'midonet_subnet': {'interface_mtu': 500}}
+        instance = self.plugin.return_value
+        instance.update_midonet_subnet.return_value = return_value
+
+        res = self.api.put(
+            _get_path('midonet_subnets', id=subnet_id, fmt=self.fmt),
+            self.serialize(update_data))
+        instance.update_midonet_subnet.assert_called_once_with(
+            mock.ANY, subnet_id, midonet_subnet=update_data)
+        self.assertEqual(exc.HTTPOk.code, res.status_int)
+
+    def test_delete_subnet(self):
+        subnet_id = _uuid()
+        instance = self.plugin.return_value
+
+        res = self.api.delete(_get_path('midonet_subnets', id=subnet_id))
+        instance.delete_midonet_subnet.assert_called_once_with(
+            mock.ANY, subnet_id)
+        self.assertEqual(exc.HTTPNoContent.code, res.status_int)
+
+
+class SubnetExtensionTestCaseXml(SubnetExtensionTestCase):
+    fmt = 'xml'
+
+
+class DhcpHostExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
+    """Test the endpoints for the host."""
+
+    fmt = "json"
+
+    def setUp(self):
+        super(DhcpHostExtensionTestCase, self).setUp()
+        plural_mappings = {'dhcp_host': 'dhcp_hosts'}
+        self._setUpExtension(
+            'midonet.neutron.extensions.subnet.SubnetDhcpHostPluginBase',
             None, subnet.RESOURCE_ATTRIBUTE_MAP,
             subnet.Subnet, '', plural_mappings=plural_mappings)
 
@@ -147,30 +259,6 @@ class DhcpHostsExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
         self.assertEqual(exc.HTTPOk.code, res.status_int)
 
-    def test_create_subnet(self):
 
-        default_gateway = "10.0.0.1"
-        data = {'midonet_subnet': {'default_gateway': default_gateway,
-                                   'server_addr': '88.123.43.1',
-                                   'subnet_prefix': "10.0.0.0",
-                                   'dns_server_addrs': None,
-                                   'tenant_id': "blah",
-                                   'interface_mtu': 400,
-                                   'subnet_length': 24}}
-
-        return_value = copy.deepcopy(data['midonet_subnet'])
-        instance = self.plugin.return_value
-        instance.create_midonet_subnet.return_value = return_value
-
-        res = self.api.post(_get_path('midonet_subnets', fmt=self.fmt),
-                            self.serialize(data),
-                            content_type='application/%s' % self.fmt)
-
-        call = instance.create_midonet_subnet
-        call.assert_called_once_with(mock.ANY, midonet_subnet=data)
-
-        self.assertEqual(exc.HTTPCreated.code, res.status_int)
-        res = self.deserialize(res)
-        self.assertIn('midonet_subnet', res)
-        result = res['midonet_subnet']['default_gateway']
-        self.assertIn(default_gateway, result)
+class DhcpHostExtensionTestCaseXml(DhcpHostExtensionTestCase):
+    fmt = 'json'
