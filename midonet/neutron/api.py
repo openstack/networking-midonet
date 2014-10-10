@@ -22,6 +22,7 @@ from midonet.neutron.extensions import ip_addr_group
 from midonet.neutron.extensions import license
 from midonet.neutron.extensions import port
 from midonet.neutron.extensions import port_group
+from midonet.neutron.extensions import router
 from midonet.neutron.extensions import routing_table
 
 from neutron.api.v2 import base
@@ -98,6 +99,12 @@ class PortGroupPortHandlerMixin(port_group.PortGroupPortPluginBase):
 
 
 @util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
+class RouterHandlerMixin(router.RouterPluginBase):
+    """The mixin of the request handler for the routers."""
+    ALIAS = 'midonet_router'
+
+
+@util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
 class RoutingTableHandlerMixin(routing_table.RoutingTablePluginBase):
     """The mixin of the request handler for the routing  tables."""
     ALIAS = 'routing_table'
@@ -125,6 +132,7 @@ class MidoNetApiMixin(AdRouteHandlerMixin,
                       LicenseHandlerMixin,
                       PortGroupHandlerMixin,
                       PortGroupPortHandlerMixin,
+                      RouterHandlerMixin,
                       RoutingTableHandlerMixin,
                       TunnelzoneHandlerMixin,
                       TunnelzonehostHandlerMixin):

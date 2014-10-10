@@ -22,12 +22,12 @@ from neutron.api import extensions
 from neutron.api.v2 import base
 from neutron import manager
 
-ROUTER = 'router'
+ROUTER = 'midonet_router'
 ROUTERS = '%ss' % ROUTER
 
 RESOURCE_ATTRIBUTE_MAP = {
     ROUTERS: {
-        'id': {'allow_post': True, 'allow_put': False,
+        'id': {'allow_post': False, 'allow_put': False,
                'validate': {'type:uuid': None},
                'is_visible': True, 'default': None},
         'inbound_filter_id': {'allow_post': True, 'allow_put': True,
@@ -38,15 +38,16 @@ RESOURCE_ATTRIBUTE_MAP = {
                              'is_visible': True, 'default': None},
         'name': {'allow_post': True, 'allow_put': True,
                  'validate': {'type:string': None},
-                 'is_visible': True, 'default': None},
+                 'is_visible': True, 'default': ''},
         'outbound_filter_id': {'allow_post': True, 'allow_put': True,
                                'validate': {'type:uuid_or_none': None},
                                'is_visible': True, 'default': None},
         'tenant_id': {'allow_post': True, 'allow_put': True,
-                      'validate': {'type:string': None},
+                      'validate': {'type:uuid': None},
                       'is_visible': True, 'default': None},
         'vxlan_port_id': {'allow_post': False, 'allow_put': False,
-                          'is_visible': True}
+                          'validate': {'type:uuid_or_none': None},
+                          'is_visible': True, 'default': None}
     }
 }
 
@@ -102,33 +103,24 @@ class Router(extensions.ExtensionDescriptor):
 
 
 @six.add_metaclass(abc.ABCMeta)
-class MidonetRouterPluginBase(object):
-
-    def get_plugin_name(self):
-        return "router plugin"
-
-    def get_plugin_type(self):
-        return "router"
-
-    def get_plugin_description(self):
-        return "Router extension base plugin"
+class RouterPluginBase(object):
 
     @abc.abstractmethod
-    def create_router(self, context, id, router):
+    def get_midonet_routers(self, context, filters=None, fields=None):
         pass
 
     @abc.abstractmethod
-    def update_router(self, context, id, router):
+    def get_midonet_router(self, context, id, fields=None):
         pass
 
     @abc.abstractmethod
-    def get_router(self, context, router, fields=None):
+    def create_midonet_router(self, context, midonet_router):
         pass
 
     @abc.abstractmethod
-    def delete_router(self, context, id):
+    def update_midonet_router(self, context, id, midonet_router):
         pass
 
     @abc.abstractmethod
-    def get_routers(self, context, filters=None, fields=None):
+    def delete_midonet_router(self, context, id):
         pass
