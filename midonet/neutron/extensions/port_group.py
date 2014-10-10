@@ -28,27 +28,31 @@ PORT_GROUP_PORT = 'port_group_port'
 PORT_GROUP_PORTS = '%ss' % PORT_GROUP_PORT
 
 RESOURCE_ATTRIBUTE_MAP = {
-    PORT_GROUP: {
-        'id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+    PORT_GROUPS: {
+        'id': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:uuid': None},
+               'is_visible': True},
         'name': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                 'validate': {'type:string': None},
+                 'is_visible': True, 'default': '',
+                 'required_by_policy': True},
         'tenant_id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                      'validate': {'type:uuid': None},
+                      'is_visible': True, 'required_by_policy': True},
         'stateful': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:boolean': None},
-            'is_visible': True},
+                     'validate': {'type:boolean': None},
+                     'is_visible': True, 'default': False}
     },
-    PORT_GROUP_PORT: {
+    PORT_GROUP_PORTS: {
         'port_id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                    'validate': {'type:uuid': None},
+                    'is_visible': True},
         'port_group_id': {'allow_post': True, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                          'validate': {'type:uuid': None},
+                          'is_visible': True, 'required_by_policy': True},
+        'tenant_id': {'allow_post': True, 'allow_put': False,
+                      'validate': {'type:uuid': None},
+                      'is_visible': True, 'required_by_policy': True}
     }
 }
 
@@ -85,20 +89,19 @@ class Port_group(object):
         # Port Groups
         collection_name = PORT_GROUPS
         params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller_host = base.create_resource(collection_name, PORT_GROUP,
-                                               plugin, params)
-
-        ex = extensions.ResourceExtension(collection_name, controller_host)
+        port_group_controller = base.create_resource(
+            collection_name, PORT_GROUP, plugin, params)
+        ex = extensions.ResourceExtension(
+            collection_name, port_group_controller)
         exts.append(ex)
 
         # Port Group Ports
         collection_name = PORT_GROUP_PORTS
         params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller_host = base.create_resource(collection_name,
-                                               PORT_GROUP_PORT, plugin,
-                                               params)
-
-        ex = extensions.ResourceExtension(collection_name, controller_host)
+        port_group_port_controller = base.create_resource(
+            collection_name, PORT_GROUP_PORT, plugin, params)
+        ex = extensions.ResourceExtension(
+            collection_name, port_group_port_controller)
         exts.append(ex)
 
         return exts
@@ -119,43 +122,42 @@ class Port_group(object):
 @six.add_metaclass(abc.ABCMeta)
 class PortGroupPluginBase(object):
 
-    def get_plugin_name(self):
-        return "port-group plugin"
-
-    def get_plugin_type(self):
-        return "port-group"
-
-    def get_plugin_description(self):
-        return "port-group extension base plugin"
-
     @abc.abstractmethod
-    def create_port_group(self, context, id, port_group):
+    def get_port_groups(self, context, filters=None, fields=None):
         pass
 
     @abc.abstractmethod
-    def get_port_group(self, context, port_group, fields=None):
+    def get_port_group(self, context, id, fields=None):
+        pass
+
+    @abc.abstractmethod
+    def create_port_group(self, context, port_group):
+        pass
+
+    @abc.abstractmethod
+    def update_port_group(self, context, id, port_group):
         pass
 
     @abc.abstractmethod
     def delete_port_group(self, context, id):
         pass
 
+
+@six.add_metaclass(abc.ABCMeta)
+class PortGroupPortPluginBase(object):
+
     @abc.abstractmethod
-    def get_port_groups(self, context, filters=None, fields=None):
+    def get_port_group_ports(self, context, filters=None, fields=None):
         pass
 
     @abc.abstractmethod
-    def create_port_group_port(self, context, id, port_group_port):
+    def get_port_group_port(self, context, id, fields=None):
         pass
 
     @abc.abstractmethod
-    def get_port_group_port(self, context, port_group_port, fields=None):
+    def create_port_group_port(self, context, port_group_port):
         pass
 
     @abc.abstractmethod
     def delete_port_group_port(self, context, id):
-        pass
-
-    @abc.abstractmethod
-    def get_port_group_ports(self, context, filters=None, fields=None):
         pass
