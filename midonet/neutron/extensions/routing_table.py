@@ -27,31 +27,37 @@ ROUTES = '%ss' % ROUTE
 RESOURCE_ATTRIBUTE_MAP = {
     ROUTES: {
         'attributes': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                       'validate': {'type:string_or_none': None},
+                       'is_visible': True, 'default': None},
         'dst_cidr': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:string': None},
-            'is_visible': True},
-        'id': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                     'validate': {'type:subnet': None},
+                     'is_visible': True, 'required_by_policy': True},
+        'id': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:uuid': None},
+               'is_visible': True},
         'next_hop_gateway': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                             'validate': {'type:ip_address': None},
+                             'is_visible': True, 'required_by_policy': True},
         'next_hop_port': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
-        'routing_tabler_id': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:uuid': None},
-            'is_visible': True},
+                          'validate': {'type:uuid': None},
+                          'is_visible': True, 'required_by_policy': True},
+        'router_id': {'allow_post': True, 'allow_put': True,
+                      'validate': {'type:uuid': None},
+                      'is_visible': True},
         'src_cidr': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:string': None},
-            'is_visible': True},
+                     'validate': {'type:subnet': None},
+                     'is_visible': True, 'required_by_policy': True},
         'type': {'allow_post': True, 'allow_put': True,
-            'validate': {'type:values': ['Normal', 'BlackHole', 'Reject']},
-            'is_visible': True},
+                 'validate': {
+                     'type:values': ['Normal', 'BlackHole', 'Reject']
+                 },
+                 'is_visible': True},
         'weight': {'allow_post': True, 'allow_put': True,
-            'is_visible': True},
+                   'validate': {'type:non_negative': None},
+                   'is_visible': True, 'required_by_policy': True},
+        'tenant_id': {'allow_post': True, 'allow_put': False,
+                      'validate': {'type:uuid': None},
+                      'is_visible': True}
     }
 }
 
@@ -115,17 +121,16 @@ class Routing_table(object):
 @six.add_metaclass(abc.ABCMeta)
 class RoutingTablePluginBase(object):
 
-    def get_plugin_name(self):
-        return "routing_table plugin"
-
-    def get_plugin_type(self):
-        return "routing_table"
-
-    def get_plugin_description(self):
-        return "routing_table extension base plugin"
+    @abc.abstractmethod
+    def get_routing_table(self, context, id, fields=None):
+        pass
 
     @abc.abstractmethod
-    def create_routing_table(self, context, id, routing_table):
+    def get_routing_tables(self, context, filters=None, fields=None):
+        pass
+
+    @abc.abstractmethod
+    def create_routing_table(self, context, routing_table):
         pass
 
     @abc.abstractmethod
@@ -133,13 +138,5 @@ class RoutingTablePluginBase(object):
         pass
 
     @abc.abstractmethod
-    def get_routing_table(self, context, routing_table, fields=None):
-        pass
-
-    @abc.abstractmethod
     def delete_routing_table(self, context, id):
-        pass
-
-    @abc.abstractmethod
-    def get_routing_tables(self, context, filters=None, fields=None):
         pass

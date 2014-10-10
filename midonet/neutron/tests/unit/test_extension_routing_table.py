@@ -11,6 +11,8 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
+import copy
 import mock
 from webob import exc
 
@@ -59,19 +61,43 @@ class RoutingTableExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         return_value = {'id': routing_table_id,
                         'src_cidr': '10.10.10.0/24',
                         'next_hop_port': _uuid()}
-
         instance = self.plugin.return_value
         instance.get_routing_table.return_value = return_value
 
         res = self.api.get(_get_path('routing_tables/%s' % routing_table_id,
                                      fmt=self.fmt))
         self.assertEqual(exc.HTTPOk.code, res.status_int)
-
         instance.get_routing_table.assert_called_once_with(
             mock.ANY, unicode(routing_table_id), fields=mock.ANY)
 
         res = self.deserialize(res)
         self.assertIn('routing_table', res)
+
+    def test_routing_table_create(self):
+        routing_table_id = _uuid()
+        data = {'routing_table': {'attributes': None,
+                                  'dst_cidr': '10.0.0.0/24',
+                                  'next_hop_gateway': '10.0.10.1',
+                                  'next_hop_port': _uuid(),
+                                  'router_id': _uuid(),
+                                  'src_cidr': '192.168.100.0/24',
+                                  'type': 'Normal',
+                                  'weight': 1,
+                                  'tenant_id': _uuid()}}
+        return_value = copy.deepcopy(data['routing_table'])
+        return_value.update({'id': routing_table_id})
+        instance = self.plugin.return_value
+        instance.create_routing_table.return_value = return_value
+
+        res = self.api.post(_get_path('routing_tables', fmt=self.fmt),
+                            self.serialize(data),
+                            content_type='application/%s' % self.fmt)
+        self.assertEqual(exc.HTTPCreated.code, res.status_int)
+        instance.create_routing_table.assert_called_once_with(
+            mock.ANY, routing_table=data)
+        res = self.deserialize(res)
+        self.assertIn('routing_table', res)
+        self.assertEqual(res['routing_table'], return_value)
 
     def test_routing_table_update(self):
         routing_table_id = _uuid()
@@ -86,23 +112,19 @@ class RoutingTableExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         res = self.api.put(_get_path('routing_tables', id=routing_table_id,
                                      fmt=self.fmt),
                            self.serialize(update_data))
-
         instance.update_routing_table.assert_called_once_with(
             mock.ANY, routing_table_id, routing_table=update_data)
         self.assertEqual(exc.HTTPOk.code, res.status_int)
 
     def test_routing_table_delete(self):
         routing_table_id = _uuid()
-
         instance = self.plugin.return_value
 
         res = self.api.delete(_get_path('routing_tables', id=routing_table_id))
-
-        instance.delete_routing_table.assert_called_once_with(mock.ANY,
-            routing_table_id)
+        instance.delete_routing_table.assert_called_once_with(
+            mock.ANY, routing_table_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
 
 
 class RoutingTableExtensionTestCaseXml(RoutingTableExtensionTestCase):
-
     fmt = "xml"
