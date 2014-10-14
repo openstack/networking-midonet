@@ -30,26 +30,6 @@ TUNNELZONES = '%ss' % TUNNELZONE
 TUNNELZONE_HOST = 'tunnelzonehost'
 TUNNELZONE_HOSTS = '%ss' % TUNNELZONE_HOST
 
-TUNNELZONEHOST_ATTRIBUTE_MAP = {
-    'id': {'allow_post': False, 'allow_put': False,
-           'validate': {'type:uuid': None}, 'is_visible': True},
-    'tunnel_zone_id': {'allow_post': False, 'allow_put': False,
-                       'validate': {'type:uuid': None},
-                       'is_visible': True},
-    'tunnel_zone': {'allow_post': False, 'allow_put': False,
-                    'validate': {'type:url': None}, 'is_visible': True},
-    'host_id': {'allow_post': True, 'allow_put': True,
-                'validate': {'type:uuid': None}, 'is_visible': True},
-    'host': {'allow_post': False, 'allow_put': False,
-             'validate': {'type:uuid': None}, 'is_visible': True},
-    'ip_address': {'allow_post': True, 'allow_put': True,
-                   'validate': {'type:ip_address': None}, 'is_visible': True},
-    'tenant_id': {'allow_post': True, 'allow_put': False,
-                  'required_by_policy': True,
-                  'validate': {'type:string': None},
-                  'is_visible': True}
-}
-
 RESOURCE_ATTRIBUTE_MAP = {
     TUNNELZONES: {
         'id': {'allow_post': False, 'allow_put': False,
@@ -57,10 +37,30 @@ RESOURCE_ATTRIBUTE_MAP = {
         'name': {'allow_post': True, 'allow_put': True,
                  'validate': {'type:string': None}, 'is_visible': True},
         'type': {'allow_post': True, 'allow_put': True, 'default': 'GRE',
-                 'validate': {'type:string': 'GRE'}, 'is_visible': True},
+                 'validate': {'type:values': ['GRE']}, 'is_visible': True},
         'tenant_id': {'allow_post': True, 'allow_put': False,
                       'required_by_policy': True,
-                      'validate': {'type:string': None},
+                      'validate': {'type:uuid': None},
+                      'is_visible': True}
+    },
+    TUNNELZONE_HOSTS: {
+        'id': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:uuid': None}, 'is_visible': True},
+        'tunnel_zone_id': {'allow_post': False, 'allow_put': False,
+                           'validate': {'type:uuid': None},
+                           'is_visible': True},
+        'tunnel_zone': {'allow_post': False, 'allow_put': False,
+                        'validate': {'type:url': None}, 'is_visible': True},
+        'host_id': {'allow_post': True, 'allow_put': True,
+                    'validate': {'type:uuid': None}, 'is_visible': True},
+        'host': {'allow_post': False, 'allow_put': False,
+                 'validate': {'type:url': None}, 'is_visible': True},
+        'ip_address': {'allow_post': True, 'allow_put': True,
+                       'validate': {'type:ip_address_or_none': None},
+                       'is_visible': True, 'default': None},
+        'tenant_id': {'allow_post': True, 'allow_put': False,
+                      'required_by_policy': True,
+                      'validate': {'type:uuid': None},
                       'is_visible': True}
     }
 }
@@ -107,12 +107,16 @@ class Tunnelzone(extensions.ExtensionDescriptor):
                       collection_name=collection_name)
         tunnelzone_plugin = manager.NeutronManager.get_service_plugins().get(
             TUNNELZONE)
+
+        resource_name = TUNNELZONE_HOST
+        collection_name = TUNNELZONE_HOSTS
+        params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
         tunnelzonehost_controller = base.create_resource(
-            TUNNELZONE_HOSTS, TUNNELZONE_HOST,
-            tunnelzone_plugin, TUNNELZONEHOST_ATTRIBUTE_MAP,
+            collection_name, resource_name,
+            tunnelzone_plugin, params,
             parent=parent, allow_bulk=True)
         tunnelzonehost_extension = extensions.ResourceExtension(
-            TUNNELZONE_HOSTS, tunnelzonehost_controller, parent=parent)
+            collection_name, tunnelzonehost_controller, parent=parent)
         exts.append(tunnelzonehost_extension)
 
         return exts
@@ -120,18 +124,8 @@ class Tunnelzone(extensions.ExtensionDescriptor):
 
 @six.add_metaclass(abc.ABCMeta)
 class TunnelzonePluginBase(object):
-    """Abstract class for unit tests and further extensions for Tunnelzones and
-    Tunnelzonehosts.
+    """Abstract class for unit tests and further extensions for Tunnelzones.
     """
-
-    def get_plugin_name(self):
-        return "Tunnelzone"
-
-    def get_plugin_type(self):
-        return "tunnelzone"
-
-    def get_plugin_description(self):
-        return "Tunnelzone extension base plugin"
 
     @abc.abstractmethod
     def create_tunnelzone(self, context, tunnelzone):
@@ -153,6 +147,12 @@ class TunnelzonePluginBase(object):
     def update_tunnelzone(self, context, id, tunnelzone):
         pass
 
+
+@six.add_metaclass(abc.ABCMeta)
+class TunnelzonehostPluginBase(object):
+    """Abstract class for unit tests and further extensions for
+    Tunnelzonehosts.
+    """
     @abc.abstractmethod
     def create_tunnelzone_tunnelzonehost(self, context, tunnelzonehost,
                                          tunnelzone_id=None):

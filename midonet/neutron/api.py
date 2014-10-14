@@ -26,6 +26,7 @@ from midonet.neutron.extensions import router
 from midonet.neutron.extensions import routing_table
 from midonet.neutron.extensions import subnet
 from midonet.neutron.extensions import system
+from midonet.neutron.extensions import tunnelzone
 
 from neutron.api.v2 import base
 
@@ -131,12 +132,12 @@ class SystemHandlerMixin(system.SystemPluginBase):
 
 
 @util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
-class TunnelzoneHandlerMixin(object):
+class TunnelzoneHandlerMixin(tunnelzone.TunnelzonePluginBase):
     """The mixin of the request handler for the tunnel zones."""
 
 
 @util.generate_methods(LIST, SHOW, CREATE, UPDATE, DELETE)
-class TunnelzonehostHandlerMixin(object):
+class TunnelzonehostHandlerMixin(tunnelzone.TunnelzonehostPluginBase):
     """The mixin of the request handler for the tunnel zone hosts."""
     PARENT = TunnelzoneHandlerMixin.ALIAS
 
