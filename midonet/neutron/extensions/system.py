@@ -30,14 +30,20 @@ SYSTEMS = '%ss' % SYSTEM
 RESOURCE_ATTRIBUTE_MAP = {
     SYSTEMS: {
         'state': {'allow_post': False, 'allow_put': True,
-                  'validate': {'type:string': None},
-                  'is_visible': True},
+                  'validate': {'type:values': ['UPGRADE', 'ACTIVE']},
+                  'is_visible': True, 'required_by_policy': True},
         'availability': {'allow_post': False, 'allow_put': True,
-                         'validate': {'type:string': None},
-                         'is_visible': True},
+                         'validate': {
+                             'type:values': [
+                                 'READONLY',
+                                 'READWRITE'
+                             ]
+                         },
+                         'is_visible': True, 'default': 'READWRITE',
+                         'required_by_policy': True},
         'write_version': {'allow_post': False, 'allow_put': True,
-                          'validate': {'type:string': None},
-                          'is_visible': True}
+                          'validate': {'type:regex': '^(\d+\.\d+)$'},
+                          'is_visible': True, 'required_by_policy': True}
     }
 }
 
@@ -73,11 +79,8 @@ class System(object):
         resource_name = SYSTEM
         collection_name = SYSTEMS
         params = RESOURCE_ATTRIBUTE_MAP.get(collection_name, dict())
-        controller = base.create_resource(collection_name,
-                                          resource_name,
-                                          plugin,
-                                          params)
-
+        controller = base.create_resource(
+            collection_name, resource_name, plugin, params)
         ex = extensions.ResourceExtension(collection_name, controller)
 
         return [ex]
@@ -97,15 +100,6 @@ class System(object):
 
 @six.add_metaclass(abc.ABCMeta)
 class SystemPluginBase(object):
-
-    def get_plugin_name(self):
-        return "System Status Plugin"
-
-    def get_plugin_type(self):
-        return "system"
-
-    def get_plugin_description(self):
-        return "Base plugin for System extension"
 
     @abc.abstractmethod
     def get_system(self, context, id, fields=None):

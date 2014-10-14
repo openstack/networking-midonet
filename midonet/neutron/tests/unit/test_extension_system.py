@@ -39,7 +39,7 @@ class SystemTestCase(test_api_v2_extension.ExtensionTestCase):
         plural_mappings = {'system': 'systems'}
         self._setUpExtension(
             'midonet.neutron.extensions.system.SystemPluginBase',
-            system.SYSTEM, system.RESOURCE_ATTRIBUTE_MAP,
+            None, system.RESOURCE_ATTRIBUTE_MAP,
             system.System, '', plural_mappings=plural_mappings)
 
     def test_get_system_state(self):
@@ -61,7 +61,7 @@ class SystemTestCase(test_api_v2_extension.ExtensionTestCase):
 
     def test_update_system_state(self):
         data = {'system': {'state': 'UPGRADE',
-                           'availability': 'READ',
+                           'availability': 'READONLY',
                            'write_version': '1.0'}}
 
         return_value = copy.deepcopy(data['system'])
@@ -77,5 +77,4 @@ class SystemTestCase(test_api_v2_extension.ExtensionTestCase):
 
 
 class SystemTestCaseXml(SystemTestCase):
-
     fmt = "xml"
