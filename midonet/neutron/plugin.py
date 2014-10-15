@@ -34,6 +34,7 @@ from sqlalchemy import exc as sa_exc
 
 from neutron.api import extensions as neutron_extensions
 from neutron.api.rpc.handlers import dhcp_rpc
+from neutron.common import constants as n_const
 from neutron.common import exceptions as n_exc
 from neutron.common import rpc as n_rpc
 from neutron.common import topics
@@ -497,6 +498,19 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                                                                  floatingip)
             self.api_cli.update_floating_ip(id, fip)
 
+            # Update floating IP's status to the appripriate value based on
+            # the situation if the floating IP is associated or disassociated
+            # with a port.
+            port_id = fip.get('port_id')
+            status = fip.get('status')
+            if port_id is None and (
+                    status == n_const.FLOATINGIP_STATUS_ACTIVE):
+                self.update_floatingip_status(
+                    context, fip['id'], n_const.FLOATINGIP_STATUS_DOWN)
+            elif port_id is not None and (
+                    status == n_const.FLOATINGIP_STATUS_DOWN):
+                self.update_floatingip_status(
+                    context, fip['id'], n_const.FLOATINGIP_STATUS_ACTIVE)
         LOG.info(_("MidonetPluginV2.update_floating_ip exiting: fip=%s"), fip)
         return fip
 
