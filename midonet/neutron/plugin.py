@@ -496,21 +496,15 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         with context.session.begin(subtransactions=True):
             fip = super(MidonetPluginV2, self).update_floatingip(context, id,
                                                                  floatingip)
+            # Update status based on association
+            if fip.get('port_id') is None:
+                fip['status'] = n_const.FLOATINGIP_STATUS_DOWN
+            else:
+                fip['status'] = n_const.FLOATINGIP_STATUS_ACTIVE
+            self.update_floatingip_status(context, id, fip['status'])
+
             self.api_cli.update_floating_ip(id, fip)
 
-            # Update floating IP's status to the appripriate value based on
-            # the situation if the floating IP is associated or disassociated
-            # with a port.
-            port_id = fip.get('port_id')
-            status = fip.get('status')
-            if port_id is None and (
-                    status == n_const.FLOATINGIP_STATUS_ACTIVE):
-                self.update_floatingip_status(
-                    context, fip['id'], n_const.FLOATINGIP_STATUS_DOWN)
-            elif port_id is not None and (
-                    status == n_const.FLOATINGIP_STATUS_DOWN):
-                self.update_floatingip_status(
-                    context, fip['id'], n_const.FLOATINGIP_STATUS_ACTIVE)
         LOG.info(_("MidonetPluginV2.update_floating_ip exiting: fip=%s"), fip)
         return fip
 
