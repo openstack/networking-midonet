@@ -31,6 +31,7 @@ from oslo.config import cfg
 
 from sqlalchemy import exc as sa_exc
 
+from neutron.common import constants as n_const
 from neutron.common import exceptions as n_exc
 from neutron.common import rpc as n_rpc
 from neutron.common import topics
@@ -508,6 +509,14 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         with context.session.begin(subtransactions=True):
             fip = super(MidonetPluginV2, self).update_floatingip(context, id,
                                                                  floatingip)
+
+            # Update status based on association
+            if fip.get('port_id') is None:
+                fip['status'] = n_const.FLOATINGIP_STATUS_DOWN
+            else:
+                fip['status'] = n_const.FLOATINGIP_STATUS_ACTIVE
+            self.update_floatingip_status(context, id, fip['status'])
+
             self.api_cli.update_floating_ip(id, fip)
 
         LOG.info(_("MidonetPluginV2.update_floating_ip exiting: fip=%s"), fip)
