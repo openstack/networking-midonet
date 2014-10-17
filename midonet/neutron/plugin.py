@@ -23,11 +23,11 @@
 # @author: Rossella Sblendido, Midokura Japan KK
 # @author: Duarte Nunes, Midokura Japan KK
 
-from midonetclient import client
-
 from oslo.config import cfg
 
+from midonetclient import client
 from midonet.neutron import api
+from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import util
 from midonet.neutron import extensions
 from sqlalchemy import exc as sa_exc
@@ -56,7 +56,6 @@ from neutron.openstack.common import excutils
 from neutron.openstack.common import importutils
 from neutron.openstack.common import log as logging
 from neutron.plugins.common import constants
-from neutron.plugins.midonet.common import config  # noqa
 
 
 LOG = logging.getLogger(__name__)
