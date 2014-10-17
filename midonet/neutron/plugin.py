@@ -24,6 +24,7 @@
 
 from webob import exc as w_exc
 
+from midonet.neutron.common import config  # noqa
 from midonetclient import exc
 from midonetclient.neutron import client as n_client
 
@@ -55,7 +56,6 @@ from neutron.openstack.common import importutils
 from neutron.openstack.common import log as logging
 from neutron.openstack.common import rpc
 from neutron.plugins.common import constants
-from neutron.plugins.midonet.common import config  # noqa
 
 LOG = logging.getLogger(__name__)
 
