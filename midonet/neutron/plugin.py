@@ -334,8 +334,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
             self.prevent_l3_port_deletion(context, id)
 
         with context.session.begin(subtransactions=True):
-            super(MidonetPluginV2, self).disassociate_floatingips(
-                context, id, do_notify=False)
+            super(MidonetPluginV2, self).disassociate_floatingips(context, id)
             super(MidonetPluginV2, self).delete_port(context, id)
             self.api_cli.delete_port(id)
 
