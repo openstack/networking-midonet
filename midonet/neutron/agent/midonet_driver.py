@@ -19,9 +19,9 @@
 # @author: Tomoe Sugihara, Midokura Japan KK
 # @author: Ryu Ishimoto, Midokura Japan KK
 
+from midonet.neutron.common import config  # noqa
 from neutron.agent.linux import dhcp
 from neutron.openstack.common import log as logging
-from neutron.plugins.midonet.common import config  # noqa
 
 LOG = logging.getLogger(__name__)
 
