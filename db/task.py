@@ -12,25 +12,28 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import collections
 import datetime
 import sqlalchemy as sa
 import json
 
+from neutron.common import exceptions as n_exc
 from neutron.db import model_base
 from neutron.db import models_v2
 
 CREATE = 1
 DELETE = 2
 UPDATE = 3
+FLUSH = 4
 
 NETWORK = 1
 SUBNET = 2
 ROUTER = 3
 PORT = 4
-FLOATING_IP = 5
-SECURITY_GROUP = 6
-SECURTIY_GROUP_RULE = 7
-ROUTER_INTERFACE = 8
+FLOATINGIP = 5
+SECURITYGROUP = 6
+SECURITYGROUPRULE = 7
+ROUTERINTERFACE = 8
 
 
 class TaskType(model_base.BASEV2):
@@ -58,11 +61,61 @@ class Task(model_base.BASEV2):
     created_at = sa.Column(sa.DateTime(), default=datetime.datetime.utcnow)
 
 
-def create_task(context, task_type_id, data_type_id, resource_id, data):
+def create_task(context, task_type_id, task_id=None, data_type_id=None,
+                resource_id=None, data=None):
+
     with context.session.begin(subtransactions=True):
-        db = Task(type_id=task_type_id,
+        db = Task(id=task_id,
+                  type_id=task_type_id,
                   data_type_id=data_type_id,
-                  data=json.dumps(data),
+                  data=None if data is None else json.dumps(data),
                   resource_id=resource_id,
                   transaction_id=context.request_id)
         context.session.add(db)
+
+
+class MidonetClusterException(n_exc.NeutronException):
+    message = _("Midonet Cluster Error: %(msg)s")
+
+
+class MidoClusterMixin(object):
+
+    def create_cluster_rebuild(self, context):
+        try:
+            # lock the entire database so we can take a snapshot of the
+            # data we need.
+            context.session.execute('FLUSH TABLES WITH READ LOCK')
+
+            database = collections.OrderedDict({
+                NETWORK: self.get_networks(context),
+                SUBNET: self.get_subnets(context),
+                PORT: self.get_ports(context),
+                ROUTER: self.get_routers(context),
+                FLOATINGIP: self.get_floatingips(context),
+                SECURITYGROUP: self.get_security_groups(context),
+                SECURITYGROUPRULE: self.get_security_group_rules(context)})
+
+            # record how much items we have processed so far. We compare
+            # this to another count after we lock midonet_tasks to make
+            # sure nothing snuck in between the locks.
+            task_count = context.session.query(Task).count()
+        finally:
+            context.session.execute('UNLOCK TABLES')
+
+        try:
+            context.session.execute('LOCK TABLES midonet_tasks WRITE')
+            with context.session.begin(subtransactions=True):
+                if task_count != context.session.query(Task).count():
+                    error_msg = ("The database has been updated while the "
+                                 "rebuild operation is in progress")
+                    raise MidonetClusterException(msg=error_msg)
+
+                context.session.execute('TRUNCATE TABLE midonet_tasks')
+
+                create_task(context, FLUSH, task_id=1)
+                for key in database:
+                    for item in database[key]:
+                        create_task(context, CREATE, data_type_id=key,
+                                    resource_id=item['id'], data=item)
+        finally:
+            context.session.execute('UNLOCK TABLES')
