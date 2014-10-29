@@ -51,10 +51,7 @@ class DhcpNoOpDriver(dhcp.DhcpLocalProcess):
     def spawn_process(self):
         pass
 
-    # Quick fix to catch up with a cange in upstream:
-    # https://github.com/openstack/neutron/commit/
-    #     9569b2fe58d0e836071992f545886ca985d5ace8
-    if hasattr(dhcp.Dnsmasq, 'should_enable_metadata'):
-        should_enable_metadata = dhcp.Dnsmasq.should_enable_metadata
-    if hasattr(dhcp.Dnsmasq, 'get_isolated_subnets'):
-        get_isolated_subnets = dhcp.Dnsmasq.get_isolated_subnets
+    @classmethod
+    def should_enable_metadata(cls, conf, network):
+        """We need MD namespace proxy regardless of network configuration"""
+        return True
