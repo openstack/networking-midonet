@@ -1,4 +1,4 @@
 [gerrit]
-host=reviews.midonet.org
+host=review.gerrithub.io
 port=29418
-project=python-neutron-plugin-midonet.git
+project=midonet/python-neutron-plugin-midonet.git
