@@ -15,13 +15,11 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-#
-# @author: Rossella Sblendido, Midokura Europe SARL
-# @author: Ryu Ishimoto, Midokura Japan KK
-# @author: Tomoe Sugihara, Midokura Japan KK
+
 import mock
 import os
 
+from midonet.neutron.db import task  # noqa
 from neutron.extensions import portbindings
 from neutron.openstack.common import importutils
 from neutron.tests.unit import _test_extension_portbindings as test_bindings

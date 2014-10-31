@@ -59,7 +59,7 @@ def add_task_table():
         sa.Column('id', sa.Integer(), primary_key=True),
         sa.Column('type_id', sa.Integer(), nullable=False),
         sa.Column('data_type_id', sa.Integer()),
-        sa.Column('data', sa.Text(length=2**24)),
+        sa.Column('data', sa.Text(length = 2 ** 24)),
         sa.Column('resource_id', sa.String(length=36)),
         sa.Column('transaction_id', sa.String(length=40), nullable=False),
         sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -75,6 +75,6 @@ def upgrade():
 
 
 def downgrade():
-    [op.drop_table(table_name) for name in ['midonet_task_types',
-                                            'midonet_data_types',
-                                            'midonet_tasks']]
+    [op.drop_table(table_name) for table_name in ['midonet_tasks',
+                                                  'midonet_task_types',
+                                                  'midonet_data_types']]

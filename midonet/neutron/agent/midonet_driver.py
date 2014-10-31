@@ -15,10 +15,6 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-#
-# @author: Rossella Sblendido, Midokura Japan KK
-# @author: Tomoe Sugihara, Midokura Japan KK
-# @author: Ryu Ishimoto, Midokura Japan KK
 
 from midonet.neutron.common import config  # noqa
 from neutron.agent.linux import dhcp

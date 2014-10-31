@@ -14,12 +14,11 @@
 
 import collections
 import datetime
+from neutron.openstack.common import jsonutils
 import sqlalchemy as sa
-import json
 
 from neutron.common import exceptions as n_exc
 from neutron.db import model_base
-from neutron.db import models_v2
 
 CREATE = 1
 DELETE = 2
@@ -55,7 +54,7 @@ class Task(model_base.BASEV2):
     type_id = sa.Column(sa.Integer(), sa.ForeignKey('midonet_task_types.id'))
     data_type_id = sa.Column(sa.Integer(),
                              sa.ForeignKey('midonet_data_types.id'))
-    data = sa.Column(sa.Text(length=2**24))
+    data = sa.Column(sa.Text(length = 2 ** 24))
     resource_id = sa.Column(sa.String(36))
     transaction_id = sa.Column(sa.String(40))
     created_at = sa.Column(sa.DateTime(), default=datetime.datetime.utcnow)
@@ -68,7 +67,7 @@ def create_task(context, task_type_id, task_id=None, data_type_id=None,
         db = Task(id=task_id,
                   type_id=task_type_id,
                   data_type_id=data_type_id,
-                  data=None if data is None else json.dumps(data),
+                  data=None if data is None else jsonutils.dumps(data),
                   resource_id=resource_id,
                   transaction_id=context.request_id)
         context.session.add(db)

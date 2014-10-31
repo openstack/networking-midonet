@@ -16,22 +16,16 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-#
-# @author: Takaaki Suzuki, Midokura Japan KK
-# @author: Tomoe Sugihara, Midokura Japan KK
-# @author: Ryu Ishimoto, Midokura Japan KK
-# @author: Rossella Sblendido, Midokura Japan KK
-# @author: Duarte Nunes, Midokura Japan KK
 
 
 from oslo.config import cfg
 
-from midonetclient import client
 from midonet.neutron import api
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import util
 from midonet.neutron.db import task
 from midonet.neutron import extensions
+from midonetclient import client
 from sqlalchemy import exc as sa_exc
 
 from neutron.api import extensions as neutron_extensions
