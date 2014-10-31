@@ -23,12 +23,14 @@
 # @author: Rossella Sblendido, Midokura Japan KK
 # @author: Duarte Nunes, Midokura Japan KK
 
+
 from oslo.config import cfg
 
 from midonetclient import client
 from midonet.neutron import api
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import util
+from midonet.neutron.db import task
 from midonet.neutron import extensions
 from sqlalchemy import exc as sa_exc
 
@@ -69,11 +71,13 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                       securitygroups_db.SecurityGroupDbMixin,
                       rsi_db.RoutedServiceInsertionDbMixin,
                       loadbalancer_db.LoadBalancerPluginDb,
-                      api.MidoNetApiMixin):
+                      api.MidoNetApiMixin,
+                      task.MidoClusterMixin):
 
     supported_extension_aliases = ['agent',
                                    'binding',
                                    'bgp',
+                                   'cluster',
                                    'chain-rule',
                                    'dhcp_agent_scheduler',
                                    'external-net',

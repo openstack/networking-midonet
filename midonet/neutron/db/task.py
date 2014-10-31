@@ -80,7 +80,7 @@ class MidonetClusterException(n_exc.NeutronException):
 
 class MidoClusterMixin(object):
 
-    def create_cluster_rebuild(self, context):
+    def create_cluster(self, context):
         try:
             # lock the entire database so we can take a snapshot of the
             # data we need.
