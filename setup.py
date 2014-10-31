@@ -26,7 +26,7 @@ core.setup(
     long_description=open("README.rst").read(),
     name='neutron-plugin-midonet',
     packages=setuptools.find_packages(),
-    url='https://github.com/midokura/python-neutron-plugin-midonet',
-    version='2014.2-mido1',
+    url='https://github.com/midonet/python-neutron-plugin-midonet',
+    version='2014.2-1.0.rc0',
     zip_safe=False,
 )
