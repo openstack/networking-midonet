@@ -19,8 +19,8 @@ import setuptools
 
 
 core.setup(
-    author='Midokura',
-    author_email='mido-openstack-dev@midokura.com',
+    author='MidoNet',
+    author_email='midonet-dev@midonet.org',
     description='Neutron is a virtual network service for Openstack',
     license="Apache License, Version 2.0",
     long_description=open("README.rst").read(),
