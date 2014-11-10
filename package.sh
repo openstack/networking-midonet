@@ -1,5 +1,17 @@
-# Get version number from command line
+# Copyright (c) 2014 Midokura Europe SARL, All Rights Reserved.
 #
+# Licensed under the Apache License, Version 2.0 (the "License"); you may
+# not use this file except in compliance with the License. You may obtain
+# a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations
+# under the License.
+
 # This script generates RPM and debian packages.
 #
 # Usage: ./package.sh [VERSION_TAG]
@@ -69,10 +81,10 @@ echo "DEB: version=$deb_version"
 FPM_BASE_ARGS=$(cat <<EOF
 --name 'python-neutron-plugin-midonet' \
 --architecture 'noarch' \
---license '2014, Midokura' \
---vendor 'Midokura' \
---maintainer "Midokura" \
---url 'http://midokura.com' \
+--license 'Apache License, Version 2.0' \
+--vendor 'MidoNet' \
+--maintainer "MidoNet" \
+--url 'http://midonet.org' \
 --description 'Neutron is a virtual network service for Openstack - Python library
   Neutron MidoNet plugin is a MidoNet virtual network service plugin for Openstack Neutron.' \
 -d 'python-neutron' \
