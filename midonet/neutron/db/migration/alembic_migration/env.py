@@ -12,31 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import with_statement
+from logging import config as logging_config
+
 from alembic import context
-from sqlalchemy import engine_from_config, pool
-import logging.config as log_conf
+from oslo.db.sqlalchemy import session
+
+
+VERSION_TABLE = 'midonet_alembic'
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+neutron_config = config.neutron_config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-log_conf.fileConfig(config.config_file_name)
-
-# add your model's MetaData object here
-# for 'autogenerate' support
-# from myapp import mymodel
-# target_metadata = mymodel.Base.metadata
-target_metadata = None
-
-VERSION_TABLE = 'midonet_alembic'
-
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+logging_config.fileConfig(config.config_file_name)
 
 
 def run_migrations_offline():
@@ -51,9 +42,13 @@ def run_migrations_offline():
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
-    context.configure(url=url, target_metadata=target_metadata,
-                      version_table=VERSION_TABLE)
+    kwargs = dict()
+    if neutron_config.database.connection:
+        kwargs['url'] = neutron_config.database.connection
+    else:
+        kwargs['dialect_name'] = neutron_config.database.engine
+    kwargs['version_table'] = VERSION_TABLE
+    context.configure(**kwargs)
 
     with context.begin_transaction():
         context.run_migrations()
@@ -66,22 +61,21 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
-    engine = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix='sqlalchemy.',
-        poolclass=pool.NullPool)
-
+    engine = session.create_engine(neutron_config.database.connection)
     connection = engine.connect()
     context.configure(
         connection=connection,
-        target_metadata=target_metadata,
-        version_table=VERSION_TABLE)
+        target_metadata=None,
+        version_table=VERSION_TABLE
+    )
 
     try:
         with context.begin_transaction():
             context.run_migrations()
     finally:
         connection.close()
+        engine.dispose()
+
 
 if context.is_offline_mode():
     run_migrations_offline()
