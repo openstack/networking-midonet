@@ -14,19 +14,16 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from distutils import core
 import setuptools
 
+# In python < 2.7.4, a lazy loading of package `pbr` will break
+# setuptools if some other modules registered functions in `atexit`.
+# solution from: http://bugs.python.org/issue15881#msg170215
+try:
+    import multiprocessing  # noqa
+except ImportError:
+    pass
 
-core.setup(
-    author='MidoNet',
-    author_email='midonet-dev@midonet.org',
-    description='Neutron is a virtual network service for Openstack',
-    license="Apache License, Version 2.0",
-    long_description=open("README.rst").read(),
-    name='neutron-plugin-midonet',
-    packages=setuptools.find_packages(),
-    url='https://github.com/midonet/python-neutron-plugin-midonet',
-    version='2014.2-1.0.rc0',
-    zip_safe=False,
-)
+setuptools.setup(
+    setup_requires=['pbr'],
+    pbr=True)
