@@ -79,7 +79,7 @@ class MidonetClusterException(n_exc.NeutronException):
 
 class MidoClusterMixin(object):
 
-    def create_cluster(self, context):
+    def create_cluster(self, context, cluster):
         try:
             # lock the entire database so we can take a snapshot of the
             # data we need.
@@ -118,3 +118,7 @@ class MidoClusterMixin(object):
                                     resource_id=item['id'], data=item)
         finally:
             context.session.execute('UNLOCK TABLES')
+        # Neutron assumes that any create_* call returns a dictionary. Even
+        # though we do nothing with 'cluster', we still return it back to
+        # neutron to satisfy this assumption.
+        return cluster
