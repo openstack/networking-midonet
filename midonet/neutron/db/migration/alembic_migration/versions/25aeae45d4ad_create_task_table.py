@@ -49,7 +49,7 @@ def add_data_type_name():
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('name', sa.String(50), nullable=False),)
     name_list = ['network', 'subnet', 'router', 'port', 'floating_ip',
-                 'security_group', 'security_group_rule', 'router_interface']
+                 'security_group', 'security_group_rule']
     [add_name(table_name, name) for name in name_list]
 
 
