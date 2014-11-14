@@ -14,19 +14,22 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from distutils import core
 import setuptools
 
 
-core.setup(
+setuptools.setup(
     author='MidoNet',
     author_email='midonet-dev@midonet.org',
-    description='Neutron is a virtual network service for Openstack',
+    entry_points={
+        'console_scripts': [
+            'midonet-db-manage = midonet.neutron.db.migration.cli:main']},
+    description='Openstack Neutron MidoNet plugin',
     license="Apache License, Version 2.0",
     long_description=open("README.rst").read(),
     name='neutron-plugin-midonet',
-    packages=setuptools.find_packages(),
-    url='https://github.com/midonet/python-neutron-plugin-midonet',
-    version='2014.2-1.0.rc0',
+    packages=setuptools.find_packages(
+        exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
+    url='http://www.midonet.org',
+    version='2014.2+1',
     zip_safe=False,
 )
