@@ -76,60 +76,64 @@ echo "Packaging with the following info"
 echo "RPM: version=$rpm_version, revision=$rpm_revision"
 echo "DEB: version=$deb_version"
 
-
 # Common args for rpm and deb
 FPM_BASE_ARGS=$(cat <<EOF
---name 'python-neutron-plugin-midonet' \
 --architecture 'noarch' \
---license 'Apache License, Version 2.0' \
---vendor 'MidoNet' \
---maintainer "MidoNet" \
---url 'http://midonet.org' \
---description 'Neutron is a virtual network service for Openstack - Python library
-  Neutron MidoNet plugin is a MidoNet virtual network service plugin for Openstack Neutron.' \
 -d 'python-neutron' \
 -d 'python-midonetclient' \
--s dir
+-s python
 EOF
 )
 
+CFG=setup.cfg
+CFG_BAK=setup.cfg.$version_tag
 
-function clean() {
-    rm -rf build
+function setup_cfg() {
+    if [ -f $CFG ]; then
+        echo "Backing up $CFG as $CFG_BAK"
+        cp $CFG $CFG_BAK
+    fi
+
+    # Need to do this to have the files be installed in the right location
+    cat > $CFG << EOF
+# This is an auto-generated file from package.sh
+[install]
+install-lib=/usr/lib/python2.7/dist-packages
+install-scripts=/usr/bin
+EOF
 }
 
-RPM_ARGS=$(cat <<EOF
--d 'python >= 2.6' -d 'python < 2.8' \
+function cleanup_cfg() {
+    if [ -f $CFG_BAK ]; then
+        echo "Restoring $CFG_BAK as $CFG"
+        mv $CFG_BAK $CFG
+    fi
+}
+
+function package_rpm() {
+    local args=$(cat << EOF
 --epoch 1
 --version $rpm_version
---iteration $rpm_revision
+--iteration $rpm_revision \
+-t rpm
 EOF
 )
-function package_rpm() {
-    RPM_BUILD_DIR=build/rpm/
-    mkdir -p  $RPM_BUILD_DIR/usr/lib/python2.6/site-packages/
-    mkdir -p  $RPM_BUILD_DIR/usr/lib/python2.7/site-packages/
-
-    cp -r midonet $RPM_BUILD_DIR/usr/lib/python2.6/site-packages/
-    cp -r midonet $RPM_BUILD_DIR/usr/lib/python2.7/site-packages/
-
-    eval fpm $FPM_BASE_ARGS $RPM_ARGS -C $RPM_BUILD_DIR -t rpm .
+    eval fpm $FPM_BASE_ARGS $args setup.py
 }
 
-
-DEB_ARGS=$(cat <<EOF
---prefix /usr/lib/python2.7/dist-packages/midonet \
---deb-priority 'optional' \
--C midonet/
---version $deb_version
-EOF
-)
 function package_deb() {
-    eval fpm $FPM_BASE_ARGS $DEB_ARGS -t deb .
+    local args=$(cat << EOF
+--deb-priority 'optional' \
+--version $deb_version \
+-t deb
+EOF
+)
+    eval fpm $FPM_BASE_ARGS $args setup.py
 }
-
 
 # Main
-clean
+set +e
+setup_cfg
 package_rpm
 package_deb
+cleanup_cfg
