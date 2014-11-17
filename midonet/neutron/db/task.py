@@ -95,7 +95,11 @@ class MidoClusterMixin(object):
                 ROUTER: self.get_routers(context),
                 FLOATINGIP: self.get_floatingips(context),
                 SECURITYGROUP: self.get_security_groups(context),
-                SECURITYGROUPRULE: self.get_security_group_rules(context)})
+                SECURITYGROUPRULE: self.get_security_group_rules(context),
+                POOL: self.get_pools(context),
+                VIP: self.get_vips(context),
+                HEALTHMONITOR: self.get_health_monitors(context),
+                MEMBER: self.get_members(context)})
 
             # record how much items we have processed so far. We compare
             # this to another count after we lock midonet_tasks to make
