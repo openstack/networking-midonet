@@ -30,6 +30,6 @@ setuptools.setup(
     packages=setuptools.find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     url='http://www.midonet.org',
-    version='2014.2+1',
+    version='2015.1+1',
     zip_safe=False,
 )
