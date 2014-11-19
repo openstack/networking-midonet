@@ -39,7 +39,7 @@ done
 function set_timestamp_package_vals() {
     local version=$1
 
-    pre_release_tag=$(date -u '+%Y%m%d%H%M')
+    pre_release_tag=$(date -u '+%Y%m%d%H%M').$(git rev-parse --short HEAD)
 
     rpm_version=$version
     rpm_revision="0".$pre_release_tag
