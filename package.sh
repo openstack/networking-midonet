@@ -37,10 +37,10 @@ if [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])$ ]]; then
     upstream_version=${BASH_REMATCH[1]}
     downstream_version=${BASH_REMATCH[2]}
 
-    rpm_version=$upstream_version-$downstream_version
+    rpm_version=$upstream_version+$downstream_version
     rpm_revision=1.0
 
-    deb_version=$upstream_version-$downstream_version
+    deb_version=$upstream_version+$downstream_version
 
 elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+)$ ]]; then
     # For RC packages, e.g. 2014.2-1.0-rc1
@@ -49,10 +49,10 @@ elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+)$ ]]; 
     downstream_version=${BASH_REMATCH[2]}
     rc_tag=${BASH_REMATCH[3]}
 
-    rpm_version=$upstream_version-$downstream_version
+    rpm_version=$upstream_version+$downstream_version
     rpm_revision=$rc_tag
 
-    deb_version=$upstream_version-$downstream_version~$rc_tag
+    deb_version=$upstream_version+$downstream_version~$rc_tag
 
 elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+.*)$ ]]; then
     # For unstable packages, e.g.2014.2-1.0-rc1-81-gef7115e
@@ -61,10 +61,10 @@ elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+.*)$ ]]
     downstream_version=${BASH_REMATCH[2]}
     pre_release_tag=$(echo ${BASH_REMATCH[3]} | sed -e 's/-/./g')
 
-    rpm_version=$upstream_version-$downstream_version
+    rpm_version=$upstream_version+$downstream_version
     rpm_revision=$pre_release_tag
 
-    deb_version=$upstream_version-$downstream_version~$pre_release_tag
+    deb_version=$upstream_version+$downstream_version~$pre_release_tag
 
 else
     echo "Aborted. invalid version tag. $version_tag"
