@@ -14,7 +14,7 @@
 
 import collections
 import datetime
-from neutron.openstack.common import jsonutils
+from oslo.serialization import jsonutils
 import sqlalchemy as sa
 
 from neutron.common import exceptions as n_exc
