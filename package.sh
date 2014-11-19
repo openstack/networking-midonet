@@ -41,6 +41,7 @@ if [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])$ ]]; then
     rpm_revision=1.0
 
     deb_version=$upstream_version+$downstream_version
+    deb_revision=1
 
 elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+)$ ]]; then
     # For RC packages, e.g. 2014.2-1.0-rc1
@@ -53,6 +54,7 @@ elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+)$ ]]; 
     rpm_revision=$rc_tag
 
     deb_version=$upstream_version+$downstream_version~$rc_tag
+    deb_revision=1
 
 elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+.*)$ ]]; then
     # For unstable packages, e.g.2014.2-1.0-rc1-81-gef7115e
@@ -65,6 +67,7 @@ elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+.*)$ ]]
     rpm_revision=$pre_release_tag
 
     deb_version=$upstream_version+$downstream_version~$pre_release_tag
+    deb_revision=1
 
 else
     echo "Aborted. invalid version tag. $version_tag"
@@ -74,7 +77,7 @@ fi
 
 echo "Packaging with the following info"
 echo "RPM: version=$rpm_version, revision=$rpm_revision"
-echo "DEB: version=$deb_version"
+echo "DEB: version=$deb_version, revision=$deb_revision"
 
 # Common args for rpm and deb
 FPM_BASE_ARGS=$(cat <<EOF
@@ -125,6 +128,7 @@ function package_deb() {
     local args=$(cat << EOF
 --deb-priority 'optional' \
 --version $deb_version \
+--iteration $deb_revision \
 -t deb
 EOF
 )
