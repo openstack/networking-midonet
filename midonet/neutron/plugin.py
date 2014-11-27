@@ -19,6 +19,8 @@
 
 
 from oslo.config import cfg
+from oslo.utils import excutils
+from oslo.utils import importutils
 
 from midonet.neutron import api
 from midonet.neutron.common import config  # noqa
@@ -48,8 +50,6 @@ from neutron.db import securitygroups_db
 from neutron.extensions import portbindings
 from neutron.extensions import routedserviceinsertion as rsi
 from neutron.extensions import securitygroup as ext_sg
-from neutron.openstack.common import excutils
-from neutron.openstack.common import importutils
 from neutron.openstack.common import log as logging
 from neutron.plugins.common import constants
 

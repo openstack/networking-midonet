@@ -19,9 +19,10 @@
 import mock
 import os
 
+from oslo.utils import importutils
+
 from midonet.neutron.db import task  # noqa
 from neutron.extensions import portbindings
-from neutron.openstack.common import importutils
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 import neutron.tests.unit.test_db_plugin as test_plugin
 import neutron.tests.unit.test_extension_ext_gw_mode as test_gw_mode
