@@ -108,29 +108,24 @@ EOF
 CFG=setup.cfg
 CFG_BAK=setup.cfg.$version_tag
 
-function setup_cfg() {
-    if [ -f $CFG ]; then
-        echo "Backing up $CFG as $CFG_BAK"
-        cp $CFG $CFG_BAK
+function create_cfg() {
+    if [ -z "$1" ]; then
+        echo "error: install location was not supplied"
+        exit -1
     fi
 
     # Need to do this to have the files be installed in the right location
     cat > $CFG << EOF
 # This is an auto-generated file from package.sh
 [install]
-install-lib=/usr/lib/python2.7/dist-packages
+install-lib=$1
 install-scripts=/usr/bin
 EOF
 }
 
-function cleanup_cfg() {
-    if [ -f $CFG_BAK ]; then
-        echo "Restoring $CFG_BAK as $CFG"
-        mv $CFG_BAK $CFG
-    fi
-}
-
 function package_rpm() {
+    create_cfg /usr/lib/python2.7/site-packages
+
     local args=$(cat << EOF
 --epoch 1
 --version $rpm_version
@@ -142,6 +137,8 @@ EOF
 }
 
 function package_deb() {
+    create_cfg /usr/lib/python2.7/dist-packages
+
     local args=$(cat << EOF
 --deb-priority 'optional' \
 --version $deb_version \
@@ -154,7 +151,18 @@ EOF
 
 # Main
 set +e
-setup_cfg
+
+# Back up the config if exists
+if [ -f $CFG ]; then
+    echo "Backing up $CFG as $CFG_BAK"
+    cp $CFG $CFG_BAK
+fi
+
 package_rpm
 package_deb
-cleanup_cfg
+
+# Restore the backed up config file
+if [ -f $CFG_BAK ]; then
+    echo "Restoring $CFG_BAK as $CFG"
+    mv $CFG_BAK $CFG
+fi
