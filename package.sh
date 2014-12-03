@@ -36,6 +36,19 @@ while getopts t OPT; do
     esac
 done
 
+function set_timestamp_package_vals() {
+    local version=$1
+
+    pre_release_tag=$(date -u '+%Y%m%d%H%M').$(git rev-parse --short HEAD)
+
+    rpm_version=$version
+    rpm_revision="0".$pre_release_tag
+
+    deb_version=$version~$pre_release_tag
+    deb_revision=1
+}
+
+
 # Get version tag from command line or defaults to use git describe
 version_tag=$1
 if [ "$version_tag" == "" ]; then
@@ -49,11 +62,15 @@ if [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])$ ]]; then
     upstream_version=${BASH_REMATCH[1]}
     downstream_version=${BASH_REMATCH[2]}
 
-    rpm_version=$upstream_version+$downstream_version
-    rpm_revision=1
+    if [ "$USE_TIMESTAMP" == "yes" ]; then
+        set_timestamp_package_vals $upstream_version+$downstream_version
+    else
+        rpm_version=$upstream_version+$downstream_version
+        rpm_revision=1
 
-    deb_version=$upstream_version+$downstream_version
-    deb_revision=1
+        deb_version=$upstream_version+$downstream_version
+        deb_revision=1
+    fi
 
 elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+)$ ]]; then
     # For RC packages, e.g. 2014.2-1.0-rc1
@@ -62,11 +79,15 @@ elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+)$ ]]; 
     downstream_version=${BASH_REMATCH[2]}
     rc_tag=${BASH_REMATCH[3]}
 
-    rpm_version=$upstream_version+$downstream_version
-    rpm_revision="0."$rc_tag
+    if [ "$USE_TIMESTAMP" == "yes" ]; then
+        set_timestamp_package_vals $upstream_version+$downstream_version
+    else
+        rpm_version=$upstream_version+$downstream_version
+        rpm_revision="0."$rc_tag
 
-    deb_version=$upstream_version+$downstream_version~$rc_tag
-    deb_revision=1
+        deb_version=$upstream_version+$downstream_version~$rc_tag
+        deb_revision=1
+    fi
 
 elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+.*)$ ]]; then
     # For unstable packages, e.g.2014.2-1.0-rc1-81-gef7115e
@@ -75,16 +96,16 @@ elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+.*)$ ]]
     downstream_version=${BASH_REMATCH[2]}
 
     if [ "$USE_TIMESTAMP" == "yes" ]; then
-        pre_release_tag=$(date '+%Y%m%d%H%M')
+        set_timestamp_package_vals $upstream_version+$downstream_version
     else
         pre_release_tag=$(echo ${BASH_REMATCH[3]} | sed -e 's/-/./g')
+
+        rpm_version=$upstream_version+$downstream_version
+        rpm_revision="0."$pre_release_tag
+
+        deb_version=$upstream_version+$downstream_version~$pre_release_tag
+        deb_revision=1
     fi
-
-    rpm_version=$upstream_version+$downstream_version
-    rpm_revision="0."$pre_release_tag
-
-    deb_version=$upstream_version+$downstream_version~$pre_release_tag
-    deb_revision=1
 
 else
     echo "Aborted. invalid version tag. $version_tag"
