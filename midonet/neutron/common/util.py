@@ -15,6 +15,7 @@
 #    under the License.
 
 import re
+import time
 from webob import exc as w_exc
 
 from midonetclient import exc
@@ -36,6 +37,35 @@ def handle_api_error(fn):
         except (w_exc.HTTPException, exc.MidoApiConnectionError) as ex:
             raise MidonetApiException(msg=ex)
     return wrapped
+
+
+def retry_on_error(attempts, delay, error_cls):
+    """Decorator for error handling retry logic
+
+    This decorator retries the function specified number of times with
+    specified delay between each attempt, for every exception thrown specified
+    in error_cls.  If case the retry fails in all attempts, the error_cls
+    exception object is thrown.
+
+    :param attempts: Number of retry attempts
+    :param delay: Delay in seconds between attempts
+    :param error_cls: The exception class that triggers a retry attempt
+    """
+    def internal_wrapper(func):
+        def retry(*args, **kwargs):
+            err = None
+            for i in range(attempts):
+                try:
+                    return func(*args, **kwargs)
+                except error_cls as exc:
+                    LOG.warn(_('Retrying because of error: %r'), exc)
+                    time.sleep(delay)
+                    err = exc
+            # err should always be set to a valid exception object
+            assert type(err) is error_cls
+            raise err
+        return retry
+    return internal_wrapper
 
 
 class MidonetApiException(n_exc.NeutronException):

@@ -199,8 +199,17 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
     @util.handle_api_error
     @utils.synchronized('midonet-network-lock', external=True)
+    @util.retry_on_error(2, 1, sa_exc.OperationalError)
     def delete_network(self, context, id):
-        """Delete a network and its corresponding MidoNet bridge."""
+        """Delete a network and its corresponding MidoNet bridge.
+
+        This method is wrapped by 'retry_on_error' decorator because concurrent
+        requests to the API server often causes DB deadlock error because
+        eventlet green threads do not yield properly when they block inside
+        the transaction.  This hack should no longer become available once
+        we moved to the model where API requests are asynchronous or when
+        eventlet-compatible mysqlconnector is used for the DB driver instead.
+        """
         LOG.info(_("MidonetPluginV2.delete_network called: id=%r"), id)
 
         with context.session.begin(subtransactions=True):
@@ -306,6 +315,19 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
     @util.handle_api_error
     @utils.synchronized('midonet-port-lock', external=True)
+    @util.retry_on_error(2, 1, sa_exc.OperationalError)
+    def _process_port_delete(self, context, id):
+        """Delete the Neutron and MidoNet ports
+
+        This method is wrapped by 'retry_on_error' decorator.  See the
+        explanation in the 'delete_network' comment.
+        """
+        with context.session.begin(subtransactions=True):
+            super(MidonetPluginV2, self).disassociate_floatingips(
+                context, id, do_notify=False)
+            super(MidonetPluginV2, self).delete_port(context, id)
+            self.api_cli.delete_port(id)
+
     def delete_port(self, context, id, l3_port_check=True):
         """Delete a neutron port and corresponding MidoNet bridge port."""
         LOG.info(_("MidonetPluginV2.delete_port called: id=%(id)s "
@@ -317,12 +339,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         if l3_port_check:
             self.prevent_l3_port_deletion(context, id)
 
-        with context.session.begin(subtransactions=True):
-            super(MidonetPluginV2, self).disassociate_floatingips(
-                context, id, do_notify=False)
-            super(MidonetPluginV2, self).delete_port(context, id)
-            self.api_cli.delete_port(id)
-
+        self._process_port_delete(context, id)
         LOG.info(_("MidonetPluginV2.delete_port exiting: id=%r"), id)
 
     def _process_port_update(self, context, id, in_port, out_port):
