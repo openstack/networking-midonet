@@ -43,7 +43,6 @@ from neutron.db import api as db
 from neutron.db import db_base_plugin_v2
 from neutron.db import external_net_db
 from neutron.db import l3_gwmode_db
-from neutron.db.loadbalancer import loadbalancer_db
 from neutron.db import portbindings_db
 from neutron.db import routedserviceinsertion_db as rsi_db
 from neutron.db import securitygroups_db
@@ -52,6 +51,7 @@ from neutron.extensions import routedserviceinsertion as rsi
 from neutron.extensions import securitygroup as ext_sg
 from neutron.openstack.common import log as logging
 from neutron.plugins.common import constants
+from neutron_lbaas.db.loadbalancer import loadbalancer_db
 
 
 LOG = logging.getLogger(__name__)
