@@ -160,3 +160,26 @@ class UtilTestCase(base.BaseTestCase):
         FooPlugin()
         self.assertIn('get_foos', FooPlugin.__dict__.keys())
         self.assertNotIn('get_foos', FooPlugin.__abstractmethods__)
+
+    def test_retry_on_error(self):
+        retry_num = 2
+
+        class TestClass(object):
+
+            def __init__(self):
+                self.attempt = 0
+
+            @util.retry_on_error(retry_num, 1, ValueError)
+            def test(self):
+                self.attempt += 1
+                raise ValueError
+
+        test_obj = TestClass()
+        try:
+            test_obj.test()
+            # should never reach here
+            self.assertTrue(False)
+        except ValueError:
+            pass
+
+        self.assertEqual(retry_num, test_obj.attempt)
