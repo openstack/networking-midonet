@@ -25,6 +25,7 @@ from neutron.openstack.common import importutils
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 import neutron.tests.unit.test_db_plugin as test_plugin
 import neutron.tests.unit.test_extension_ext_gw_mode as test_gw_mode
+from neutron.tests.unit import test_extension_extradhcpopts as test_dhcpopts
 import neutron.tests.unit.test_extension_security_group as sg
 import neutron.tests.unit.test_l3_plugin as test_l3_plugin
 from oslo.config import cfg
@@ -115,4 +116,9 @@ class TestMidonetPluginPortBinding(MidonetPluginV2TestCase,
 class TestExtGwMode(MidonetPluginV2TestCase,
                     test_gw_mode.ExtGwModeIntTestCase):
 
+    pass
+
+
+class TestExtraDHCPOpts(MidonetPluginV2TestCase,
+                        test_dhcpopts.TestExtraDhcpOpt):
     pass
