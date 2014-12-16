@@ -203,7 +203,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
     @util.handle_api_error
     @utils.synchronized('midonet-network-lock', external=True)
-    @util.retry_on_error(2, 1, sa_exc.OperationalError)
+    @util.retry_on_error(2, 1, sa_exc.SQLAlchemyError)
     def delete_network(self, context, id):
         """Delete a network and its corresponding MidoNet bridge.
 
@@ -330,7 +330,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
     @util.handle_api_error
     @utils.synchronized('midonet-port-lock', external=True)
-    @util.retry_on_error(2, 1, sa_exc.OperationalError)
+    @util.retry_on_error(2, 1, sa_exc.SQLAlchemyError)
     def _process_port_delete(self, context, id):
         """Delete the Neutron and MidoNet ports
 

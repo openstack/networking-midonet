@@ -62,7 +62,7 @@ def retry_on_error(attempts, delay, error_cls):
                     time.sleep(delay)
                     err = exc
             # err should always be set to a valid exception object
-            assert type(err) is error_cls
+            assert isinstance(err, error_cls)
             raise err
         return retry
     return internal_wrapper
