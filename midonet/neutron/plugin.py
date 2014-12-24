@@ -25,8 +25,10 @@ from oslo.utils import importutils
 from midonet.neutron import api
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import util
+from midonet.neutron.db import routedserviceinsertion_db as rsi_db
 from midonet.neutron.db import task
 from midonet.neutron import extensions
+from midonet.neutron.extensions import routedserviceinsertion as rsi
 from midonetclient import client
 from sqlalchemy import exc as sa_exc
 
@@ -44,10 +46,8 @@ from neutron.db import db_base_plugin_v2
 from neutron.db import external_net_db
 from neutron.db import l3_gwmode_db
 from neutron.db import portbindings_db
-from neutron.db import routedserviceinsertion_db as rsi_db
 from neutron.db import securitygroups_db
 from neutron.extensions import portbindings
-from neutron.extensions import routedserviceinsertion as rsi
 from neutron.extensions import securitygroup as ext_sg
 from neutron.openstack.common import log as logging
 from neutron.plugins.common import constants
