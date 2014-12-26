@@ -22,11 +22,13 @@ from midonetclient import exc
 
 from neutron.api.v2 import base
 from neutron.common import exceptions as n_exc
+from neutron import i18n
 from neutron.openstack.common import log as logging
 
 
 LOG = logging.getLogger(__name__)
 PLURAL_NAME_MAP = {}
+_LW = i18n._LW
 
 
 def handle_api_error(fn):
@@ -58,7 +60,7 @@ def retry_on_error(attempts, delay, error_cls):
                 try:
                     return func(*args, **kwargs)
                 except error_cls as exc:
-                    LOG.warn(_('Retrying because of error: %r'), exc)
+                    LOG.warn(_LW('Retrying because of error: %r'), exc)
                     time.sleep(delay)
                     err = exc
             # err should always be set to a valid exception object

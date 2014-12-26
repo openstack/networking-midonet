@@ -30,6 +30,7 @@ from midonet.neutron.db import task
 from midonet.neutron import extensions
 from midonet.neutron.extensions import routedserviceinsertion as rsi
 from midonetclient import client
+from neutron import i18n
 from sqlalchemy import exc as sa_exc
 
 from neutron.api import extensions as neutron_extensions
@@ -55,6 +56,8 @@ from neutron_lbaas.db.loadbalancer import loadbalancer_db
 
 
 LOG = logging.getLogger(__name__)
+_LE = i18n._LE
+_LI = i18n._LI
 
 
 class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
@@ -163,7 +166,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         Create a new Neutron network and its corresponding MidoNet bridge.
         """
-        LOG.info(_('MidonetPluginV2.create_network called: network=%r'),
+        LOG.info(_LI('MidonetPluginV2.create_network called: network=%r'),
                  network)
 
         net = self._process_create_network(context, network)
@@ -171,12 +174,12 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         try:
             self.api_cli.create_network(net)
         except Exception as ex:
-            LOG.error(_("Failed to create a network %(net_id)s in Midonet:"
+            LOG.error(_LE("Failed to create a network %(net_id)s in Midonet:"
                         "%(err)s"), {"net_id": net["id"], "err": ex})
             with excutils.save_and_reraise_exception():
                 super(MidonetPluginV2, self).delete_network(context, net['id'])
 
-        LOG.info(_("MidonetPluginV2.create_network exiting: net=%r"), net)
+        LOG.info(_LI("MidonetPluginV2.create_network exiting: net=%r"), net)
         return net
 
     @util.handle_api_error
@@ -186,8 +189,8 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         Update an existing Neutron network and its corresponding MidoNet
         bridge.
         """
-        LOG.info(_("MidonetPluginV2.update_network called: id=%(id)r, "
-                   "network=%(network)r"), {'id': id, 'network': network})
+        LOG.info(_LI("MidonetPluginV2.update_network called: id=%(id)r, "
+                     "network=%(network)r"), {'id': id, 'network': network})
 
         with context.session.begin(subtransactions=True):
             net = super(MidonetPluginV2, self).update_network(
@@ -198,7 +201,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
             self._process_l3_update(context, net, network['network'])
             self.api_cli.update_network(id, net)
 
-        LOG.info(_("MidonetPluginV2.update_network exiting: net=%r"), net)
+        LOG.info(_LI("MidonetPluginV2.update_network exiting: net=%r"), net)
         return net
 
     @util.handle_api_error
@@ -214,7 +217,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         we moved to the model where API requests are asynchronous or when
         eventlet-compatible mysqlconnector is used for the DB driver instead.
         """
-        LOG.info(_("MidonetPluginV2.delete_network called: id=%r"), id)
+        LOG.info(_LI("MidonetPluginV2.delete_network called: id=%r"), id)
 
         with context.session.begin(subtransactions=True):
             self._process_l3_delete(context, id)
@@ -224,7 +227,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
             self.api_cli.delete_network(id)
 
-        LOG.info(_("MidonetPluginV2.delete_network exiting: id=%r"), id)
+        LOG.info(_LI("MidonetPluginV2.delete_network exiting: id=%r"), id)
 
     @util.handle_api_error
     def create_subnet(self, context, subnet):
@@ -232,7 +235,8 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         Creates a Neutron subnet and a DHCP entry in MidoNet bridge.
         """
-        LOG.info(_("MidonetPluginV2.create_subnet called: subnet=%r"), subnet)
+        LOG.info(_LI("MidonetPluginV2.create_subnet called: subnet=%r"),
+                 subnet)
 
         sn_entry = super(MidonetPluginV2, self).create_subnet(context, subnet)
         task.create_task(context, task.CREATE, data_type_id=task.SUBNET,
@@ -241,13 +245,13 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         try:
             self.api_cli.create_subnet(sn_entry)
         except Exception as ex:
-            LOG.error(_("Failed to create a subnet %(s_id)s in Midonet:"
+            LOG.error(_LE("Failed to create a subnet %(s_id)s in Midonet:"
                         "%(err)s"), {"s_id": sn_entry["id"], "err": ex})
             with excutils.save_and_reraise_exception():
                 super(MidonetPluginV2, self).delete_subnet(context,
                                                            sn_entry['id'])
 
-        LOG.info(_("MidonetPluginV2.create_subnet exiting: sn_entry=%r"),
+        LOG.info(_LI("MidonetPluginV2.create_subnet exiting: sn_entry=%r"),
                  sn_entry)
         return sn_entry
 
@@ -257,7 +261,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         Delete neutron network and its corresponding MidoNet bridge.
         """
-        LOG.info(_("MidonetPluginV2.delete_subnet called: id=%s"), id)
+        LOG.info(_LI("MidonetPluginV2.delete_subnet called: id=%s"), id)
 
         with context.session.begin(subtransactions=True):
             super(MidonetPluginV2, self).delete_subnet(context, id)
@@ -265,13 +269,13 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                              resource_id=id)
             self.api_cli.delete_subnet(id)
 
-        LOG.info(_("MidonetPluginV2.delete_subnet exiting"))
+        LOG.info(_LI("MidonetPluginV2.delete_subnet exiting"))
 
     @util.handle_api_error
     def update_subnet(self, context, id, subnet):
         """Update the subnet with new info.
         """
-        LOG.info(_("MidonetPluginV2.update_subnet called: id=%s"), id)
+        LOG.info(_LI("MidonetPluginV2.update_subnet called: id=%s"), id)
 
         with context.session.begin(subtransactions=True):
             s = super(MidonetPluginV2, self).update_subnet(context, id, subnet)
@@ -312,20 +316,20 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
     @utils.synchronized('midonet-port-lock', external=True)
     def create_port(self, context, port):
         """Create a L2 port in Neutron/MidoNet."""
-        LOG.info(_("MidonetPluginV2.create_port called: port=%r"), port)
+        LOG.info(_LI("MidonetPluginV2.create_port called: port=%r"), port)
 
         new_port = self._process_create_port(context, port)
 
         try:
             self.api_cli.create_port(new_port)
         except Exception as ex:
-            LOG.error(_("Failed to create a port %(new_port)s: %(err)s"),
+            LOG.error(_LE("Failed to create a port %(new_port)s: %(err)s"),
                       {"new_port": new_port, "err": ex})
             with excutils.save_and_reraise_exception():
                 super(MidonetPluginV2, self).delete_port(context,
                                                          new_port['id'])
 
-        LOG.info(_("MidonetPluginV2.create_port exiting: port=%r"), new_port)
+        LOG.info(_LI("MidonetPluginV2.create_port exiting: port=%r"), new_port)
         return new_port
 
     @util.handle_api_error
@@ -347,7 +351,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
     def delete_port(self, context, id, l3_port_check=True):
         """Delete a neutron port and corresponding MidoNet bridge port."""
-        LOG.info(_("MidonetPluginV2.delete_port called: id=%(id)s "
+        LOG.info(_LI("MidonetPluginV2.delete_port called: id=%(id)s "
                    "l3_port_check=%(l3_port_check)r"),
                  {'id': id, 'l3_port_check': l3_port_check})
 
@@ -357,7 +361,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
             self.prevent_l3_port_deletion(context, id)
 
         self._process_port_delete(context, id)
-        LOG.info(_("MidonetPluginV2.delete_port exiting: id=%r"), id)
+        LOG.info(_LI("MidonetPluginV2.delete_port exiting: id=%r"), id)
 
     def _process_port_update(self, context, id, in_port, out_port):
 
@@ -373,7 +377,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
     @util.handle_api_error
     def update_port(self, context, id, port):
         """Handle port update, including security groups and fixed IPs."""
-        LOG.info(_("MidonetPluginV2.update_port called: id=%(id)s "
+        LOG.info(_LI("MidonetPluginV2.update_port called: id=%(id)s "
                    "port=%(port)r"), {'id': id, 'port': port})
         with context.session.begin(subtransactions=True):
 
@@ -387,7 +391,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                                                          port['port'], p)
             self.api_cli.update_port(id, p)
 
-        LOG.info(_("MidonetPluginV2.update_port exiting: p=%r"), p)
+        LOG.info(_LI("MidonetPluginV2.update_port exiting: p=%r"), p)
         return p
 
     @util.handle_api_error
@@ -401,7 +405,8 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         :param router: Router information provided to create a new router.
         """
-        LOG.info(_("MidonetPluginV2.create_router called: router=%(router)s"),
+        LOG.info(_LI("MidonetPluginV2.create_router called: "
+                     "router=%(router)s"),
                  {"router": router})
         r = super(MidonetPluginV2, self).create_router(context, router)
         task.create_task(context, task.CREATE, data_type_id=task.ROUTER,
@@ -410,19 +415,19 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         try:
             self.api_cli.create_router(r)
         except Exception as ex:
-            LOG.error(_("Failed to create a router %(r_id)s in Midonet:"
+            LOG.error(_LE("Failed to create a router %(r_id)s in Midonet:"
                         "%(err)s"), {"r_id": r["id"], "err": ex})
             with excutils.save_and_reraise_exception():
                 super(MidonetPluginV2, self).delete_router(context, r['id'])
 
-        LOG.info(_("MidonetPluginV2.create_router exiting: "
+        LOG.info(_LI("MidonetPluginV2.create_router exiting: "
                    "router=%(router)s."), {"router": r})
         return r
 
     @util.handle_api_error
     def update_router(self, context, id, router):
         """Handle router updates."""
-        LOG.info(_("MidonetPluginV2.update_router called: id=%(id)s "
+        LOG.info(_LI("MidonetPluginV2.update_router called: id=%(id)s "
                    "router=%(router)r"), {"id": id, "router": router})
 
         with context.session.begin(subtransactions=True):
@@ -431,7 +436,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                              resource_id=id, data=r)
             self.api_cli.update_router(id, r)
 
-        LOG.info(_("MidonetPluginV2.update_router exiting: router=%r"), r)
+        LOG.info(_LI("MidonetPluginV2.update_router exiting: router=%r"), r)
         return r
 
     @util.handle_api_error
@@ -443,7 +448,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         :param id: router ID to remove
         """
-        LOG.info(_("MidonetPluginV2.delete_router called: id=%s"), id)
+        LOG.info(_LI("MidonetPluginV2.delete_router called: id=%s"), id)
 
         with context.session.begin(subtransactions=True):
             super(MidonetPluginV2, self).delete_router(context, id)
@@ -451,12 +456,12 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                              resource_id=id)
             self.api_cli.delete_router(id)
 
-        LOG.info(_("MidonetPluginV2.delete_router exiting: id=%s"), id)
+        LOG.info(_LI("MidonetPluginV2.delete_router exiting: id=%s"), id)
 
     @util.handle_api_error
     def add_router_interface(self, context, router_id, interface_info):
         """Handle router linking with network."""
-        LOG.info(_("MidonetPluginV2.add_router_interface called: "
+        LOG.info(_LI("MidonetPluginV2.add_router_interface called: "
                    "router_id=%(router_id)s "
                    "interface_info=%(interface_info)r"),
                  {'router_id': router_id, 'interface_info': interface_info})
@@ -467,20 +472,20 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         try:
             self.api_cli.add_router_interface(router_id, info)
         except Exception:
-            LOG.error(_("Failed to create MidoNet resources to add router "
+            LOG.error(_LE("Failed to create MidoNet resources to add router "
                         "interface. info=%(info)s, router_id=%(router_id)s"),
                       {"info": info, "router_id": router_id})
             with excutils.save_and_reraise_exception():
                 self.remove_router_interface(context, router_id, info)
 
-        LOG.info(_("MidonetPluginV2.add_router_interface exiting: info=%r"),
+        LOG.info(_LI("MidonetPluginV2.add_router_interface exiting: info=%r"),
                  info)
         return info
 
     @util.handle_api_error
     def remove_router_interface(self, context, router_id, interface_info):
         """Handle router un-linking with network."""
-        LOG.info(_("MidonetPluginV2.remove_router_interface called: "
+        LOG.info(_LI("MidonetPluginV2.remove_router_interface called: "
                    "router_id=%(router_id)s "
                    "interface_info=%(interface_info)r"),
                  {'router_id': router_id, 'interface_info': interface_info})
@@ -490,14 +495,14 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                 context, router_id, interface_info)
             self.api_cli.remove_router_interface(router_id, interface_info)
 
-        LOG.info(_("MidonetPluginV2.remove_router_interface exiting: "
+        LOG.info(_LI("MidonetPluginV2.remove_router_interface exiting: "
                    "info=%r"), info)
         return info
 
     @util.handle_api_error
     def create_floatingip(self, context, floatingip):
         """Handle floating IP creation."""
-        LOG.info(_("MidonetPluginV2.create_floatingip called: ip=%r"),
+        LOG.info(_LI("MidonetPluginV2.create_floatingip called: ip=%r"),
                  floatingip)
 
         fip = super(MidonetPluginV2, self).create_floatingip(context,
@@ -508,20 +513,20 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         try:
             self.api_cli.create_floating_ip(fip)
         except Exception as ex:
-            LOG.error(_("Failed to create floating ip %(fip)s: %(err)s"),
+            LOG.error(_LE("Failed to create floating ip %(fip)s: %(err)s"),
                       {"fip": fip, "err": ex})
             with excutils.save_and_reraise_exception():
                 # Try removing the fip
                 self.delete_floatingip(context, fip['id'])
 
-        LOG.info(_("MidonetPluginV2.create_floatingip exiting: fip=%r"),
+        LOG.info(_LI("MidonetPluginV2.create_floatingip exiting: fip=%r"),
                  fip)
         return fip
 
     @util.handle_api_error
     def delete_floatingip(self, context, id):
         """Handle floating IP deletion."""
-        LOG.info(_("MidonetPluginV2.delete_floatingip called: id=%s"), id)
+        LOG.info(_LI("MidonetPluginV2.delete_floatingip called: id=%s"), id)
 
         with context.session.begin(subtransactions=True):
             super(MidonetPluginV2, self).delete_floatingip(context, id)
@@ -529,12 +534,12 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                              data_type_id=task.FLOATINGIP, resource_id=id)
             self.api_cli.delete_floating_ip(id)
 
-        LOG.info(_("MidonetPluginV2.delete_floatingip exiting: id=%r"), id)
+        LOG.info(_LI("MidonetPluginV2.delete_floatingip exiting: id=%r"), id)
 
     @util.handle_api_error
     def update_floatingip(self, context, id, floatingip):
         """Handle floating IP association and disassociation."""
-        LOG.info(_("MidonetPluginV2.update_floatingip called: id=%(id)s "
+        LOG.info(_LI("MidonetPluginV2.update_floatingip called: id=%(id)s "
                    "floatingip=%(floatingip)s "),
                  {'id': id, 'floatingip': floatingip})
 
@@ -554,7 +559,8 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
             self.api_cli.update_floating_ip(id, fip)
 
-        LOG.info(_("MidonetPluginV2.update_floating_ip exiting: fip=%s"), fip)
+        LOG.info(_LI("MidonetPluginV2.update_floating_ip exiting: fip=%s"),
+                 fip)
         return fip
 
     @util.handle_api_error
@@ -565,7 +571,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         In MidoNet, this means creating a pair of chains, inbound and outbound,
         as well as a new port group.
         """
-        LOG.info(_("MidonetPluginV2.create_security_group called: "
+        LOG.info(_LI("MidonetPluginV2.create_security_group called: "
                    "security_group=%(security_group)s "
                    "default_sg=%(default_sg)s "),
                  {'security_group': security_group, 'default_sg': default_sg})
@@ -585,19 +591,21 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
             # Process the MidoNet side
             self.api_cli.create_security_group(sg)
         except Exception:
-            LOG.error(_("Failed to create MidoNet resources for sg %(sg)r"),
+            LOG.error(_LE("Failed to create MidoNet resources for sg %(sg)r"),
                       {"sg": sg})
             with excutils.save_and_reraise_exception():
                 super(MidonetPluginV2, self).delete_security_group(context,
                                                                    sg['id'])
 
-        LOG.info(_("MidonetPluginV2.create_security_group exiting: sg=%r"), sg)
+        LOG.info(_LI("MidonetPluginV2.create_security_group exiting: sg=%r"),
+                 sg)
         return sg
 
     @util.handle_api_error
     def delete_security_group(self, context, id):
         """Delete chains for Neutron security group."""
-        LOG.info(_("MidonetPluginV2.delete_security_group called: id=%s"), id)
+        LOG.info(_LI("MidonetPluginV2.delete_security_group called: id=%s"),
+                 id)
 
         sg = super(MidonetPluginV2, self).get_security_group(context, id)
         if not sg:
@@ -613,7 +621,8 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
             self.api_cli.delete_security_group(id)
 
-        LOG.info(_("MidonetPluginV2.delete_security_group exiting: id=%r"), id)
+        LOG.info(_LI("MidonetPluginV2.delete_security_group exiting: id=%r"),
+                 id)
 
     @util.handle_api_error
     def create_security_group_rule(self, context, security_group_rule):
@@ -622,7 +631,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         Create a security group rule in the Neutron DB and corresponding
         MidoNet resources in its data store.
         """
-        LOG.info(_("MidonetPluginV2.create_security_group_rule called: "
+        LOG.info(_LI("MidonetPluginV2.create_security_group_rule called: "
                    "security_group_rule=%(security_group_rule)r"),
                  {'security_group_rule': security_group_rule})
 
@@ -635,13 +644,13 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         try:
             self.api_cli.create_security_group_rule(rule)
         except Exception as ex:
-            LOG.error(_('Failed to create security group rule %(sg)s,'
+            LOG.error(_LE('Failed to create security group rule %(sg)s,'
                       'error: %(err)s'), {'sg': rule, 'err': ex})
             with excutils.save_and_reraise_exception():
                 super(MidonetPluginV2, self).delete_security_group_rule(
                     context, rule['id'])
 
-        LOG.info(_("MidonetPluginV2.create_security_group_rule exiting: "
+        LOG.info(_LI("MidonetPluginV2.create_security_group_rule exiting: "
                    "rule=%r"), rule)
         return rule
 
@@ -652,7 +661,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         Create multiple security group rules in the Neutron DB and
         corresponding MidoNet resources in its data store.
         """
-        LOG.info(_("MidonetPluginV2.create_security_group_rule_bulk called: "
+        LOG.info(_LI("MidonetPluginV2.create_security_group_rule_bulk called: "
                    "security_group_rules=%(security_group_rules)r"),
                  {'security_group_rules': security_group_rules})
 
@@ -662,15 +671,15 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         try:
             self.api_cli.create_security_group_rule_bulk(rules)
         except Exception as ex:
-            LOG.error(_("Failed to create bulk security group rules %(sg)s, "
+            LOG.error(_LE("Failed to create bulk security group rules %(sg)s, "
                         "error: %(err)s"), {"sg": rules, "err": ex})
             with excutils.save_and_reraise_exception():
                 for rule in rules:
                     super(MidonetPluginV2, self).delete_security_group_rule(
                         context, rule['id'])
 
-        LOG.info(_("MidonetPluginV2.create_security_group_rule_bulk exiting: "
-                   "rules=%r"), rules)
+        LOG.info(_LI("MidonetPluginV2.create_security_group_rule_bulk exiting:"
+                     " rules=%r"), rules)
         return rules
 
     @util.handle_api_error
@@ -680,7 +689,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         Delete a security group rule from the Neutron DB and corresponding
         MidoNet resources from its data store.
         """
-        LOG.info(_("MidonetPluginV2.delete_security_group_rule called: "
+        LOG.info(_LI("MidonetPluginV2.delete_security_group_rule called: "
                    "sg_rule_id=%s"), sg_rule_id)
 
         with context.session.begin(subtransactions=True):
@@ -691,7 +700,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                              resource_id=sg_rule_id)
             self.api_cli.delete_security_group_rule(sg_rule_id)
 
-        LOG.info(_("MidonetPluginV2.delete_security_group_rule exiting: "
+        LOG.info(_LI("MidonetPluginV2.delete_security_group_rule exiting: "
                    "id=%r"), id)
 
     @util.handle_api_error
