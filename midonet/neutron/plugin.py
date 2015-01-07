@@ -147,14 +147,11 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         self.conn.consume_in_thread()
 
     def repair_quotas_table(self):
-        query = ("CREATE TABLE `quotas` ( `id` varchar(36) NOT NULL, "
-                 "`tenant_id` varchar(255) DEFAULT NULL, "
-                 "`resource` varchar(255) DEFAULT NULL, "
-                 "`limit` int(11) DEFAULT NULL, "
-                 "PRIMARY KEY (`id`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8;")
+        import neutron.db.quota_db as qdb
+        quota_table = qdb.Quota()
         session = db.get_session()
         try:
-            session.execute(query)
+            quota_table.__table__.create(bind = session.bind)
         except sa_exc.OperationalError:
             # If the table already exists, then this is expected.
             pass
