@@ -55,6 +55,7 @@ class Task(model_base.BASEV2):
 
     id = sa.Column(sa.Integer(), primary_key=True)
     type_id = sa.Column(sa.Integer(), sa.ForeignKey('midonet_task_types.id'))
+    tenant_id = sa.Column(sa.String(255))
     data_type_id = sa.Column(sa.Integer(),
                              sa.ForeignKey('midonet_data_types.id'))
     data = sa.Column(sa.Text(length = 2 ** 24))
@@ -69,6 +70,7 @@ def create_task(context, task_type_id, task_id=None, data_type_id=None,
     with context.session.begin(subtransactions=True):
         db = Task(id=task_id,
                   type_id=task_type_id,
+                  tenant_id=context.tenant,
                   data_type_id=data_type_id,
                   data=None if data is None else jsonutils.dumps(data),
                   resource_id=resource_id,
