@@ -109,7 +109,6 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                                             project_id=conf.project_id)
 
         self.setup_rpc()
-        self.repair_quotas_table()
 
         self.base_binding_dict = {
             portbindings.VIF_TYPE: portbindings.VIF_TYPE_MIDONET,
@@ -132,19 +131,6 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                                   fanout=False)
         # Consume from all consumers in a thread
         self.conn.consume_in_threads()
-
-    def repair_quotas_table(self):
-        query = ("CREATE TABLE `quotas` ( `id` varchar(36) NOT NULL, "
-                 "`tenant_id` varchar(255) DEFAULT NULL, "
-                 "`resource` varchar(255) DEFAULT NULL, "
-                 "`limit` int(11) DEFAULT NULL, "
-                 "PRIMARY KEY (`id`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8;")
-        session = db.get_session()
-        try:
-            session.execute(query)
-        except sa_exc.OperationalError:
-            # If the table already exists, then this is expected.
-            pass
 
     def _process_create_network(self, context, network):
 
