@@ -23,7 +23,6 @@ from oslo.utils import excutils
 from oslo.utils import importutils
 
 from midonet.neutron import api
-from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import util
 from midonet.neutron.db import routedserviceinsertion_db as rsi_db
 from midonet.neutron.db import task
