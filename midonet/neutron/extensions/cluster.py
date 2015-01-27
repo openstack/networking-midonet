@@ -29,6 +29,9 @@ RESOURCE_ATTRIBUTE_MAP = {
         'tenant_id': {'allow_post': True, 'allow_put': False,
                       'validate': {'type:string': None},
                       'is_visible': True, 'default': None},
+        'op': {'allow_post': True, 'allow_put': False,
+               'validate': {'type:values': ['FLUSH', 'IMPORT']},
+               'is_visible': True, 'default': None},
     }
 }
 

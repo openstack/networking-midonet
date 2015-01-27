@@ -19,6 +19,8 @@ import sqlalchemy as sa
 
 from neutron.common import exceptions as n_exc
 from neutron.db import model_base
+from neutron import i18n
+from neutron.openstack.common import log as logging
 
 CREATE = 1
 DELETE = 2
@@ -36,6 +38,12 @@ POOL = 8
 VIP = 9
 HEALTHMONITOR = 10
 MEMBER = 11
+
+OP_IMPORT = 'IMPORT'
+OP_FLUSH = 'FLUSH'
+
+LOG = logging.getLogger(__name__)
+_LI = i18n._LI
 
 
 class TaskType(model_base.BASEV2):
@@ -84,7 +92,16 @@ class MidonetClusterException(n_exc.NeutronException):
 
 class MidoClusterMixin(object):
 
-    def create_cluster(self, context, cluster):
+    def _flush(self, context):
+        try:
+            context.session.execute('LOCK TABLES midonet_tasks WRITE')
+            with context.session.begin(subtransactions=True):
+                context.session.execute('TRUNCATE TABLE midonet_tasks')
+                create_task(context, FLUSH, task_id=1)
+        finally:
+            context.session.execute('UNLOCK TABLES')
+
+    def _import(self, context):
         try:
             # lock the entire database so we can take a snapshot of the
             # data we need.
@@ -109,7 +126,6 @@ class MidoClusterMixin(object):
             task_count = context.session.query(Task).count()
         finally:
             context.session.execute('UNLOCK TABLES')
-
         try:
             context.session.execute('LOCK TABLES midonet_tasks WRITE')
             with context.session.begin(subtransactions=True):
@@ -118,16 +134,26 @@ class MidoClusterMixin(object):
                                  "rebuild operation is in progress")
                     raise MidonetClusterException(msg=error_msg)
 
-                context.session.execute('TRUNCATE TABLE midonet_tasks')
-
-                create_task(context, FLUSH, task_id=1)
                 for key in database:
                     for item in database[key]:
                         create_task(context, CREATE, data_type_id=key,
                                     resource_id=item['id'], data=item)
         finally:
             context.session.execute('UNLOCK TABLES')
+
+    def create_cluster(self, context, cluster):
+        LOG.info(_LI('MidoClusterMixin.create_cluster called: cluster=%r'),
+                 cluster)
+
+        op = cluster['cluster']['op']
+        if op == OP_FLUSH:
+            self._flush(context)
+        elif op == OP_IMPORT:
+            self._import(context)
+
         # Neutron assumes that any create_* call returns a dictionary. Even
         # though we do nothing with 'cluster', we still return it back to
         # neutron to satisfy this assumption.
+        LOG.info(_LI("MidoClusterMixin.create_cluster exiting: cluster=%r"),
+                 cluster)
         return cluster
