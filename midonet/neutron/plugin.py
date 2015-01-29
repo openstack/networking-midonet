@@ -3,6 +3,7 @@
 # Copyright (C) 2012 Midokura Japan K.K.
 # Copyright (C) 2013 Midokura PTE LTD
 # Copyright (C) 2014 Midokura SARL.
+# Copyright (C) 2015 Midokura SARL.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -19,6 +20,7 @@
 
 
 from oslo.config import cfg
+from oslo.db import exception as db_exc
 
 from midonet.neutron import api
 from midonet.neutron.common import config  # noqa
@@ -26,7 +28,6 @@ from midonet.neutron.common import util
 from midonet.neutron.db import task
 from midonet.neutron import extensions
 from midonetclient import client
-from sqlalchemy import exc as sa_exc
 
 from neutron.api import extensions as neutron_extensions
 from neutron.api.rpc.handlers import dhcp_rpc
@@ -189,7 +190,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
     @util.handle_api_error
     @utils.synchronized('midonet-network-lock', external=True)
-    @util.retry_on_error(2, 1, sa_exc.SQLAlchemyError)
+    @util.retry_on_error(2, 1, db_exc.DBError)
     def delete_network(self, context, id):
         """Delete a network and its corresponding MidoNet bridge.
 
@@ -308,7 +309,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
     @util.handle_api_error
     @utils.synchronized('midonet-port-lock', external=True)
-    @util.retry_on_error(2, 1, sa_exc.SQLAlchemyError)
+    @util.retry_on_error(2, 1, db_exc.DBError)
     def _process_port_delete(self, context, id):
         """Delete the Neutron and MidoNet ports
 
