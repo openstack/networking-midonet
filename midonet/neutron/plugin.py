@@ -152,7 +152,7 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             self.api_cli.create_network(net)
         except Exception as ex:
             LOG.error(_LE("Failed to create a network %(net_id)s in Midonet:"
-                        "%(err)s"), {"net_id": net["id"], "err": ex})
+                          "%(err)s"), {"net_id": net["id"], "err": ex})
             with excutils.save_and_reraise_exception():
                 super(MidonetMixin, self).delete_network(context, net['id'])
 
@@ -222,7 +222,7 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             self.api_cli.create_subnet(sn_entry)
         except Exception as ex:
             LOG.error(_LE("Failed to create a subnet %(s_id)s in Midonet:"
-                        "%(err)s"), {"s_id": sn_entry["id"], "err": ex})
+                          "%(err)s"), {"s_id": sn_entry["id"], "err": ex})
             with excutils.save_and_reraise_exception():
                 super(MidonetMixin, self).delete_subnet(context,
                                                         sn_entry['id'])
@@ -391,7 +391,7 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             self.api_cli.create_router(r)
         except Exception as ex:
             LOG.error(_LE("Failed to create a router %(r_id)s in Midonet:"
-                        "%(err)s"), {"r_id": r["id"], "err": ex})
+                          "%(err)s"), {"r_id": r["id"], "err": ex})
             with excutils.save_and_reraise_exception():
                 super(MidonetMixin, self).delete_router(context, r['id'])
 
@@ -448,7 +448,7 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             self.api_cli.add_router_interface(router_id, info)
         except Exception:
             LOG.error(_LE("Failed to create MidoNet resources to add router "
-                        "interface. info=%(info)s, router_id=%(router_id)s"),
+                          "interface. info=%(info)s, router_id=%(router_id)s"),
                       {"info": info, "router_id": router_id})
             with excutils.save_and_reraise_exception():
                 self.remove_router_interface(context, router_id, info)
@@ -637,13 +637,14 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
                  {'security_group_rules': security_group_rules})
 
         rules = super(
-            MidonetMixin, self).create_security_group_rule_bulk_native(
-                context, security_group_rules)
+            MidonetMixin,
+            self).create_security_group_rule_bulk_native(context,
+                                                         security_group_rules)
         try:
             self.api_cli.create_security_group_rule_bulk(rules)
         except Exception as ex:
             LOG.error(_LE("Failed to create bulk security group rules %(sg)s, "
-                        "error: %(err)s"), {"sg": rules, "err": ex})
+                          "error: %(err)s"), {"sg": rules, "err": ex})
             with excutils.save_and_reraise_exception():
                 for rule in rules:
                     super(MidonetMixin, self).delete_security_group_rule(
