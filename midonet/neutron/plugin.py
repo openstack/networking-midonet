@@ -19,6 +19,7 @@
 
 
 from oslo.config import cfg
+from oslo.db import exception as db_exc
 from oslo.utils import excutils
 from oslo.utils import importutils
 
@@ -30,7 +31,6 @@ from midonet.neutron import extensions
 from midonet.neutron.extensions import routedserviceinsertion as rsi
 from midonetclient import client
 from neutron import i18n
-from sqlalchemy import exc as sa_exc
 
 from neutron.api import extensions as neutron_extensions
 from neutron.api.rpc.handlers import dhcp_rpc
@@ -183,7 +183,7 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
 
     @util.handle_api_error
     @utils.synchronized('midonet-network-lock', external=True)
-    @util.retry_on_error(2, 1, sa_exc.SQLAlchemyError)
+    @util.retry_on_error(2, 1, db_exc.DBError)
     def delete_network(self, context, id):
         """Delete a network and its corresponding MidoNet bridge.
 
@@ -310,7 +310,7 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
 
     @util.handle_api_error
     @utils.synchronized('midonet-port-lock', external=True)
-    @util.retry_on_error(2, 1, sa_exc.SQLAlchemyError)
+    @util.retry_on_error(2, 1, db_exc.DBError)
     def _process_port_delete(self, context, id):
         """Delete the Neutron and MidoNet ports
 
