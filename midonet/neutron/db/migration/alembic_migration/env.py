@@ -15,7 +15,7 @@
 from logging import config as logging_config
 
 from alembic import context
-from oslo.db.sqlalchemy import session
+from oslo_db.sqlalchemy import session
 
 
 VERSION_TABLE = 'midonet_alembic'

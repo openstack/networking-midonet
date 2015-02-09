@@ -18,10 +18,10 @@
 #    under the License.
 
 
-from oslo.config import cfg
-from oslo.db import exception as db_exc
-from oslo.utils import excutils
-from oslo.utils import importutils
+from oslo_config import cfg
+from oslo_db import exception as db_exc
+from oslo_utils import excutils
+from oslo_utils import importutils
 
 from midonet.neutron import api
 from midonet.neutron.common import util

@@ -19,7 +19,7 @@
 import mock
 import os
 
-from oslo.utils import importutils
+from oslo_utils import importutils
 
 from midonet.neutron.db import task  # noqa
 from neutron.extensions import portbindings
@@ -28,7 +28,7 @@ import neutron.tests.unit.test_db_plugin as test_plugin
 import neutron.tests.unit.test_extension_ext_gw_mode as test_gw_mode
 import neutron.tests.unit.test_extension_security_group as sg
 import neutron.tests.unit.test_l3_plugin as test_l3_plugin
-from oslo.config import cfg
+from oslo_config import cfg
 
 
 MIDOKURA_PKG_PATH = "midonet.neutron.plugin"
