@@ -55,9 +55,9 @@ if [ "$version_tag" == "" ]; then
     version_tag=$(git describe --tags)
 fi
 
-if [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])$ ]]; then
+if [[ "$version_tag" =~ ^([0-9]{4}(\.[0-9]+){1,2})\+([0-9]+\.[0-9])$ ]]; then
 
-    # For official release, e.g. 2014.2-1.0
+    # For official release, e.g. 2014.2+1.0
     echo "Packaging official release: $version_tag"
     upstream_version=${BASH_REMATCH[1]}
     downstream_version=${BASH_REMATCH[2]}
@@ -72,8 +72,8 @@ if [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])$ ]]; then
         deb_revision=1
     fi
 
-elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+)$ ]]; then
-    # For RC packages, e.g. 2014.2-1.0-rc1
+elif [[ "$version_tag" =~ ^([0-9]{4}(\.[0-9]+){1,2})\+([0-9]+\.[0-9])\.(rc[0-9]+)$ ]]; then
+    # For RC packages, e.g. 2014.2-1.0.rc1
     echo "Producing RC packages for " $version_tag
     upstream_version=${BASH_REMATCH[1]}
     downstream_version=${BASH_REMATCH[2]}
@@ -89,8 +89,8 @@ elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+)$ ]]; 
         deb_revision=1
     fi
 
-elif [[ "$version_tag" =~ ^([0-9]{4}\.[0-9]+)\+([0-9]+\.[0-9])\.(rc[0-9]+.*)$ ]]; then
-    # For unstable packages, e.g.2014.2-1.0-rc1-81-gef7115e
+elif [[ "$version_tag" =~ ^([0-9]{4}(\.[0-9]+){1,2})\+([0-9]+\.[0-9])\.(rc[0-9]+.*)$ ]]; then
+    # For unstable packages, e.g.2014.2+1.0.rc1-81-gef7115e
     echo Producing unstable packages for tag: $version_tag
     upstream_version=${BASH_REMATCH[1]}
     downstream_version=${BASH_REMATCH[2]}
