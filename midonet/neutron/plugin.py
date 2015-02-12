@@ -219,7 +219,6 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         LOG.info(_("MidonetPluginV2.delete_network called: id=%r"), id)
 
         with context.session.begin(subtransactions=True):
-            self._process_l3_delete(context, id)
             super(MidonetPluginV2, self).delete_network(context, id)
             self.api_cli.delete_network(id)
 
