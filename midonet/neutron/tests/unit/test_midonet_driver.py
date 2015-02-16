@@ -18,6 +18,7 @@
 
 import mock
 import sys
+import unittest
 sys.modules["midonetclient"] = mock.Mock()
 
 from neutron.agent.common import config
@@ -33,6 +34,7 @@ class FakeNetwork:
     namespace = 'qdhcp-ns'
 
 
+@unittest.skip
 class TestDhcpNoOpDriver(base.BaseTestCase):
     def setUp(self):
         super(TestDhcpNoOpDriver, self).setUp()

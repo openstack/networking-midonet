@@ -12,7 +12,6 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
 from neutron.common import constants as n_const
 from neutron.db import l3_db
 from neutron.db import models_v2

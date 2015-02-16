@@ -1,4 +1,4 @@
 [gerrit]
-host=review.gerrithub.io
+host=review.openstack.org
 port=29418
-project=midonet/python-neutron-plugin-midonet.git
+project=stackforge/networking-midonet

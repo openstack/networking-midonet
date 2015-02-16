@@ -105,10 +105,6 @@ class IpAddrGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
 
 
-class IpAddrGroupExtensionTestCaseXml(IpAddrGroupExtensionTestCase):
-    fmt = "xml"
-
-
 class IpAddrGroupAddrExtensionTestCase(
         test_api_v2_extension.ExtensionTestCase):
     """Test the endpoints for the ip_addr_group_addr extension."""
@@ -189,7 +185,3 @@ class IpAddrGroupAddrExtensionTestCase(
         instance.delete_ip_addr_group_addr.assert_called_once_with(mock.ANY,
             ip_addr_group_addr_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
-
-
-class IpAddrGroupAddrExtensionTestCaseXml(IpAddrGroupAddrExtensionTestCase):
-    fmt = "xml"

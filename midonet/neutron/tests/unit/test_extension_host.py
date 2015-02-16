@@ -114,8 +114,3 @@ class HostExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
         instance.delete_host.assert_called_once_with(mock.ANY, host_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
-
-
-class HostExtensionTestCaseXml(HostExtensionTestCase):
-
-    fmt = "xml"

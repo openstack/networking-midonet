@@ -124,7 +124,3 @@ class RoutingTableExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         instance.delete_routing_table.assert_called_once_with(
             mock.ANY, routing_table_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
-
-
-class RoutingTableExtensionTestCaseXml(RoutingTableExtensionTestCase):
-    fmt = "xml"

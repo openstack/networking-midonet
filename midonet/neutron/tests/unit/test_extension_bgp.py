@@ -32,7 +32,7 @@ class BgpExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         super(BgpExtensionTestCase, self).setUp()
         plural_mappings = {'bgp': 'bgps', 'ad_route': 'ad_routes'}
         self._setUpExtension(
-            'midonet.neutron.plugin.MidonetPluginV2',
+            'neutron.plugins.midonet.plugin.MidonetPluginV2',
             None, bgp.RESOURCE_ATTRIBUTE_MAP,
             bgp.Bgp, '', plural_mappings=plural_mappings)
 
@@ -180,8 +180,3 @@ class BgpExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
         instance.delete_ad_route.assert_called_once_with(mock.ANY, ad_route_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
-
-
-class BgpExtensionTestCaseXml(BgpExtensionTestCase):
-
-    fmt = "xml"

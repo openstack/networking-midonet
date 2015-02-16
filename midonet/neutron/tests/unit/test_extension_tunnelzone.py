@@ -39,7 +39,7 @@ class TunnelzoneTestCase(test_api_v2_extension.ExtensionTestCase):
         plural_mappings = {'tunnelzone': 'tunnelzones',
                            'tunnelzonehost': 'tunnelzonehosts'}
         self._setUpExtension(
-            'midonet.neutron.plugin.MidonetPluginV2',
+            'neutron.plugins.midonet.plugin.MidonetPluginV2',
             tunnelzone.TUNNELZONE, tunnelzone.RESOURCE_ATTRIBUTE_MAP,
             tunnelzone.Tunnelzone, '', plural_mappings=plural_mappings)
 
@@ -221,7 +221,3 @@ class TunnelzoneTestCase(test_api_v2_extension.ExtensionTestCase):
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
         instance.delete_tunnelzone_tunnelzonehost.assert_called_once_with(
             mock.ANY, str(tz_host_id), tunnelzone_id=str(tz_id))
-
-
-class TunnelzoneTestCaseXml(TunnelzoneTestCase):
-    fmt = 'xml'

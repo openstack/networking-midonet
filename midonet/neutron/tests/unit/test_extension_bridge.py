@@ -128,8 +128,3 @@ class BridgeExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
         instance.delete_bridge.assert_called_once_with(mock.ANY, bridge_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
-
-
-class BridgeExtensionTestCaseXml(BridgeExtensionTestCase):
-
-    fmt = "xml"

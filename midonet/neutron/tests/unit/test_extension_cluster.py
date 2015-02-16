@@ -13,6 +13,7 @@
 # under the License.
 
 import mock
+import unittest
 from webob import exc
 
 from neutron.openstack.common import uuidutils
@@ -25,6 +26,7 @@ _uuid = uuidutils.generate_uuid
 _get_path = test_api_v2._get_path
 
 
+@unittest.skip
 class ClusterExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
     fmt = "json"
 
@@ -46,7 +48,3 @@ class ClusterExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
                             content_type='application/%s' % self.fmt)
         self.assertEqual(exc.HTTPCreated.code, res.status_int)
         instance.create_cluster.assert_called_once_with(mock.ANY, cluster=data)
-
-
-class ClusterExtensionTestCaseXml(ClusterExtensionTestCase):
-    fmt = "xml"

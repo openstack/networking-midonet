@@ -121,10 +121,6 @@ class ChainExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
 
 
-class ChainExtensionTestCaseXml(ChainExtensionTestCase):
-    fmt = "xml"
-
-
 class RuleExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
     """Test the endpoints for the rule extension."""
     fmt = "json"
@@ -242,7 +238,3 @@ class RuleExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
         instance.delete_rule.assert_called_once_with(mock.ANY, rule_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
-
-
-class RuleExtensionTestCaseXml(RuleExtensionTestCase):
-    fmt = "xml"

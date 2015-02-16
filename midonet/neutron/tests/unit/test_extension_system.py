@@ -72,7 +72,3 @@ class SystemTestCase(test_api_v2_extension.ExtensionTestCase):
         instance.update_system.assert_called_once_with(
             mock.ANY, 'midonet', system=data)
         self.assertEqual(exc.HTTPOk.code, res.status_int)
-
-
-class SystemTestCaseXml(SystemTestCase):
-    fmt = "xml"

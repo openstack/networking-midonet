@@ -1,7 +1,8 @@
-python-neutron-plugin-midonet
-=============================
+==================
+networking-midonet
+==================
 
-This is the downstream Midonet Neutron plugin.
+This is the official Midonet Neutron plugin.
 
 
 How to Install
@@ -11,14 +12,14 @@ Run the following command to install the plugin in the system:
 
 ::
 
-    $ sudo python ./setup.py
+    $ sudo python setup.py install
 
 
 In ``neutron.conf``, set the core_plugin to:
 
 ::
 
-    core_plugin = midonet.neutron.plugin.MidonetPluginV2
+    core_plugin = neutron.plugins.midonet.plugin.MidonetPluginV2
 
 
 Tests

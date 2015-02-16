@@ -186,8 +186,3 @@ class VtepExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         res = self.deserialize(res)
         self.assertIn('vtep', res)
         self.assertIn(vtep_ip, res['vtep']['management_ip'])
-
-
-class VtepExtensionTestCaseXml(VtepExtensionTestCase):
-
-    fmt = "xml"

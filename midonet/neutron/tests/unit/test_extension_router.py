@@ -123,7 +123,3 @@ class RouterExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         instance.delete_midonet_router.assert_called_once_with(
             mock.ANY, router_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
-
-
-class RouterExtensionTestCaseXml(RouterExtensionTestCase):
-    fmt = "xml"

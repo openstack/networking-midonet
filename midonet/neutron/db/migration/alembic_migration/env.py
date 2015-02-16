@@ -11,11 +11,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 from logging import config as logging_config
 
 from alembic import context
 from oslo_db.sqlalchemy import session
+
+# Make sure all data models are loaded before start the migrations scripts
+from midonet.neutron.db import routedserviceinsertion_db  # noqa
+from midonet.neutron.db import task  # noqa
+from neutron.db.migration.models import head  # noqa
+from neutron_lbaas.db.loadbalancer import loadbalancer_db as lb_db  # noqa
 
 
 VERSION_TABLE = 'midonet_alembic'

@@ -142,10 +142,6 @@ class SubnetExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
 
 
-class SubnetExtensionTestCaseXml(SubnetExtensionTestCase):
-    fmt = 'xml'
-
-
 class DhcpHostExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
     """Test the endpoints for the host."""
 
@@ -256,7 +252,3 @@ class DhcpHostExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
                                      dhcp_host=update_data)
 
         self.assertEqual(exc.HTTPOk.code, res.status_int)
-
-
-class DhcpHostExtensionTestCaseXml(DhcpHostExtensionTestCase):
-    fmt = 'json'

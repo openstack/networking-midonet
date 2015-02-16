@@ -119,10 +119,6 @@ class PortGroupExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
 
 
-class PortGroupExtensionTestCaseXml(PortGroupExtensionTestCase):
-    fmt = "xml"
-
-
 class PortGroupPortExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
     """Test the endpoints for the port_group and port_group_port extension."""
     fmt = "json"
@@ -198,7 +194,3 @@ class PortGroupPortExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
         instance.delete_port_group_port.assert_called_once_with(
             mock.ANY, port_group_port_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
-
-
-class PortGroupPortExtensionTestCaseXml(PortGroupPortExtensionTestCase):
-    fmt = "xml"

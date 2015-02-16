@@ -79,8 +79,3 @@ class LicenseExtensionTestCase(test_api_v2_extension.ExtensionTestCase):
 
         instance.delete_license.assert_called_once_with(mock.ANY, license_id)
         self.assertEqual(exc.HTTPNoContent.code, res.status_int)
-
-
-class LicenseExtensionTestCaseXml(LicenseExtensionTestCase):
-
-    fmt = "xml"
