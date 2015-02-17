@@ -16,7 +16,7 @@ from logging import config as logging_config
 from alembic import context
 from oslo_db.sqlalchemy import session
 
-# Make sure all data models are loaded before start the migrations scripts
+# Make sure all data models are loaded before start the migration scripts
 from midonet.neutron.db import routedserviceinsertion_db  # noqa
 from midonet.neutron.db import task  # noqa
 from neutron.db.migration.models import head  # noqa
