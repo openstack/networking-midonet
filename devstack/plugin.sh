@@ -27,7 +27,6 @@ if [[ "$1" == "stack" ]]; then
 
         # Clone and build neutron midonet plugin
         PLUGIN_PATH=$ABSOLUTE_PATH/..
-        pip_install --no-deps --editable $ABSOLUTE_PATH/..
 
     elif [[ "$2" == "install" ]]; then
 
@@ -38,6 +37,12 @@ if [[ "$1" == "stack" ]]; then
         export TIMESTAMP_FORMAT
         export LOGFILE
         export SCREEN_LOGDIR
+
+        # Build neutron midonet plugin
+        pip_install --no-deps --editable $ABSOLUTE_PATH/..
+
+        # Build midonet client
+        pip_install --editable $MIDONET_DIR/python-midonetclient
 
         # Run the command
         $MIDONET_DIR/tools/devmido/mido.sh
