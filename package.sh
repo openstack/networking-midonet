@@ -60,7 +60,7 @@ if [[ "$version_tag" =~ ^([0-9]{4}(\.[0-9]+){1,2})\+([0-9]+\.[0-9])$ ]]; then
     # For official release, e.g. 2014.2-1.0
     echo "Packaging official release: $version_tag"
     upstream_version=${BASH_REMATCH[1]}
-    downstream_version=${BASH_REMATCH[2]}
+    downstream_version=${BASH_REMATCH[3]}
 
     if [ "$USE_TIMESTAMP" == "yes" ]; then
         set_timestamp_package_vals $upstream_version+$downstream_version
@@ -76,8 +76,8 @@ elif [[ "$version_tag" =~ ^([0-9]{4}(\.[0-9]+){1,2})\+([0-9]+\.[0-9])\.(rc[0-9]+
     # For RC packages, e.g. 2014.2-1.0-rc1
     echo "Producing RC packages for " $version_tag
     upstream_version=${BASH_REMATCH[1]}
-    downstream_version=${BASH_REMATCH[2]}
-    rc_tag=${BASH_REMATCH[3]}
+    downstream_version=${BASH_REMATCH[3]}
+    rc_tag=${BASH_REMATCH[4]}
 
     if [ "$USE_TIMESTAMP" == "yes" ]; then
         set_timestamp_package_vals $upstream_version+$downstream_version
@@ -93,12 +93,12 @@ elif [[ "$version_tag" =~ ^([0-9]{4}(\.[0-9]+){1,2})\+([0-9]+\.[0-9])\.(rc[0-9]+
     # For unstable packages, e.g.2014.2-1.0-rc1-81-gef7115e
     echo Producing unstable packages for tag: $version_tag
     upstream_version=${BASH_REMATCH[1]}
-    downstream_version=${BASH_REMATCH[2]}
+    downstream_version=${BASH_REMATCH[3]}
 
     if [ "$USE_TIMESTAMP" == "yes" ]; then
         set_timestamp_package_vals $upstream_version+$downstream_version
     else
-        pre_release_tag=$(echo ${BASH_REMATCH[3]} | sed -e 's/-/./g')
+        pre_release_tag=$(echo ${BASH_REMATCH[4]} | sed -e 's/-/./g')
 
         rpm_version=$upstream_version+$downstream_version
         rpm_revision="0."$pre_release_tag
