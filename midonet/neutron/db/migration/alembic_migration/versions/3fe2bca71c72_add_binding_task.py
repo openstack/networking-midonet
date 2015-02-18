@@ -35,8 +35,7 @@ def add_port_binding_table():
         sa.Column('id', sa.String(length=36), primary_key=True),
         sa.Column('port_id', sa.String(length=36), nullable=False),
         sa.Column('host_id', sa.String(length=36), nullable=False),
-        sa.Column('interface_name', sa.String(length=16), nullable=False),
-        sa.ForeignKeyConstraint(['port_id'], ['ports.id']))
+        sa.Column('interface_name', sa.String(length=16), nullable=False))
 
 
 def add_binding_data_type():
