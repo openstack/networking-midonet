@@ -2,6 +2,7 @@
 
 # Copyright (C) 2013 Midokura PTE LTD
 # Copyright (C) 2014 Midokura SARL.
+# Copyright (C) 2015 Midokura SARL.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -25,7 +26,7 @@ LOG = logging.getLogger(__name__)
 class DhcpNoOpDriver(dhcp.DhcpLocalProcess):
 
     @classmethod
-    def existing_dhcp_networks(cls, conf, root_helper):
+    def existing_dhcp_networks(cls, conf):
         """Return a list of existing networks ids that we have configs for."""
         return []
 
