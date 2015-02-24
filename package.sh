@@ -122,6 +122,7 @@ FPM_BASE_ARGS=$(cat <<EOF
 --architecture 'noarch' \
 -d 'python-neutron' \
 -d 'python-midonetclient' \
+-n 'python-neutron-plugin-midonet' \
 -s python
 EOF
 )
@@ -136,7 +137,7 @@ function create_cfg() {
     fi
 
     # Need to do this to have the files be installed in the right location
-    cat > $CFG << EOF
+    cat >> $CFG << EOF
 # This is an auto-generated file from package.sh
 [install]
 install-lib=$1
