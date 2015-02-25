@@ -1,1 +1,1 @@
--e git://github.com/openstack/neutron#egg=neutron
+-e git://git.openstack.org/openstack/neutron.git@stable/juno#egg=neutron
