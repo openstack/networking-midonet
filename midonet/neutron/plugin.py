@@ -24,6 +24,7 @@ from oslo_utils import importutils
 
 from midonet.neutron import api
 from midonet.neutron.common import util
+from midonet.neutron.db import db_agent_membership as db_am
 from midonet.neutron.db import db_util
 from midonet.neutron.db import routedserviceinsertion_db as rsi_db
 from midonet.neutron.db import task
@@ -72,9 +73,11 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
                    rsi_db.RoutedServiceInsertionDbMixin,
                    loadbalancer_db.LoadBalancerPluginDb,
                    api.MidoNetApiMixin,
-                   task.MidoClusterMixin):
+                   task.MidoClusterMixin,
+                   db_am.AgentMembershipDbMixin):
 
-    supported_extension_aliases = ['bgp',
+    supported_extension_aliases = ['agent-membership',
+                                   'bgp',
                                    'cluster',
                                    'chain-rule',
                                    'extra_dhcp_opt',
@@ -954,3 +957,59 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
 
         LOG.debug("MidonetMixin.delete_pool_health_monitor exiting: "
                   "%(id)r, %(pool_id)r", {'id': id, 'pool_id': pool_id})
+
+    @util.handle_api_error
+    def create_agent_membership(self, context, agent_membership):
+        LOG.debug("MidonetMixin.create_agent_membership called: "
+                  " %(agent_membership)r",
+                  {'agent_membership': agent_membership})
+
+        with context.session.begin(subtransactions=True):
+            am = super(MidonetMixin, self).create_agent_membership(
+                context, agent_membership)
+            task.create_task(context, task.CREATE,
+                             data_type=task.AGENT_MEMBERSHIP,
+                             resource_id=am['id'], data=am)
+
+        LOG.debug("MidonetMixin.create_agent_membership exiting: "
+                  "%(agent_membership)r", {'agent_membership': am})
+        return am
+
+    @util.handle_api_error
+    def get_agent_membership(self, context, id, filters=None, fields=None):
+        LOG.debug("MidonetMixin.get_agent_membership called: id=%(id)r",
+                  {'id': id})
+
+        with context.session.begin(subtransactions=True):
+            am = super(MidonetMixin, self).get_agent_membership(context, id)
+
+        LOG.debug("MidonetMixin.get_agent_membership exiting: id=%(id)r, "
+                  "agent_membership=%(agent_membership)r",
+                  {'id': id, 'agent_membership': am})
+        return am
+
+    @util.handle_api_error
+    def get_agent_memberships(self, context, filters=None, fields=None,
+                              sorts=None, limit=None, marker=None,
+                              page_reverse=False):
+        LOG.debug("MidonetMixin.get_agent_memberships called")
+
+        with context.session.begin(subtransactions=True):
+            ams = super(MidonetMixin, self).get_agent_memberships(
+                context, filters, fields, sorts, limit, marker, page_reverse)
+
+        LOG.debug("MidonetMixin.get_agent_memberships exiting")
+        return ams
+
+    @util.handle_api_error
+    def delete_agent_membership(self, context, id):
+        LOG.debug("MidonetMixin.delete_agent_membership called: %(id)r",
+                  {'id': id})
+
+        with context.session.begin(subtransactions=True):
+            super(MidonetMixin, self).delete_agent_membership(context, id)
+            task.create_task(context, task.DELETE,
+                             data_type=task.AGENT_MEMBERSHIP, resource_id=id)
+
+        LOG.debug("MidonetMixin.delete_agent_membership exiting: %(id)r",
+                  {'id': id})

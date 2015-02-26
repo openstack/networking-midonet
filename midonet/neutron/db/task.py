@@ -43,6 +43,7 @@ HEALTH_MONITOR = "HEALTHMONITOR"
 MEMBER = "MEMBER"
 PORT_BINDING = "PORTBINDING"
 CONFIG = "CONFIG"
+AGENT_MEMBERSHIP = "AGENTMEMBERSHIP"
 
 
 OP_IMPORT = 'IMPORT'
@@ -94,7 +95,7 @@ def create_task(context, type, task_id=None, data_type=None,
 def create_config_task(session, data):
     data['id'] = CONF_ID
     with session.begin(subtransactions=True):
-        db = Task(type=UPDATE,
+        db = Task(type=CREATE,
                   tenant_id=None,
                   data_type=CONFIG,
                   data=jsonutils.dumps(data),

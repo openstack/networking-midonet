@@ -35,7 +35,7 @@ def upgrade():
     op.create_table(
         table_name,
         sa.Column('id', sa.String(36), primary_key=True),
-        sa.Column('ip_address', sa.String(128), nullable=False),)
+        sa.Column('ip_address', sa.String(64), nullable=False),)
 
 
 def downgrade():
