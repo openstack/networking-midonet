@@ -21,6 +21,9 @@ from neutron.common import exceptions as n_exc
 from neutron.db import model_base
 from neutron import i18n
 from neutron.openstack.common import log as logging
+import uuid
+
+CONF_ID = '00000000-0000-0000-0000-000000000001'
 
 CREATE = "CREATE"
 DELETE = "DELETE"
@@ -39,6 +42,7 @@ VIP = "VIP"
 HEALTH_MONITOR = "HEALTHMONITOR"
 MEMBER = "MEMBER"
 PORT_BINDING = "PORTBINDING"
+CONFIG = "CONFIG"
 
 
 OP_IMPORT = 'IMPORT'
@@ -85,6 +89,18 @@ def create_task(context, type, task_id=None, data_type=None,
                   resource_id=resource_id,
                   transaction_id=context.request_id)
         context.session.add(db)
+
+
+def create_config_task(session, data):
+    data['id'] = CONF_ID
+    with session.begin(subtransactions=True):
+        db = Task(type=UPDATE,
+                  tenant_id=None,
+                  data_type=CONFIG,
+                  data=jsonutils.dumps(data),
+                  resource_id=data['id'],
+                  transaction_id=uuid.uuid4())
+        session.add(db)
 
 
 class MidonetClusterException(n_exc.NeutronException):
