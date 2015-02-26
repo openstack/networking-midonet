@@ -89,7 +89,7 @@ elif [[ "$version_tag" =~ ^([0-9]{4}(\.[0-9]+){1,2})\+([0-9]+\.[0-9])\.(rc[0-9]+
         deb_revision=1
     fi
 
-elif [[ "$version_tag" =~ ^([0-9]{4}(\.[0-9]+){1,2})\+([0-9]+\.[0-9])\.(rc[0-9]+.*)$ ]]; then
+elif [[ "$version_tag" =~ ^([0-9]{4}(\.[0-9]+){1,2})\+([0-9]+\.[0-9])(\.rc[0-9]+)*-[0-9]*-g.*$ ]]; then
     # For unstable packages, e.g.2014.2+1.0.rc1-81-gef7115e
     echo Producing unstable packages for tag: $version_tag
     upstream_version=${BASH_REMATCH[1]}
