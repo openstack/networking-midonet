@@ -22,22 +22,24 @@ from neutron.db import model_base
 from neutron import i18n
 from neutron.openstack.common import log as logging
 
-CREATE = 1
-DELETE = 2
-UPDATE = 3
-FLUSH = 4
+CREATE = "CREATE"
+DELETE = "DELETE"
+UPDATE = "UPDATE"
+FLUSH = "FLUSH"
 
-NETWORK = 1
-SUBNET = 2
-ROUTER = 3
-PORT = 4
-FLOATINGIP = 5
-SECURITYGROUP = 6
-SECURITYGROUPRULE = 7
-POOL = 8
-VIP = 9
-HEALTHMONITOR = 10
-MEMBER = 11
+NETWORK = "NETWORK"
+SUBNET = "SUBNET"
+ROUTER = "ROUTER"
+PORT = "PORT"
+FLOATING_IP = "FLOATINGIP"
+SECURITY_GROUP = "SECURITYGROUP"
+SECURITY_GROUP_RULE = "SECURITYGROUPRULE"
+POOL = "POOL"
+VIP = "VIP"
+HEALTH_MONITOR = "HEALTHMONITOR"
+MEMBER = "MEMBER"
+PORT_BINDING = "PORTBINDING"
+
 
 OP_IMPORT = 'IMPORT'
 OP_FLUSH = 'FLUSH'
@@ -62,24 +64,23 @@ class Task(model_base.BASEV2):
     __tablename__ = 'midonet_tasks'
 
     id = sa.Column(sa.Integer(), primary_key=True)
-    type_id = sa.Column(sa.Integer(), sa.ForeignKey('midonet_task_types.id'))
+    type = sa.Column(sa.String(length=36))
     tenant_id = sa.Column(sa.String(255))
-    data_type_id = sa.Column(sa.Integer(),
-                             sa.ForeignKey('midonet_data_types.id'))
-    data = sa.Column(sa.Text(length = 2 ** 24))
+    data_type = sa.Column(sa.String(length=36))
+    data = sa.Column(sa.Text(length=2 ** 24))
     resource_id = sa.Column(sa.String(36))
     transaction_id = sa.Column(sa.String(40))
     created_at = sa.Column(sa.DateTime(), default=datetime.datetime.utcnow)
 
 
-def create_task(context, task_type_id, task_id=None, data_type_id=None,
+def create_task(context, type, task_id=None, data_type=None,
                 resource_id=None, data=None):
 
     with context.session.begin(subtransactions=True):
         db = Task(id=task_id,
-                  type_id=task_type_id,
+                  type=type,
                   tenant_id=context.tenant,
-                  data_type_id=data_type_id,
+                  data_type=data_type,
                   data=None if data is None else jsonutils.dumps(data),
                   resource_id=resource_id,
                   transaction_id=context.request_id)
@@ -112,12 +113,12 @@ class MidoClusterMixin(object):
                 SUBNET: self.get_subnets(context),
                 PORT: self.get_ports(context),
                 ROUTER: self.get_routers(context),
-                FLOATINGIP: self.get_floatingips(context),
-                SECURITYGROUP: self.get_security_groups(context),
-                SECURITYGROUPRULE: self.get_security_group_rules(context),
+                FLOATING_IP: self.get_floatingips(context),
+                SECURITY_GROUP: self.get_security_groups(context),
+                SECURITY_GROUP_RULE: self.get_security_group_rules(context),
                 POOL: self.get_pools(context),
                 VIP: self.get_vips(context),
-                HEALTHMONITOR: self.get_health_monitors(context),
+                HEALTH_MONITOR: self.get_health_monitors(context),
                 MEMBER: self.get_members(context)})
 
             # record how much items we have processed so far. We compare
@@ -136,7 +137,7 @@ class MidoClusterMixin(object):
 
                 for key in database:
                     for item in database[key]:
-                        create_task(context, CREATE, data_type_id=key,
+                        create_task(context, CREATE, data_type=key,
                                     resource_id=item['id'], data=item)
         finally:
             context.session.execute('UNLOCK TABLES')
