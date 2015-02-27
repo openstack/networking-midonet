@@ -1,4 +1,4 @@
-#!/bin/bash
+#/bin/bash
 
 # MidoNet repo
 MIDONET_REPO=${MIDONET_REPO:-http://github.com/midonet/midonet.git}
@@ -10,3 +10,28 @@ MIDONET_API_PORT=${MIDONET_API_PORT:-8081}
 MIDONET_SERVICE_PROTOCOL=${MIDONET_SERVICE_PROTOCOL:-$SERVICE_PROTOCOL}
 MIDONET_SERVICE_HOST=${MIDONET_SERVICE_HOST:-$SERVICE_HOST}
 MIDONET_API_URL="${MIDONET_SERVICE_PROTOCOL}://${MIDONET_SERVICE_HOST}:${MIDONET_API_PORT}/midonet-api"
+
+#
+# Set all the devstack ENV VARS needed to run midonet
+#
+
+# Disable nova-network and enable neutron services
+disable_service n-net
+enable_service q-svc
+enable_service q-dhcp
+enable_service q-meta
+
+# Use midonet as Neutron plugin
+Q_PLUGIN=midonet
+
+# Set all the passwords
+THE_PASSWORD=midonet
+DATABASE_PASSWORD=${DATABASE_PASSWORD:-$THE_PASSWORD}
+RABBIT_PASSWORD=${RABBIT_PASSWORD:-$THE_PASSWORD}
+SERVICE_TOKEN=${SERVICE_TOKEN:-$THE_PASSWORD}
+SERVICE_PASSWORD=${SERVICE_PASSWORD:-$THE_PASSWORD}
+ADMIN_PASSWORD=${ADMIN_PASSWORD:-$THE_PASSWORD}
+
+# Tempest options
+IPV6_ENABLED=${IPV6_ENABLED:-False}
+NETWORK_API_EXTENSIONS=${NETWORK_API_EXTENSIONS:-external-net,router,security-group,agent,dhcp_agent_scheduler,binding,quotas}
