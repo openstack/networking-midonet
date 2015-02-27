@@ -41,6 +41,7 @@ from neutron.common import topics
 from neutron.common import utils
 from neutron.db import agents_db
 from neutron.db import agentschedulers_db
+import neutron.db.api as db
 from neutron.db import db_base_plugin_v2
 from neutron.db import external_net_db
 from neutron.db import l3_gwmode_db
@@ -56,6 +57,10 @@ from neutron_lbaas.db.loadbalancer import loadbalancer_db
 LOG = logging.getLogger(__name__)
 _LE = i18n._LE
 _LI = i18n._LI
+
+cfg.CONF.register_opts([cfg.StrOpt('tunnel_protocol', default='vxlan',
+                                   help=_('tunnel protocol used by Midonet'))],
+                       'MIDONET')
 
 
 class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
@@ -99,6 +104,7 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
                                             project_id=conf.project_id)
 
         self.setup_rpc()
+        task.create_config_task(db.get_session(), dict(conf))
 
         self.base_binding_dict = {
             portbindings.VIF_TYPE: portbindings.VIF_TYPE_MIDONET,
