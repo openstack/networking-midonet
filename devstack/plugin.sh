@@ -22,6 +22,9 @@ ABSOLUTE_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
 if [[ "$1" == "stack" ]]; then
 
     if [[ "$2" == "pre-install" ]]; then
+
+        source $ABSOLUTE_PATH/functions
+
         # Clone and build midonet service
         git_clone $MIDONET_REPO $MIDONET_DIR $MIDONET_BRANCH
 
