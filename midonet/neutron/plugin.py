@@ -3,6 +3,7 @@
 # Copyright (C) 2012 Midokura Japan K.K.
 # Copyright (C) 2013 Midokura PTE LTD
 # Copyright (C) 2014 Midokura SARL.
+# Copyright (C) 2015 Midokura SARL.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -17,29 +18,19 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo_config import cfg
-from oslo_db import exception as db_exc
-from oslo_utils import excutils
-from oslo_utils import importutils
-
-from midonet.neutron import api
-from midonet.neutron.common import util
+from midonet.neutron.common import config  # noqa
 from midonet.neutron.db import agent_membership_db as am_db
 from midonet.neutron.db import db_util
 from midonet.neutron.db import routedserviceinsertion_db as rsi_db
 from midonet.neutron.db import task_db as task
 from midonet.neutron import extensions
 from midonet.neutron.extensions import routedserviceinsertion as rsi
-from midonetclient import client
-from neutron import i18n
-
 from neutron.api import extensions as neutron_extensions
 from neutron.api.rpc.handlers import dhcp_rpc
 from neutron.common import constants as n_const
 from neutron.common import exceptions as n_exc
 from neutron.common import rpc as n_rpc
 from neutron.common import topics
-from neutron.common import utils
 from neutron.db import agents_db
 from neutron.db import agentschedulers_db
 import neutron.db.api as db
@@ -50,18 +41,17 @@ from neutron.db import portbindings_db
 from neutron.db import securitygroups_db
 from neutron.extensions import portbindings
 from neutron.extensions import securitygroup as ext_sg
+from neutron import i18n
 from neutron.openstack.common import log as logging
 from neutron.plugins.common import constants
 from neutron_lbaas.db.loadbalancer import loadbalancer_db
+from oslo_config import cfg
+from oslo_utils import importutils
 
 
 LOG = logging.getLogger(__name__)
 _LE = i18n._LE
 _LI = i18n._LI
-
-cfg.CONF.register_opts([cfg.StrOpt('tunnel_protocol', default='vxlan',
-                                   help=_('tunnel protocol used by Midonet'))],
-                       'MIDONET')
 
 
 class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
@@ -72,42 +62,22 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
                    securitygroups_db.SecurityGroupDbMixin,
                    rsi_db.RoutedServiceInsertionDbMixin,
                    loadbalancer_db.LoadBalancerPluginDb,
-                   api.MidoNetApiMixin,
                    task.MidoClusterMixin,
                    am_db.AgentMembershipDbMixin):
 
     supported_extension_aliases = ['agent-membership',
-                                   'bgp',
                                    'cluster',
-                                   'chain-rule',
                                    'extra_dhcp_opt',
-                                   'ip-addr-group',
-                                   'license',
-                                   'midonet-subnet',
-                                   'host',
-                                   'bridge',
-                                   'midonet-port',
-                                   'midonet-router',
-                                   'port-group',
-                                   'system',
                                    'routed-service-insertion',
-                                   'routing-table',
-                                   'vtep',
-                                   'lbaas',
-                                   'tunnelzone']
+                                   'lbaas']
 
     def __init__(self):
         super(MidonetMixin, self).__init__()
 
         # Instantiate MidoNet API client
-        conf = cfg.CONF.MIDONET
         neutron_extensions.append_api_extensions_path(extensions.__path__)
-        self.api_cli = client.MidonetClient(conf.midonet_uri, conf.username,
-                                            conf.password,
-                                            project_id=conf.project_id)
-
         self.setup_rpc()
-        task.create_config_task(db.get_session(), dict(conf))
+        task.create_config_task(db.get_session(), dict(cfg.CONF.MIDONET))
 
         self.base_binding_dict = {
             portbindings.VIF_TYPE: portbindings.VIF_TYPE_MIDONET,
@@ -146,7 +116,6 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
 
         return net
 
-    @util.handle_api_error
     def create_network(self, context, network):
         """Create Neutron network.
 
@@ -157,18 +126,9 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
 
         net = self._process_create_network(context, network)
 
-        try:
-            self.api_cli.create_network(net)
-        except Exception as ex:
-            LOG.error(_LE("Failed to create a network %(net_id)s in Midonet:"
-                          "%(err)s"), {"net_id": net["id"], "err": ex})
-            with excutils.save_and_reraise_exception():
-                super(MidonetMixin, self).delete_network(context, net['id'])
-
         LOG.info(_LI("MidonetMixin.create_network exiting: net=%r"), net)
         return net
 
-    @util.handle_api_error
     def update_network(self, context, id, network):
         """Update Neutron network.
 
@@ -185,24 +145,12 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
                              resource_id=id, data=net)
 
             self._process_l3_update(context, net, network['network'])
-            self.api_cli.update_network(id, net)
 
         LOG.info(_LI("MidonetMixin.update_network exiting: net=%r"), net)
         return net
 
-    @util.handle_api_error
-    @utils.synchronized('midonet-network-lock', external=True)
-    @util.retry_on_error(2, 1, db_exc.DBError)
     def delete_network(self, context, id):
-        """Delete a network and its corresponding MidoNet bridge.
-
-        This method is wrapped by 'retry_on_error' decorator because concurrent
-        requests to the API server often causes DB deadlock error because
-        eventlet green threads do not yield properly when they block inside
-        the transaction.  This hack should no longer become available once
-        we moved to the model where API requests are asynchronous or when
-        eventlet-compatible mysqlconnector is used for the DB driver instead.
-        """
+        """Delete a network and its corresponding MidoNet bridge. """
         LOG.info(_LI("MidonetMixin.delete_network called: id=%r"), id)
 
         with context.session.begin(subtransactions=True):
@@ -211,11 +159,8 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
                              resource_id=id)
             super(MidonetMixin, self).delete_network(context, id)
 
-            self.api_cli.delete_network(id)
-
         LOG.info(_LI("MidonetMixin.delete_network exiting: id=%r"), id)
 
-    @util.handle_api_error
     def create_subnet(self, context, subnet):
         """Create Neutron subnet.
 
@@ -227,20 +172,10 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
         task.create_task(context, task.CREATE, data_type=task.SUBNET,
                          resource_id=sn_entry['id'], data=sn_entry)
 
-        try:
-            self.api_cli.create_subnet(sn_entry)
-        except Exception as ex:
-            LOG.error(_LE("Failed to create a subnet %(s_id)s in Midonet:"
-                          "%(err)s"), {"s_id": sn_entry["id"], "err": ex})
-            with excutils.save_and_reraise_exception():
-                super(MidonetMixin, self).delete_subnet(context,
-                                                        sn_entry['id'])
-
         LOG.info(_LI("MidonetMixin.create_subnet exiting: sn_entry=%r"),
                  sn_entry)
         return sn_entry
 
-    @util.handle_api_error
     def delete_subnet(self, context, id):
         """Delete Neutron subnet.
 
@@ -252,11 +187,9 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             super(MidonetMixin, self).delete_subnet(context, id)
             task.create_task(context, task.DELETE, data_type=task.SUBNET,
                              resource_id=id)
-            self.api_cli.delete_subnet(id)
 
         LOG.info(_LI("MidonetMixin.delete_subnet exiting"))
 
-    @util.handle_api_error
     def update_subnet(self, context, id, subnet):
         """Update the subnet with new info.
         """
@@ -266,7 +199,6 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             s = super(MidonetMixin, self).update_subnet(context, id, subnet)
             task.create_task(context, task.UPDATE, data_type=task.SUBNET,
                              resource_id=id, data=s)
-            self.api_cli.update_subnet(id, s)
 
         return s
 
@@ -297,42 +229,23 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
 
         return new_port
 
-    @util.handle_api_error
-    @utils.synchronized('midonet-port-lock', external=True)
     def create_port(self, context, port):
         """Create a L2 port in Neutron/MidoNet."""
         LOG.info(_LI("MidonetMixin.create_port called: port=%r"), port)
 
         new_port = self._process_create_port(context, port)
 
-        try:
-            self.api_cli.create_port(new_port)
-        except Exception as ex:
-            LOG.error(_LE("Failed to create a port %(new_port)s: %(err)s"),
-                      {"new_port": new_port, "err": ex})
-            with excutils.save_and_reraise_exception():
-                super(MidonetMixin, self).delete_port(context,
-                                                      new_port['id'])
-
         LOG.info(_LI("MidonetMixin.create_port exiting: port=%r"), new_port)
         return new_port
 
-    @util.handle_api_error
-    @utils.synchronized('midonet-port-lock', external=True)
-    @util.retry_on_error(2, 1, db_exc.DBError)
     def _process_port_delete(self, context, id):
-        """Delete the Neutron and MidoNet ports
-
-        This method is wrapped by 'retry_on_error' decorator.  See the
-        explanation in the 'delete_network' comment.
-        """
+        """Delete the Neutron and MidoNet ports"""
         with context.session.begin(subtransactions=True):
             super(MidonetMixin, self).disassociate_floatingips(
                 context, id, do_notify=False)
             super(MidonetMixin, self).delete_port(context, id)
             task.create_task(context, task.DELETE, data_type=task.PORT,
                              resource_id=id)
-            self.api_cli.delete_port(id)
 
     def delete_port(self, context, id, l3_port_check=True):
         """Delete a neutron port and corresponding MidoNet bridge port."""
@@ -359,7 +272,6 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             sg_ids = self._get_security_groups_on_port(context, in_port)
             self._process_port_create_security_group(context, out_port, sg_ids)
 
-    @util.handle_api_error
     def update_port(self, context, id, port):
         """Handle port update, including security groups and fixed IPs."""
         LOG.info(_LI("MidonetMixin.update_port called: id=%(id)s "
@@ -374,12 +286,10 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             self._process_port_update(context, id, port, p)
             self._process_portbindings_create_and_update(context,
                                                          port['port'], p)
-            self.api_cli.update_port(id, p)
 
         LOG.info(_LI("MidonetMixin.update_port exiting: p=%r"), p)
         return p
 
-    @util.handle_api_error
     def create_router(self, context, router):
         """Handle router creation.
 
@@ -396,19 +306,10 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
         task.create_task(context, task.CREATE, data_type=task.ROUTER,
                          resource_id=r['id'], data=r)
 
-        try:
-            self.api_cli.create_router(r)
-        except Exception as ex:
-            LOG.error(_LE("Failed to create a router %(r_id)s in Midonet:"
-                          "%(err)s"), {"r_id": r["id"], "err": ex})
-            with excutils.save_and_reraise_exception():
-                super(MidonetMixin, self).delete_router(context, r['id'])
-
         LOG.info(_LI("MidonetMixin.create_router exiting: "
                      "router=%(router)s."), {"router": r})
         return r
 
-    @util.handle_api_error
     def update_router(self, context, id, router):
         """Handle router updates."""
         LOG.info(_LI("MidonetMixin.update_router called: id=%(id)s "
@@ -418,12 +319,10 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             r = super(MidonetMixin, self).update_router(context, id, router)
             task.create_task(context, task.UPDATE, data_type=task.ROUTER,
                              resource_id=id, data=r)
-            self.api_cli.update_router(id, r)
 
         LOG.info(_LI("MidonetMixin.update_router exiting: router=%r"), r)
         return r
 
-    @util.handle_api_error
     def delete_router(self, context, id):
         """Handler for router deletion.
 
@@ -438,11 +337,9 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             super(MidonetMixin, self).delete_router(context, id)
             task.create_task(context, task.DELETE, data_type=task.ROUTER,
                              resource_id=id)
-            self.api_cli.delete_router(id)
 
         LOG.info(_LI("MidonetMixin.delete_router exiting: id=%s"), id)
 
-    @util.handle_api_error
     def add_router_interface(self, context, router_id, interface_info):
         """Handle router linking with network."""
         LOG.info(_LI("MidonetMixin.add_router_interface called: "
@@ -453,20 +350,10 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
         info = super(MidonetMixin, self).add_router_interface(
             context, router_id, interface_info)
 
-        try:
-            self.api_cli.add_router_interface(router_id, info)
-        except Exception:
-            LOG.error(_LE("Failed to create MidoNet resources to add router "
-                          "interface. info=%(info)s, router_id=%(router_id)s"),
-                      {"info": info, "router_id": router_id})
-            with excutils.save_and_reraise_exception():
-                self.remove_router_interface(context, router_id, info)
-
         LOG.info(_LI("MidonetMixin.add_router_interface exiting: info=%r"),
                  info)
         return info
 
-    @util.handle_api_error
     def remove_router_interface(self, context, router_id, interface_info):
         """Handle router un-linking with network."""
         LOG.info(_LI("MidonetMixin.remove_router_interface called: "
@@ -477,13 +364,11 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
         with context.session.begin(subtransactions=True):
             info = super(MidonetMixin, self).remove_router_interface(
                 context, router_id, interface_info)
-            self.api_cli.remove_router_interface(router_id, interface_info)
 
         LOG.info(_LI("MidonetMixin.remove_router_interface exiting: "
                      "info=%r"), info)
         return info
 
-    @util.handle_api_error
     def create_floatingip(self, context, floatingip):
         """Handle floating IP creation."""
         LOG.info(_LI("MidonetMixin.create_floatingip called: ip=%r"),
@@ -494,20 +379,10 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
         task.create_task(context, task.CREATE, data_type=task.FLOATING_IP,
                          resource_id=fip['id'], data=fip)
 
-        try:
-            self.api_cli.create_floating_ip(fip)
-        except Exception as ex:
-            LOG.error(_LE("Failed to create floating ip %(fip)s: %(err)s"),
-                      {"fip": fip, "err": ex})
-            with excutils.save_and_reraise_exception():
-                # Try removing the fip
-                self.delete_floatingip(context, fip['id'])
-
         LOG.info(_LI("MidonetMixin.create_floatingip exiting: fip=%r"),
                  fip)
         return fip
 
-    @util.handle_api_error
     def delete_floatingip(self, context, id):
         """Handle floating IP deletion."""
         LOG.info(_LI("MidonetMixin.delete_floatingip called: id=%s"), id)
@@ -516,11 +391,9 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             super(MidonetMixin, self).delete_floatingip(context, id)
             task.create_task(context, task.DELETE,
                              data_type=task.FLOATING_IP, resource_id=id)
-            self.api_cli.delete_floating_ip(id)
 
         LOG.info(_LI("MidonetMixin.delete_floatingip exiting: id=%r"), id)
 
-    @util.handle_api_error
     def update_floatingip(self, context, id, floatingip):
         """Handle floating IP association and disassociation."""
         LOG.info(_LI("MidonetMixin.update_floatingip called: id=%(id)s "
@@ -541,12 +414,9 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
                 fip['status'] = n_const.FLOATINGIP_STATUS_ACTIVE
             self.update_floatingip_status(context, id, fip['status'])
 
-            self.api_cli.update_floating_ip(id, fip)
-
         LOG.info(_LI("MidonetMixin.update_floating_ip exiting: fip=%s"), fip)
         return fip
 
-    @util.handle_api_error
     def create_security_group(self, context, security_group, default_sg=False):
         """Create security group.
 
@@ -570,20 +440,9 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
         task.create_task(context, task.CREATE, data_type=task.SECURITY_GROUP,
                          resource_id=sg['id'], data=sg)
 
-        try:
-            # Process the MidoNet side
-            self.api_cli.create_security_group(sg)
-        except Exception:
-            LOG.error(_LE("Failed to create MidoNet resources for sg %(sg)r"),
-                      {"sg": sg})
-            with excutils.save_and_reraise_exception():
-                super(MidonetMixin, self).delete_security_group(context,
-                                                                sg['id'])
-
         LOG.info(_LI("MidonetMixin.create_security_group exiting: sg=%r"), sg)
         return sg
 
-    @util.handle_api_error
     def delete_security_group(self, context, id):
         """Delete chains for Neutron security group."""
         LOG.info(_LI("MidonetMixin.delete_security_group called: id=%s"), id)
@@ -600,11 +459,8 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             task.create_task(context, task.DELETE,
                              data_type=task.SECURITY_GROUP, resource_id=id)
 
-            self.api_cli.delete_security_group(id)
-
         LOG.info(_LI("MidonetMixin.delete_security_group exiting: id=%r"), id)
 
-    @util.handle_api_error
     def create_security_group_rule(self, context, security_group_rule):
         """Create a security group rule
 
@@ -621,20 +477,10 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
                          data_type=task.SECURITY_GROUP_RULE,
                          resource_id=rule['id'], data=rule)
 
-        try:
-            self.api_cli.create_security_group_rule(rule)
-        except Exception as ex:
-            LOG.error(_LE('Failed to create security group rule %(sg)s,'
-                      'error: %(err)s'), {'sg': rule, 'err': ex})
-            with excutils.save_and_reraise_exception():
-                super(MidonetMixin, self).delete_security_group_rule(
-                    context, rule['id'])
-
         LOG.info(_LI("MidonetMixin.create_security_group_rule exiting: "
                      "rule=%r"), rule)
         return rule
 
-    @util.handle_api_error
     def create_security_group_rule_bulk(self, context, security_group_rules):
         """Create multiple security group rules
 
@@ -649,21 +495,11 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             MidonetMixin,
             self).create_security_group_rule_bulk_native(context,
                                                          security_group_rules)
-        try:
-            self.api_cli.create_security_group_rule_bulk(rules)
-        except Exception as ex:
-            LOG.error(_LE("Failed to create bulk security group rules %(sg)s, "
-                          "error: %(err)s"), {"sg": rules, "err": ex})
-            with excutils.save_and_reraise_exception():
-                for rule in rules:
-                    super(MidonetMixin, self).delete_security_group_rule(
-                        context, rule['id'])
 
         LOG.info(_LI("MidonetMixin.create_security_group_rule_bulk exiting: "
                      "rules=%r"), rules)
         return rules
 
-    @util.handle_api_error
     def delete_security_group_rule(self, context, sg_rule_id):
         """Delete a security group rule
 
@@ -679,7 +515,6 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             task.create_task(context, task.DELETE,
                              data_type=task.SECURITY_GROUP_RULE,
                              resource_id=sg_rule_id)
-            self.api_cli.delete_security_group_rule(sg_rule_id)
 
         LOG.info(_LI("MidonetMixin.delete_security_group_rule exiting: "
                      "id=%r"), id)
@@ -696,11 +531,10 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
 
             router = self._get_router(context, router_id)
             if router.get('gw_port_id') is None:
-                msg = _("The router must have its gateway set if the "
-                        "VIP subnet is external")
+                msg = (_LE("The router must have its gateway set if the "
+                           "VIP subnet is external"))
                 raise n_exc.BadRequest(resource='router', msg=msg)
 
-    @util.handle_api_error
     def create_vip(self, context, vip):
         LOG.debug("MidonetMixin.create_vip called: %(vip)r",
                   {'vip': vip})
@@ -713,7 +547,6 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             v = super(MidonetMixin, self).create_vip(context, vip)
             task.create_task(context, task.CREATE, data_type=task.VIP,
                              resource_id=v['id'], data=v)
-            self.api_cli.create_vip(v)
             v['status'] = constants.ACTIVE
             self.update_status(context, loadbalancer_db.Vip, v['id'],
                                v['status'])
@@ -721,7 +554,6 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
         LOG.debug("MidonetMixin.create_vip exiting: id=%r", v['id'])
         return v
 
-    @util.handle_api_error
     def delete_vip(self, context, id):
         LOG.debug("MidonetMixin.delete_vip called: id=%(id)r",
                   {'id': id})
@@ -730,12 +562,10 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             super(MidonetMixin, self).delete_vip(context, id)
             task.create_task(context, task.DELETE, data_type=task.VIP,
                              resource_id=id)
-            self.api_cli.delete_vip(id)
 
         LOG.debug("MidonetMixin.delete_vip existing: id=%(id)r",
                   {'id': id})
 
-    @util.handle_api_error
     def update_vip(self, context, id, vip):
         LOG.debug("MidonetMixin.update_vip called: id=%(id)r, "
                   "vip=%(vip)r", {'id': id, 'vip': vip})
@@ -744,33 +574,31 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             v = super(MidonetMixin, self).update_vip(context, id, vip)
             task.create_task(context, task.UPDATE, data_type=task.VIP,
                              resource_id=id, data=v)
-            self.api_cli.update_vip(id, v)
 
         LOG.debug("MidonetMixin.update_vip exiting: id=%(id)r, "
                   "vip=%(vip)r", {'id': id, 'vip': v})
         return v
 
-    @util.handle_api_error
     def create_pool(self, context, pool):
         LOG.debug("MidonetMixin.create_pool called: %(pool)r",
                   {'pool': pool})
 
         subnet = db_util.get_subnet(context, pool['pool']['subnet_id'])
         if db_util.is_subnet_external(context, subnet):
-            msg = _("pool subnet must not be public")
+            msg = (_LE("pool subnet must not be public"))
             raise n_exc.BadRequest(resource='subnet', msg=msg)
 
         router_id = db_util.get_router_from_subnet(context, subnet)
 
         if not router_id:
-            msg = _("pool subnet must be associated with router")
+            msg = (_LE("pool subnet must be associated with router"))
             raise n_exc.BadRequest(resource='router', msg=msg)
 
         pool['pool'].update({'router_id': router_id})
 
         if self._get_resource_router_id_binding(context, loadbalancer_db.Pool,
                                                 router_id=router_id):
-            msg = _("A pool is already associated with the router")
+            msg = (_LE("A pool is already associated with the router"))
             raise n_exc.BadRequest(resource='router', msg=msg)
 
         with context.session.begin(subtransactions=True):
@@ -784,9 +612,6 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             self._process_create_resource_router_id(context, res,
                                                     loadbalancer_db.Pool)
             p[rsi.ROUTER_ID] = router_id
-
-            self.api_cli.create_pool(p)
-
             p['status'] = constants.ACTIVE
             self.update_status(context, loadbalancer_db.Pool, p['id'],
                                p['status'])
@@ -795,7 +620,6 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
                   {'pool': p})
         return p
 
-    @util.handle_api_error
     def update_pool(self, context, id, pool):
         LOG.debug("MidonetMixin.update_pool called: id=%(id)r, "
                   "pool=%(pool)r", {'id': id, 'pool': pool})
@@ -804,13 +628,11 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             p = super(MidonetMixin, self).update_pool(context, id, pool)
             task.create_task(context, task.UPDATE, data_type=task.POOL,
                              resource_id=id, data=p)
-            self.api_cli.update_pool(id, p)
 
         LOG.debug("MidonetMixin.update_pool exiting: id=%(id)r, "
                   "pool=%(pool)r", {'id': id, 'pool': pool})
         return p
 
-    @util.handle_api_error
     def delete_pool(self, context, id):
         LOG.debug("MidonetMixin.delete_pool called: %(id)r", {'id': id})
 
@@ -820,11 +642,9 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             super(MidonetMixin, self).delete_pool(context, id)
             task.create_task(context, task.DELETE, data_type=task.POOL,
                              resource_id=id)
-            self.api_cli.delete_pool(id)
 
         LOG.debug("MidonetMixin.delete_pool exiting: %(id)r", {'id': id})
 
-    @util.handle_api_error
     def create_member(self, context, member):
         LOG.debug("MidonetMixin.create_member called: %(member)r",
                   {'member': member})
@@ -833,7 +653,6 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             m = super(MidonetMixin, self).create_member(context, member)
             task.create_task(context, task.CREATE, data_type=task.MEMBER,
                              resource_id=m['id'], data=m)
-            self.api_cli.create_member(m)
             m['status'] = constants.ACTIVE
             self.update_status(context, loadbalancer_db.Member, m['id'],
                                m['status'])
@@ -842,7 +661,6 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
                   {'member': m})
         return m
 
-    @util.handle_api_error
     def update_member(self, context, id, member):
         LOG.debug("MidonetMixin.update_member called: id=%(id)r, "
                   "member=%(member)r", {'id': id, 'member': member})
@@ -851,13 +669,11 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             m = super(MidonetMixin, self).update_member(context, id, member)
             task.create_task(context, task.UPDATE, data_type=task.MEMBER,
                              resource_id=id, data=m)
-            self.api_cli.update_member(id, m)
 
         LOG.debug("MidonetMixin.update_member exiting: id=%(id)r, "
                   "member=%(member)r", {'id': id, 'member': m})
         return m
 
-    @util.handle_api_error
     def delete_member(self, context, id):
         LOG.debug("MidonetMixin.delete_member called: %(id)r",
                   {'id': id})
@@ -866,12 +682,10 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             super(MidonetMixin, self).delete_member(context, id)
             task.create_task(context, task.DELETE,
                              data_type=task.MEMBER, resource_id=id)
-            self.api_cli.delete_member(id)
 
         LOG.debug("MidonetMixin.delete_member exiting: %(id)r",
                   {'id': id})
 
-    @util.handle_api_error
     def create_health_monitor(self, context, health_monitor):
         LOG.debug("MidonetMixin.create_health_monitor called: "
                   " %(health_monitor)r", {'health_monitor': health_monitor})
@@ -882,13 +696,11 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             task.create_task(context, task.CREATE,
                              data_type=task.HEALTH_MONITOR,
                              resource_id=hm['id'], data=hm)
-            self.api_cli.create_health_monitor(hm)
 
         LOG.debug("MidonetMixin.create_health_monitor exiting: "
                   "%(health_monitor)r", {'health_monitor': hm})
         return hm
 
-    @util.handle_api_error
     def update_health_monitor(self, context, id, health_monitor):
         LOG.debug("MidonetMixin.update_health_monitor called: id=%(id)r, "
                   "health_monitor=%(health_monitor)r",
@@ -900,14 +712,12 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             task.create_task(context, task.UPDATE,
                              data_type=task.HEALTH_MONITOR,
                              resource_id=id, data=hm)
-            self.api_cli.update_health_monitor(id, hm)
 
         LOG.debug("MidonetMixin.update_health_monitor exiting: id=%(id)r, "
                   "health_monitor=%(health_monitor)r",
                   {'id': id, 'health_monitor': hm})
         return hm
 
-    @util.handle_api_error
     def delete_health_monitor(self, context, id):
         LOG.debug("MidonetMixin.delete_health_monitor called: %(id)r",
                   {'id': id})
@@ -916,12 +726,10 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             super(MidonetMixin, self).delete_health_monitor(context, id)
             task.create_task(context, task.DELETE,
                              data_type=task.HEALTH_MONITOR, resource_id=id)
-            self.api_cli.delete_health_monitor(id)
 
         LOG.debug("MidonetMixin.delete_health_monitor exiting: %(id)r",
                   {'id': id})
 
-    @util.handle_api_error
     def create_pool_health_monitor(self, context, health_monitor, pool_id):
         LOG.debug("MidonetMixin.create_pool_health_monitor called: "
                   "hm=%(health_monitor)r, pool_id=%(pool_id)r",
@@ -930,21 +738,19 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
         pool = self.get_pool(context, pool_id)
         monitors = pool.get('health_monitors')
         if len(monitors) > 0:
-            msg = _("MidoNet right now can only support one monitor per pool")
+            msg = (_LE("MidoNet right now can only support one monitor per "
+                       "pool"))
             raise n_exc.BadRequest(resource='pool_health_monitor', msg=msg)
 
-        hm = health_monitor['health_monitor']
         with context.session.begin(subtransactions=True):
             monitors = super(MidonetMixin, self).create_pool_health_monitor(
                 context, health_monitor, pool_id)
-            self.api_cli.create_pool_health_monitor(hm, pool_id)
 
         LOG.debug("MidonetMixin.create_pool_health_monitor exiting: "
                   "%(health_monitor)r, %(pool_id)r",
                   {'health_monitor': health_monitor, 'pool_id': pool_id})
         return monitors
 
-    @util.handle_api_error
     def delete_pool_health_monitor(self, context, id, pool_id):
         LOG.debug("MidonetMixin.delete_pool_health_monitor called: "
                   "id=%(id)r, pool_id=%(pool_id)r",
@@ -953,12 +759,10 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
         with context.session.begin(subtransactions=True):
             super(MidonetMixin, self).delete_pool_health_monitor(
                 context, id, pool_id)
-            self.api_cli.delete_pool_health_monitor(id, pool_id)
 
         LOG.debug("MidonetMixin.delete_pool_health_monitor exiting: "
                   "%(id)r, %(pool_id)r", {'id': id, 'pool_id': pool_id})
 
-    @util.handle_api_error
     def create_agent_membership(self, context, agent_membership):
         LOG.debug("MidonetMixin.create_agent_membership called: "
                   " %(agent_membership)r",
@@ -975,7 +779,6 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
                   "%(agent_membership)r", {'agent_membership': am})
         return am
 
-    @util.handle_api_error
     def get_agent_membership(self, context, id, filters=None, fields=None):
         LOG.debug("MidonetMixin.get_agent_membership called: id=%(id)r",
                   {'id': id})
@@ -988,7 +791,6 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
                   {'id': id, 'agent_membership': am})
         return am
 
-    @util.handle_api_error
     def get_agent_memberships(self, context, filters=None, fields=None,
                               sorts=None, limit=None, marker=None,
                               page_reverse=False):
@@ -1001,7 +803,6 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
         LOG.debug("MidonetMixin.get_agent_memberships exiting")
         return ams
 
-    @util.handle_api_error
     def delete_agent_membership(self, context, id):
         LOG.debug("MidonetMixin.delete_agent_membership called: %(id)r",
                   {'id': id})

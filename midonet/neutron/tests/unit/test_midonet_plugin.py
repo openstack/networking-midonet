@@ -2,6 +2,7 @@
 
 # Copyright (C) 2012 Midokura Japan K.K.
 # Copyright (C) 2013 Midokura PTE LTD
+# Copyright (C) 2015 Midokura SARL.
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -16,12 +17,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import mock
-import os
-
-from oslo_utils import importutils
+import functools
 
 from midonet.neutron.db import agent_membership_db  # noqa
+from midonet.neutron.db import routedserviceinsertion_db  # noqa
 from midonet.neutron.db import task_db  # noqa
 from neutron.extensions import portbindings
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
@@ -29,89 +28,75 @@ import neutron.tests.unit.test_db_plugin as test_plugin
 import neutron.tests.unit.test_extension_ext_gw_mode as test_gw_mode
 import neutron.tests.unit.test_extension_security_group as sg
 import neutron.tests.unit.test_l3_plugin as test_l3_plugin
-from oslo_config import cfg
+from neutron_lbaas.db.loadbalancer import loadbalancer_db as lb_db  # noqa
+
+PLUGIN_NAME = 'neutron.plugins.midonet.plugin.MidonetPluginV2'
 
 
-MIDOKURA_PKG_PATH = "neutron.plugins.midonet.plugin"
-MIDOKURA_EXT_PATH = "midonet.neutron.extensions"
-MIDONET_PLUGIN_NAME = ('%s.MidonetPluginV2' % MIDOKURA_PKG_PATH)
+class MidonetPluginConf(object):
+    """Plugin configuration shared across the unit and functional tests.
+    """
+
+    plugin_name = PLUGIN_NAME
+
+    @staticmethod
+    def setUp(test_case, parent_setup=None):
+        """Perform additional configuration around the parent's setUp."""
+        if parent_setup:
+            parent_setup()
 
 
 class MidonetPluginV2TestCase(test_plugin.NeutronDbPluginV2TestCase):
 
-    def setUp(self,
-              plugin=MIDONET_PLUGIN_NAME,
-              ext_mgr=None,
-              service_plugins=None):
+    def setup_parent(self):
+        # Ensure that the parent setup can be called without arguments
+        # by the common configuration setUp.
+        parent_setup = functools.partial(
+            super(MidonetPluginV2TestCase, self).setUp,
+            plugin=MidonetPluginConf.plugin_name,
+        )
+        MidonetPluginConf.setUp(self, parent_setup)
 
-        self.midoclient_mock = mock.MagicMock()
-        self.midoclient_mock.midonetclient.neutron.client.return_value = True
-        modules = {
-            'midonetclient': self.midoclient_mock,
-            'midonetclient.neutron': self.midoclient_mock.neutron,
-            'midonetclient.neutron.client': self.midoclient_mock.client,
-        }
-
-        self.module_patcher = mock.patch.dict('sys.modules', modules)
-        self.module_patcher.start()
-
-        # import midonetclient here because it needs proper mock objects to be
-        # assigned to this module first.  'midoclient_mock' object is the
-        # mock object used for this module.
-        from midonetclient.neutron.client import MidonetClient  # noqa
-        client_class = MidonetClient
-        self.mock_class = client_class()
-
-        extensions_path = importutils.import_module(
-            MIDOKURA_EXT_PATH).__file__
-        cfg.CONF.set_override('api_extensions_path',
-                              os.path.dirname(extensions_path))
-        super(MidonetPluginV2TestCase, self).setUp(plugin=plugin)
-
-    def tearDown(self):
-        super(MidonetPluginV2TestCase, self).tearDown()
-        self.module_patcher.stop()
+    def setUp(self):
+        self.setup_parent()
 
 
 class TestMidonetNetworksV2(MidonetPluginV2TestCase,
                             test_plugin.TestNetworksV2):
 
-    def setUp(self):
-        self.skipTest("It fails because of constraints")
-    pass
+    def setUp(self, plugin=None):
+        super(TestMidonetNetworksV2, self).setUp()
 
 
 class TestMidonetL3NatTestCase(MidonetPluginV2TestCase,
                                test_l3_plugin.L3NatDBIntTestCase):
 
     def setUp(self):
-        self.skipTest("It fails because of constraints")
+        super(TestMidonetL3NatTestCase, self).setUp()
 
     def test_floatingip_with_invalid_create_port(self):
-        self._test_floatingip_with_invalid_create_port(MIDONET_PLUGIN_NAME)
+        self._test_floatingip_with_invalid_create_port(PLUGIN_NAME)
 
 
 class TestMidonetSecurityGroup(MidonetPluginV2TestCase,
                                sg.TestSecurityGroups):
 
     def setUp(self):
-        self.skipTest("It fails because of constraints")
-    pass
+        super(TestMidonetSecurityGroup, self).setUp()
 
 
 class TestMidonetSubnetsV2(MidonetPluginV2TestCase,
                            test_plugin.TestSubnetsV2):
 
     def setUp(self):
-        self.skipTest("It fails because of constraints")
-    pass
+        super(TestMidonetSubnetsV2, self).setUp()
 
 
 class TestMidonetPortsV2(MidonetPluginV2TestCase,
                          test_plugin.TestPortsV2):
 
     def setUp(self):
-        self.skipTest("It fails because of constraints")
+        super(TestMidonetPortsV2, self).setUp()
 
     def test_vif_port_binding(self):
         with self.port(name='myname') as port:
@@ -119,18 +104,18 @@ class TestMidonetPortsV2(MidonetPluginV2TestCase,
             self.assertTrue(port['port']['admin_state_up'])
 
 
-class TestMidonetPluginPortBinding(MidonetPluginV2TestCase,
-                                   test_bindings.PortBindingsTestCase):
+class TestMidonetPortBinding(MidonetPluginV2TestCase,
+                             test_bindings.PortBindingsTestCase):
 
     def setUp(self):
-        self.skipTest("It fails because of constraints")
+        super(TestMidonetPortBinding, self).setUp()
+
     VIF_TYPE = portbindings.VIF_TYPE_MIDONET
     HAS_PORT_FILTER = True
 
 
-class TestExtGwMode(MidonetPluginV2TestCase,
-                    test_gw_mode.ExtGwModeIntTestCase):
+class TestMidonetExtGwMode(MidonetPluginV2TestCase,
+                           test_gw_mode.ExtGwModeIntTestCase):
 
     def setUp(self):
-        self.skipTest("It fails because of constraints")
-    pass
+        super(TestMidonetExtGwMode, self).setUp()

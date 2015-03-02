@@ -15,11 +15,14 @@ Run the following command to install the plugin in the system:
     $ sudo python setup.py install
 
 
-In ``neutron.conf``, set the core_plugin to:
+The following entry in ``neutron.conf`` enables MidoNet as the Neutron plugin:
 
 ::
-
     core_plugin = neutron.plugins.midonet.plugin.MidonetPluginV2
+
+
+The Kilo MidoNet plugin is not compatible with MidoNet prior to 2.0.  Please
+use the Juno plugin if you want to use it against MidoNet version 1.X.
 
 
 Tests
@@ -46,12 +49,12 @@ To know more detail about command options, please execute it with ``---help``.::
 Creating Packages
 -----------------
 
-Run the following command to generate both both the RPM and Debian packages 
+Run the following command to generate both both the RPM and Debian packages
 with the provided version:
 ::
 
     $ ./package.sh some_version
-    
+
 
 HACKING
 -------
