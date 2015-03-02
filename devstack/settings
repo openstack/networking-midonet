@@ -33,5 +33,5 @@ SERVICE_PASSWORD=${SERVICE_PASSWORD:-$THE_PASSWORD}
 ADMIN_PASSWORD=${ADMIN_PASSWORD:-$THE_PASSWORD}
 
 # Tempest options
-IPV6_ENABLED=${IPV6_ENABLED:-False}
-NETWORK_API_EXTENSIONS=${NETWORK_API_EXTENSIONS:-external-net,router,security-group,agent,dhcp_agent_scheduler,binding,quotas}
+IPV6_ENABLED=False
+NETWORK_API_EXTENSIONS=external-net,router,security-group,agent,dhcp_agent_scheduler,binding,quotas
