@@ -20,6 +20,11 @@ MIDONET_ENABLE_Q_SVC_ONLY=${MIDONET_ENABLE_Q_SVC_ONLY:-False}
 
 # Disable nova-network and enable neutron services
 disable_service n-net
+disable_service q-lbaas
+disable_service q-fwaas
+disable_service q-l3
+disable_service q-agt
+disable_service q-vpn
 enable_service q-svc
 
 if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "True" ]; then
@@ -44,3 +49,6 @@ ADMIN_PASSWORD=${ADMIN_PASSWORD:-$THE_PASSWORD}
 # Tempest options
 IPV6_ENABLED=False
 NETWORK_API_EXTENSIONS=external-net,router,security-group,agent,dhcp_agent_scheduler,binding,quotas
+
+# Don't let mido.sh configure the logging
+CONFIGURE_LOGGING=False

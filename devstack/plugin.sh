@@ -26,7 +26,10 @@ if [[ "$1" == "stack" ]]; then
         source $ABSOLUTE_PATH/functions
 
         # Clone and build midonet service
+        ERROR_ON_CLONE_BAK=$ERROR_ON_CLONE
+        ERROR_ON_CLONE=False
         git_clone $MIDONET_REPO $MIDONET_DIR $MIDONET_BRANCH
+        ERROR_ON_CLONE=$ERROR_ON_CLONE_BAK
 
         # Clone and build neutron midonet plugin
         PLUGIN_PATH=$ABSOLUTE_PATH/..
@@ -40,8 +43,10 @@ if [[ "$1" == "stack" ]]; then
 
         export TIMESTAMP_FORMAT
         export LOGFILE
+        export USE_SCREEN
         export SCREEN_LOGDIR
         export MIDO_PASSWORD=$THE_PASSWORD
+        export CONFIGURE_LOGGING
 
         # Build neutron midonet plugin
         pip_install --no-deps --editable $ABSOLUTE_PATH/..
@@ -61,7 +66,12 @@ if [[ "$1" == "stack" ]]; then
             # $MIDONET_DIR/tools/devmido/create_fake_uplink.sh
         fi
 
+
     elif [[ "$2" == "post-config" ]]; then
+
+        # Set rootwrap.d to installed mm-ctl filters
+        sudo cp $ABSOLUTE_PATH/midonet_rootwrap.filters /etc/nova/rootwrap.d/
+        sudo cp $ABSOLUTE_PATH/midonet_rootwrap.filters /etc/neutron/rootwrap.d/
 
         midonet-db-manage upgrade head
 
