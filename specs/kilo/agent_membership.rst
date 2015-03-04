@@ -31,23 +31,29 @@ Proposed Change
 ===============
 
 Maintain a singleton default Tunnel Zone, with the name, "DEFAULT", in the
-system.  This tunnel zone is created automatically  by the Neutron plugin if it
-does not exist yet and it is completely hidden from the user.  When a tunnel
-zone is created, it is created in the Neutron DB and also forwarded to the
-cluster over the tasks table.
+system.  This tunnel zone is created automatically by the MidoNet cluster.
+The Neutron plugin signals the cluster to do create it when it starts up by
+submitting a new task type, CONFIG.
 
-The default tunneling protocol used is 'vxlan'.  If you want to override it,
-specified the following in neutron.conf:
+CONFIG task contains all the global configuration values settable in Neutron
+that MidoNet would find useful.  The handling of the case in which the cluster
+fails to process this task is outside the scope of this proposal, and it is
+assumed that CONFIG task is treated the same as any other tasks.
+
+For this particular change, only one new field is introduced in CONFIG, which
+is 'tunnel_protocol', that indicates the global tunneling protocol that MidoNet
+should use.   This value is used by MidoNet to create the singleton Tunnel
+Zone.  The default tunneling protocol used is 'vxlan', but you can override it
+by specifying the following in neutron.conf:
 
 [MIDONET]
-tunnel_protocol=vxlan  # Could be vxlan or gre
+tunnel_protocol=gre  # Could be vxlan or gre
 
-When Neutron restarts, it inspects this value and updates the tunnel zone by
-updating both the Neutron DB record and also by submitting this task to the
-cluster.
+With this approach, the concept of  Tunnel Zone is completely hidden from the
+user as well as from the neutron implementation.
 
 To authorize an agent to be added to the deployment, 'agent-membership' Neutron
-extension API described below is used.
+extension API described below is defined.
 
 
 REST API
@@ -59,11 +65,8 @@ REST API
 |Attribute |Type       |POST/  |Required |Description                         |
 |Name      |           |PUT    |         |                                    |
 +==========+===========+=======+=========+====================================+
-|id        |string     |POST   |generated|identity                            |
-|          |(UUID)     |       |         |                                    |
-+----------+-----------+-------+---------+------------------------------------+
-|agent_id  |string     |POST   |Yes      |Id of the agent to add to           |
-|          |(UUID)     |       |         |membership                          |
+|id        |string     |POST   |generated|ID of the MidoNet agent, which maps |
+|          |(UUID)     |       |         |to hostId in cluster                |
 +----------+-----------+-------+---------+------------------------------------+
 |ip_address|string     |POST   |Yes      |IP address to use for tunneling     |
 |          |           |       |         |                                    |
@@ -75,51 +78,32 @@ them.
 
 Only IPv4 address is supported for 'ip_address'.
 
+'id' field is the ID of the MidoNet 'host' object, which you can retrieve using
+the 'agent' API extension of Neutron (not implemented yet).  The agents and the
+MidoNet hosts map one-to-one.  Likewise, the 'agent' API will also include the
+host interfaces and their IP addresses, useful to populate the 'ip_address'
+field for the agent membership API.
+
 
 DB Model
 --------
 
-**TunnelZone**
+**AgentMembership**
 
 +-------------------+---------+-----------------------------------------------+
 | Name              | Type    | Description                                   |
 +===================+=========+===============================================+
-| id                | TinyInt | Unique identifier of tunnel zone              |
-+-------------------+---------+-----------------------------------------------+
-| name              | String  | Name of the tunnel zone                       |
-+-------------------+---------+-----------------------------------------------+
-| type              | String  | Tunnel protocol type.                         |
-+-------------------+---------+-----------------------------------------------+
-
-The supported values for 'type' are:
-
- * VXLAN (default)
- * GRE
-
-
-**TunnelZoneHost**
-
-+-------------------+---------+-----------------------------------------------+
-| Name              | Type    | Description                                   |
-+===================+=========+===============================================+
-| id                | TinyInt | Unique identifier of membership               |
-+-------------------+---------+-----------------------------------------------+
-| host_id           | String  | ID of the host (same as agent)                |
-+-------------------+---------+-----------------------------------------------+
-| tunnel_zone_id    | String  | ID of the tunnel zone                         |
+| id                | String  | ID of the agent (same as host in the cluster) |
 +-------------------+---------+-----------------------------------------------+
 | ip_address        | String  | IP address to use for tunneling               |
 +-------------------+---------+-----------------------------------------------+
 
 Only IPv4 address is supported for 'ip_address'.
 
-We are keeping the legacy API names, TunnelZone and TunnelZoneHost because
-the cluster still expects these names.
-
 New task types are:
 
- * tunnel_zone
- * tunnel_zone_host
+ * CONFIG: Represents global Neutron configurations
+ * AGENTMEMBERSHIP: Represents AgentMembershp resource
 
 
 Security
