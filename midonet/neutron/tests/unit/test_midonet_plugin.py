@@ -21,8 +21,8 @@ import os
 
 from oslo_utils import importutils
 
-from midonet.neutron.db import db_agent_membership  # noqa
-from midonet.neutron.db import task  # noqa
+from midonet.neutron.db import agent_membership_db  # noqa
+from midonet.neutron.db import task_db  # noqa
 from neutron.extensions import portbindings
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 import neutron.tests.unit.test_db_plugin as test_plugin

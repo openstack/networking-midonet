@@ -100,7 +100,7 @@ def create_config_task(session, data):
                   data_type=CONFIG,
                   data=jsonutils.dumps(data),
                   resource_id=data['id'],
-                  transaction_id=uuid.uuid4())
+                  transaction_id=str(uuid.uuid4()))
         session.add(db)
 
 
