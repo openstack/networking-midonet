@@ -15,10 +15,75 @@
 import os
 
 from alembic import config as alembic_config
+from midonet.neutron.db import task_db
 from neutron.db.migration import cli as n_cli
+from oslo_config import cfg
+from oslo_serialization import jsonutils
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 
 CONF = n_cli.CONF
+
+
+def get_session(connection):
+    engine = create_engine(connection)
+    Session = sessionmaker(bind=engine)
+    return Session()
+
+
+def task_list(config, cmd):
+    connection = config.neutron_config.database.connection
+    session = get_session(connection)
+    printer = config.print_stdout
+    line = "%-7s%-11s%-20s%-40s%-20s"
+    printer(line, "id", "type", "data type", "resource id", "time")
+    printer(line, "--", "----", "---------", "-----------", "----")
+
+    def print_task(task):
+        printer(line, task.id, task.type, task.data_type, task.resource_id,
+                task.created_at)
+    show_unprocessed = config.neutron_config.command.u
+    tasks = task_db.get_task_list(session, show_unprocessed)
+    [print_task(task) for task in tasks]
+
+
+def task_clean(config, cmd):
+    connection = config.neutron_config.database.connection
+    session = get_session(connection)
+    task_db.task_clean(session)
+
+
+def task_resource(config, cmd):
+    connection = config.neutron_config.database.connection
+    session = get_session(connection)
+    printer = config.print_stdout
+    data = task_db.get_current_task_data(session)
+    for data_type in data:
+        printer(data_type + "S: \n")
+        for res in data[data_type]:
+            data_json = jsonutils.loads(data[data_type][res])
+            printer(jsonutils.dumps(data_json, indent=4, sort_keys=True))
+
+
+def add_command_parsers(subparsers):
+    n_cli.add_command_parsers(subparsers)
+    parser = subparsers.add_parser('task-list')
+    parser.add_argument('-u', action='store_true')
+    parser.set_defaults(func=task_list)
+    parser = subparsers.add_parser('task-clean')
+    parser.set_defaults(func=task_clean)
+    parser = subparsers.add_parser('task-resource')
+    parser.set_defaults(func=task_resource)
+
+command_opt = cfg.SubCommandOpt('command',
+                                title='Command',
+                                help=_('Available commands'),
+                                handler=add_command_parsers)
+
+# Override the db management options with our own extended version
+CONF.unregister_opt(n_cli.command_opt)
+CONF.register_cli_opt(command_opt)
 
 
 def get_alembic_config():
