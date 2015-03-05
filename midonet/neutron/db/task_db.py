@@ -53,18 +53,6 @@ LOG = logging.getLogger(__name__)
 _LI = i18n._LI
 
 
-class TaskType(model_base.BASEV2):
-    __tablename__ = 'midonet_task_types'
-    id = sa.Column(sa.Integer(), primary_key=True)
-    name = sa.Column(sa.String(50))
-
-
-class DataType(model_base.BASEV2):
-    __tablename__ = 'midonet_data_types'
-    id = sa.Column(sa.Integer(), primary_key=True)
-    name = sa.Column(sa.String(50))
-
-
 class Task(model_base.BASEV2):
     __tablename__ = 'midonet_tasks'
 
