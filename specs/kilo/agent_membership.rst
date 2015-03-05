@@ -88,7 +88,7 @@ field for the agent membership API.
 DB Model
 --------
 
-**AgentMembership**
+**midonet_agent_membership**
 
 +-------------------+---------+-----------------------------------------------+
 | Name              | Type    | Description                                   |
