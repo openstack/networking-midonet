@@ -63,13 +63,13 @@ if [[ "$1" == "stack" ]]; then
         export LIBVIRT_QEMU_CONF='/etc/libvirt/qemu.conf'
         if [ ! $(sudo grep -q '^cgroup_device_acl' $LIBVIRT_QEMU_CONF) ]; then
             sudo bash -c "cat <<EOF >> $LIBVIRT_QEMU_CONF
-    cgroup_device_acl = [
-        '/dev/null', '/dev/full', '/dev/zero',
-        '/dev/random', '/dev/urandom',
-        '/dev/ptmx', '/dev/kvm', '/dev/kqemu',
-        '/dev/rtc', '/dev/hpet', '/dev/net/tun',
-        ]
-    EOF"
+cgroup_device_acl = [
+    '/dev/null', '/dev/full', '/dev/zero',
+    '/dev/random', '/dev/urandom',
+    '/dev/ptmx', '/dev/kvm', '/dev/kqemu',
+    '/dev/rtc', '/dev/hpet', '/dev/net/tun',
+]
+EOF"
             sudo service libvirt-bin restart
 
         fi
