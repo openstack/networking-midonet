@@ -25,13 +25,12 @@ revision = '19808c5df22a'
 down_revision = '1dc335c43b23'
 
 from alembic import op
+from midonet.neutron.db import agent_membership_db as am_db
 import sqlalchemy as sa
-
-AGENT_MEMBERSHIP_TABLE = 'midonet_agent_membership'
 
 
 def upgrade():
-    table_name = AGENT_MEMBERSHIP_TABLE
+    table_name = am_db.AGENT_MEMBERSHIP
     op.create_table(
         table_name,
         sa.Column('id', sa.String(36), primary_key=True),
@@ -39,4 +38,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_table(AGENT_MEMBERSHIP_TABLE)
+    op.drop_table(am_db.AGENT_MEMBERSHIP)

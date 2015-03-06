@@ -19,7 +19,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import exc
 
 
-AGENT_MEMBERSHIP = 'midonet_agent_membership'
+AGENT_MEMBERSHIP = 'midonet_agent_memberships'
 
 
 class AgentMembership(model_base.BASEV2):
