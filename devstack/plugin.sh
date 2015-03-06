@@ -52,17 +52,20 @@ if [[ "$1" == "stack" ]]; then
 
     elif [[ "$2" == "extra" ]]; then
 
-        export CIDR=${FLOATING_RANGE:?Error \$FLOATING_RANGE is not set}
-        $MIDONET_DIR/tools/devmido/create_fake_uplink.sh
+        if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "False" ]; then
+            export CIDR=${FLOATING_RANGE:?Error \$FLOATING_RANGE is not set}
+            $MIDONET_DIR/tools/devmido/create_fake_uplink.sh
+        fi
 
     elif [[ "$2" == "post-config" ]]; then
 
         midonet-db-manage upgrade head
 
-        # Hack libvirt qemu conf to allow ethernet mode to run
-        export LIBVIRT_QEMU_CONF='/etc/libvirt/qemu.conf'
-        if [ ! $(sudo grep -q '^cgroup_device_acl' $LIBVIRT_QEMU_CONF) ]; then
-            sudo bash -c "cat <<EOF >> $LIBVIRT_QEMU_CONF
+        if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "False" ]; then
+            # Hack libvirt qemu conf to allow ethernet mode to run
+            export LIBVIRT_QEMU_CONF='/etc/libvirt/qemu.conf'
+            if [ ! $(sudo grep -q '^cgroup_device_acl' $LIBVIRT_QEMU_CONF) ]; then
+                sudo bash -c "cat <<EOF >> $LIBVIRT_QEMU_CONF
 cgroup_device_acl = [
     '/dev/null', '/dev/full', '/dev/zero',
     '/dev/random', '/dev/urandom',
@@ -70,15 +73,16 @@ cgroup_device_acl = [
     '/dev/rtc', '/dev/hpet', '/dev/net/tun',
 ]
 EOF"
-            sudo service libvirt-bin restart
-
+                sudo service libvirt-bin restart
+            fi
         fi
     fi
 
 elif [[ "$1" == "unstack" ]]; then
 
     $MIDONET_DIR/tools/devmido/unmido.sh
-    CIDR=${FLOATING_RANGE:?Error \$FLOATING_RANGE is not set}
-    $MIDONET_DIR/tools/devmido/delete_fake_uplink.sh
-
+    if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "False" ]; then
+        CIDR=${FLOATING_RANGE:?Error \$FLOATING_RANGE is not set}
+        $MIDONET_DIR/tools/devmido/delete_fake_uplink.sh
+    fi
 fi
