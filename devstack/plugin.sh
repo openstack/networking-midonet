@@ -36,10 +36,12 @@ if [[ "$1" == "stack" ]]; then
         export SERVICE_HOST=${MIDONET_SERVICE_HOST:?Error \$MIDONET_SERVICE_HOST is not set}
         export API_PORT=${MIDONET_API_PORT:?Error \$MIDONET_API_PORT is not set}
         export API_TIMEOUT=${MIDONET_API_TIMEOUT}
+        export USE_CLUSTER=True
 
         export TIMESTAMP_FORMAT
         export LOGFILE
         export SCREEN_LOGDIR
+        export MIDO_PASSWORD=$THE_PASSWORD
 
         # Build neutron midonet plugin
         pip_install --no-deps --editable $ABSOLUTE_PATH/..
@@ -54,7 +56,9 @@ if [[ "$1" == "stack" ]]; then
 
         if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "False" ]; then
             export CIDR=${FLOATING_RANGE:?Error \$FLOATING_RANGE is not set}
-            $MIDONET_DIR/tools/devmido/create_fake_uplink.sh
+            # TODO: Joe
+            # We will not create the fake uplink until the re-arch work is done.
+            # $MIDONET_DIR/tools/devmido/create_fake_uplink.sh
         fi
 
     elif [[ "$2" == "post-config" ]]; then
@@ -83,6 +87,8 @@ elif [[ "$1" == "unstack" ]]; then
     $MIDONET_DIR/tools/devmido/unmido.sh
     if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "False" ]; then
         CIDR=${FLOATING_RANGE:?Error \$FLOATING_RANGE is not set}
-        $MIDONET_DIR/tools/devmido/delete_fake_uplink.sh
+        # TODO: Joe
+        # We will not create the fake uplink until the re-arch work is done.
+        # $MIDONET_DIR/tools/devmido/delete_fake_uplink.sh
     fi
 fi
