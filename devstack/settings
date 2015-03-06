@@ -11,6 +11,9 @@ MIDONET_SERVICE_PROTOCOL=${MIDONET_SERVICE_PROTOCOL:-$SERVICE_PROTOCOL}
 MIDONET_SERVICE_HOST=${MIDONET_SERVICE_HOST:-$SERVICE_HOST}
 MIDONET_API_URL="${MIDONET_SERVICE_PROTOCOL}://${MIDONET_SERVICE_HOST}:${MIDONET_API_PORT}/midonet-api"
 
+# Run neutron with noauth only in devstack if True
+MIDONET_ENABLE_Q_SVC_ONLY=${MIDONET_ENABLE_Q_SVC_ONLY:-False}
+
 #
 # Set all the devstack ENV VARS needed to run midonet
 #
@@ -18,9 +21,15 @@ MIDONET_API_URL="${MIDONET_SERVICE_PROTOCOL}://${MIDONET_SERVICE_HOST}:${MIDONET
 # Disable nova-network and enable neutron services
 disable_service n-net
 enable_service q-svc
-enable_service q-dhcp
-enable_service q-meta
 
+if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "True" ]; then
+    Q_AUTH_STRATEGY=noauth
+    NEUTRON_CREATE_INITIAL_NETWORKS=False
+    ENABLED_SERVICES=q-svc,mysql
+else
+    enable_service q-dhcp
+    enable_service q-meta
+fi
 # Use midonet as Neutron plugin
 Q_PLUGIN=midonet
 
