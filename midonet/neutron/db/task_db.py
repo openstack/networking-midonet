@@ -14,13 +14,12 @@
 
 import collections
 import datetime
-from oslo_serialization import jsonutils
-import sqlalchemy as sa
-
 from neutron.common import exceptions as n_exc
 from neutron.db import model_base
 from neutron import i18n
 from neutron.openstack.common import log as logging
+from oslo_serialization import jsonutils
+import sqlalchemy as sa
 import uuid
 
 CONF_ID = '00000000-0000-0000-0000-000000000001'
@@ -53,6 +52,14 @@ LOG = logging.getLogger(__name__)
 _LI = i18n._LI
 
 
+class TaskState(model_base.BASEV2):
+    __tablename__ = 'midonet_task_state'
+    id = sa.Column(sa.Integer(), primary_key=True)
+    last_processed_id = sa.Column(sa.Integer(),
+                                  sa.ForeignKey('midonet_tasks.id'))
+    updated_at = sa.Column(sa.DateTime(), nullable=False)
+
+
 class Task(model_base.BASEV2):
     __tablename__ = 'midonet_tasks'
 
@@ -64,6 +71,37 @@ class Task(model_base.BASEV2):
     resource_id = sa.Column(sa.String(36))
     transaction_id = sa.Column(sa.String(40))
     created_at = sa.Column(sa.DateTime(), default=datetime.datetime.utcnow)
+
+
+def get_current_task_data(session):
+    data = dict()
+    for task in session.query(Task):
+        if task.data_type not in data:
+            data[task.data_type] = dict()
+        if task.type == DELETE:
+            data[task.data_type].pop(task.resource_id, None)
+        else:
+            data[task.data_type][task.resource_id] = task.data
+    return data
+
+
+def get_task_list(session, show_unprocessed):
+    tasks = session.query(Task)
+    if show_unprocessed:
+        task_state = session.query(TaskState).one()
+        lp_id = task_state.last_processed_id
+        if lp_id is not None:
+            tasks = tasks.filter(Task.id > lp_id)
+    return tasks
+
+
+def task_clean(session):
+    task_state = session.query(TaskState).one()
+    lp_id = task_state.last_processed_id
+    task_state.update({'last_processed_id': None,
+                       'updated_at': datetime.datetime.utcnow()})
+    session.query(Task).filter(Task.id <= lp_id).delete()
+    session.commit()
 
 
 def create_task(context, type, task_id=None, data_type=None,
