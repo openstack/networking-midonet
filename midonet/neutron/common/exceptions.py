@@ -13,15 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from oslo_config import cfg
+import neutron.common.exceptions as exc
 
-mido_opts = [
-    cfg.StrOpt('tunnel_protocol', default='vxlan',
-               help=_('Tunnel protocol used by Midonet')),
-    cfg.StrOpt('cluster_ip', default='localhost',
-               help=_('IP that the cluster service can be reached on')),
-    cfg.StrOpt('cluster_port', default='8088',
-               help=_('Port that the cluster service can be reached on'))
-]
 
-cfg.CONF.register_opts(mido_opts, "MIDONET")
+class ClusterConnectionError(exc.ServiceUnavailable):
+    message = _("Error connecting to cluster")

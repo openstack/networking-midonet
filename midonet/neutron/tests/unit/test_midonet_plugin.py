@@ -22,18 +22,29 @@ from midonet.neutron.db import agent_membership_db  # noqa
 from midonet.neutron.db import data_state_db  # noqa
 from midonet.neutron.db import routedserviceinsertion_db  # noqa
 from midonet.neutron.db import task_db  # noqa
+import mock
+from neutron import context
 from neutron.db import api as db_api
 from neutron.extensions import portbindings
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
+import neutron.tests.unit.test_agent_ext_plugin as test_agent
 import neutron.tests.unit.test_db_plugin as test_plugin
 import neutron.tests.unit.test_extension_ext_gw_mode as test_gw_mode
 from neutron.tests.unit import test_extension_extradhcpopts as test_dhcpopts
 from neutron.tests.unit import test_extension_extraroute as test_ext_route
 import neutron.tests.unit.test_extension_security_group as sg
+from neutron.tests.unit import test_extensions
 import neutron.tests.unit.test_l3_plugin as test_l3_plugin
 from neutron.tests.unit import testlib_api
 from neutron_lbaas.db.loadbalancer import loadbalancer_db as lb_db  # noqa
 from sqlalchemy.orm import sessionmaker
+from webob import exc
+
+import sys
+sys.modules["midonetclient"] = mock.Mock()
+sys.modules["midonetclient.topology"] = mock.Mock()
+from midonet.neutron.rpc import topology_client as top  # noqa
+
 
 PLUGIN_NAME = 'neutron.plugins.midonet.plugin.MidonetPluginV2'
 
@@ -163,3 +174,45 @@ class TestMidonetDataState(testlib_api.SqlTestCase):
         data_state_db.set_readwrite(self.session)
         ds = data_state_db.get_data_state(self.session)
         self.assertTrue(not ds.readonly)
+
+
+class TestMidonetAgent(MidonetPluginV2TestCase,
+                       test_agent.AgentDBTestMixIn):
+
+    def setUp(self):
+        super(TestMidonetAgent, self).setUp()
+        self.adminContext = context.get_admin_context()
+        ext_mgr = test_agent.AgentTestExtensionManager()
+        self.ext_api = test_extensions.setup_extensions_middleware(ext_mgr)
+        self.mh_id1 = '37c5bf38-c631-11e4-aa61-d35262f5c455'
+        self.mh_id2 = '42c7543c-c631-11e4-a386-af39a501e275'
+        self.mido_host1 = {'id': self.mh_id1,
+                           'flooding_proxy_weight': 30}
+        self.mido_host2 = {'id': self.mh_id2,
+                           'flooding_proxy_weight': 20}
+
+        def mock_hosts(ip, port):
+            return [self.mido_host1, self.mido_host2]
+        top.get_all_midonet_hosts = mock_hosts
+
+    def test_list_mido_agent(self):
+        agents = self._register_agent_states()
+        res = self._list('agents')
+        agent_ids = [agent['id'] for agent in res['agents']]
+        for agt in res['agents']:
+            self.assertTrue(agt['id'] in agent_ids)
+        self.assertTrue(self.mh_id1 in agent_ids)
+        self.assertTrue(self.mh_id2 in agent_ids)
+        self.assertEqual(len(agent_ids), len(agents) + 2)
+
+    def test_show_mido_agent(self):
+        self._register_agent_states()
+        agent = self._show('agents', self.mh_id1)
+        self.assertEqual(
+            agent['agent'],
+            top.midonet_host_to_neutron_agent(self.mido_host1))
+
+    def test_show_mido_agent_negative(self):
+        self._register_agent_states()
+        self._show('agents', 'c0adf9be-c951-11e4-91ea-53cfd0a23bf6',
+                   expected_code=exc.HTTPNotFound.code)

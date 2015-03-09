@@ -23,6 +23,7 @@ from midonet.neutron.db import routedserviceinsertion_db as rsi_db
 from midonet.neutron.db import task_db as task
 from midonet.neutron import extensions
 from midonet.neutron.extensions import routedserviceinsertion as rsi
+from midonet.neutron.rpc import topology_client as top
 from neutron.api import extensions as neutron_extensions
 from neutron.api.rpc.handlers import dhcp_rpc
 from neutron.common import constants as n_const
@@ -805,3 +806,19 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         LOG.debug("MidonetMixin.delete_agent_membership exiting: %(id)r",
                   {'id': id})
+
+    def get_agents(self, context, filters=None, fields=None):
+        neutron_agents = super(MidonetMixin, self).get_agents(
+            context, filters, fields)
+        for mido_host in top.get_all_midonet_hosts(
+                cfg.CONF.MIDONET.cluster_ip, cfg.CONF.MIDONET.cluster_port):
+            mido_agent = top.midonet_host_to_neutron_agent(mido_host)
+            neutron_agents = neutron_agents + [mido_agent]
+        return neutron_agents
+
+    def get_agent(self, context, id, fields=None):
+        for mido_host in top.get_all_midonet_hosts(
+                cfg.CONF.MIDONET.cluster_ip, cfg.CONF.MIDONET.cluster_port):
+            if mido_host.get('id') == id:
+                return top.midonet_host_to_neutron_agent(mido_host)
+        return super(MidonetMixin, self).get_agent(context, id, fields)
