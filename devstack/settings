@@ -25,7 +25,7 @@ enable_service q-svc
 if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "True" ]; then
     Q_AUTH_STRATEGY=noauth
     NEUTRON_CREATE_INITIAL_NETWORKS=False
-    ENABLED_SERVICES=q-svc,mysql
+    ENABLED_SERVICES=q-svc,mysql,rabbit
 else
     enable_service q-dhcp
     enable_service q-meta
