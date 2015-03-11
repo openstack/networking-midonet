@@ -20,8 +20,8 @@ import webob.exc
 from midonet.neutron.extensions import agent_membership as ext_am
 from midonet.neutron.tests.unit import test_midonet_plugin as test_mn
 
-from neutron.openstack.common import uuidutils
 from neutron.tests.unit import test_extensions as test_ex
+from oslo_utils import uuidutils
 
 FAKE_AGENT_ID = uuidutils.generate_uuid()
 FAKE_IP = '10.0.0.3'

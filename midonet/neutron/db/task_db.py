@@ -17,7 +17,7 @@ import datetime
 from neutron.common import exceptions as n_exc
 from neutron.db import model_base
 from neutron import i18n
-from neutron.openstack.common import log as logging
+from oslo_log import log as logging
 from oslo_serialization import jsonutils
 import sqlalchemy as sa
 import uuid

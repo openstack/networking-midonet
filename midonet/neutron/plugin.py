@@ -40,10 +40,10 @@ from neutron.db import securitygroups_db
 from neutron.extensions import portbindings
 from neutron.extensions import securitygroup as ext_sg
 from neutron import i18n
-from neutron.openstack.common import log as logging
 from neutron.plugins.common import constants
 from neutron_lbaas.db.loadbalancer import loadbalancer_db
 from oslo_config import cfg
+from oslo_log import log as logging
 from oslo_utils import importutils
 
 
