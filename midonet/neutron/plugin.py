@@ -25,6 +25,7 @@ from oslo.db import exception as db_exc
 from midonet.neutron import api
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import util
+from midonet.neutron.db import db_util
 from midonet.neutron.db import task
 from midonet.neutron import extensions
 from midonetclient import client
@@ -642,13 +643,35 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         LOG.info(_("MidonetPluginV2.delete_security_group_rule exiting: "
                    "id=%r"), id)
 
+    def _validate_vip_subnet(self, context, subnet_id, pool_id):
+        # ensure that if the vip subnet is public, the router has its
+        # gateway set.
+        subnet = self._get_subnet(context, subnet_id)
+        if db_util.is_subnet_external(context, subnet):
+            router_id = db_util.get_router_from_pool(context, pool_id)
+            # router_id should never be None because it was already validated
+            # when we created the pool
+            assert router_id is not None
+
+            router = self._get_router(context, router_id)
+            if router.get('gw_port_id') is None:
+                msg = _("The router must have its gateway set if the "
+                        "VIP subnet is external")
+                raise n_exc.BadRequest(resource='router', msg=msg)
+
     @util.handle_api_error
     def create_vip(self, context, vip):
         LOG.debug("MidonetPluginV2.create_vip called: %(vip)r",
                   {'vip': vip})
 
         with context.session.begin(subtransactions=True):
+
+            self._validate_vip_subnet(context, vip['vip']['subnet_id'],
+                                      vip['vip']['pool_id'])
+
             v = super(MidonetPluginV2, self).create_vip(context, vip)
+            task.create_task(context, task.CREATE, data_type_id=task.VIP,
+                             resource_id=v['id'], data=v)
             self.api_cli.create_vip(v)
             v['status'] = constants.ACTIVE
             self.update_status(context, loadbalancer_db.Vip, v['id'],
@@ -687,10 +710,18 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         LOG.debug("MidonetPluginV2.create_pool called: %(pool)r",
                   {'pool': pool})
 
-        router_id = pool['pool'].get(rsi.ROUTER_ID)
+        subnet = db_util.get_subnet(context, pool['pool']['subnet_id'])
+        if db_util.is_subnet_external(context, subnet):
+            msg = _("pool subnet must not be public")
+            raise n_exc.BadRequest(resource='subnet', msg=msg)
+
+        router_id = db_util.get_router_from_subnet(context, subnet)
+
         if not router_id:
-            msg = _("router_id is required for pool")
+            msg = _("pool subnet must be associated with router")
             raise n_exc.BadRequest(resource='router', msg=msg)
+
+        pool['pool'].update({'router_id': router_id})
 
         if self._get_resource_router_id_binding(context, loadbalancer_db.Pool,
                                                 router_id=router_id):
