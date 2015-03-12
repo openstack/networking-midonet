@@ -1,2 +1,6 @@
 dist/
 neutron_plugin_midonet.egg-info/
+build/
+.tox/
+.testrepository/
+*.pyc
