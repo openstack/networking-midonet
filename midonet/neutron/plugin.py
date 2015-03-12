@@ -34,9 +34,11 @@ from neutron.db import agentschedulers_db
 import neutron.db.api as db
 from neutron.db import db_base_plugin_v2
 from neutron.db import external_net_db
+from neutron.db import extradhcpopt_db
 from neutron.db import l3_gwmode_db
 from neutron.db import portbindings_db
 from neutron.db import securitygroups_db
+from neutron.extensions import extra_dhcp_opt as edo_ext
 from neutron.extensions import portbindings
 from neutron.extensions import securitygroup as ext_sg
 from neutron import i18n
@@ -55,6 +57,7 @@ _LI = i18n._LI
 class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
                    portbindings_db.PortBindingMixin,
                    external_net_db.External_net_db_mixin,
+                   extradhcpopt_db.ExtraDhcpOptMixin,
                    l3_gwmode_db.L3_NAT_db_mixin,
                    agentschedulers_db.DhcpAgentSchedulerDbMixin,
                    securitygroups_db.SecurityGroupDbMixin,
@@ -206,6 +209,7 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
         with context.session.begin(subtransactions=True):
             # Create a Neutron port
             new_port = super(MidonetMixin, self).create_port(context, port)
+            dhcp_opts = port['port'].get(edo_ext.EXTRADHCPOPTS, [])
             task.create_task(context, task.CREATE, data_type=task.PORT,
                              resource_id=new_port['id'], data=new_port)
 
@@ -224,6 +228,8 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
 
             self._process_portbindings_create_and_update(context, port_data,
                                                          new_port)
+            self._process_port_create_extra_dhcp_opts(context, new_port,
+                                                      dhcp_opts)
 
         return new_port
 
@@ -269,6 +275,7 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             self._delete_port_security_group_bindings(context, id)
             sg_ids = self._get_security_groups_on_port(context, in_port)
             self._process_port_create_security_group(context, out_port, sg_ids)
+        self._update_extra_dhcp_opts_on_port(context, id, in_port, out_port)
 
     def update_port(self, context, id, port):
         """Handle port update, including security groups and fixed IPs."""
