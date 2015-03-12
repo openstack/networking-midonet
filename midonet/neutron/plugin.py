@@ -152,7 +152,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         quota_table = qdb.Quota()
         session = db.get_session()
         try:
-            quota_table.__table__.create(bind = session.bind)
+            quota_table.__table__.create(bind=session.bind)
         except sa_exc.OperationalError:
             # If the table already exists, then this is expected.
             pass

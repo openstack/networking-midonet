@@ -53,5 +53,5 @@ class DhcpNoOpDriver(dhcp.DhcpLocalProcess):
 
     @classmethod
     def should_enable_metadata(cls, conf, network):
-        """We need MD namespace proxy regardless of network configuration"""
+        """We need MD namespace proxy regardless of network configuration."""
         return True

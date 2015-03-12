@@ -15,8 +15,8 @@
 
 from neutron.common import constants as n_const
 from neutron.db import l3_db
-from neutron.db import models_v2
 from neutron.db.loadbalancer import loadbalancer_db as lb_db
+from neutron.db import models_v2
 from sqlalchemy.orm import exc
 
 
