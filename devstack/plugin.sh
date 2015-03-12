@@ -70,12 +70,12 @@ if [[ "$1" == "stack" ]]; then
     elif [[ "$2" == "post-config" ]]; then
 
         # Set rootwrap.d to installed mm-ctl filters
-        sudo cp $ABSOLUTE_PATH/midonet_rootwrap.filters /etc/nova/rootwrap.d/
         sudo cp $ABSOLUTE_PATH/midonet_rootwrap.filters /etc/neutron/rootwrap.d/
 
         midonet-db-manage upgrade head
 
         if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "False" ]; then
+            sudo cp $ABSOLUTE_PATH/midonet_rootwrap.filters /etc/nova/rootwrap.d/
             # Hack libvirt qemu conf to allow ethernet mode to run
             export LIBVIRT_QEMU_CONF='/etc/libvirt/qemu.conf'
             if [ ! $(sudo grep -q '^cgroup_device_acl' $LIBVIRT_QEMU_CONF) ]; then
