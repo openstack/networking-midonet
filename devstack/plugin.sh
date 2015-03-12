@@ -74,8 +74,9 @@ if [[ "$1" == "stack" ]]; then
 
         midonet-db-manage upgrade head
 
-        if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "False" ]; then
+        if is_service_enabled nova; then
             sudo cp $ABSOLUTE_PATH/midonet_rootwrap.filters /etc/nova/rootwrap.d/
+
             # Hack libvirt qemu conf to allow ethernet mode to run
             export LIBVIRT_QEMU_CONF='/etc/libvirt/qemu.conf'
             if [ ! $(sudo grep -q '^cgroup_device_acl' $LIBVIRT_QEMU_CONF) ]; then
