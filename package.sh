@@ -121,8 +121,7 @@ echo "DEB: version=$deb_version, revision=$deb_revision"
 FPM_BASE_ARGS=$(cat <<EOF
 --architecture 'noarch' \
 -d 'python-neutron' \
--d 'python-midonetclient' \
--s python
+-d 'python-midonetclient'
 EOF
 )
 
@@ -145,16 +144,27 @@ EOF
 }
 
 function package_rpm() {
-    create_cfg /usr/lib/python2.7/site-packages
-
     local args=$(cat << EOF
+-n 'python-neutron-plugin-midonet' \
+-s dir \
+--license '2014, Midokura' \
+--vendor 'Midokura' \
+--maintainer "Midokura" \
+--url 'http://midokura.com' \
+--description 'Neutron is a virtual network service for Openstack - Python library
+Neutron MidoNet plugin is a MidoNet virtual network service plugin for Openstack Neutron.' \
+-d 'python >= 2.6' -d 'python < 2.8' \
 --epoch 1
 --version $rpm_version
---iteration $rpm_revision \
--t rpm
+--iteration $rpm_revision
 EOF
 )
-    eval fpm $FPM_BASE_ARGS $args setup.py
+    RPM_BUILD_DIR=build/rpm/
+    mkdir -p $RPM_BUILD_DIR/usr/lib/python2.6/site-packages/
+    mkdir -p $RPM_BUILD_DIR/usr/lib/python2.7/site-packages/
+    cp -r midonet $RPM_BUILD_DIR/usr/lib/python2.6/site-packages/
+    cp -r midonet $RPM_BUILD_DIR/usr/lib/python2.7/site-packages/
+    eval fpm $FPM_BASE_ARGS $args -C $RPM_BUILD_DIR -t rpm .
 }
 
 function package_deb() {
@@ -167,7 +177,7 @@ function package_deb() {
 -t deb
 EOF
 )
-    eval fpm $FPM_BASE_ARGS $args setup.py
+    eval fpm -s python $FPM_BASE_ARGS $args setup.py
 }
 
 # Main
