@@ -102,7 +102,13 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
         # Consume from all consumers in a thread
         self.conn.consume_in_threads()
 
-    def _process_create_network(self, context, network):
+    def create_network(self, context, network):
+        """Create Neutron network.
+
+        Create a new Neutron network and its corresponding MidoNet bridge.
+        """
+        LOG.info(_LI('MidonetMixin.create_network called: network=%r'),
+                 network)
 
         net_data = network['network']
         tenant_id = self._get_tenant_id_for_create(context, net_data)
@@ -114,18 +120,6 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             task.create_task(context, task.CREATE, data_type=task.NETWORK,
                              resource_id=net['id'], data=net)
             self._process_l3_create(context, net, net_data)
-
-        return net
-
-    def create_network(self, context, network):
-        """Create Neutron network.
-
-        Create a new Neutron network and its corresponding MidoNet bridge.
-        """
-        LOG.info(_LI('MidonetMixin.create_network called: network=%r'),
-                 network)
-
-        net = self._process_create_network(context, network)
 
         LOG.info(_LI("MidonetMixin.create_network exiting: net=%r"), net)
         return net
@@ -203,8 +197,10 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
 
         return s
 
-    def _process_create_port(self, context, port):
+    def create_port(self, context, port):
         """Create a L2 port in Neutron/MidoNet."""
+        LOG.info(_LI("MidonetMixin.create_port called: port=%r"), port)
+
         port_data = port['port']
         with context.session.begin(subtransactions=True):
             # Create a Neutron port
@@ -231,25 +227,8 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             self._process_port_create_extra_dhcp_opts(context, new_port,
                                                       dhcp_opts)
 
-        return new_port
-
-    def create_port(self, context, port):
-        """Create a L2 port in Neutron/MidoNet."""
-        LOG.info(_LI("MidonetMixin.create_port called: port=%r"), port)
-
-        new_port = self._process_create_port(context, port)
-
         LOG.info(_LI("MidonetMixin.create_port exiting: port=%r"), new_port)
         return new_port
-
-    def _process_port_delete(self, context, id):
-        """Delete the Neutron and MidoNet ports"""
-        with context.session.begin(subtransactions=True):
-            super(MidonetMixin, self).disassociate_floatingips(
-                context, id, do_notify=False)
-            super(MidonetMixin, self).delete_port(context, id)
-            task.create_task(context, task.DELETE, data_type=task.PORT,
-                             resource_id=id)
 
     def delete_port(self, context, id, l3_port_check=True):
         """Delete a neutron port and corresponding MidoNet bridge port."""
@@ -262,20 +241,14 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
         if l3_port_check:
             self.prevent_l3_port_deletion(context, id)
 
-        self._process_port_delete(context, id)
+        with context.session.begin(subtransactions=True):
+            super(MidonetMixin, self).disassociate_floatingips(
+                context, id, do_notify=False)
+            super(MidonetMixin, self).delete_port(context, id)
+            task.create_task(context, task.DELETE, data_type=task.PORT,
+                             resource_id=id)
+
         LOG.info(_LI("MidonetMixin.delete_port exiting: id=%r"), id)
-
-    def _process_port_update(self, context, id, in_port, out_port):
-
-        has_sg = self._check_update_has_security_groups(in_port)
-        delete_sg = self._check_update_deletes_security_groups(in_port)
-
-        if delete_sg or has_sg:
-            # delete the port binding and read it with the new rules.
-            self._delete_port_security_group_bindings(context, id)
-            sg_ids = self._get_security_groups_on_port(context, in_port)
-            self._process_port_create_security_group(context, out_port, sg_ids)
-        self._update_extra_dhcp_opts_on_port(context, id, in_port, out_port)
 
     def update_port(self, context, id, port):
         """Handle port update, including security groups and fixed IPs."""
@@ -288,7 +261,16 @@ class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
             task.create_task(context, task.UPDATE, data_type=task.PORT,
                              resource_id=id, data=p)
 
-            self._process_port_update(context, id, port, p)
+            has_sg = self._check_update_has_security_groups(port)
+            delete_sg = self._check_update_deletes_security_groups(port)
+
+            if delete_sg or has_sg:
+                # delete the port binding and read it with the new rules.
+                self._delete_port_security_group_bindings(context, id)
+                sg_ids = self._get_security_groups_on_port(context, port)
+                self._process_port_create_security_group(context, p, sg_ids)
+            self._update_extra_dhcp_opts_on_port(context, id, port, p)
+
             self._process_portbindings_create_and_update(context,
                                                          port['port'], p)
 
