@@ -206,13 +206,14 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             # Create a Neutron port
             new_port = super(MidonetMixin, self).create_port(context, port)
             dhcp_opts = port['port'].get(edo_ext.EXTRADHCPOPTS, [])
-            task.create_task(context, task.CREATE, data_type=task.PORT,
-                             resource_id=new_port['id'], data=new_port)
 
             # Make sure that the port created is valid
             if "id" not in new_port:
                 raise n_exc.BadRequest(resource='port',
                                        msg="Invalid port created")
+
+            task.create_task(context, task.CREATE, data_type=task.PORT,
+                             resource_id=new_port['id'], data=new_port)
 
             # Update fields
             port_data.update(new_port)
