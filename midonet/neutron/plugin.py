@@ -54,23 +54,23 @@ _LE = i18n._LE
 _LI = i18n._LI
 
 
-class MidonetMixin(db_base_plugin_v2.NeutronDbPluginV2,
-                   portbindings_db.PortBindingMixin,
+class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
+                   am_db.AgentMembershipDbMixin,
+                   db_base_plugin_v2.NeutronDbPluginV2,
                    external_net_db.External_net_db_mixin,
                    extradhcpopt_db.ExtraDhcpOptMixin,
                    l3_gwmode_db.L3_NAT_db_mixin,
-                   agentschedulers_db.DhcpAgentSchedulerDbMixin,
-                   securitygroups_db.SecurityGroupDbMixin,
-                   rsi_db.RoutedServiceInsertionDbMixin,
                    loadbalancer_db.LoadBalancerPluginDb,
-                   task.MidoClusterMixin,
-                   am_db.AgentMembershipDbMixin):
+                   portbindings_db.PortBindingMixin,
+                   rsi_db.RoutedServiceInsertionDbMixin,
+                   securitygroups_db.SecurityGroupDbMixin,
+                   task.MidoClusterMixin):
 
     supported_extension_aliases = ['agent-membership',
                                    'cluster',
                                    'extra_dhcp_opt',
-                                   'routed-service-insertion',
-                                   'lbaas']
+                                   'lbaas',
+                                   'routed-service-insertion']
 
     def __init__(self):
         super(MidonetMixin, self).__init__()
