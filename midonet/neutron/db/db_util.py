@@ -19,6 +19,14 @@ from neutron_lbaas.db.loadbalancer import loadbalancer_db as lb_db
 from sqlalchemy.orm import exc
 
 
+class InvalidMidonetDataState(Exception):
+    """
+    Exception to signify a state in the midonet tables that is invalid,
+    i.e. missing some table that should always be present
+    """
+    pass
+
+
 def get_by_model_id(context, model, object_id):
     objects = context.session.query(model)
     objects = objects.filter(model.id == object_id)

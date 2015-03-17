@@ -14,6 +14,7 @@
 
 import collections
 import datetime
+import midonet.neutron.db.data_state_db as ds_db
 from neutron.common import exceptions as n_exc
 from neutron.db import model_base
 from neutron import i18n
@@ -48,22 +49,12 @@ AGENT_MEMBERSHIP = "AGENTMEMBERSHIP"
 OP_IMPORT = 'IMPORT'
 OP_FLUSH = 'FLUSH'
 
-DATA_STATE_TABLE = 'midonet_data_state'
+
 DATA_VERSIONS_TABLE = 'midonet_data_versions'
 TASK_STATE_TABLE = 'midonet_task_state'
 
 LOG = logging.getLogger(__name__)
 _LI = i18n._LI
-
-
-class DataState(model_base.BASEV2):
-    __tablename__ = DATA_STATE_TABLE
-    id = sa.Column(sa.Integer(), primary_key=True)
-    last_processed_id = sa.Column(sa.Integer(),
-                                  sa.ForeignKey('midonet_tasks.id'))
-    updated_at = sa.Column(sa.DateTime(), nullable=False)
-    active_version = sa.Column(sa.Integer())
-    readonly = sa.Column(sa.Boolean(), nullable=False)
 
 
 class Task(model_base.BASEV2):
@@ -94,7 +85,7 @@ def get_current_task_data(session):
 def get_task_list(session, show_unprocessed):
     tasks = session.query(Task)
     if show_unprocessed:
-        task_state = session.query(DataState).one()
+        task_state = session.query(ds_db.DataState).one()
         lp_id = task_state.last_processed_id
         if lp_id is not None:
             tasks = tasks.filter(Task.id > lp_id)
@@ -102,7 +93,7 @@ def get_task_list(session, show_unprocessed):
 
 
 def task_clean(session):
-    task_state = session.query(DataState).one()
+    task_state = session.query(ds_db.DataState).one()
     lp_id = task_state.last_processed_id
     task_state.update({'last_processed_id': None,
                        'updated_at': datetime.datetime.utcnow()})
