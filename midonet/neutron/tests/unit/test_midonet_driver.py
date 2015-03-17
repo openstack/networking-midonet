@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright (C) 2012 Midokura Japan K.K.
 # Copyright (C) 2013 Midokura PTE LTD
 # All Rights Reserved.
@@ -20,11 +18,11 @@ import mock
 import sys
 sys.modules["midonetclient"] = mock.Mock()
 
+import midonet.neutron.agent.midonet_driver as driver
+
 from neutron.agent.common import config
 from neutron.agent.linux import dhcp
 from neutron.common import config as base_config
-
-import midonet.neutron.agent.midonet_driver as driver
 from neutron.tests import base
 
 
@@ -34,6 +32,7 @@ class FakeNetwork:
 
 
 class TestDhcpNoOpDriver(base.BaseTestCase):
+
     def setUp(self):
         super(TestDhcpNoOpDriver, self).setUp()
         self.conf = config.setup_conf()
