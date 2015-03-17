@@ -26,7 +26,6 @@ from midonet.neutron import api
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import util
 from midonet.neutron.db import db_util
-from midonet.neutron.db import task
 from midonet.neutron import extensions
 from midonetclient import client
 
@@ -69,8 +68,7 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                       securitygroups_db.SecurityGroupDbMixin,
                       rsi_db.RoutedServiceInsertionDbMixin,
                       loadbalancer_db.LoadBalancerPluginDb,
-                      api.MidoNetApiMixin,
-                      task.MidoClusterMixin):
+                      api.MidoNetApiMixin):
 
     supported_extension_aliases = ['agent',
                                    'binding',
@@ -670,8 +668,6 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                                       vip['vip']['pool_id'])
 
             v = super(MidonetPluginV2, self).create_vip(context, vip)
-            task.create_task(context, task.CREATE, data_type_id=task.VIP,
-                             resource_id=v['id'], data=v)
             self.api_cli.create_vip(v)
             v['status'] = constants.ACTIVE
             self.update_status(context, loadbalancer_db.Vip, v['id'],
