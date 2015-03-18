@@ -17,14 +17,15 @@
 
 import datetime
 import functools
+import mock
+import sys
 
 from midonet.neutron.db import agent_membership_db  # noqa
 from midonet.neutron.db import data_state_db  # noqa
 from midonet.neutron.db import data_version_db as dv_db
 from midonet.neutron.db import port_binding_db as pb_db
-from midonet.neutron.db import routedserviceinsertion_db  # noqa
 from midonet.neutron.db import task_db  # noqa
-import mock
+
 from neutron import context
 from neutron.db import api as db_api
 from neutron.extensions import portbindings
@@ -38,11 +39,9 @@ from neutron.tests.unit.extensions import test_l3 as test_l3_plugin
 from neutron.tests.unit.extensions import test_l3_ext_gw_mode as test_gw_mode
 from neutron.tests.unit.extensions import test_securitygroup as test_sg
 from neutron.tests.unit import testlib_api
-from neutron_lbaas.db.loadbalancer import loadbalancer_db as lb_db  # noqa
 from sqlalchemy.orm import sessionmaker
 from webob import exc
 
-import sys
 sys.modules["midonetclient"] = mock.Mock()
 sys.modules["midonetclient.topology"] = mock.Mock()
 from midonet.neutron.rpc import topology_client as top  # noqa
@@ -71,7 +70,7 @@ class MidonetPluginV2TestCase(test_plugin.NeutronDbPluginV2TestCase):
         # by the common configuration setUp.
         parent_setup = functools.partial(
             super(MidonetPluginV2TestCase, self).setUp,
-            plugin=MidonetPluginConf.plugin_name,
+            plugin=MidonetPluginConf.plugin_name
         )
         MidonetPluginConf.setUp(self, parent_setup)
 

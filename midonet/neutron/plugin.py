@@ -20,10 +20,8 @@ from midonet.neutron.common import config  # noqa
 from midonet.neutron.db import agent_membership_db as am_db
 from midonet.neutron.db import db_util
 from midonet.neutron.db import port_binding_db as pb_db
-from midonet.neutron.db import routedserviceinsertion_db as rsi_db
 from midonet.neutron.db import task_db as task
 from midonet.neutron import extensions
-from midonet.neutron.extensions import routedserviceinsertion as rsi
 from midonet.neutron.rpc import topology_client as top
 from neutron.api import extensions as neutron_extensions
 from neutron.api.rpc.handlers import dhcp_rpc
@@ -65,16 +63,14 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                    extraroute_db.ExtraRoute_db_mixin,
                    l3_gwmode_db.L3_NAT_db_mixin,
                    loadbalancer_db.LoadBalancerPluginDb,
+                   pb_db.MidonetPortBindingMixin,
                    portbindings_db.PortBindingMixin,
-                   rsi_db.RoutedServiceInsertionDbMixin,
-                   securitygroups_db.SecurityGroupDbMixin,
-                   pb_db.MidonetPortBindingMixin):
+                   securitygroups_db.SecurityGroupDbMixin):
 
     supported_extension_aliases = ['agent-membership',
                                    'extra_dhcp_opt',
                                    'extraroute',
-                                   'lbaas',
-                                   'routed-service-insertion']
+                                   'lbaas']
 
     def __init__(self):
         super(MidonetMixin, self).__init__()
@@ -626,7 +622,12 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
     def create_pool(self, context, pool):
         LOG.debug("MidonetMixin.create_pool called: %(pool)r", {'pool': pool})
+
         subnet = db_util.get_subnet(context, pool['pool']['subnet_id'])
+        if subnet is None:
+            msg = (_LE("subnet does not exist"))
+            raise n_exc.BadRequest(resource='pool', msg=msg)
+
         if db_util.is_subnet_external(context, subnet):
             msg = (_LE("pool subnet must not be public"))
             raise n_exc.BadRequest(resource='subnet', msg=msg)
@@ -639,25 +640,15 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         pool['pool'].update({'router_id': router_id})
 
-        if self._get_resource_router_id_binding(context, loadbalancer_db.Pool,
-                                                router_id=router_id):
-            msg = (_LE("A pool is already associated with the router"))
-            raise n_exc.BadRequest(resource='router', msg=msg)
-
         with context.session.begin(subtransactions=True):
             p = super(MidonetMixin, self).create_pool(context, pool)
-            task.create_task(context, task.CREATE, data_type=task.POOL,
-                             resource_id=p['id'], data=p)
-            res = {
-                'id': p['id'],
-                rsi.ROUTER_ID: router_id
-            }
-            self._process_create_resource_router_id(context, res,
-                                                    loadbalancer_db.Pool)
-            p[rsi.ROUTER_ID] = router_id
+
             p['status'] = constants.ACTIVE
             self.update_status(context, loadbalancer_db.Pool, p['id'],
                                p['status'])
+
+            task.create_task(context, task.CREATE, data_type=task.POOL,
+                             resource_id=p['id'], data=p)
 
         LOG.debug("MidonetMixin.create_pool exiting: %(pool)r", {'pool': p})
         return p
@@ -679,8 +670,6 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         LOG.debug("MidonetMixin.delete_pool called: %(id)r", {'id': id})
 
         with context.session.begin(subtransactions=True):
-            self._delete_resource_router_id_binding(context, id,
-                                                    loadbalancer_db.Pool)
             super(MidonetMixin, self).delete_pool(context, id)
             task.create_task(context, task.DELETE, data_type=task.POOL,
                              resource_id=id)
