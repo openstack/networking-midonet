@@ -15,11 +15,14 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import datetime
 import functools
 
 from midonet.neutron.db import agent_membership_db  # noqa
+from midonet.neutron.db import data_state_db  # noqa
 from midonet.neutron.db import routedserviceinsertion_db  # noqa
 from midonet.neutron.db import task_db  # noqa
+from neutron.db import api as db_api
 from neutron.extensions import portbindings
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 import neutron.tests.unit.test_db_plugin as test_plugin
@@ -28,7 +31,9 @@ from neutron.tests.unit import test_extension_extradhcpopts as test_dhcpopts
 from neutron.tests.unit import test_extension_extraroute as test_ext_route
 import neutron.tests.unit.test_extension_security_group as sg
 import neutron.tests.unit.test_l3_plugin as test_l3_plugin
+from neutron.tests.unit import testlib_api
 from neutron_lbaas.db.loadbalancer import loadbalancer_db as lb_db  # noqa
+from sqlalchemy.orm import sessionmaker
 
 PLUGIN_NAME = 'neutron.plugins.midonet.plugin.MidonetPluginV2'
 
@@ -129,3 +134,32 @@ class TestExtraDHCPOpts(MidonetPluginV2TestCase,
 class TestMidonetExtraRouteTestCase(MidonetPluginV2TestCase,
                                     test_ext_route.ExtraRouteDBIntTestCase):
     pass
+
+
+class TestMidonetDataState(testlib_api.SqlTestCase):
+
+    def setUp(self):
+        super(TestMidonetDataState, self).setUp()
+        self.session = self.get_session()
+        self.session.add(data_state_db.DataState(
+            updated_at=datetime.datetime.utcnow(),
+            readonly=False))
+
+    def get_session(self):
+        engine = db_api.get_engine()
+        Session = sessionmaker(bind=engine)
+        return Session()
+
+    def test_data_show(self):
+        ds = data_state_db.get_data_state(self.session)
+        self.assertTrue(ds.id is not None)
+
+    def test_data_state_readonly(self):
+        data_state_db.set_readonly(self.session)
+        ds = data_state_db.get_data_state(self.session)
+        self.assertTrue(ds.readonly)
+        # TODO(Joe) - creating tasks should fail here. Implement
+        # with further task_db changes coming in data sync
+        data_state_db.set_readwrite(self.session)
+        ds = data_state_db.get_data_state(self.session)
+        self.assertTrue(not ds.readonly)

@@ -15,6 +15,7 @@
 import os
 
 from alembic import config as alembic_config
+import midonet.neutron.db.data_state_db as ds_db
 from midonet.neutron.db import task_db
 from neutron.db.migration import cli as n_cli
 from oslo_config import cfg
@@ -26,15 +27,23 @@ from sqlalchemy.orm import sessionmaker
 CONF = n_cli.CONF
 
 
-def get_session(connection):
+def get_session(config):
+    connection = config.neutron_config.database.connection
     engine = create_engine(connection)
     Session = sessionmaker(bind=engine)
     return Session()
 
 
 def task_list(config, cmd):
-    connection = config.neutron_config.database.connection
-    session = get_session(connection)
+    """
+    Lists all of the tasks in the task table. Optionally filters tasks
+    to show unprocessed tasks.
+
+    :param config: contains neutron configuration, like database connection.
+    :param cmd: unused, but needed in the function signature by the command
+        parser.
+    """
+    session = get_session(config)
     printer = config.print_stdout
     line = "%-7s%-11s%-20s%-40s%-20s"
     printer(line, "id", "type", "data type", "resource id", "time")
@@ -49,14 +58,29 @@ def task_list(config, cmd):
 
 
 def task_clean(config, cmd):
-    connection = config.neutron_config.database.connection
-    session = get_session(connection)
+    """
+    Removes all of the tasks that have been processed by the cluster from
+    the task table.
+
+    :param config: contains neutron configuration, like database connection.
+    :param cmd: unused, but needed in the function signature by the command
+        parser.
+    """
+    session = get_session(config)
     task_db.task_clean(session)
 
 
 def task_resource(config, cmd):
-    connection = config.neutron_config.database.connection
-    session = get_session(connection)
+    """
+    Lists all of the resources represented in the contents of the task table.
+    This will only show the most updated information, and it will not
+    consider resources that have been removed from the task table.
+
+    :param config: contains neutron configuration, like database connection.
+    :param cmd: unused, but needed in the function signature by the command
+        parser.
+    """
+    session = get_session(config)
     printer = config.print_stdout
     data = task_db.get_current_task_data(session)
     for data_type in data:
@@ -67,15 +91,46 @@ def task_resource(config, cmd):
 
 
 def data_show(config, cmd):
-    pass
+    """
+    Dumps the contents of the data state table.
+
+    :param config: contains neutron configuration, like database connection.
+    :param cmd: unused, but needed in the function signature by the command
+        parser.
+    """
+    session = get_session(config)
+    printer = config.print_stdout
+    data_state = ds_db.get_data_state(session)
+    line = "%-25s : %s"
+    printer(line, "last processed task id", data_state.last_processed_task_id)
+    printer(line, "last updated", data_state.updated_at)
+    printer(line, "active version", data_state.active_version)
+    readonly = "True" if data_state.readonly else "False"
+    printer(line, "read only", readonly)
 
 
 def data_readonly(config, cmd):
-    pass
+    """
+    Sets the task table access state to "read only"
+
+    :param config: contains neutron configuration, like database connection.
+    :param cmd: unused, but needed in the function signature by the command
+        parser.
+    """
+    session = get_session(config)
+    ds_db.set_readonly(session)
 
 
 def data_readwrite(config, cmd):
-    pass
+    """
+    Sets the task table access state to "read and write"
+
+    :param config: contains neutron configuration, like database connection.
+    :param cmd: unused, but needed in the function signature by the command
+        parser.
+    """
+    session = get_session(config)
+    ds_db.set_readwrite(session)
 
 
 def data_version_list(config, cmd):
