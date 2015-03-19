@@ -66,6 +66,30 @@ def task_resource(config, cmd):
             printer(jsonutils.dumps(data_json, indent=4, sort_keys=True))
 
 
+def data_show(config, cmd):
+    pass
+
+
+def data_readonly(config, cmd):
+    pass
+
+
+def data_readwrite(config, cmd):
+    pass
+
+
+def data_version_list(config, cmd):
+    pass
+
+
+def data_version_sync(config, cmd):
+    pass
+
+
+def data_version_activate(config, cmd):
+    pass
+
+
 def add_command_parsers(subparsers):
     n_cli.add_command_parsers(subparsers)
     parser = subparsers.add_parser('task-list')
@@ -75,6 +99,19 @@ def add_command_parsers(subparsers):
     parser.set_defaults(func=task_clean)
     parser = subparsers.add_parser('task-resource')
     parser.set_defaults(func=task_resource)
+    parser = subparsers.add_parser('data-show')
+    parser.set_defaults(func=data_show)
+    parser = subparsers.add_parser('data-readonly')
+    parser.set_defaults(func=data_readonly)
+    parser = subparsers.add_parser('data-readwrite')
+    parser.set_defaults(func=data_readwrite)
+    parser = subparsers.add_parser('data-version-list')
+    parser.set_defaults(func=data_version_list)
+    parser = subparsers.add_parser('data-version-sync')
+    parser.set_defaults(func=data_version_sync)
+    parser = subparsers.add_parser('data-version-activate')
+    parser.set_defaults(func=data_version_activate)
+
 
 command_opt = cfg.SubCommandOpt('command',
                                 title='Command',
