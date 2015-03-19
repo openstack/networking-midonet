@@ -16,6 +16,7 @@ import os
 
 from alembic import config as alembic_config
 import midonet.neutron.db.data_state_db as ds_db
+import midonet.neutron.db.data_version_db as dv_db
 from midonet.neutron.db import task_db
 from neutron.db.migration import cli as n_cli
 from oslo_config import cfg
@@ -134,7 +135,21 @@ def data_readwrite(config, cmd):
 
 
 def data_version_list(config, cmd):
-    pass
+    """
+    Lists the statuses of the versions in the midonet data version table.
+
+    :param config: contains neutron configuration, like database connection.
+    :param cmd: unused, but needed in the function signature by the command
+        parser.
+    """
+    session = get_session(config)
+    data_versions = dv_db.get_data_versions(session)
+    printer = config.print_stdout
+    line = "%-7s%-20s%-20s%-10s"
+    printer(line, "id", "sync_status", "sync_tasks_status", "stale")
+    printer(line, "--", "-----------", "-----------------", "-----")
+    for dv in data_versions:
+        printer(line, dv.id, dv.sync_status, dv.sync_tasks_status, dv.stale)
 
 
 def data_version_sync(config, cmd):
