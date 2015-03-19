@@ -167,7 +167,7 @@ session.  Once the operator sets the API to read-write, none of the previously
 synced data could be chosen for a rollback.  You can only rollback to the data
 sync that was completed in the same read-only session.  The operator is
 expected to do all the necessary verifications of the completed data sync
-before the data access is set back to reat-write.  When the data is set back to
+before the data access is set back to read-write.  When the data is set back to
 read-write, midonet-db-manage sets the 'stale' field of all the non-active data
 versions to true.
 
@@ -177,7 +177,7 @@ sets the 'task_status' to COMPLETED.  Cluster, when it finishes the activation
 process, updates 'sync_status' to COMPLETED, and 'active_data_version' field of
 the midonet-data-state table to the activated version.
 
-You can not go back to the readwrite mode if either 'task_status' or
+You can not go back to the read-write mode if either 'task_status' or
 'sync_status' field is set to STARTED.
 
 
@@ -276,13 +276,13 @@ the write access and the last processed task:
     midonet-db-manage data-show
 
 
-The following command sets the Neutron data to be readonly:
+The following command sets the Neutron data to be read-only:
 
 ::
     midonet-db-manage data-readonly
 
 
-The following command sets the Neutron data to be readwrite:
+The following command sets the Neutron data to be read-write:
 
 ::
     midonet-db-manage data-readwrite
