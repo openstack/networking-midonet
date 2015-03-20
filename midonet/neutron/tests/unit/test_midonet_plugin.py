@@ -32,6 +32,8 @@ from midonet.neutron import plugin as mn_plugin
 from neutron import context
 from neutron.db import api as db_api
 from neutron.extensions import portbindings
+from neutron.extensions import providernet as pnet
+from neutron.plugins.common import constants as p_const
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 from neutron.tests.unit.api import test_extensions
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_plugin
@@ -44,7 +46,6 @@ from neutron.tests.unit import testlib_api
 
 from oslo_config import cfg
 from oslo_utils import uuidutils
-
 
 PLUGIN_NAME = 'neutron.plugins.midonet.plugin.MidonetPluginV2'
 TEST_MN_CLIENT = ('midonet.neutron.tests.unit.test_midonet_plugin.'
@@ -67,7 +68,7 @@ class MidonetPluginConf(object):
         """Perform additional configuration around the parent's setUp."""
         cfg.CONF.set_override('client', TEST_MN_CLIENT, group='MIDONET')
         cfg.CONF.set_override('extra_extensions',
-                              ['agent-membership', 'extraroute'],
+                              ['agent-membership', 'extraroute', 'provider'],
                               group='MIDONET')
         if parent_setup:
             parent_setup()
@@ -428,3 +429,101 @@ class TestMidonetDataVersion(testlib_api.SqlTestCase):
     def test_update_version_status_aborted(self):
         self._test_version_status(dv_db.abort_last_version,
                                   dv_db.ABORTED)
+
+
+class TestMidonetProviderNet(MidonetPluginV2TestCase):
+
+    @contextlib.contextmanager
+    def provider_net(self, name='name1', net_type=p_const.TYPE_LOCAL,
+                     admin_state_up=True):
+        args = {pnet.NETWORK_TYPE: net_type,
+                'tenant_id': 'admin'}
+        net = self._make_network(self.fmt, name, admin_state_up,
+                                 arg_list=(pnet.NETWORK_TYPE, 'tenant_id'),
+                                 **args)
+        yield net
+
+    def test_create_provider_net(self):
+        keys = [(pnet.NETWORK_TYPE, p_const.TYPE_LOCAL),
+                ('name', 'name1')]
+        with self.provider_net() as net:
+            for k, v in keys:
+                self.assertEqual(net['network'][k], v)
+
+    def test_create_provider_net_with_bogus_type(self):
+        # Create with a bogus network type
+        args = {'network': {pnet.NETWORK_TYPE: "random",
+                            'tenant_id': 'admin'}}
+        req = self.new_create_request('networks', args, self.fmt)
+        res = req.get_response(self.api)
+        self.assertEqual(res.status_int, 400)
+
+    def test_create_provider_net_with_unsupported_type(self):
+        # Create with a bogus network type
+        args = {'network': {pnet.NETWORK_TYPE: "vlan",
+                            'tenant_id': 'admin'}}
+        req = self.new_create_request('networks', args, self.fmt)
+        res = req.get_response(self.api)
+        self.assertEqual(res.status_int, 400)
+
+    def test_create_provider_net_with_phys_net(self):
+        # Create with a bogus network type
+        args = {'network': {pnet.NETWORK_TYPE: "local",
+                            pnet.PHYSICAL_NETWORK: "phys_net",
+                            'tenant_id': 'admin'}}
+        req = self.new_create_request('networks', args, self.fmt)
+        res = req.get_response(self.api)
+        self.assertEqual(res.status_int, 400)
+
+    def test_create_provider_net_with_segmentation(self):
+        # Create with a bogus network type
+        args = {'network': {pnet.NETWORK_TYPE: "local",
+                            pnet.SEGMENTATION_ID: "seg",
+                            'tenant_id': 'admin'}}
+        req = self.new_create_request('networks', args, self.fmt)
+        res = req.get_response(self.api)
+        self.assertEqual(res.status_int, 400)
+
+    def test_update_provider_net_unsupported(self):
+        # Update including the network type is not supported
+        with self.provider_net() as net:
+            args = {"network": {"name": "foo",
+                                pnet.NETWORK_TYPE: "local"}}
+            req = self.new_update_request('networks', args,
+                                          net['network']['id'])
+            res = req.get_response(self.api)
+            self.assertEqual(res.status_int, 400)
+
+    def test_delete_provider_net(self):
+        with self.provider_net() as net:
+            req = self.new_delete_request('networks', net['network']['id'])
+            res = req.get_response(self.api)
+            self.assertEqual(res.status_int, exc.HTTPNoContent.code)
+
+    def test_show_provider_net(self):
+        with self.provider_net() as net:
+            req = self.new_show_request('networks', net['network']['id'])
+            res = self.deserialize(self.fmt, req.get_response(self.api))
+            self.assertEqual(res['network'][pnet.NETWORK_TYPE], "local")
+
+    def test_list_provider_nets(self):
+        # Create two local prov nets and retrieve them
+        with self.provider_net():
+            with self.provider_net(name="net2"):
+                req = self.new_list_request('networks')
+                res = self.deserialize(
+                    self.fmt, req.get_response(self.api))
+                self.assertEqual(len(res['networks']), 2)
+                for res_net in res['networks']:
+                    self.assertEqual(res_net[pnet.NETWORK_TYPE], 'local')
+
+    def test_list_provider_nets_filtered_by_invalid_type(self):
+        # Search a list of two provider networks with type local with type vlan
+        with self.provider_net(name="net2"):
+            with self.provider_net(name="net2"):
+                params_str = "%s=%s" % (pnet.NETWORK_TYPE, 'vlan')
+                req = self.new_list_request('networks', None,
+                                            params=params_str)
+                res = self.deserialize(
+                    self.fmt, req.get_response(self.api))
+                self.assertEqual(len(res['networks']), 0)
