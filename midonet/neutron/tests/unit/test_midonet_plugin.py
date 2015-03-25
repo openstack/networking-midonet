@@ -19,8 +19,9 @@ import datetime
 import functools
 
 from midonet.neutron.db import agent_membership_db  # noqa
-from midonet.neutron.db import data_state_db
+from midonet.neutron.db import data_state_db  # noqa
 from midonet.neutron.db import data_version_db as dv_db
+from midonet.neutron.db import port_binding_db as pb_db
 from midonet.neutron.db import routedserviceinsertion_db  # noqa
 from midonet.neutron.db import task_db  # noqa
 import mock
@@ -119,6 +120,54 @@ class TestMidonetPortsV2(MidonetPluginV2TestCase,
         with self.port(name='myname') as port:
             self.assertEqual('midonet', port['port']['binding:vif_type'])
             self.assertTrue(port['port']['admin_state_up'])
+
+    def test_profile_port_binding(self):
+        profile_arg = {portbindings.PROFILE: {'interface_name':
+                                              'test_if_name'},
+                       portbindings.HOST_ID: 'test_host'}
+        engine = db_api.get_engine()
+        session = sessionmaker(bind=engine)()
+        with self.port(arg_list=(portbindings.PROFILE, portbindings.HOST_ID,),
+                       **profile_arg) as port:
+            if_name = port['port'][portbindings.PROFILE]['interface_name']
+            self.assertEqual('test_if_name', if_name)
+            bindings = session.query(pb_db.PortBindingInfo)
+            binding = bindings.filter(
+                pb_db.PortBindingInfo.port_id == port['port']['id']).one()
+            self.assertEqual('test_if_name', binding.interface_name)
+            self._delete('ports', port['port']['id'])
+        bindings = session.query(pb_db.PortBindingInfo)
+        bindings = bindings.filter(
+            pb_db.PortBindingInfo.port_id == port['port']['id']).all()
+        self.assertEqual(0, len(bindings))
+
+    def test_profile_port_binding_validation(self):
+        profile_arg = {portbindings.PROFILE: {'interface_name':
+                                              'test_if_name'},
+                       portbindings.HOST_ID: 'test_host'}
+        engine = db_api.get_engine()
+        session = sessionmaker(bind=engine)()
+        with self.port(arg_list=(portbindings.PROFILE, portbindings.HOST_ID,),
+                       **profile_arg) as port:
+            bindings = session.query(pb_db.PortBindingInfo)
+            bindings.filter(
+                pb_db.PortBindingInfo.port_id == port['port']['id']).one()
+            self._delete('ports', port['port']['id'])
+
+    def test_profile_port_binding_validation_no_profile(self):
+        profile_arg = {portbindings.HOST_ID: 'test_host'}
+        with self.port(arg_list=(portbindings.PROFILE, ),
+                       **profile_arg) as port:
+            self._delete('ports', port['port']['id'])
+
+    def test_profile_port_binding_validation_ho_host(self):
+        profile_arg = {portbindings.PROFILE: {'interface_name':
+                                              'test_if_name'}}
+        try:
+            with self.port(arg_list=(portbindings.PROFILE,), **profile_arg):
+                self.assertTrue(False)
+        except exc.HTTPClientError:
+            pass
 
 
 class TestMidonetPortBinding(MidonetPluginV2TestCase,

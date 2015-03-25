@@ -19,7 +19,7 @@ Create Date: 2015-02-16 05:24:01.270141
 
 """
 
-PORT_BINDING_TABLE_NAME = 'midonet_port_binding'
+PORT_BINDING_TABLE_NAME = 'midonet_port_bindings'
 
 # revision identifiers, used by Alembic.
 revision = '3fe2bca71c72'
@@ -32,30 +32,13 @@ import sqlalchemy as sa
 def add_port_binding_table():
     op.create_table(
         PORT_BINDING_TABLE_NAME,
-        sa.Column('id', sa.String(length=36), primary_key=True),
-        sa.Column('port_id', sa.String(length=36), nullable=False),
-        sa.Column('host_id', sa.String(length=36), nullable=False),
-        sa.Column('interface_name', sa.String(length=16), nullable=False))
-
-
-def add_binding_data_type():
-    op.execute("INSERT INTO midonet_data_types "
-               "(id, name) ""VALUES (12, 'port_binding')")
-
-
-def drop_port_binding_table():
-    op.drop_table(PORT_BINDING_TABLE_NAME)
-
-
-def remove_binding_data_type():
-    op.execute("DELETE FROM midonet_data_types WHERE name='port_binding'")
+        sa.Column('port_id', sa.String(length=36), sa.ForeignKey('ports.id'),
+                  nullable=False, primary_key=True),
+        sa.Column('interface_name', sa.String(length=255), nullable=False),
+        sa.ForeignKeyConstraint(['port_id'], ['portbindingports.port_id'],
+                                ondelete='CASCADE'),
+        sa.PrimaryKeyConstraint('port_id'))
 
 
 def upgrade():
     add_port_binding_table()
-    add_binding_data_type()
-
-
-def downgrade():
-    remove_binding_data_type()
-    drop_port_binding_table()
