@@ -19,7 +19,6 @@
 import mock
 import os
 
-from midonet.neutron.db import task  # noqa
 from neutron.extensions import portbindings
 from neutron.openstack.common import importutils
 from neutron.tests.unit import _test_extension_portbindings as test_bindings

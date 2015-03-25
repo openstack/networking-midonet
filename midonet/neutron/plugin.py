@@ -1,5 +1,3 @@
-# vim: tabstop=4 shiftwidth=4 softtabstop=4
-
 # Copyright (C) 2012 Midokura Japan K.K.
 # Copyright (C) 2013 Midokura PTE LTD
 # Copyright (C) 2014 Midokura SARL.
@@ -22,14 +20,11 @@
 from oslo.config import cfg
 from oslo.db import exception as db_exc
 
-from midonet.neutron import api
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import util
 from midonet.neutron.db import db_util
-from midonet.neutron import extensions
 from midonetclient import client
 
-from neutron.api import extensions as neutron_extensions
 from neutron.api.rpc.handlers import dhcp_rpc
 from neutron.common import constants as n_const
 from neutron.common import exceptions as n_exc
@@ -67,34 +62,18 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                       agentschedulers_db.DhcpAgentSchedulerDbMixin,
                       securitygroups_db.SecurityGroupDbMixin,
                       rsi_db.RoutedServiceInsertionDbMixin,
-                      loadbalancer_db.LoadBalancerPluginDb,
-                      api.MidoNetApiMixin):
+                      loadbalancer_db.LoadBalancerPluginDb):
 
     supported_extension_aliases = ['agent',
                                    'binding',
-                                   'bgp',
-                                   'cluster',
-                                   'chain-rule',
                                    'dhcp_agent_scheduler',
                                    'external-net',
                                    'extra_dhcp_opt',
-                                   'ip-addr-group',
-                                   'license',
-                                   'midonet-subnet',
                                    'router',
-                                   'host',
-                                   'bridge',
-                                   'midonet-port',
-                                   'midonet-router',
-                                   'port-group',
                                    'quotas',
                                    'security-group',
-                                   'system',
                                    'routed-service-insertion',
-                                   'routing-table',
-                                   'vtep',
-                                   'lbaas',
-                                   'tunnelzone']
+                                   'lbaas']
     __native_bulk_support = True
 
     def __init__(self):
@@ -102,7 +81,6 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         # Instantiate MidoNet API client
         conf = cfg.CONF.MIDONET
-        neutron_extensions.append_api_extensions_path(extensions.__path__)
         self.api_cli = client.MidonetClient(conf.midonet_uri, conf.username,
                                             conf.password,
                                             project_id=conf.project_id)

@@ -20,9 +20,6 @@ import setuptools
 setuptools.setup(
     author='MidoNet',
     author_email='midonet-dev@midonet.org',
-    entry_points={
-        'console_scripts': [
-            'midonet-db-manage = midonet.neutron.db.migration.cli:main']},
     description='Openstack Neutron MidoNet plugin',
     license="Apache License, Version 2.0",
     long_description=open("README.rst").read(),
