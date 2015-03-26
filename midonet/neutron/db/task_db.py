@@ -12,10 +12,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import collections
 import datetime
 import midonet.neutron.db.data_state_db as ds_db
-from neutron.common import exceptions as n_exc
 from neutron.db import model_base
 from neutron import i18n
 from oslo_log import log as logging
@@ -125,76 +123,3 @@ def create_config_task(session, data):
                   resource_id=data['id'],
                   transaction_id=str(uuid.uuid4()))
         session.add(db)
-
-
-class MidonetClusterException(n_exc.NeutronException):
-    message = _("Midonet Cluster Error: %(msg)s")
-
-
-class MidoClusterMixin(object):
-
-    def _flush(self, context):
-        try:
-            context.session.execute('LOCK TABLES midonet_tasks WRITE')
-            with context.session.begin(subtransactions=True):
-                context.session.execute('TRUNCATE TABLE midonet_tasks')
-                create_task(context, FLUSH, task_id=1)
-        finally:
-            context.session.execute('UNLOCK TABLES')
-
-    def _import(self, context):
-        try:
-            # lock the entire database so we can take a snapshot of the
-            # data we need.
-            context.session.execute('FLUSH TABLES WITH READ LOCK')
-
-            database = collections.OrderedDict({
-                NETWORK: self.get_networks(context),
-                SUBNET: self.get_subnets(context),
-                PORT: self.get_ports(context),
-                ROUTER: self.get_routers(context),
-                FLOATING_IP: self.get_floatingips(context),
-                SECURITY_GROUP: self.get_security_groups(context),
-                SECURITY_GROUP_RULE: self.get_security_group_rules(context),
-                POOL: self.get_pools(context),
-                VIP: self.get_vips(context),
-                HEALTH_MONITOR: self.get_health_monitors(context),
-                MEMBER: self.get_members(context)})
-
-            # record how much items we have processed so far. We compare
-            # this to another count after we lock midonet_tasks to make
-            # sure nothing snuck in between the locks.
-            task_count = context.session.query(Task).count()
-        finally:
-            context.session.execute('UNLOCK TABLES')
-        try:
-            context.session.execute('LOCK TABLES midonet_tasks WRITE')
-            with context.session.begin(subtransactions=True):
-                if task_count != context.session.query(Task).count():
-                    error_msg = ("The database has been updated while the "
-                                 "rebuild operation is in progress")
-                    raise MidonetClusterException(msg=error_msg)
-
-                for key in database:
-                    for item in database[key]:
-                        create_task(context, CREATE, data_type=key,
-                                    resource_id=item['id'], data=item)
-        finally:
-            context.session.execute('UNLOCK TABLES')
-
-    def create_cluster(self, context, cluster):
-        LOG.info(_LI('MidoClusterMixin.create_cluster called: cluster=%r'),
-                 cluster)
-
-        op = cluster['cluster']['op']
-        if op == OP_FLUSH:
-            self._flush(context)
-        elif op == OP_IMPORT:
-            self._import(context)
-
-        # Neutron assumes that any create_* call returns a dictionary. Even
-        # though we do nothing with 'cluster', we still return it back to
-        # neutron to satisfy this assumption.
-        LOG.info(_LI("MidoClusterMixin.create_cluster exiting: cluster=%r"),
-                 cluster)
-        return cluster

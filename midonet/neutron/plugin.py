@@ -66,11 +66,9 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                    loadbalancer_db.LoadBalancerPluginDb,
                    portbindings_db.PortBindingMixin,
                    rsi_db.RoutedServiceInsertionDbMixin,
-                   securitygroups_db.SecurityGroupDbMixin,
-                   task.MidoClusterMixin):
+                   securitygroups_db.SecurityGroupDbMixin):
 
     supported_extension_aliases = ['agent-membership',
-                                   'cluster',
                                    'extra_dhcp_opt',
                                    'extraroute',
                                    'lbaas',
