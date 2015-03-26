@@ -3,8 +3,8 @@
 %global docpath doc/build/html
 
 Name:           python-%{srcname}		
-Version:        2014.1.5+1.0
-Release:	    <to-replace>
+Version:        XXX
+Release:	    XXX%{?dist}
 Provides:       python-%{srcname} = %{version}-%{release}
 Summary:        %{vendor} OpenStack Neutron driver	
 
