@@ -31,7 +31,7 @@ Requires:       python-neutron
 This package provides %{vendor} networking driver for OpenStack Neutron
 
 %prep
-%setup -q -n %{pkgname}-%{version}
+%setup -q -n %{srcname}-%{version}
 
 %build
 rm requirements.txt test-requirements.txt
