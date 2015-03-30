@@ -56,11 +56,14 @@ In the case of VM port binding, the workflow is as follows:
     stored in Neutron's 'portbindings' table.
 
  2. Neutron generates the tap interface name the same way Nova does ('tap' +
-    portID up to 16 chars), and stores it in the 'midonet_portbindings' table.
+    portID up to 14 chars), and stores it in the 'midonet_portbindings' table.
 
  3. On the compute host, 'mm-ctl' script is executed to do the actual binding.
     'mm-ctl' adds a port binding task to signal to MidoNet that the binding
     should occur.  This step may change in the future.
+
+For each scenario in which a port binding occurs, the plugin inserts a
+PORTBINDING task with 'resource_id' set to the ID of the port getting bound.
 
 The actual mechanism in which the binding takes place inside MidoNet is outside
 the scope of this document.
