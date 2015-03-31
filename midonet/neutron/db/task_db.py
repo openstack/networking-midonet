@@ -48,7 +48,6 @@ OP_IMPORT = 'IMPORT'
 OP_FLUSH = 'FLUSH'
 
 
-DATA_VERSIONS_TABLE = 'midonet_data_versions'
 TASK_STATE_TABLE = 'midonet_task_state'
 
 LOG = logging.getLogger(__name__)

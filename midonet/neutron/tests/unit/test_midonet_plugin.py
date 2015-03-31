@@ -19,7 +19,8 @@ import datetime
 import functools
 
 from midonet.neutron.db import agent_membership_db  # noqa
-from midonet.neutron.db import data_state_db  # noqa
+from midonet.neutron.db import data_state_db
+from midonet.neutron.db import data_version_db as dv_db
 from midonet.neutron.db import routedserviceinsertion_db  # noqa
 from midonet.neutron.db import task_db  # noqa
 import mock
@@ -216,3 +217,42 @@ class TestMidonetAgent(MidonetPluginV2TestCase,
         self._register_agent_states()
         self._show('agents', 'c0adf9be-c951-11e4-91ea-53cfd0a23bf6',
                    expected_code=exc.HTTPNotFound.code)
+
+
+class TestMidonetDataVersion(testlib_api.SqlTestCase):
+
+    def setUp(self):
+        super(TestMidonetDataVersion, self).setUp()
+
+    def get_session(self):
+        engine = db_api.get_engine()
+        Session = sessionmaker(bind=engine)
+        return Session()
+
+    def test_create_version(self):
+        session = self.get_session()
+        dv_db.create_data_version(session)
+        version = dv_db.get_last_version(session)
+        self.assertEqual(version.id, 1)
+        self.assertEqual(version.sync_tasks_status, dv_db.STARTED)
+
+    def _test_version_status(self, version_update_func, status):
+        session = self.get_session()
+        dv_db.create_data_version(session)
+        version = dv_db.get_last_version(session)
+        self.assertEqual(version.sync_tasks_status, dv_db.STARTED)
+        version_update_func(session)
+        version = dv_db.get_last_version(session)
+        self.assertEqual(version.sync_tasks_status, status)
+
+    def test_update_version_status_completed(self):
+        self._test_version_status(dv_db.complete_last_version,
+                                  dv_db.COMPLETED)
+
+    def test_update_version_status_error(self):
+        self._test_version_status(dv_db.error_last_version,
+                                  dv_db.ERROR)
+
+    def test_update_version_status_aborted(self):
+        self._test_version_status(dv_db.abort_last_version,
+                                  dv_db.ABORTED)
