@@ -4,3 +4,10 @@ build/
 .tox/
 .testrepository/
 *.pyc
+
+.eggs/
+AUTHORS
+ChangeLog
+DEBS/
+networking_midonet.egg-info/
+subunit.log
