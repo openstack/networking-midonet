@@ -9,5 +9,6 @@ build/
 AUTHORS
 ChangeLog
 DEBS/
+RPMS/
 networking_midonet.egg-info/
 subunit.log
