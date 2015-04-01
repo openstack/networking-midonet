@@ -66,3 +66,6 @@ AUTHORS
 ChangeLog
 .eggs
 src/
+
+# Package generated directories
+RPMS/
