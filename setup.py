@@ -23,10 +23,10 @@ setuptools.setup(
     description='Openstack Neutron MidoNet plugin',
     license="Apache License, Version 2.0",
     long_description=open("README.rst").read(),
-    name='neutron-plugin-midonet',
+    name='networking-midonet',
     packages=setuptools.find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
-    url='http://www.midonet.org',
-    version='2014.2+1',
+    url='https://github.com/stackforge/networking-midonet',
+    version='2014.2.2.1.0',
     zip_safe=False,
 )

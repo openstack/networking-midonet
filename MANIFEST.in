@@ -3,5 +3,16 @@ include LICENSE
 
 exclude .gitignore
 exclude .gitreview
+exclude .coveragerc
+exclude .testr.conf
+exclude run_tests.sh
+exclude tox.ini
+
+recursive-exclude etc *
+recursive-exclude specs *
+recursive-exclude tools *
+recursive-exclude devstack *
+recursive-exclude midonet/neutron/tests *
+recursive-exclude packaging *
 
 global-exclude *.pyc
