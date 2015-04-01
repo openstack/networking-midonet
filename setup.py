@@ -24,9 +24,9 @@ setup(
     description='Neutron is a virtual network service for Openstack',
     license="Apache License, Version 2.0",
     long_description=open("README.rst").read(),
-    name='neutron-plugin-midonet',
+    name='networking-midonet',
     packages=find_packages(),
     url='https://github.com/midokura/python-neutron-plugin-midonet',
-    version='2014.1-mido0',
+    version='2014.1.4.1.2',
     zip_safe=False,
 )
