@@ -120,5 +120,4 @@ fi
 
 rpmbuild -ba $HOME/rpmbuild/SPECS/python-networking-midonet.spec
 
-cp -r $HOME/rpmbuild/SRPMS/*.rpm $TARGET_DIR
 cp -r $HOME/rpmbuild/RPMS/noarch/*.rpm $TARGET_DIR
