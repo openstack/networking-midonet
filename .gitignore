@@ -69,3 +69,4 @@ src/
 
 # Package generated directories
 RPMS/
+DEBS/
