@@ -122,3 +122,18 @@ def create_config_task(session, data):
                   resource_id=data['id'],
                   transaction_id=str(uuid.uuid4()))
         session.add(db)
+
+
+def create_port_binding_task(context, port_id, interface_name, host):
+    data = {
+        'id': port_id,
+        'host_id': host,
+        'interface_name': interface_name,
+        'port_id': port_id
+    }
+    create_task(context, CREATE, data_type=PORT_BINDING, resource_id=port_id,
+                data=data)
+
+
+def delete_port_binding_task(context, port_id):
+    create_task(context, DELETE, data_type=PORT_BINDING, resource_id=port_id)
