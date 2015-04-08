@@ -29,14 +29,14 @@ from neutron import context
 from neutron.db import api as db_api
 from neutron.extensions import portbindings
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
-import neutron.tests.unit.test_agent_ext_plugin as test_agent
-import neutron.tests.unit.test_db_plugin as test_plugin
-import neutron.tests.unit.test_extension_ext_gw_mode as test_gw_mode
-from neutron.tests.unit import test_extension_extradhcpopts as test_dhcpopts
-from neutron.tests.unit import test_extension_extraroute as test_ext_route
-import neutron.tests.unit.test_extension_security_group as sg
-from neutron.tests.unit import test_extensions
-import neutron.tests.unit.test_l3_plugin as test_l3_plugin
+from neutron.tests.unit.api import test_extensions
+from neutron.tests.unit.db import test_db_base_plugin_v2 as test_plugin
+from neutron.tests.unit.extensions import test_agent
+from neutron.tests.unit.extensions import test_extra_dhcp_opt as test_dhcpopts
+from neutron.tests.unit.extensions import test_extraroute as test_ext_route
+from neutron.tests.unit.extensions import test_l3 as test_l3_plugin
+from neutron.tests.unit.extensions import test_l3_ext_gw_mode as test_gw_mode
+from neutron.tests.unit.extensions import test_securitygroup as test_sg
 from neutron.tests.unit import testlib_api
 from neutron_lbaas.db.loadbalancer import loadbalancer_db as lb_db  # noqa
 from sqlalchemy.orm import sessionmaker
@@ -97,7 +97,7 @@ class TestMidonetL3NatTestCase(MidonetPluginV2TestCase,
 
 
 class TestMidonetSecurityGroup(MidonetPluginV2TestCase,
-                               sg.TestSecurityGroups):
+                               test_sg.TestSecurityGroups):
 
     def setUp(self):
         super(TestMidonetSecurityGroup, self).setUp()
