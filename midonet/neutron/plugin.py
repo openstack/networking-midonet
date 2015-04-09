@@ -122,9 +122,9 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         with context.session.begin(subtransactions=True):
             net = super(MidonetMixin, self).create_network(context, network)
+            self._process_l3_create(context, net, net_data)
             task.create_task(context, task.CREATE, data_type=task.NETWORK,
                              resource_id=net['id'], data=net)
-            self._process_l3_create(context, net, net_data)
 
         LOG.info(_LI("MidonetMixin.create_network exiting: net=%r"), net)
         return net
@@ -141,10 +141,9 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         with context.session.begin(subtransactions=True):
             net = super(MidonetMixin, self).update_network(
                 context, id, network)
+            self._process_l3_update(context, net, network['network'])
             task.create_task(context, task.UPDATE, data_type=task.NETWORK,
                              resource_id=id, data=net)
-
-            self._process_l3_update(context, net, network['network'])
 
         LOG.info(_LI("MidonetMixin.update_network exiting: net=%r"), net)
         return net
@@ -217,9 +216,6 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                 raise n_exc.BadRequest(resource='port',
                                        msg="Invalid port created")
 
-            task.create_task(context, task.CREATE, data_type=task.PORT,
-                             resource_id=new_port['id'], data=new_port)
-
             # Update fields
             port_data.update(new_port)
 
@@ -234,6 +230,9 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                                                       dhcp_opts)
             self._create_midonet_port_binding(context, new_port['id'],
                                               port_data, new_port)
+
+            task.create_task(context, task.CREATE, data_type=task.PORT,
+                             resource_id=new_port['id'], data=new_port)
 
             if not self._is_driver_bound(new_port['device_owner']):
                 host, name = self._get_port_info(new_port)
