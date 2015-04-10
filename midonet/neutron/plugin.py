@@ -55,7 +55,6 @@ from oslo_utils import importutils
 
 LOG = logging.getLogger(__name__)
 _LE = i18n._LE
-_LI = i18n._LI
 
 
 class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
@@ -112,8 +111,7 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         Create a new Neutron network and its corresponding MidoNet bridge.
         """
-        LOG.info(_LI('MidonetMixin.create_network called: network=%r'),
-                 network)
+        LOG.debug('MidonetMixin.create_network called: network=%r', network)
 
         net_data = network['network']
         tenant_id = self._get_tenant_id_for_create(context, net_data)
@@ -126,7 +124,7 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             task.create_task(context, task.CREATE, data_type=task.NETWORK,
                              resource_id=net['id'], data=net)
 
-        LOG.info(_LI("MidonetMixin.create_network exiting: net=%r"), net)
+        LOG.debug("MidonetMixin.create_network exiting: net=%r", net)
         return net
 
     def update_network(self, context, id, network):
@@ -135,8 +133,8 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         Update an existing Neutron network and its corresponding MidoNet
         bridge.
         """
-        LOG.info(_LI("MidonetMixin.update_network called: id=%(id)r, "
-                     "network=%(network)r"), {'id': id, 'network': network})
+        LOG.debug("MidonetMixin.update_network called: id=%(id)r, "
+                  "network=%(network)r", {'id': id, 'network': network})
 
         with context.session.begin(subtransactions=True):
             net = super(MidonetMixin, self).update_network(
@@ -145,12 +143,12 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             task.create_task(context, task.UPDATE, data_type=task.NETWORK,
                              resource_id=id, data=net)
 
-        LOG.info(_LI("MidonetMixin.update_network exiting: net=%r"), net)
+        LOG.debug("MidonetMixin.update_network exiting: net=%r", net)
         return net
 
     def delete_network(self, context, id):
         """Delete a network and its corresponding MidoNet bridge. """
-        LOG.info(_LI("MidonetMixin.delete_network called: id=%r"), id)
+        LOG.debug("MidonetMixin.delete_network called: id=%r", id)
 
         with context.session.begin(subtransactions=True):
             self._process_l3_delete(context, id)
@@ -158,21 +156,19 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                              resource_id=id)
             super(MidonetMixin, self).delete_network(context, id)
 
-        LOG.info(_LI("MidonetMixin.delete_network exiting: id=%r"), id)
+        LOG.debug("MidonetMixin.delete_network exiting: id=%r", id)
 
     def create_subnet(self, context, subnet):
         """Create Neutron subnet.
 
         Creates a Neutron subnet and a DHCP entry in MidoNet bridge.
         """
-        LOG.info(_LI("MidonetMixin.create_subnet called: subnet=%r"), subnet)
-
+        LOG.debug("MidonetMixin.create_subnet called: subnet=%r", subnet)
         sn_entry = super(MidonetMixin, self).create_subnet(context, subnet)
         task.create_task(context, task.CREATE, data_type=task.SUBNET,
                          resource_id=sn_entry['id'], data=sn_entry)
 
-        LOG.info(_LI("MidonetMixin.create_subnet exiting: sn_entry=%r"),
-                 sn_entry)
+        LOG.debug("MidonetMixin.create_subnet exiting: sn_entry=%r", sn_entry)
         return sn_entry
 
     def delete_subnet(self, context, id):
@@ -180,19 +176,19 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         Delete neutron network and its corresponding MidoNet bridge.
         """
-        LOG.info(_LI("MidonetMixin.delete_subnet called: id=%s"), id)
+        LOG.debug("MidonetMixin.delete_subnet called: id=%s", id)
 
         with context.session.begin(subtransactions=True):
             super(MidonetMixin, self).delete_subnet(context, id)
             task.create_task(context, task.DELETE, data_type=task.SUBNET,
                              resource_id=id)
 
-        LOG.info(_LI("MidonetMixin.delete_subnet exiting"))
+        LOG.debug("MidonetMixin.delete_subnet exiting")
 
     def update_subnet(self, context, id, subnet):
         """Update the subnet with new info.
         """
-        LOG.info(_LI("MidonetMixin.update_subnet called: id=%s"), id)
+        LOG.debug("MidonetMixin.update_subnet called: id=%s", id)
 
         with context.session.begin(subtransactions=True):
             s = super(MidonetMixin, self).update_subnet(context, id, subnet)
@@ -203,7 +199,7 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
     def create_port(self, context, port):
         """Create a L2 port in Neutron/MidoNet."""
-        LOG.info(_LI("MidonetMixin.create_port called: port=%r"), port)
+        LOG.debug("MidonetMixin.create_port called: port=%r", port)
 
         port_data = port['port']
         with context.session.begin(subtransactions=True):
@@ -245,14 +241,14 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                         self._get_interface_name(new_port),
                         self._get_host_name(new_port))
 
-        LOG.info(_LI("MidonetMixin.create_port exiting: port=%r"), new_port)
+        LOG.debug("MidonetMixin.create_port exiting: port=%r", new_port)
         return new_port
 
     def delete_port(self, context, id, l3_port_check=True):
         """Delete a neutron port and corresponding MidoNet bridge port."""
-        LOG.info(_LI("MidonetMixin.delete_port called: id=%(id)s "
-                     "l3_port_check=%(l3_port_check)r"),
-                 {'id': id, 'l3_port_check': l3_port_check})
+        LOG.debug("MidonetMixin.delete_port called: id=%(id)s "
+                  "l3_port_check=%(l3_port_check)r",
+                  {'id': id, 'l3_port_check': l3_port_check})
 
         # if needed, check to see if this is a port owned by
         # and l3-router.  If so, we should prevent deletion.
@@ -274,7 +270,7 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             task.create_task(context, task.DELETE, data_type=task.PORT,
                              resource_id=id)
 
-        LOG.info(_LI("MidonetMixin.delete_port exiting: id=%r"), id)
+        LOG.debug("MidonetMixin.delete_port exiting: id=%r", id)
 
     def _unbind_needed(self, old_port, new_port):
         if self._is_driver_bound(old_port['device_owner']):
@@ -308,8 +304,8 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
     def update_port(self, context, id, port):
         """Handle port update, including security groups and fixed IPs."""
-        LOG.info(_LI("MidonetMixin.update_port called: id=%(id)s "
-                     "port=%(port)r"), {'id': id, 'port': port})
+        LOG.debug("MidonetMixin.update_port called: id=%(id)s port=%(port)r",
+                  {'id': id, 'port': port})
         with context.session.begin(subtransactions=True):
 
             # update the port DB
@@ -342,7 +338,7 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                                               self._get_interface_name(p),
                                               self._get_host_name(p))
 
-        LOG.info(_LI("MidonetMixin.update_port exiting: p=%r"), p)
+        LOG.debug("MidonetMixin.update_port exiting: p=%r", p)
         return p
 
     def create_router(self, context, router):
@@ -355,27 +351,27 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         :param router: Router information provided to create a new router.
         """
-        LOG.info(_LI("MidonetMixin.create_router called: router=%(router)s"),
-                 {"router": router})
+        LOG.debug("MidonetMixin.create_router called: router=%(router)s",
+                  {"router": router})
         r = super(MidonetMixin, self).create_router(context, router)
         task.create_task(context, task.CREATE, data_type=task.ROUTER,
                          resource_id=r['id'], data=r)
 
-        LOG.info(_LI("MidonetMixin.create_router exiting: "
-                     "router=%(router)s."), {"router": r})
+        LOG.debug("MidonetMixin.create_router exiting: router=%(router)s.",
+                  {"router": r})
         return r
 
     def update_router(self, context, id, router):
         """Handle router updates."""
-        LOG.info(_LI("MidonetMixin.update_router called: id=%(id)s "
-                     "router=%(router)r"), {"id": id, "router": router})
+        LOG.debug("MidonetMixin.update_router called: id=%(id)s "
+                  "router=%(router)r", {"id": id, "router": router})
 
         with context.session.begin(subtransactions=True):
             r = super(MidonetMixin, self).update_router(context, id, router)
             task.create_task(context, task.UPDATE, data_type=task.ROUTER,
                              resource_id=id, data=r)
 
-        LOG.info(_LI("MidonetMixin.update_router exiting: router=%r"), r)
+        LOG.debug("MidonetMixin.update_router exiting: router=%r", r)
         return r
 
     def delete_router(self, context, id):
@@ -386,74 +382,69 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         :param id: router ID to remove
         """
-        LOG.info(_LI("MidonetMixin.delete_router called: id=%s"), id)
+        LOG.debug("MidonetMixin.delete_router called: id=%s", id)
 
         with context.session.begin(subtransactions=True):
             super(MidonetMixin, self).delete_router(context, id)
             task.create_task(context, task.DELETE, data_type=task.ROUTER,
                              resource_id=id)
 
-        LOG.info(_LI("MidonetMixin.delete_router exiting: id=%s"), id)
+        LOG.debug("MidonetMixin.delete_router exiting: id=%s", id)
 
     def add_router_interface(self, context, router_id, interface_info):
         """Handle router linking with network."""
-        LOG.info(_LI("MidonetMixin.add_router_interface called: "
-                     "router_id=%(router_id)s "
-                     "interface_info=%(interface_info)r"),
-                 {'router_id': router_id, 'interface_info': interface_info})
+        LOG.debug("MidonetMixin.add_router_interface called: "
+                  "router_id=%(router_id)s, interface_info=%(interface_info)r",
+                  {'router_id': router_id, 'interface_info': interface_info})
 
         info = super(MidonetMixin, self).add_router_interface(
             context, router_id, interface_info)
 
-        LOG.info(_LI("MidonetMixin.add_router_interface exiting: info=%r"),
-                 info)
+        LOG.debug("MidonetMixin.add_router_interface exiting: info=%r", info)
         return info
 
     def remove_router_interface(self, context, router_id, interface_info):
         """Handle router un-linking with network."""
-        LOG.info(_LI("MidonetMixin.remove_router_interface called: "
-                     "router_id=%(router_id)s "
-                     "interface_info=%(interface_info)r"),
-                 {'router_id': router_id, 'interface_info': interface_info})
+        LOG.debug("MidonetMixin.remove_router_interface called: "
+                  "router_id=%(router_id)s, interface_info=%(interface_info)r",
+                  {'router_id': router_id, 'interface_info': interface_info})
 
         with context.session.begin(subtransactions=True):
             info = super(MidonetMixin, self).remove_router_interface(
                 context, router_id, interface_info)
 
-        LOG.info(_LI("MidonetMixin.remove_router_interface exiting: "
-                     "info=%r"), info)
+        LOG.debug("MidonetMixin.remove_router_interface exiting: info=%r",
+                  info)
         return info
 
     def create_floatingip(self, context, floatingip):
         """Handle floating IP creation."""
-        LOG.info(_LI("MidonetMixin.create_floatingip called: ip=%r"),
-                 floatingip)
+        LOG.debug("MidonetMixin.create_floatingip called: ip=%r", floatingip)
 
         fip = super(MidonetMixin, self).create_floatingip(context,
                                                           floatingip)
         task.create_task(context, task.CREATE, data_type=task.FLOATING_IP,
                          resource_id=fip['id'], data=fip)
 
-        LOG.info(_LI("MidonetMixin.create_floatingip exiting: fip=%r"),
-                 fip)
+        LOG.debug("MidonetMixin.create_floatingip exiting: fip=%r", fip)
         return fip
 
     def delete_floatingip(self, context, id):
         """Handle floating IP deletion."""
-        LOG.info(_LI("MidonetMixin.delete_floatingip called: id=%s"), id)
+        LOG.debug("MidonetMixin.delete_floatingip called: id=%s", id)
 
         with context.session.begin(subtransactions=True):
             super(MidonetMixin, self).delete_floatingip(context, id)
             task.create_task(context, task.DELETE,
                              data_type=task.FLOATING_IP, resource_id=id)
 
-        LOG.info(_LI("MidonetMixin.delete_floatingip exiting: id=%r"), id)
+        LOG.debug("MidonetMixin.delete_floatingip exiting: id=%r", id)
 
     def update_floatingip(self, context, id, floatingip):
         """Handle floating IP association and disassociation."""
-        LOG.info(_LI("MidonetMixin.update_floatingip called: id=%(id)s "
-                     "floatingip=%(floatingip)s "),
-                 {'id': id, 'floatingip': floatingip})
+        LOG.debug("MidonetMixin.update_floatingip called: id=%(id)s "
+                  "floatingip=%(floatingip)s ",
+                  {'id': id, 'floatingip': floatingip})
 
         with context.session.begin(subtransactions=True):
             fip = super(MidonetMixin, self).update_floatingip(context, id,
@@ -469,7 +460,7 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                 fip['status'] = n_const.FLOATINGIP_STATUS_ACTIVE
             self.update_floatingip_status(context, id, fip['status'])
 
-        LOG.info(_LI("MidonetMixin.update_floating_ip exiting: fip=%s"), fip)
+        LOG.debug("MidonetMixin.update_floating_ip exiting: fip=%s", fip)
         return fip
 
     def create_security_group(self, context, security_group, default_sg=False):
@@ -479,10 +470,10 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         In MidoNet, this means creating a pair of chains, inbound and outbound,
         as well as a new port group.
         """
-        LOG.info(_LI("MidonetMixin.create_security_group called: "
-                     "security_group=%(security_group)s "
-                     "default_sg=%(default_sg)s "),
-                 {'security_group': security_group, 'default_sg': default_sg})
+        LOG.debug("MidonetMixin.create_security_group called: "
+                  "security_group=%(security_group)s "
+                  "default_sg=%(default_sg)s ",
+                  {'security_group': security_group, 'default_sg': default_sg})
 
         sg = security_group.get('security_group')
         tenant_id = self._get_tenant_id_for_create(context, sg)
@@ -495,12 +486,12 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         task.create_task(context, task.CREATE, data_type=task.SECURITY_GROUP,
                          resource_id=sg['id'], data=sg)
 
-        LOG.info(_LI("MidonetMixin.create_security_group exiting: sg=%r"), sg)
+        LOG.debug("MidonetMixin.create_security_group exiting: sg=%r", sg)
         return sg
 
     def delete_security_group(self, context, id):
         """Delete chains for Neutron security group."""
-        LOG.info(_LI("MidonetMixin.delete_security_group called: id=%s"), id)
+        LOG.debug("MidonetMixin.delete_security_group called: id=%s", id)
 
         sg = super(MidonetMixin, self).get_security_group(context, id)
         if not sg:
@@ -514,7 +505,7 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             task.create_task(context, task.DELETE,
                              data_type=task.SECURITY_GROUP, resource_id=id)
 
-        LOG.info(_LI("MidonetMixin.delete_security_group exiting: id=%r"), id)
+        LOG.debug("MidonetMixin.delete_security_group exiting: id=%r", id)
 
     def create_security_group_rule(self, context, security_group_rule):
         """Create a security group rule
@@ -522,9 +513,9 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         Create a security group rule in the Neutron DB and corresponding
         MidoNet resources in its data store.
         """
-        LOG.info(_LI("MidonetMixin.create_security_group_rule called: "
-                     "security_group_rule=%(security_group_rule)r"),
-                 {'security_group_rule': security_group_rule})
+        LOG.debug("MidonetMixin.create_security_group_rule called: "
+                  "security_group_rule=%(security_group_rule)r",
+                  {'security_group_rule': security_group_rule})
 
         rule = super(MidonetMixin, self).create_security_group_rule(
             context, security_group_rule)
@@ -532,8 +523,8 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                          data_type=task.SECURITY_GROUP_RULE,
                          resource_id=rule['id'], data=rule)
 
-        LOG.info(_LI("MidonetMixin.create_security_group_rule exiting: "
-                     "rule=%r"), rule)
+        LOG.debug("MidonetMixin.create_security_group_rule exiting: rule=%r",
+                  rule)
         return rule
 
     def create_security_group_rule_bulk(self, context, security_group_rules):
@@ -542,17 +533,17 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         Create multiple security group rules in the Neutron DB and
         corresponding MidoNet resources in its data store.
         """
-        LOG.info(_LI("MidonetMixin.create_security_group_rule_bulk called: "
-                     "security_group_rules=%(security_group_rules)r"),
-                 {'security_group_rules': security_group_rules})
+        LOG.debug("MidonetMixin.create_security_group_rule_bulk called: "
+                  "security_group_rules=%(security_group_rules)r",
+                  {'security_group_rules': security_group_rules})
 
         rules = super(
             MidonetMixin,
             self).create_security_group_rule_bulk_native(context,
                                                          security_group_rules)
 
-        LOG.info(_LI("MidonetMixin.create_security_group_rule_bulk exiting: "
-                     "rules=%r"), rules)
+        LOG.debug("MidonetMixin.create_security_group_rule_bulk exiting: "
+                  "rules=%r", rules)
         return rules
 
     def delete_security_group_rule(self, context, sg_rule_id):
@@ -561,8 +552,8 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         Delete a security group rule from the Neutron DB and corresponding
         MidoNet resources from its data store.
         """
-        LOG.info(_LI("MidonetMixin.delete_security_group_rule called: "
-                     "sg_rule_id=%s"), sg_rule_id)
+        LOG.debug("MidonetMixin.delete_security_group_rule called: "
+                  "sg_rule_id=%s", sg_rule_id)
 
         with context.session.begin(subtransactions=True):
             super(MidonetMixin, self).delete_security_group_rule(context,
@@ -571,8 +562,8 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                              data_type=task.SECURITY_GROUP_RULE,
                              resource_id=sg_rule_id)
 
-        LOG.info(_LI("MidonetMixin.delete_security_group_rule exiting: "
-                     "id=%r"), id)
+        LOG.debug("MidonetMixin.delete_security_group_rule exiting: id=%r",
+                  id)
 
     def _validate_vip_subnet(self, context, subnet_id, pool_id):
         # ensure that if the vip subnet is public, the router has its
@@ -593,7 +584,6 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
     def create_vip(self, context, vip):
         LOG.debug("MidonetMixin.create_vip called: %(vip)r",
                   {'vip': vip})
-
         with context.session.begin(subtransactions=True):
 
             self._validate_vip_subnet(context, vip['vip']['subnet_id'],
@@ -635,9 +625,7 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         return v
 
     def create_pool(self, context, pool):
-        LOG.debug("MidonetMixin.create_pool called: %(pool)r",
-                  {'pool': pool})
-
+        LOG.debug("MidonetMixin.create_pool called: %(pool)r", {'pool': pool})
         subnet = db_util.get_subnet(context, pool['pool']['subnet_id'])
         if db_util.is_subnet_external(context, subnet):
             msg = (_LE("pool subnet must not be public"))
@@ -671,21 +659,20 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             self.update_status(context, loadbalancer_db.Pool, p['id'],
                                p['status'])
 
-        LOG.debug("MidonetMixin.create_pool exiting: %(pool)r",
-                  {'pool': p})
+        LOG.debug("MidonetMixin.create_pool exiting: %(pool)r", {'pool': p})
         return p
 
     def update_pool(self, context, id, pool):
-        LOG.debug("MidonetMixin.update_pool called: id=%(id)r, "
-                  "pool=%(pool)r", {'id': id, 'pool': pool})
+        LOG.debug("MidonetMixin.update_pool called: id=%(id)r, pool=%(pool)r",
+                  {'id': id, 'pool': pool})
 
         with context.session.begin(subtransactions=True):
             p = super(MidonetMixin, self).update_pool(context, id, pool)
             task.create_task(context, task.UPDATE, data_type=task.POOL,
                              resource_id=id, data=p)
 
-        LOG.debug("MidonetMixin.update_pool exiting: id=%(id)r, "
-                  "pool=%(pool)r", {'id': id, 'pool': pool})
+        LOG.debug("MidonetMixin.update_pool exiting: id=%(id)r, pool=%(pool)r",
+                  {'id': id, 'pool': p})
         return p
 
     def delete_pool(self, context, id):
@@ -730,16 +717,14 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         return m
 
     def delete_member(self, context, id):
-        LOG.debug("MidonetMixin.delete_member called: %(id)r",
-                  {'id': id})
+        LOG.debug("MidonetMixin.delete_member called: %(id)r", {'id': id})
 
         with context.session.begin(subtransactions=True):
             super(MidonetMixin, self).delete_member(context, id)
             task.create_task(context, task.DELETE,
                              data_type=task.MEMBER, resource_id=id)
 
-        LOG.debug("MidonetMixin.delete_member exiting: %(id)r",
-                  {'id': id})
+        LOG.debug("MidonetMixin.delete_member exiting: %(id)r", {'id': id})
 
     def create_health_monitor(self, context, health_monitor):
         LOG.debug("MidonetMixin.create_health_monitor called: "
@@ -871,6 +856,8 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                   {'id': id})
 
     def get_agents(self, context, filters=None, fields=None):
+        LOG.debug("MidonetMixin.get_agents called")
+
         neutron_agents = super(MidonetMixin, self).get_agents(
             context, filters, fields)
         for mido_host in top.get_all_midonet_hosts(
@@ -880,6 +867,8 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         return neutron_agents
 
     def get_agent(self, context, id, fields=None):
+        LOG.debug("MidonetMixin.get_agent called: %(id)r", {'id': id})
+
         for mido_host in top.get_all_midonet_hosts(
                 cfg.CONF.MIDONET.cluster_ip, cfg.CONF.MIDONET.cluster_port):
             if mido_host.get('id') == id:
