@@ -30,6 +30,7 @@ BuildRoot:      %{_topdir}/BUILDROOT/
 BuildRequires:  python2-devel
 BuildRequires:  python-setuptools
 Requires:       python-neutron
+Requires:       python-midonetclient
 
 %description
 This package provides %{vendor} networking driver for OpenStack Neutron
