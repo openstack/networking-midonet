@@ -39,7 +39,7 @@ class AgentMembershipExtensionManager(object):
         return []
 
 
-class AgentMembershipTestCase(test_mn.MidonetPluginV2TestCase):
+class AgentMembershipTestCase(test_mn.MidonetPluginTaskV2TestCase):
 
     def setUp(self, plugin=None, ext_mgr=None):
         ext_mgr = AgentMembershipExtensionManager()

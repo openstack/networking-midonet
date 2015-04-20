@@ -21,7 +21,12 @@ mido_opts = [
     cfg.StrOpt('cluster_ip', default='localhost',
                help=_('IP that the cluster service can be reached on')),
     cfg.StrOpt('cluster_port', default='8088',
-               help=_('Port that the cluster service can be reached on'))
+               help=_('Port that the cluster service can be reached on')),
+    cfg.BoolOpt('use_cluster', default=False,
+                help=_("Use the midonet plugin that interacts with the "
+                       "tasks-based architecture, rather than the plugin that "
+                       "interacts with the HTTP based architecture.")),
+
 ]
 
 cfg.CONF.register_opts(mido_opts, "MIDONET")
