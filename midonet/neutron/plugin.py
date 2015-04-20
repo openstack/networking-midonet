@@ -25,7 +25,6 @@ from midonet.neutron import extensions
 from midonet.neutron.rpc import topology_client as top
 from neutron.api import extensions as neutron_extensions
 from neutron.api.rpc.handlers import dhcp_rpc
-from neutron.api.v2 import attributes
 from neutron.common import constants as n_const
 from neutron.common import exceptions as n_exc
 from neutron.common import rpc as n_rpc
@@ -216,26 +215,18 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             sg_ids = self._get_security_groups_on_port(context, port)
             self._process_port_create_security_group(context, new_port, sg_ids)
 
+            # Process port bindings
             self._process_portbindings_create_and_update(context, port_data,
                                                          new_port)
+            self._process_mido_portbindings_create_and_update(context,
+                                                              port_data,
+                                                              new_port)
+
             self._process_port_create_extra_dhcp_opts(context, new_port,
                                                       dhcp_opts)
-            self._create_midonet_port_binding(context, new_port['id'],
-                                              port_data, new_port)
 
             task.create_task(context, task.CREATE, data_type=task.PORT,
                              resource_id=new_port['id'], data=new_port)
-
-            if not self._is_driver_bound(new_port['device_owner']):
-                host, name = self._get_port_info(new_port)
-
-                def is_set(field):
-                    return attributes.is_attr_set(field)
-                if is_set(host) and is_set(name):
-                    task.create_port_binding_task(
-                        context, new_port['id'],
-                        self._get_interface_name(new_port),
-                        self._get_host_name(new_port))
 
         LOG.debug("MidonetMixin.create_port exiting: port=%r", new_port)
         return new_port
@@ -252,60 +243,23 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             self.prevent_l3_port_deletion(context, id)
 
         with context.session.begin(subtransactions=True):
-            port = db_util.get_port(context, id)
             super(MidonetMixin, self).disassociate_floatingips(
                 context, id, do_notify=False)
             super(MidonetMixin, self).delete_port(context, id)
-            if not self._is_driver_bound(port['device_owner']):
-                host, name = self._get_port_info(port)
 
-                def is_set(field):
-                    return attributes.is_attr_set(field)
-                if is_set(host) and is_set(name):
-                    task.delete_port_binding_task(context, port['id'])
             task.create_task(context, task.DELETE, data_type=task.PORT,
                              resource_id=id)
 
         LOG.debug("MidonetMixin.delete_port exiting: id=%r", id)
 
-    def _unbind_needed(self, old_port, new_port):
-        if self._is_driver_bound(old_port['device_owner']):
-            return False
-        old_host, old_name = self._get_port_info(old_port)
-        if not attributes.is_attr_set(old_host):
-            return False
-        if not attributes.is_attr_set(old_name):
-            return False
-        new_host, new_name = self._get_port_info(new_port)
-        if new_host != old_host and new_host != attributes.ATTR_NOT_SPECIFIED:
-            return True
-        if new_name != old_name and new_name != attributes.ATTR_NOT_SPECIFIED:
-            return True
-        return False
-
-    def _bind_needed(self, old_port, new_port):
-        if self._is_driver_bound(new_port['device_owner']):
-            return False
-        old_host, old_name = self._get_port_info(old_port)
-        if old_host == attributes.ATTR_NOT_SPECIFIED:
-            old_host = None
-        if old_name == attributes.ATTR_NOT_SPECIFIED:
-            old_name = None
-        new_host, new_name = self._get_port_info(new_port)
-        if new_host != old_host and new_host != attributes.ATTR_NOT_SPECIFIED:
-            return True
-        if new_name != old_name and new_name != attributes.ATTR_NOT_SPECIFIED:
-            return True
-        return False
-
     def update_port(self, context, id, port):
         """Handle port update, including security groups and fixed IPs."""
         LOG.debug("MidonetMixin.update_port called: id=%(id)s port=%(port)r",
                   {'id': id, 'port': port})
+
         with context.session.begin(subtransactions=True):
 
             # update the port DB
-            old_port = db_util.get_port(context, id)
             p = super(MidonetMixin, self).update_port(context, id, port)
 
             has_sg = self._check_update_has_security_groups(port)
@@ -320,19 +274,11 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
             self._process_portbindings_create_and_update(context,
                                                          port['port'], p)
-            self._update_midonet_port_binding(context, p['id'], old_port,
-                                              port['port'], p)
-
-            if self._unbind_needed(old_port, p):
-                task.delete_port_binding_task(context, old_port['id'])
+            self._process_mido_portbindings_create_and_update(context,
+                                                              port['port'], p)
 
             task.create_task(context, task.UPDATE, data_type=task.PORT,
                              resource_id=id, data=p)
-
-            if self._bind_needed(old_port, p):
-                task.create_port_binding_task(context, old_port['id'],
-                                              self._get_interface_name(p),
-                                              self._get_host_name(p))
 
         LOG.debug("MidonetMixin.update_port exiting: p=%r", p)
         return p

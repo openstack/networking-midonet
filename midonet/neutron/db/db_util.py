@@ -12,11 +12,9 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-from midonet.neutron.db import port_binding_db as pb_db
 from neutron.common import constants as n_const
 from neutron.db import l3_db
 from neutron.db import models_v2
-from neutron.db import portbindings_db
 from neutron_lbaas.db.loadbalancer import loadbalancer_db as lb_db
 from sqlalchemy.orm import exc
 
@@ -48,19 +46,6 @@ def get_subnet(context, subnet_id):
 
 def get_pool(context, pool_id):
     return get_by_model_id(context, lb_db.Pool, pool_id)
-
-
-def get_port(context, port_id):
-    port = get_by_model_id(context, models_v2.Port, port_id)
-    port_info = context.session.query(pb_db.PortBindingInfo).filter_by(
-        port_id=port_id).first()
-    if port_info is not None:
-        port['binding:profile'] = {'interface_name': port_info.interface_name}
-    host_info = context.session.query(
-        portbindings_db.PortBindingPort).filter_by(port_id=port_id).first()
-    if host_info is not None:
-        port['binding:host_id'] = host_info.host
-    return port
 
 
 def is_subnet_external(context, subnet):

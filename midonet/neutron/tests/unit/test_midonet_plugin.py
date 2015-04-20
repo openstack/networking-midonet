@@ -15,6 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import contextlib
 import datetime
 import functools
 import mock
@@ -23,7 +24,7 @@ import sys
 from midonet.neutron.db import agent_membership_db  # noqa
 from midonet.neutron.db import data_state_db  # noqa
 from midonet.neutron.db import data_version_db as dv_db
-from midonet.neutron.db import port_binding_db as pb_db
+from midonet.neutron.db import port_binding_db as pb_db  # noqa
 from midonet.neutron.db import task_db  # noqa
 
 from neutron import context
@@ -115,59 +116,6 @@ class TestMidonetPortsV2(MidonetPluginV2TestCase,
     def setUp(self):
         super(TestMidonetPortsV2, self).setUp()
 
-    def test_vif_port_binding(self):
-        with self.port(name='myname') as port:
-            self.assertEqual('midonet', port['port']['binding:vif_type'])
-            self.assertTrue(port['port']['admin_state_up'])
-
-    def test_profile_port_binding(self):
-        profile_arg = {portbindings.PROFILE: {'interface_name':
-                                              'test_if_name'},
-                       portbindings.HOST_ID: 'test_host'}
-        engine = db_api.get_engine()
-        session = sessionmaker(bind=engine)()
-        with self.port(arg_list=(portbindings.PROFILE, portbindings.HOST_ID,),
-                       **profile_arg) as port:
-            if_name = port['port'][portbindings.PROFILE]['interface_name']
-            self.assertEqual('test_if_name', if_name)
-            bindings = session.query(pb_db.PortBindingInfo)
-            binding = bindings.filter(
-                pb_db.PortBindingInfo.port_id == port['port']['id']).one()
-            self.assertEqual('test_if_name', binding.interface_name)
-            self._delete('ports', port['port']['id'])
-        bindings = session.query(pb_db.PortBindingInfo)
-        bindings = bindings.filter(
-            pb_db.PortBindingInfo.port_id == port['port']['id']).all()
-        self.assertEqual(0, len(bindings))
-
-    def test_profile_port_binding_validation(self):
-        profile_arg = {portbindings.PROFILE: {'interface_name':
-                                              'test_if_name'},
-                       portbindings.HOST_ID: 'test_host'}
-        engine = db_api.get_engine()
-        session = sessionmaker(bind=engine)()
-        with self.port(arg_list=(portbindings.PROFILE, portbindings.HOST_ID,),
-                       **profile_arg) as port:
-            bindings = session.query(pb_db.PortBindingInfo)
-            bindings.filter(
-                pb_db.PortBindingInfo.port_id == port['port']['id']).one()
-            self._delete('ports', port['port']['id'])
-
-    def test_profile_port_binding_validation_no_profile(self):
-        profile_arg = {portbindings.HOST_ID: 'test_host'}
-        with self.port(arg_list=(portbindings.PROFILE, ),
-                       **profile_arg) as port:
-            self._delete('ports', port['port']['id'])
-
-    def test_profile_port_binding_validation_ho_host(self):
-        profile_arg = {portbindings.PROFILE: {'interface_name':
-                                              'test_if_name'}}
-        try:
-            with self.port(arg_list=(portbindings.PROFILE,), **profile_arg):
-                self.assertTrue(False)
-        except exc.HTTPClientError:
-            pass
-
 
 class TestMidonetPortBinding(MidonetPluginV2TestCase,
                              test_bindings.PortBindingsTestCase):
@@ -177,6 +125,139 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
 
     VIF_TYPE = portbindings.VIF_TYPE_MIDONET
     HAS_PORT_FILTER = True
+
+    @contextlib.contextmanager
+    def port_with_binding_profile(self, host='host', if_name='if_name'):
+        args = {portbindings.PROFILE: {'interface_name': if_name},
+                portbindings.HOST_ID: host}
+        with test_plugin.optional_ctx(None, self.subnet) as subnet_to_use:
+            net_id = subnet_to_use['subnet']['network_id']
+            port = self._make_port(self.fmt, net_id,
+                                   arg_list=(portbindings.PROFILE,
+                                             portbindings.HOST_ID,), **args)
+            yield port
+
+    def test_create_mido_portbinding(self):
+        keys = [(portbindings.PROFILE, {'interface_name': 'if_name'}),
+                (portbindings.HOST_ID, 'host')]
+        with self.port_with_binding_profile() as port:
+            for k, v in keys:
+                self.assertEqual(port['port'][k], v)
+
+    def test_create_mido_portbinding_no_profile_specified(self):
+        with self.port() as port:
+            self.assertIsNone(port['port'][portbindings.PROFILE])
+
+    def test_create_mido_portbinding_no_host_binding(self):
+        # Create a binding when there is no host binding.  This should throw
+        # an error.
+        with self.network() as net:
+            args = {'port': {'tenant_id': net['network']['tenant_id'],
+                             'network_id': net['network']['id'],
+                             portbindings.PROFILE:
+                                 {'interface_name': 'if_name'},
+                             portbindings.HOST_ID: None}}
+            req = self.new_create_request('ports', args, self.fmt)
+            res = req.get_response(self.api)
+            self.assertEqual(res.status_int, 400)
+
+    def test_create_mido_portbinding_no_interface(self):
+        # Create binding with no interface name.  Should return an error.
+        with self.network() as net:
+            args = {'port': {'tenant_id': net['network']['tenant_id'],
+                             'network_id': net['network']['id'],
+                             portbindings.PROFILE: {'foo': ''},
+                             portbindings.HOST_ID: 'host'}}
+            req = self.new_create_request('ports', args, self.fmt)
+            res = req.get_response(self.api)
+            self.assertEqual(res.status_int, 400)
+
+    def test_create_mido_portbinding_bad_interface(self):
+        # Create binding with a bad interface name.  Should return an error.
+        with self.network() as net:
+            args = {'port': {'tenant_id': net['network']['tenant_id'],
+                             'network_id': net['network']['id'],
+                             portbindings.PROFILE: {'interface_name': ''},
+                             portbindings.HOST_ID: 'host'}}
+            req = self.new_create_request('ports', args, self.fmt)
+            res = req.get_response(self.api)
+            self.assertEqual(res.status_int, 400)
+
+    def test_update_mido_portbinding(self):
+        keys = [(portbindings.HOST_ID, 'host2'),
+                (portbindings.PROFILE, {'interface_name': 'if_name2'}),
+                ('admin_state_up', False),
+                ('name', 'test_port2')]
+        with self.port_with_binding_profile() as port:
+            args = {
+                'port': {portbindings.PROFILE: {'interface_name': 'if_name2'},
+                         portbindings.HOST_ID: 'host2',
+                         'admin_state_up': False,
+                         'name': 'test_port2'}}
+            req = self.new_update_request('ports', args, port['port']['id'])
+            res = self.deserialize(self.fmt, req.get_response(self.api))
+            for k, v in keys:
+                self.assertEqual(res['port'][k], v)
+
+    def test_update_mido_portbinding_no_profile_specified(self):
+        # Modify binding without specifying the profile.
+        keys = [(portbindings.HOST_ID, 'host2'),
+                (portbindings.PROFILE, {'interface_name': 'if_name'}),
+                ('admin_state_up', False),
+                ('name', 'test_port2')]
+        with self.port_with_binding_profile() as port:
+            args = {'port': {portbindings.HOST_ID: 'host2',
+                             'admin_state_up': False,
+                             'name': 'test_port2'}}
+            req = self.new_update_request('ports', args, port['port']['id'])
+            res = self.deserialize(self.fmt, req.get_response(self.api))
+            for k, v in keys:
+                self.assertEqual(res['port'][k], v)
+
+    def test_update_mido_portbinding_no_host_binding(self):
+        # Update a binding when there is no host binding.  This should throw
+        # an error.
+        with self.port() as port:
+            args = {
+                'port': {portbindings.PROFILE: {'interface_name': 'if_name2'}}}
+            req = self.new_update_request('ports', args, port['port']['id'])
+            res = req.get_response(self.api)
+            self.assertEqual(res.status_int, 400)
+
+    def test_update_mido_portbinding_unbind(self):
+        # Unbinding a bound port
+        with self.port_with_binding_profile() as port:
+            args = {'port': {portbindings.PROFILE: None}}
+            req = self.new_update_request('ports', args, port['port']['id'])
+            res = self.deserialize(self.fmt, req.get_response(self.api))
+            self.assertIsNone(res['port'][portbindings.PROFILE])
+
+    def test_update_mido_portbinding_unbind_already_unbound(self):
+        # Unbinding an unbound port results in no-op
+        with self.port() as port:
+            args = {'port': {portbindings.PROFILE: None}}
+            req = self.new_update_request('ports', args, port['port']['id'])
+            # Success with profile set to None
+            res = self.deserialize(self.fmt, req.get_response(self.api))
+            self.assertIsNone(res['port'][portbindings.PROFILE])
+
+    def test_update_mido_portbinding_no_interface(self):
+        # Update binding with no interface name.  Should return an error.
+        with self.port_with_binding_profile() as port:
+            args = {
+                'port': {portbindings.PROFILE: {'foo': ''}}}
+            req = self.new_update_request('ports', args, port['port']['id'])
+            res = req.get_response(self.api)
+            self.assertEqual(res.status_int, 400)
+
+    def test_update_mido_portbinding_bad_interface(self):
+        # Update binding with a bad interface name.  Should return an error.
+        with self.port_with_binding_profile() as port:
+            args = {
+                'port': {portbindings.PROFILE: {'interface_name': ''}}}
+            req = self.new_update_request('ports', args, port['port']['id'])
+            res = req.get_response(self.api)
+            self.assertEqual(res.status_int, 400)
 
 
 class TestMidonetExtGwMode(MidonetPluginV2TestCase,
