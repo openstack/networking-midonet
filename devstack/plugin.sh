@@ -65,7 +65,9 @@ if [[ "$1" == "stack" ]]; then
             export CIDR=${FLOATING_RANGE:?Error \$FLOATING_RANGE is not set}
             # TODO: Joe
             # We will not create the fake uplink until the re-arch work is done.
-            # $MIDONET_DIR/tools/devmido/create_fake_uplink.sh
+            if [[ "$USE_CLUSTER" = "False" ]]; then
+                $MIDONET_DIR/tools/devmido/create_fake_uplink.sh
+            fi
         fi
 
 
