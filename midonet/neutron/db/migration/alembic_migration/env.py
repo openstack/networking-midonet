@@ -17,7 +17,6 @@ from alembic import context
 from oslo_db.sqlalchemy import session
 
 # Make sure all data models are loaded before start the migration scripts
-from midonet.neutron.db import routedserviceinsertion_db  # noqa
 from midonet.neutron.db import task_db  # noqa
 from neutron.db.migration.models import head  # noqa
 from neutron_lbaas.db.loadbalancer import loadbalancer_db as lb_db  # noqa
