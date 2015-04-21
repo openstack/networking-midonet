@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron.db import db_util
+from midonet.neutron.common import exceptions as exc
 from neutron.db import model_base
 import sqlalchemy as sa
 
@@ -36,10 +36,10 @@ def get_data_state(session):
         return session.query(DataState).one()
     except sa.orm.exc.NoResultFound:
         issue = "Missing Data State table"
-        raise db_util.InvalidMidonetDataState(issue)
+        raise exc.InvalidMidonetDataState(issue)
     except sa.orm.exc.MultipleResultsFound:
         issue = "There should be exactly one Data State table"
-        raise db_util.InvalidMidonetDataState(issue)
+        raise exc.InvalidMidonetDataState(issue)
 
 
 def set_data_state_readonly(session, val):

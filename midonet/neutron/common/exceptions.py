@@ -22,3 +22,11 @@ class ClusterConnectionError(exc.ServiceUnavailable):
 
 class MidonetApiException(exc.NeutronException):
     message = _("MidoNet API error: %(msg)s")
+
+
+class InvalidMidonetDataState(exc.NeutronException):
+    """
+    Exception to signify a state in the midonet tables that is invalid,
+    i.e. missing some table that should always be present
+    """
+    pass

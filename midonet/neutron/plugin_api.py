@@ -15,7 +15,7 @@
 
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import util
-from midonet.neutron.db import db_util
+from midonet.neutron.db import loadbalancer_db as mn_lb_db
 from midonet.neutron import extensions
 from midonetclient import client
 from neutron.api import extensions as neutron_extensions
@@ -58,6 +58,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                       extraroute_db.ExtraRoute_db_mixin,
                       l3_gwmode_db.L3_NAT_db_mixin,
                       loadbalancer_db.LoadBalancerPluginDb,
+                      mn_lb_db.LoadBalancerMixin,
                       portbindings_db.PortBindingMixin,
                       securitygroups_db.SecurityGroupDbMixin):
 
@@ -198,8 +199,8 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             LOG.error(_LE("Failed to create a subnet %(s_id)s in Midonet:"
                           "%(err)s"), {"s_id": sn_entry["id"], "err": ex})
             with excutils.save_and_reraise_exception():
-                super(MidonetApiMixin, self).delete_subnet(context,
-                                                        sn_entry['id'])
+                super(MidonetApiMixin, self).delete_subnet(
+                    context, sn_entry['id'])
 
         LOG.info(_LI("MidonetApiMixin.create_subnet exiting: sn_entry=%r"),
                  sn_entry)
@@ -631,28 +632,12 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                      "sg_rule_id=%s"), sg_rule_id)
 
         with context.session.begin(subtransactions=True):
-            super(MidonetApiMixin, self).delete_security_group_rule(context,
-                                                                 sg_rule_id)
+            super(MidonetApiMixin, self).delete_security_group_rule(
+                context, sg_rule_id)
             self.api_cli.delete_security_group_rule(sg_rule_id)
 
         LOG.info(_LI("MidonetApiMixin.delete_security_group_rule exiting: "
                      "id=%r"), id)
-
-    def _validate_vip_subnet(self, context, subnet_id, pool_id):
-        # ensure that if the vip subnet is public, the router has its
-        # gateway set.
-        subnet = self._get_subnet(context, subnet_id)
-        if db_util.is_subnet_external(context, subnet):
-            router_id = db_util.get_router_from_pool(context, pool_id)
-            # router_id should never be None because it was already validated
-            # when we created the pool
-            assert router_id is not None
-
-            router = self._get_router(context, router_id)
-            if router.get('gw_port_id') is None:
-                msg = _("The router must have its gateway set if the "
-                        "VIP subnet is external")
-                raise n_exc.BadRequest(resource='router', msg=msg)
 
     @util.handle_api_error
     @util.retry_on_error(2, 1, db_exc.DBError)
@@ -662,8 +647,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         with context.session.begin(subtransactions=True):
 
-            self._validate_vip_subnet(context, vip['vip']['subnet_id'],
-                                      vip['vip']['pool_id'])
+            self._validate_vip_subnet(context, vip)
 
             v = super(MidonetApiMixin, self).create_vip(context, vip)
             self.api_cli.create_vip(v)
@@ -707,17 +691,8 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         LOG.debug("MidonetApiMixin.create_pool called: %(pool)r",
                   {'pool': pool})
 
-        subnet = db_util.get_subnet(context, pool['pool']['subnet_id'])
-        if db_util.is_subnet_external(context, subnet):
-            msg = _("pool subnet must not be public")
-            raise n_exc.BadRequest(resource='subnet', msg=msg)
-
-        router_id = db_util.get_router_from_subnet(context, subnet)
-
-        if not router_id:
-            msg = _("pool subnet must be associated with router")
-            raise n_exc.BadRequest(resource='router', msg=msg)
-
+        router_id = self._check_and_get_router_id_for_pool(
+            context, pool['pool']['subnet_id'])
         pool['pool'].update({'router_id': router_id})
 
         with context.session.begin(subtransactions=True):
