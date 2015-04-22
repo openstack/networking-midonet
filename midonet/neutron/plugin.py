@@ -22,6 +22,7 @@ from midonet.neutron.db import db_util
 from midonet.neutron.db import port_binding_db as pb_db
 from midonet.neutron.db import task_db as task
 from midonet.neutron import extensions
+from midonet.neutron import plugin_api
 from midonet.neutron.rpc import topology_client as top
 from neutron.api import extensions as neutron_extensions
 from neutron.api.rpc.handlers import dhcp_rpc
@@ -588,7 +589,6 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         with context.session.begin(subtransactions=True):
             p = super(MidonetMixin, self).create_pool(context, pool)
-
             p['status'] = constants.ACTIVE
             self.update_status(context, loadbalancer_db.Pool, p['id'],
                                p['status'])
@@ -718,7 +718,8 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             raise n_exc.BadRequest(resource='pool_health_monitor', msg=msg)
 
         with context.session.begin(subtransactions=True):
-            monitors = super(MidonetMixin, self).create_pool_health_monitor(
+            monitors = super(MidonetMixin,
+                             self).create_pool_health_monitor(
                 context, health_monitor, pool_id)
 
         LOG.debug("MidonetMixin.create_pool_health_monitor exiting: "
@@ -809,3 +810,7 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             if mido_host.get('id') == id:
                 return top.midonet_host_to_neutron_agent(mido_host)
         return super(MidonetMixin, self).get_agent(context, id, fields)
+
+
+if not cfg.CONF.MIDONET.use_cluster:
+    MidonetMixin = plugin_api.MidonetApiMixin
