@@ -19,7 +19,9 @@ import contextlib
 import datetime
 import functools
 import mock
+from sqlalchemy.orm import sessionmaker
 import sys
+from webob import exc
 
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.db import agent_membership_db  # noqa
@@ -42,8 +44,6 @@ from neutron.tests.unit.extensions import test_l3_ext_gw_mode as test_gw_mode
 from neutron.tests.unit.extensions import test_securitygroup as test_sg
 from neutron.tests.unit import testlib_api
 from oslo_config import cfg
-from sqlalchemy.orm import sessionmaker
-from webob import exc
 
 sys.modules["midonetclient"] = mock.Mock()
 sys.modules["midonetclient.topology"] = mock.Mock()
@@ -67,13 +67,13 @@ class MidonetPluginConf(object):
             parent_setup()
 
 
-class MidonetPluginTaskV2TestCase(test_plugin.NeutronDbPluginV2TestCase):
+class MidonetPluginV2TestCase(test_plugin.NeutronDbPluginV2TestCase):
 
     def setup_parent(self):
         # Ensure that the parent setup can be called without arguments
         # by the common configuration setUp.
         parent_setup = functools.partial(
-            super(MidonetPluginTaskV2TestCase, self).setUp,
+            super(MidonetPluginV2TestCase, self).setUp,
             plugin=MidonetPluginConf.plugin_name
         )
         MidonetPluginConf.setUp(self, parent_setup)
@@ -82,14 +82,14 @@ class MidonetPluginTaskV2TestCase(test_plugin.NeutronDbPluginV2TestCase):
         self.setup_parent()
 
 
-class TestMidonetNetworksV2(MidonetPluginTaskV2TestCase,
+class TestMidonetNetworksV2(MidonetPluginV2TestCase,
                             test_plugin.TestNetworksV2):
 
     def setUp(self, plugin=None):
         super(TestMidonetNetworksV2, self).setUp()
 
 
-class TestMidonetL3NatTestCase(MidonetPluginTaskV2TestCase,
+class TestMidonetL3NatTestCase(MidonetPluginV2TestCase,
                                test_l3_plugin.L3NatDBIntTestCase):
 
     def setUp(self):
@@ -99,28 +99,28 @@ class TestMidonetL3NatTestCase(MidonetPluginTaskV2TestCase,
         self._test_floatingip_with_invalid_create_port(PLUGIN_NAME)
 
 
-class TestMidonetSecurityGroup(MidonetPluginTaskV2TestCase,
+class TestMidonetSecurityGroup(MidonetPluginV2TestCase,
                                test_sg.TestSecurityGroups):
 
     def setUp(self):
         super(TestMidonetSecurityGroup, self).setUp()
 
 
-class TestMidonetSubnetsV2(MidonetPluginTaskV2TestCase,
+class TestMidonetSubnetsV2(MidonetPluginV2TestCase,
                            test_plugin.TestSubnetsV2):
 
     def setUp(self):
         super(TestMidonetSubnetsV2, self).setUp()
 
 
-class TestMidonetPortsV2(MidonetPluginTaskV2TestCase,
+class TestMidonetPortsV2(MidonetPluginV2TestCase,
                          test_plugin.TestPortsV2):
 
     def setUp(self):
         super(TestMidonetPortsV2, self).setUp()
 
 
-class TestMidonetPortBinding(MidonetPluginTaskV2TestCase,
+class TestMidonetPortBinding(MidonetPluginV2TestCase,
                              test_bindings.PortBindingsTestCase):
 
     def setUp(self):
@@ -263,19 +263,19 @@ class TestMidonetPortBinding(MidonetPluginTaskV2TestCase,
             self.assertEqual(res.status_int, 400)
 
 
-class TestMidonetExtGwMode(MidonetPluginTaskV2TestCase,
+class TestMidonetExtGwMode(MidonetPluginV2TestCase,
                            test_gw_mode.ExtGwModeIntTestCase):
 
     def setUp(self):
         super(TestMidonetExtGwMode, self).setUp()
 
 
-class TestExtraDHCPOpts(MidonetPluginTaskV2TestCase,
+class TestExtraDHCPOpts(MidonetPluginV2TestCase,
                         test_dhcpopts.TestExtraDhcpOpt):
     pass
 
 
-class TestMidonetExtraRouteTestCase(MidonetPluginTaskV2TestCase,
+class TestMidonetExtraRouteTestCase(MidonetPluginV2TestCase,
                                     test_ext_route.ExtraRouteDBIntTestCase):
     pass
 
@@ -309,7 +309,7 @@ class TestMidonetDataState(testlib_api.SqlTestCase):
         self.assertTrue(not ds.readonly)
 
 
-class TestMidonetAgent(MidonetPluginTaskV2TestCase,
+class TestMidonetAgent(MidonetPluginV2TestCase,
                        test_agent.AgentDBTestMixIn):
 
     def setUp(self):

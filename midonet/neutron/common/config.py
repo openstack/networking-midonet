@@ -13,7 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron import i18n  # noqa
 from oslo_config import cfg
+
 
 mido_opts = [
     cfg.StrOpt('tunnel_protocol', default='vxlan',

@@ -37,7 +37,7 @@ class LoadbalancerTestExtensionManager(test_l3.L3TestExtensionManager):
 
 
 class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
-                           test_mn.MidonetPluginTaskV2TestCase,
+                           test_mn.MidonetPluginV2TestCase,
                            test_l3.L3NatTestCaseMixin):
 
     def setUp(self, core_plugin=None, lb_plugin=None, lbaas_provider=None,
