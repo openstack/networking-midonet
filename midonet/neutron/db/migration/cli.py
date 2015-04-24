@@ -202,9 +202,9 @@ def get_alembic_config():
 
 
 def main():
+    CONF(project='neutron')
     config = get_alembic_config()
     # attach the Neutron conf to the Alembic conf
     config.neutron_config = CONF
 
-    CONF(project='neutron')
     CONF.command.func(config, CONF.command.name)

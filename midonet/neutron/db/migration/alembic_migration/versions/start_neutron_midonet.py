@@ -12,30 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""create agent membership table
+"""start neutron-midonet chain
 
-Revision ID: 19808c5df22a
-Revises: 1dc335c43b23
-Create Date: 2015-02-26 14:39:25.219125
+Revision ID: start_neutron_midonet
+Revises: None
+Create Date: 2014-10-27 13:26:15.053540
 
 """
 
 # revision identifiers, used by Alembic.
-revision = '19808c5df22a'
-down_revision = '1dc335c43b23'
-
-from alembic import op
-from midonet.neutron.db import agent_membership_db as am_db
-import sqlalchemy as sa
+revision = 'start_neutron_midonet'
+down_revision = None
 
 
 def upgrade():
-    table_name = am_db.AGENT_MEMBERSHIP
-    op.create_table(
-        table_name,
-        sa.Column('id', sa.String(36), primary_key=True),
-        sa.Column('ip_address', sa.String(64), nullable=False),)
-
-
-def downgrade():
-    op.drop_table(am_db.AGENT_MEMBERSHIP)
+    pass
