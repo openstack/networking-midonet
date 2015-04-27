@@ -62,10 +62,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                       portbindings_db.PortBindingMixin,
                       securitygroups_db.SecurityGroupDbMixin):
 
-    supported_extension_aliases = ['agent-membership',
-                                   'extra_dhcp_opt',
-                                   'extraroute',
-                                   'lbaas']
+    supported_extension_aliases = ['extra_dhcp_opt', 'lbaas']
 
     def __init__(self):
         super(MidonetApiMixin, self).__init__()
