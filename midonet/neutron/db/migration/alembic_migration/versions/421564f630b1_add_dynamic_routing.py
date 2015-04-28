@@ -12,23 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""add dynamic routing tables
+"""add dynamic routing
 
 Revision ID: 421564f630b1
-Revises: d8a5c672761
+Revises: 3fe2bca71c72
 Create Date: 2015-03-31 04:40:24.533580
 
 """
 
 # revision identifiers, used by Alembic.
 revision = '421564f630b1'
-down_revision = 'd8a5c672761'
+down_revision = '3fe2bca71c72'
 
 from alembic import op
 import sqlalchemy as sa
 
 
-def create_midonet_routing_instances_table():
+def upgrade():
+
     op.create_table(
         'midonet_routing_instances',
         sa.Column('id', sa.String(length=36), primary_key=True),
@@ -37,8 +38,6 @@ def create_midonet_routing_instances_table():
         sa.Column('protocol', sa.String(length=255), nullable=False),
         sa.ForeignKeyConstraint(['router_id'], ['routers.id']))
 
-
-def create_midonet_routing_peers():
     op.create_table(
         'midonet_routing_peers',
         sa.Column('id', sa.String(length=36), primary_key=True),
@@ -51,8 +50,6 @@ def create_midonet_routing_peers():
                                 ['midonet_routing_instances.id']),
         sa.ForeignKeyConstraint(['port_id'], ['ports.id']))
 
-
-def create_midonet_advertise_route():
     op.create_table(
         'midonet_advertise_route',
         sa.Column('id', sa.String(length=36), primary_key=True),
@@ -62,9 +59,3 @@ def create_midonet_advertise_route():
                   nullable=False),
         sa.ForeignKeyConstraint(['routing_instance_id'],
                                 ['midonet_routing_instances.id']))
-
-
-def upgrade():
-    create_midonet_routing_instances_table()
-    create_midonet_routing_peers()
-    create_midonet_advertise_route()

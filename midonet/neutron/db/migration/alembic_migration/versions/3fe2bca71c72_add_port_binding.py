@@ -11,34 +11,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""add binding task
+
+"""add port binding
 
 Revision ID: 3fe2bca71c72
-Revises: 3404e2c31825
+Revises: 19808c5df22a
 Create Date: 2015-02-16 05:24:01.270141
 
 """
 
-PORT_BINDING_TABLE_NAME = 'midonet_port_bindings'
-
 # revision identifiers, used by Alembic.
 revision = '3fe2bca71c72'
-down_revision = '3404e2c31825'
+down_revision = '19808c5df22a'
 
 from alembic import op
 import sqlalchemy as sa
 
 
-def add_port_binding_table():
+def upgrade():
+
     op.create_table(
-        PORT_BINDING_TABLE_NAME,
+        'midonet_port_bindings',
         sa.Column('port_id', sa.String(length=36), sa.ForeignKey('ports.id'),
                   nullable=False, primary_key=True),
         sa.Column('interface_name', sa.String(length=255), nullable=False),
         sa.ForeignKeyConstraint(['port_id'], ['portbindingports.port_id'],
                                 ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('port_id'))
-
-
-def upgrade():
-    add_port_binding_table()
