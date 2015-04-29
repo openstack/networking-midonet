@@ -13,15 +13,21 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import contextlib
 from webob import exc
 
 from midonet.neutron.tests.unit import test_midonet_plugin as test_mn
 
+from neutron.plugins.common import constants
 from neutron.tests.unit.api import test_extensions as test_ex
 from neutron.tests.unit.extensions import test_l3
 from neutron_lbaas.extensions import loadbalancer
 from neutron_lbaas.tests.unit.db.loadbalancer import test_db_loadbalancer
+from oslo_config import cfg
 from oslo_utils import uuidutils
+
+MN_DRIVER_KLASS = ('midonet.neutron.services.loadbalancer.driver.'
+                   'MidonetLoadbalancerDriver')
 
 
 class LoadbalancerTestExtensionManager(test_l3.L3TestExtensionManager):
@@ -39,13 +45,20 @@ class LoadbalancerTestExtensionManager(test_l3.L3TestExtensionManager):
 
 class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
                            test_l3.L3NatTestCaseMixin,
-                           test_mn.MidonetPluginV2TestCase,):
+                           test_mn.MidonetPluginV2TestCase):
 
-    def setUp(self, core_plugin=None, lb_plugin=None, lbaas_provider=None,
-              ext_mgr=None):
-
-        super(LoadbalancerTestCase, self).setUp()
+    def setUp(self):
+        service_plugins = {
+            'lb_plugin_name': test_db_loadbalancer.DB_LB_PLUGIN_KLASS}
+        lbaas_provider = (constants.LOADBALANCER + ':lbaas:' +
+                          MN_DRIVER_KLASS + ':default')
         ext_mgr = LoadbalancerTestExtensionManager()
+        cfg.CONF.set_override('service_provider',
+                              [lbaas_provider],
+                              'service_providers')
+
+        super(LoadbalancerTestCase, self).setUp(
+            service_plugins=service_plugins, ext_mgr=ext_mgr)
         self.ext_api = test_ex.setup_extensions_middleware(ext_mgr)
 
         # Subnet and router must always exist and associated
@@ -74,6 +87,33 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
 
     def tearDown(self):
         super(LoadbalancerTestCase, self).tearDown()
+
+    @contextlib.contextmanager
+    def pool_with_hm_associated(self):
+        with self.health_monitor() as hm:
+            with self.pool() as pool:
+                # Associate the health_monitor to the pool
+                assoc = {"health_monitor": {
+                         "id": hm['health_monitor']['id'],
+                         'tenant_id': self._tenant_id}}
+                req = self.new_create_request("pools",
+                                              assoc,
+                                              fmt=self.fmt,
+                                              id=pool['pool']['id'],
+                                              subresource="health_monitors")
+                res = req.get_response(self.ext_api)
+                self.assertEqual(res.status_int, exc.HTTPCreated.code)
+
+                # Due to the policy check, the returned response gets the
+                # associated health monitor IDs stripped and an empty list is
+                # returned.  So verify the association by doing a separate
+                # 'get'.
+                req = self.new_show_request('pools',
+                                            pool['pool']['id'],
+                                            fmt=self.fmt)
+                p = self.deserialize(self.fmt, req.get_response(self.ext_api))
+
+                yield p, hm
 
     def _test_create_vip(self, name="VIP", pool_id=None, protocol='HTTP',
                          port_number=80, admin_state_up=True,
@@ -198,3 +238,37 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
             self._test_create_vip(pool_id=pool['pool']['id'],
                                   subnet_id=self._ext_subnet['subnet']['id'],
                                   expected_res_status=exc.HTTPBadRequest.code)
+
+    def test_create_pool_health_monitor(self):
+        with self.pool_with_hm_associated() as (p, hm):
+            self.assertEqual(len(p['pool']['health_monitors']), 1)
+            self.assertEqual(p['pool']['health_monitors'][0],
+                             hm['health_monitor']['id'])
+
+    def test_create_pool_health_monitor_already_associated(self):
+        # Associating two health monitors to a pool throws an error
+        with self.pool_with_hm_associated() as (p, hm):
+            with self.health_monitor() as hm2:
+                # Associate the second hm
+                assoc2 = {"health_monitor": {
+                          "id": hm2['health_monitor']['id'],
+                          'tenant_id': self._tenant_id}}
+                req2 = self.new_create_request(
+                    "pools", assoc2, fmt=self.fmt, id=p['pool']['id'],
+                    subresource="health_monitors")
+                res2 = req2.get_response(self.ext_api)
+                self.assertEqual(res2.status_int, exc.HTTPBadRequest.code)
+
+    def test_delete_pool_health_monitor(self):
+        with self.pool_with_hm_associated() as (p, hm):
+            req = self.new_delete_request("pools", fmt=self.fmt,
+                                          id=p['pool']['id'],
+                                          sub_id=hm['health_monitor']['id'],
+                                          subresource="health_monitors")
+            res = req.get_response(self.ext_api)
+            self.assertEqual(res.status_int, exc.HTTPNoContent.code)
+
+            # Verify that it's gone
+            req = self.new_show_request('pools', p['pool']['id'], fmt=self.fmt)
+            res = self.deserialize(self.fmt, req.get_response(self.ext_api))
+            self.assertEqual(len(res['pool']['health_monitors']), 0)

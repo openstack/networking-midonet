@@ -109,58 +109,6 @@ class MidonetClusterClient(base.MidonetClientBase):
                          data_type=task.SECURITY_GROUP_RULE,
                          resource_id=security_group_rule_id)
 
-    # LBaaS methods - move these out when the advanced service driver-model is
-    # adopted
-
-    def create_vip_precommit(self, context, vip):
-        task.create_task(context, task.CREATE, data_type=task.VIP,
-                         resource_id=vip['id'], data=vip)
-
-    def update_vip_precommit(self, context, vip_id, vip):
-        task.create_task(context, task.UPDATE, data_type=task.VIP,
-                         resource_id=vip_id, data=vip)
-
-    def delete_vip_precommit(self, context, vip_id):
-        task.create_task(context, task.DELETE, data_type=task.VIP,
-                         resource_id=vip_id)
-
-    def create_pool_precommit(self, context, pool):
-        task.create_task(context, task.CREATE, data_type=task.POOL,
-                         resource_id=pool['id'], data=pool)
-
-    def update_pool_precommit(self, context, pool_id, pool):
-        task.create_task(context, task.UPDATE, data_type=task.POOL,
-                         resource_id=pool_id, data=pool)
-
-    def delete_pool_precommit(self, context, pool_id):
-        task.create_task(context, task.DELETE, data_type=task.POOL,
-                         resource_id=pool_id)
-
-    def create_member_precommit(self, context, member):
-        task.create_task(context, task.CREATE, data_type=task.MEMBER,
-                         resource_id=member['id'], data=member)
-
-    def update_member_precommit(self, context, member_id, member):
-        task.create_task(context, task.UPDATE, data_type=task.MEMBER,
-                         resource_id=member_id, data=member)
-
-    def delete_member_precommit(self, context, member_id):
-        task.create_task(context, task.DELETE, data_type=task.MEMBER,
-                         resource_id=member_id)
-
-    def create_health_monitor_precommit(self, context, health_monitor):
-        task.create_task(context, task.CREATE, data_type=task.HEALTH_MONITOR,
-                         resource_id=health_monitor['id'], data=health_monitor)
-
-    def update_health_monitor_precommit(self, context, health_monitor_id,
-                                        health_monitor):
-        task.create_task(context, task.UPDATE, data_type=task.HEALTH_MONITOR,
-                         resource_id=health_monitor_id, data=health_monitor)
-
-    def delete_health_monitor_precommit(self, context, health_monitor_id):
-        task.create_task(context, task.DELETE, data_type=task.HEALTH_MONITOR,
-                         resource_id=health_monitor_id)
-
     # Agent membership extension
 
     def create_agent_membership_precommit(self, context, agent_membership):
@@ -190,3 +138,54 @@ class MidonetClusterClient(base.MidonetClientBase):
         for mido_host in self._midonet_hosts():
             res.append(top.midonet_host_to_neutron_agent(mido_host))
         return res
+
+    # LBaaS
+
+    def create_vip(self, context, vip):
+        task.create_task(context, task.CREATE, data_type=task.VIP,
+                         resource_id=vip['id'], data=vip)
+
+    def update_vip(self, context, vip_id, vip):
+        task.create_task(context, task.UPDATE, data_type=task.VIP,
+                         resource_id=vip_id, data=vip)
+
+    def delete_vip(self, context, vip_id):
+        task.create_task(context, task.DELETE, data_type=task.VIP,
+                         resource_id=vip_id)
+
+    def create_pool(self, context, pool):
+        task.create_task(context, task.CREATE, data_type=task.POOL,
+                         resource_id=pool['id'], data=pool)
+
+    def update_pool(self, context, pool_id, pool):
+        task.create_task(context, task.UPDATE, data_type=task.POOL,
+                         resource_id=pool_id, data=pool)
+
+    def delete_pool(self, context, pool_id):
+        task.create_task(context, task.DELETE, data_type=task.POOL,
+                         resource_id=pool_id)
+
+    def create_member(self, context, member):
+        task.create_task(context, task.CREATE, data_type=task.MEMBER,
+                         resource_id=member['id'], data=member)
+
+    def update_member(self, context, member_id, member):
+        task.create_task(context, task.UPDATE, data_type=task.MEMBER,
+                         resource_id=member_id, data=member)
+
+    def delete_member(self, context, member_id):
+        task.create_task(context, task.DELETE, data_type=task.MEMBER,
+                         resource_id=member_id)
+
+    def create_health_monitor(self, context, health_monitor):
+        task.create_task(context, task.CREATE, data_type=task.HEALTH_MONITOR,
+                         resource_id=health_monitor['id'], data=health_monitor)
+
+    def update_health_monitor(self, context, health_monitor_id,
+                              health_monitor):
+        task.create_task(context, task.UPDATE, data_type=task.HEALTH_MONITOR,
+                         resource_id=health_monitor_id, data=health_monitor)
+
+    def delete_health_monitor(self, context, health_monitor_id):
+        task.create_task(context, task.DELETE, data_type=task.HEALTH_MONITOR,
+                         resource_id=health_monitor_id)

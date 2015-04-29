@@ -94,42 +94,39 @@ class MidonetApiClient(base.MidonetClientBase):
     def delete_security_group_rule_postcommit(self, security_group_rule_id):
         self.api_cli.delete_security_group_rule(security_group_rule_id)
 
-    # LBaaS methods - move these out when the advanced service driver-model is
-    # adopted
-
-    def create_vip_postcommit(self, vip):
+    def create_vip(self, context, vip):
         self.api_cli.create_vip(vip)
 
-    def update_vip_postcommit(self, vip_id, vip):
+    def update_vip(self, context, vip_id, vip):
         self.api_cli.update_vip(vip_id, vip)
 
-    def delete_vip_postcommit(self, vip_id):
+    def delete_vip(self, context, vip_id):
         self.api_cli.delete_vip(vip_id)
 
-    def create_pool_postcommit(self, pool):
+    def create_pool(self, context, pool):
         self.api_cli.create_pool(pool)
 
-    def update_pool_postcommit(self, pool_id, pool):
+    def update_pool(self, context, pool_id, pool):
         self.api_cli.update_pool(pool_id, pool)
 
-    def delete_pool_postcommit(self, pool_id):
+    def delete_pool(self, context, pool_id):
         self.api_cli.delete_pool(pool_id)
 
-    def create_member_postcommit(self, member):
+    def create_member(self, context, member):
         self.api_cli.create_member(member)
 
-    def update_member_postcommit(self, member_id, member):
+    def update_member(self, context, member_id, member):
         self.api_cli.update_member(member_id, member)
 
-    def delete_member_postcommit(self, member_id):
+    def delete_member(self, context, member_id):
         self.api_cli.delete_member(member_id)
 
-    def create_health_monitor_postcommit(self, health_monitor):
+    def create_health_monitor(self, context, health_monitor):
         self.api_cli.create_health_monitor(health_monitor)
 
-    def update_health_monitor_postcommit(self, health_monitor_id,
-                                         health_monitor):
+    def update_health_monitor(self, context, health_monitor_id,
+                              health_monitor):
         self.api_cli.update_health_monitor(health_monitor_id, health_monitor)
 
-    def delete_health_monitor_postcommit(self, health_monitor_id):
+    def delete_health_monitor(self, context, health_monitor_id):
         self.api_cli.delete_health_monitor(health_monitor_id)

@@ -23,11 +23,11 @@ from sqlalchemy.orm import exc
 _LE = i18n._LE
 
 
-class LoadBalancerMixin(object):
+class LoadBalancerDriverDbMixin(object):
 
     def _check_and_get_router_id_for_pool(self, context, subnet_id):
 
-        subnet = self._get_subnet(context, subnet_id)
+        subnet = self.core_plugin._get_subnet(context, subnet_id)
 
         # Check whether the network is external
         if self._is_subnet_external(context, subnet):
@@ -41,7 +41,7 @@ class LoadBalancerMixin(object):
         return router_id
 
     def _get_router_from_pool(self, context, pool):
-        subnet = self._get_subnet(context, pool['subnet_id'])
+        subnet = self.core_plugin._get_subnet(context, pool['subnet_id'])
         return self._get_router_from_subnet(context, subnet)
 
     def _get_router_from_port(self, context, port_id):
@@ -75,12 +75,12 @@ class LoadBalancerMixin(object):
             return None
 
     def _is_subnet_external(self, context, subnet):
-        network = self._get_network(context, subnet['network_id'])
+        network = self.core_plugin._get_network(context, subnet['network_id'])
         return network.external
 
     def _validate_vip_subnet(self, context, vip):
-        subnet = self._get_subnet(context, vip['vip']['subnet_id'])
-        pool = self.get_pool(context, vip['vip']['pool_id'])
+        subnet = self.core_plugin._get_subnet(context, vip['subnet_id'])
+        pool = self.plugin.get_pool(context, vip['pool_id'])
 
         # VIP and pool must not be on the same subnet
         if pool['subnet_id'] == subnet['id']:
@@ -98,8 +98,19 @@ class LoadBalancerMixin(object):
         # when we created the pool
         assert router_id is not None
 
-        router = self._get_router(context, router_id)
+        router = self.core_plugin._get_router(context, router_id)
         if router.get('gw_port_id') is None:
             msg = (_LE("The router must have its gateway set if the "
                        "VIP subnet is external"))
             raise n_exc.BadRequest(resource='vip', msg=msg)
+
+    def _validate_pool_hm_assoc(self, context, pool_id, hm_id):
+        pool = self.plugin.get_pool(context, pool_id)
+        assoc = next((x for x in pool['health_monitors'] if x != hm_id), None)
+
+        # There is an association with a different health monitor
+        if assoc:
+            msg = (_LE("The pool is already associated with a different "
+                       "health monitor"))
+            raise n_exc.BadRequest(resource='pool_monitor_association',
+                                   msg=msg)

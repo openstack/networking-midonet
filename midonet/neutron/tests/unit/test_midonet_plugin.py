@@ -72,7 +72,7 @@ class MidonetPluginConf(object):
 
 class MidonetPluginV2TestCase(test_plugin.NeutronDbPluginV2TestCase):
 
-    def setup_parent(self):
+    def setup_parent(self, service_plugins=None, ext_mgr=None):
 
         # Set up mock for the midonet client to be made available in tests
         patcher = mock.patch(TEST_MN_CLIENT)
@@ -83,12 +83,14 @@ class MidonetPluginV2TestCase(test_plugin.NeutronDbPluginV2TestCase):
         # by the common configuration setUp.
         parent_setup = functools.partial(
             super(MidonetPluginV2TestCase, self).setUp,
-            plugin=MidonetPluginConf.plugin_name
+            plugin=MidonetPluginConf.plugin_name,
+            service_plugins=service_plugins,
+            ext_mgr=ext_mgr,
         )
         MidonetPluginConf.setUp(self, parent_setup)
 
-    def setUp(self):
-        self.setup_parent()
+    def setUp(self, plugin=None, service_plugins=None, ext_mgr=None):
+        self.setup_parent(service_plugins=service_plugins, ext_mgr=ext_mgr)
 
 
 class TestMidonetNetworksV2(MidonetPluginV2TestCase,
@@ -96,8 +98,8 @@ class TestMidonetNetworksV2(MidonetPluginV2TestCase,
     pass
 
 
-class TestMidonetSecurityGroup(MidonetPluginV2TestCase,
-                               test_sg.TestSecurityGroups):
+class TestMidonetSecurityGroup(test_sg.TestSecurityGroups,
+                               MidonetPluginV2TestCase):
     pass
 
 
@@ -251,18 +253,20 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
             self.assertEqual(res.status_int, 400)
 
 
-class TestMidonetExtGwMode(MidonetPluginV2TestCase,
-                           test_gw_mode.ExtGwModeIntTestCase):
+class TestMidonetExtGwMode(test_gw_mode.ExtGwModeIntTestCase,
+                           MidonetPluginV2TestCase):
+
     pass
 
 
-class TestMidonetExtraDHCPOpts(MidonetPluginV2TestCase,
-                               test_dhcpopts.TestExtraDhcpOpt):
+class TestMidonetExtraDHCPOpts(test_dhcpopts.TestExtraDhcpOpt,
+                               MidonetPluginV2TestCase):
+
     pass
 
 
-class TestMidonetL3NatExtraRoute(MidonetPluginV2TestCase,
-                                 test_ext_route.ExtraRouteDBIntTestCase):
+class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
+                                 MidonetPluginV2TestCase):
 
     def test_router_update_gateway_upon_subnet_create_ipv6(self):
         # This test in the parent test class fails because 'create_subnet' and

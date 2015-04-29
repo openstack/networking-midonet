@@ -26,12 +26,12 @@ MIDONET_CREATE_FAKE_UPLINK=${MIDONET_CREATE_FAKE_UPLINK:-True}
 
 # Disable nova-network and enable neutron services
 disable_service n-net
-disable_service q-lbaas
 disable_service q-fwaas
 disable_service q-l3
 disable_service q-agt
 disable_service q-vpn
 enable_service q-svc
+enable_service q-lbaas
 
 if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "True" ]; then
     Q_AUTH_STRATEGY=noauth

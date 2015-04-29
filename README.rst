@@ -25,6 +25,22 @@ The Kilo MidoNet plugin is not compatible with MidoNet prior to 2.0.  Please
 use the Juno plugin if you want to use it against MidoNet version 1.X.
 
 
+LBaaS
+-----
+
+Starting in Kilo, MidoNet plugin implements LBaaS v1 following the advanced
+service driver model.  To configure MidoNet as the LBaaS driver, set the
+following entries in the Neutron configuration file
+(/etc/neutron/neutron.conf):
+
+::
+    [DEFAULT]
+    service_plugins = lbaas
+
+    [service_providers]
+    service_provider=LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default
+
+
 Tests
 -----
 

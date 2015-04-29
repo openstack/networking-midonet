@@ -174,98 +174,6 @@ class MidonetClientBase(object):
     def delete_security_group_rule_postcommit(self, security_group_rule_id):
         pass
 
-    # LBaaS methods - move these out when the advanced service driver-model is
-    # adopted
-
-    def create_vip_precommit(self, context, vip):
-        pass
-
-    def create_vip_postcommit(self, vip):
-        pass
-
-    def update_vip_precommit(self, context, vip_id, vip):
-        pass
-
-    def update_vip_postcommit(self, vip_id, vip):
-        pass
-
-    def delete_vip_precommit(self, context, vip_id):
-        pass
-
-    def delete_vip_postcommit(self, vip_id):
-        pass
-
-    def create_pool_precommit(self, context, pool):
-        pass
-
-    def create_pool_postcommit(self, pool):
-        pass
-
-    def update_pool_precommit(self, context, pool_id, pool):
-        pass
-
-    def update_pool_postcommit(self, pool_id, pool):
-        pass
-
-    def delete_pool_precommit(self, context, pool_id):
-        pass
-
-    def delete_pool_postcommit(self, pool_id):
-        pass
-
-    def create_member_precommit(self, context, member):
-        pass
-
-    def create_member_postcommit(self, member):
-        pass
-
-    def update_member_precommit(self, context, member_id, member):
-        pass
-
-    def update_member_postcommit(self, member_id, member):
-        pass
-
-    def delete_member_precommit(self, context, member_id):
-        pass
-
-    def delete_member_postcommit(self, member_id):
-        pass
-
-    def create_health_monitor_precommit(self, context, health_monitor):
-        pass
-
-    def create_health_monitor_postcommit(self, health_monitor):
-        pass
-
-    def update_health_monitor_precommit(self, context, health_monitor_id,
-                                        health_monitor):
-        pass
-
-    def update_health_monitor_postcommit(self, health_monitor_id,
-                                         health_monitor):
-        pass
-
-    def delete_health_monitor_precommit(self, context, health_monitor_id):
-        pass
-
-    def delete_health_monitor_postcommit(self, health_monitor_id):
-        pass
-
-    def create_pool_health_monitor_precommit(self, context, health_monitor,
-                                             pool_id):
-        pass
-
-    def create_pool_health_monitor_postcommit(self, health_monitor, pool_id):
-        pass
-
-    def delete_pool_health_monitor_precommit(self, context, health_monitor_id,
-                                             pool_id):
-        pass
-
-    def delete_pool_health_monitor_postcommit(self, health_monitor_id,
-                                              pool_id):
-        pass
-
     # Agent membership extension
 
     def create_agent_membership_precommit(self, context, agent_membership):
@@ -287,3 +195,43 @@ class MidonetClientBase(object):
 
     def get_agents(self):
         return []
+
+    # LBaaS methods - these are not inside a DB transaction.  DB updates as
+    # well as blocking API calls are allowed.
+
+    def create_vip(self, context, vip):
+        pass
+
+    def update_vip(self, context, vip_id, new_vip):
+        pass
+
+    def delete_vip(self, context, vip_id):
+        pass
+
+    def create_pool(self, context, pool):
+        pass
+
+    def update_pool(self, context, pool_id, pool):
+        pass
+
+    def delete_pool(self, context, pool_id):
+        pass
+
+    def create_member(self, context, member):
+        pass
+
+    def update_member(self, context, member_id, member):
+        pass
+
+    def delete_member(self, context, member_id):
+        pass
+
+    def create_health_monitor(self, context, health_monitor):
+        pass
+
+    def update_health_monitor(self, context, health_monitor_id,
+                              health_monitor):
+        pass
+
+    def delete_health_monitor(self, context, health_monitor_id):
+        pass

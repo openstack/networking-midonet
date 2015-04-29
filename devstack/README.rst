@@ -36,3 +36,18 @@ To set the Cluster-based client:
 
  MIDONET_CLIENT=midonet.neutron.client.cluster.MidonetClusterClient
 
+
+LBaaS
+-----
+
+Starting in Kilo, MidoNet plugin implements LBaaS v1 following the advanced
+service driver model.  To configure MidoNet as the LBaaS driver when running
+devstack, set the following in local.conf:
+
+::
+
+    enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas
+    NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default"
+    # Use above is for the cluster-based driver.  To set the API-based driver:
+    # NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetApiLoadbalancerDriver:default"
+
