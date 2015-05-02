@@ -24,11 +24,11 @@ import sys
 from webob import exc
 
 from midonet.neutron.common import config  # noqa
-from midonet.neutron.db import agent_membership_db  # noqa
-from midonet.neutron.db import data_state_db  # noqa
+from midonet.neutron.db import data_state_db
 from midonet.neutron.db import data_version_db as dv_db
-from midonet.neutron.db import port_binding_db as pb_db  # noqa
-from midonet.neutron.db import task_db  # noqa
+sys.modules["midonetclient"] = mock.Mock()
+sys.modules["midonetclient.topology"] = mock.Mock()
+from midonet.neutron.rpc import topology_client as top
 
 from neutron import context
 from neutron.db import api as db_api
@@ -45,10 +45,8 @@ from neutron.tests.unit.extensions import test_securitygroup as test_sg
 from neutron.tests.unit import testlib_api
 from oslo_config import cfg
 
-sys.modules["midonetclient"] = mock.Mock()
-sys.modules["midonetclient.topology"] = mock.Mock()
-from midonet.neutron.rpc import topology_client as top  # noqa
-
+cfg.CONF.set_override('use_cluster', True, group='MIDONET')
+from midonet.neutron import plugin as mn_plugin  # noqa
 
 PLUGIN_NAME = 'neutron.plugins.midonet.plugin.MidonetPluginV2'
 
@@ -58,7 +56,6 @@ class MidonetPluginConf(object):
     """
 
     plugin_name = PLUGIN_NAME
-    cfg.CONF.set_override('use_cluster', True, group='MIDONET')
 
     @staticmethod
     def setUp(test_case, parent_setup=None):

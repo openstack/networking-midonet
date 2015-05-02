@@ -14,22 +14,37 @@
 #    under the License.
 
 import mock
+import sys
+
+from midonet.neutron import plugin_api
 
 from neutron.extensions import portbindings
+sys.modules["midonetclient"] = mock.Mock()
+sys.modules["midonetclient.topology"] = mock.Mock()
+from neutron.plugins.midonet import plugin as mn_plugin  # noqa
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_plugin
 from neutron.tests.unit.extensions import test_extra_dhcp_opt as test_dhcpopts
 from neutron.tests.unit.extensions import test_l3 as test_l3_plugin
 from neutron.tests.unit.extensions import test_l3_ext_gw_mode as test_gw_mode
 from neutron.tests.unit.extensions import test_securitygroup as test_sg
-import sys
-sys.modules["midonetclient"] = mock.Mock()
-sys.modules["midonetclient.neutron"] = mock.Mock()
-sys.modules["midonetclient.neutron.client"] = mock.Mock()
 
 
-MIDOKURA_PKG_PATH = 'neutron.plugins.midonet.plugin'
-MIDONET_PLUGIN_NAME = ('%s.MidonetPluginV2' % MIDOKURA_PKG_PATH)
+MIDONET_PLUGIN_NAME = ("midonet.neutron.tests.unit.test_midonet_plugin_api"
+                       ".TestMidonetPluginV2")
+
+
+class TestMidonetPluginV2(plugin_api.MidonetApiMixin):
+    # Plugin for the API-based MidoNet plugin used only for unit tests.
+    # By creating a separate class, we can guarantee that the API-based mixin
+    # is always being tested.
+
+    supported_extension_aliases = (mn_plugin.MidonetPluginV2
+                                   .supported_extension_aliases)
+
+    def __init__(self):
+        super(TestMidonetPluginV2, self).__init__()
+        self.api_cli = mock.Mock()
 
 
 class MidonetPluginApiV2TestCase(test_plugin.NeutronDbPluginV2TestCase):

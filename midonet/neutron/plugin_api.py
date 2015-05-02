@@ -34,6 +34,7 @@ from neutron.db import extraroute_db
 from neutron.db import l3_gwmode_db
 from neutron.db import portbindings_db
 from neutron.db import securitygroups_db
+from neutron.extensions import extra_dhcp_opt as edo_ext
 from neutron.extensions import portbindings
 from neutron.extensions import securitygroup as ext_sg
 from neutron import i18n
@@ -237,6 +238,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         with context.session.begin(subtransactions=True):
             # Create a Neutron port
             new_port = super(MidonetApiMixin, self).create_port(context, port)
+            dhcp_opts = port['port'].get(edo_ext.EXTRADHCPOPTS, [])
 
             # Make sure that the port created is valid
             if "id" not in new_port:
@@ -254,6 +256,8 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             self._process_portbindings_create_and_update(context, port_data,
                                                          new_port)
 
+            self._process_port_create_extra_dhcp_opts(context, new_port,
+                                                      dhcp_opts)
         return new_port
 
     @util.handle_api_error
@@ -330,6 +334,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             p = super(MidonetApiMixin, self).update_port(context, id, port)
 
             self._process_port_update(context, id, port, p)
+            self._update_extra_dhcp_opts_on_port(context, id, port, p)
             self._process_portbindings_create_and_update(context,
                                                          port['port'], p)
             self.api_cli.update_port(id, p)
@@ -725,8 +730,6 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         LOG.debug("MidonetApiMixin.delete_pool called: %(id)r", {'id': id})
 
         with context.session.begin(subtransactions=True):
-            self._delete_resource_router_id_binding(context, id,
-                                                    loadbalancer_db.Pool)
             super(MidonetApiMixin, self).delete_pool(context, id)
             self.api_cli.delete_pool(id)
 
@@ -831,7 +834,8 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         pool = self.get_pool(context, pool_id)
         monitors = pool.get('health_monitors')
         if len(monitors) > 0:
-            msg = _("MidoNet right now can only support one monitor per pool")
+            msg = (_LE("MidoNet right now can only support one monitor per "
+                       "pool"))
             raise n_exc.BadRequest(resource='pool_health_monitor', msg=msg)
 
         hm = health_monitor['health_monitor']
