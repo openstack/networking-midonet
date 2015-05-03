@@ -37,6 +37,7 @@ else
 fi
 # Use midonet as Neutron plugin
 Q_PLUGIN=midonet
+IP_VERSION=4
 
 # Set all the passwords
 THE_PASSWORD=midonet
