@@ -119,8 +119,8 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         Create a new Neutron network and its corresponding MidoNet bridge.
         """
-        LOG.info(_LI('MidonetApiMixin.create_network called: network=%r'),
-                 network)
+        LOG.debug('MidonetApiMixin.create_network called: network=%r',
+                  network)
 
         net = self._process_create_network(context, network)
 
@@ -132,7 +132,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             with excutils.save_and_reraise_exception():
                 super(MidonetApiMixin, self).delete_network(context, net['id'])
 
-        LOG.info(_LI("MidonetApiMixin.create_network exiting: net=%r"), net)
+        LOG.debug("MidonetApiMixin.create_network exiting: net=%r", net)
         return net
 
     @util.handle_api_error
@@ -143,8 +143,8 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         Update an existing Neutron network and its corresponding MidoNet
         bridge.
         """
-        LOG.info(_LI("MidonetApiMixin.update_network called: id=%(id)r, "
-                     "network=%(network)r"), {'id': id, 'network': network})
+        LOG.debug("MidonetApiMixin.update_network called: id=%(id)r, "
+                  "network=%(network)r", {'id': id, 'network': network})
 
         with context.session.begin(subtransactions=True):
             net = super(MidonetApiMixin, self).update_network(
@@ -153,7 +153,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             self._process_l3_update(context, net, network['network'])
             self.api_cli.update_network(id, net)
 
-        LOG.info(_LI("MidonetApiMixin.update_network exiting: net=%r"), net)
+        LOG.debug("MidonetApiMixin.update_network exiting: net=%r", net)
         return net
 
     @util.handle_api_error
@@ -169,7 +169,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         we moved to the model where API requests are asynchronous or when
         eventlet-compatible mysqlconnector is used for the DB driver instead.
         """
-        LOG.info(_LI("MidonetApiMixin.delete_network called: id=%r"), id)
+        LOG.debug("MidonetApiMixin.delete_network called: id=%r", id)
 
         with context.session.begin(subtransactions=True):
             self._process_l3_delete(context, id)
@@ -177,7 +177,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
             self.api_cli.delete_network(id)
 
-        LOG.info(_LI("MidonetApiMixin.delete_network exiting: id=%r"), id)
+        LOG.debug("MidonetApiMixin.delete_network exiting: id=%r", id)
 
     @util.handle_api_error
     @util.retry_on_error(2, 1, db_exc.DBError)
@@ -186,8 +186,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         Creates a Neutron subnet and a DHCP entry in MidoNet bridge.
         """
-        LOG.info(_LI("MidonetApiMixin.create_subnet called: subnet=%r"),
-                 subnet)
+        LOG.debug("MidonetApiMixin.create_subnet called: subnet=%r", subnet)
 
         sn_entry = super(MidonetApiMixin, self).create_subnet(context, subnet)
 
@@ -200,8 +199,8 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                 super(MidonetApiMixin, self).delete_subnet(
                     context, sn_entry['id'])
 
-        LOG.info(_LI("MidonetApiMixin.create_subnet exiting: sn_entry=%r"),
-                 sn_entry)
+        LOG.debug("MidonetApiMixin.create_subnet exiting: sn_entry=%r",
+                  sn_entry)
         return sn_entry
 
     @util.handle_api_error
@@ -211,20 +210,20 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         Delete neutron network and its corresponding MidoNet bridge.
         """
-        LOG.info(_LI("MidonetApiMixin.delete_subnet called: id=%s"), id)
+        LOG.debug("MidonetApiMixin.delete_subnet called: id=%s", id)
 
         with context.session.begin(subtransactions=True):
             super(MidonetApiMixin, self).delete_subnet(context, id)
             self.api_cli.delete_subnet(id)
 
-        LOG.info(_LI("MidonetApiMixin.delete_subnet exiting"))
+        LOG.debug("MidonetApiMixin.delete_subnet exiting")
 
     @util.handle_api_error
     @util.retry_on_error(2, 1, db_exc.DBError)
     def update_subnet(self, context, id, subnet):
         """Update the subnet with new info.
         """
-        LOG.info(_LI("MidonetApiMixin.update_subnet called: id=%s"), id)
+        LOG.debug("MidonetApiMixin.update_subnet called: id=%s", id)
 
         with context.session.begin(subtransactions=True):
             s = super(MidonetApiMixin, self).update_subnet(context, id, subnet)
@@ -265,7 +264,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
     @util.retry_on_error(2, 1, db_exc.DBError)
     def create_port(self, context, port):
         """Create a L2 port in Neutron/MidoNet."""
-        LOG.info(_LI("MidonetApiMixin.create_port called: port=%r"), port)
+        LOG.debug("MidonetApiMixin.create_port called: port=%r", port)
 
         new_port = self._process_create_port(context, port)
 
@@ -278,7 +277,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                 super(MidonetApiMixin, self).delete_port(context,
                                                          new_port['id'])
 
-        LOG.info(_LI("MidonetApiMixin.create_port exiting: port=%r"), new_port)
+        LOG.debug("MidonetApiMixin.create_port exiting: port=%r", new_port)
         return new_port
 
     @util.handle_api_error
@@ -299,8 +298,8 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
     @util.retry_on_error(2, 1, db_exc.DBError)
     def delete_port(self, context, id, l3_port_check=True):
         """Delete a neutron port and corresponding MidoNet bridge port."""
-        LOG.info(_LI("MidonetApiMixin.delete_port called: id=%(id)s "
-                     "l3_port_check=%(l3_port_check)r"),
+        LOG.debug("MidonetApiMixin.delete_port called: id=%(id)s "
+                  "l3_port_check=%(l3_port_check)r",
                  {'id': id, 'l3_port_check': l3_port_check})
 
         # if needed, check to see if this is a port owned by
@@ -309,7 +308,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             self.prevent_l3_port_deletion(context, id)
 
         self._process_port_delete(context, id)
-        LOG.info(_LI("MidonetApiMixin.delete_port exiting: id=%r"), id)
+        LOG.debug("MidonetApiMixin.delete_port exiting: id=%r", id)
 
     def _process_port_update(self, context, id, in_port, out_port):
 
@@ -326,8 +325,8 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
     @util.retry_on_error(2, 1, db_exc.DBError)
     def update_port(self, context, id, port):
         """Handle port update, including security groups and fixed IPs."""
-        LOG.info(_LI("MidonetApiMixin.update_port called: id=%(id)s "
-                     "port=%(port)r"), {'id': id, 'port': port})
+        LOG.debug("MidonetApiMixin.update_port called: id=%(id)s "
+                  "port=%(port)r"), {'id': id, 'port': port}
         with context.session.begin(subtransactions=True):
 
             # update the port DB
@@ -339,7 +338,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                                                          port['port'], p)
             self.api_cli.update_port(id, p)
 
-        LOG.info(_LI("MidonetApiMixin.update_port exiting: p=%r"), p)
+        LOG.debug("MidonetApiMixin.update_port exiting: p=%r", p)
         return p
 
     @util.handle_api_error
@@ -354,8 +353,8 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         :param router: Router information provided to create a new router.
         """
-        LOG.info(_LI("MidonetApiMixin.create_router called: "
-                     "router=%(router)s"), {"router": router})
+        LOG.debug("MidonetApiMixin.create_router called: router=%(router)s",
+                  {"router": router})
         r = super(MidonetApiMixin, self).create_router(context, router)
 
         try:
@@ -366,22 +365,22 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             with excutils.save_and_reraise_exception():
                 super(MidonetApiMixin, self).delete_router(context, r['id'])
 
-        LOG.info(_LI("MidonetApiMixin.create_router exiting: "
-                     "router=%(router)s."), {"router": r})
+        LOG.debug("MidonetApiMixin.create_router exiting: router=%(router)s.",
+                  {"router": r})
         return r
 
     @util.handle_api_error
     @util.retry_on_error(2, 1, db_exc.DBError)
     def update_router(self, context, id, router):
         """Handle router updates."""
-        LOG.info(_LI("MidonetApiMixin.update_router called: id=%(id)s "
-                     "router=%(router)r"), {"id": id, "router": router})
+        LOG.debug("MidonetApiMixin.update_router called: id=%(id)s "
+                  "router=%(router)r", {"id": id, "router": router})
 
         with context.session.begin(subtransactions=True):
             r = super(MidonetApiMixin, self).update_router(context, id, router)
             self.api_cli.update_router(id, r)
 
-        LOG.info(_LI("MidonetApiMixin.update_router exiting: router=%r"), r)
+        LOG.debug("MidonetApiMixin.update_router exiting: router=%r", r)
         return r
 
     @util.handle_api_error
@@ -394,22 +393,21 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         :param id: router ID to remove
         """
-        LOG.info(_LI("MidonetApiMixin.delete_router called: id=%s"), id)
+        LOG.debug("MidonetApiMixin.delete_router called: id=%s", id)
 
         with context.session.begin(subtransactions=True):
             super(MidonetApiMixin, self).delete_router(context, id)
             self.api_cli.delete_router(id)
 
-        LOG.info(_LI("MidonetApiMixin.delete_router exiting: id=%s"), id)
+        LOG.debug("MidonetApiMixin.delete_router exiting: id=%s", id)
 
     @util.handle_api_error
     @util.retry_on_error(2, 1, db_exc.DBError)
     def add_router_interface(self, context, router_id, interface_info):
         """Handle router linking with network."""
-        LOG.info(_LI("MidonetApiMixin.add_router_interface called: "
-                     "router_id=%(router_id)s "
-                     "interface_info=%(interface_info)r"),
-                 {'router_id': router_id, 'interface_info': interface_info})
+        LOG.debug("MidonetApiMixin.add_router_interface called: "
+                  "router_id=%(router_id)s, interface_info=%(interface_info)r",
+                  {'router_id': router_id, 'interface_info': interface_info})
 
         info = super(MidonetApiMixin, self).add_router_interface(
             context, router_id, interface_info)
@@ -423,33 +421,32 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             with excutils.save_and_reraise_exception():
                 self.remove_router_interface(context, router_id, info)
 
-        LOG.info(_LI("MidonetApiMixin.add_router_interface exiting: info=%r"),
-                 info)
+        LOG.debug("MidonetApiMixin.add_router_interface exiting: info=%r",
+                  info)
         return info
 
     @util.handle_api_error
     @util.retry_on_error(2, 1, db_exc.DBError)
     def remove_router_interface(self, context, router_id, interface_info):
         """Handle router un-linking with network."""
-        LOG.info(_LI("MidonetApiMixin.remove_router_interface called: "
-                     "router_id=%(router_id)s "
-                     "interface_info=%(interface_info)r"),
-                 {'router_id': router_id, 'interface_info': interface_info})
+        LOG.debug("MidonetApiMixin.remove_router_interface called: "
+                  "router_id=%(router_id)s, interface_info=%(interface_info)r",
+                  {'router_id': router_id, 'interface_info': interface_info})
 
         with context.session.begin(subtransactions=True):
             info = super(MidonetApiMixin, self).remove_router_interface(
                 context, router_id, interface_info)
             self.api_cli.remove_router_interface(router_id, interface_info)
 
-        LOG.info(_LI("MidonetApiMixin.remove_router_interface exiting: "
-                     "info=%r"), info)
+        LOG.debug("MidonetApiMixin.remove_router_interface exiting: info=%r",
+                  info)
         return info
 
     @util.handle_api_error
     @util.retry_on_error(2, 1, db_exc.DBError)
     def create_floatingip(self, context, floatingip):
         """Handle floating IP creation."""
-        LOG.info(_LI("MidonetApiMixin.create_floatingip called: ip=%r"),
+        LOG.debug("MidonetApiMixin.create_floatingip called: ip=%r",
                  floatingip)
 
         fip = super(MidonetApiMixin, self).create_floatingip(context,
@@ -464,29 +461,28 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                 # Try removing the fip
                 self.delete_floatingip(context, fip['id'])
 
-        LOG.info(_LI("MidonetApiMixin.create_floatingip exiting: fip=%r"),
-                 fip)
+        LOG.debug("MidonetApiMixin.create_floatingip exiting: fip=%r", fip)
         return fip
 
     @util.handle_api_error
     @util.retry_on_error(2, 1, db_exc.DBError)
     def delete_floatingip(self, context, id):
         """Handle floating IP deletion."""
-        LOG.info(_LI("MidonetApiMixin.delete_floatingip called: id=%s"), id)
+        LOG.debug("MidonetApiMixin.delete_floatingip called: id=%s", id)
 
         with context.session.begin(subtransactions=True):
             super(MidonetApiMixin, self).delete_floatingip(context, id)
             self.api_cli.delete_floating_ip(id)
 
-        LOG.info(_LI("MidonetApiMixin.delete_floatingip exiting: id=%r"), id)
+        LOG.debug("MidonetApiMixin.delete_floatingip exiting: id=%r", id)
 
     @util.handle_api_error
     @util.retry_on_error(2, 1, db_exc.DBError)
     def update_floatingip(self, context, id, floatingip):
         """Handle floating IP association and disassociation."""
-        LOG.info(_LI("MidonetApiMixin.update_floatingip called: id=%(id)s "
-                     "floatingip=%(floatingip)s "),
-                 {'id': id, 'floatingip': floatingip})
+        LOG.debug("MidonetApiMixin.update_floatingip called: id=%(id)s "
+                  "floatingip=%(floatingip)s ",
+                  {'id': id, 'floatingip': floatingip})
 
         with context.session.begin(subtransactions=True):
             fip = super(MidonetApiMixin, self).update_floatingip(context, id,
@@ -501,8 +497,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
             self.api_cli.update_floating_ip(id, fip)
 
-        LOG.info(_LI("MidonetApiMixin.update_floating_ip exiting: fip=%s"),
-                 fip)
+        LOG.debug("MidonetApiMixin.update_floating_ip exiting: fip=%s", fip)
         return fip
 
     @util.handle_api_error
@@ -514,10 +509,10 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         In MidoNet, this means creating a pair of chains, inbound and outbound,
         as well as a new port group.
         """
-        LOG.info(_LI("MidonetApiMixin.create_security_group called: "
-                     "security_group=%(security_group)s "
-                     "default_sg=%(default_sg)s "),
-                 {'security_group': security_group, 'default_sg': default_sg})
+        LOG.debug("MidonetApiMixin.create_security_group called: "
+                  "security_group=%(security_group)s "
+                  "default_sg=%(default_sg)s ",
+                  {'security_group': security_group, 'default_sg': default_sg})
 
         sg = security_group.get('security_group')
         tenant_id = self._get_tenant_id_for_create(context, sg)
@@ -538,16 +533,14 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                 super(MidonetApiMixin, self).delete_security_group(context,
                                                                    sg['id'])
 
-        LOG.info(_LI("MidonetApiMixin.create_security_group exiting: sg=%r"),
-                 sg)
+        LOG.debug("MidonetApiMixin.create_security_group exiting: sg=%r", sg)
         return sg
 
     @util.handle_api_error
     @util.retry_on_error(2, 1, db_exc.DBError)
     def delete_security_group(self, context, id):
         """Delete chains for Neutron security group."""
-        LOG.info(_LI("MidonetApiMixin.delete_security_group called: id=%s"),
-                 id)
+        LOG.debug("MidonetApiMixin.delete_security_group called: id=%s", id)
 
         sg = super(MidonetApiMixin, self).get_security_group(context, id)
         if not sg:
@@ -561,8 +554,7 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
             self.api_cli.delete_security_group(id)
 
-        LOG.info(_LI("MidonetApiMixin.delete_security_group exiting: id=%r"),
-                 id)
+        LOG.debug("MidonetApiMixin.delete_security_group exiting: id=%r", id)
 
     @util.handle_api_error
     @util.retry_on_error(2, 1, db_exc.DBError)
@@ -572,9 +564,9 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         Create a security group rule in the Neutron DB and corresponding
         MidoNet resources in its data store.
         """
-        LOG.info(_LI("MidonetApiMixin.create_security_group_rule called: "
-                     "security_group_rule=%(security_group_rule)r"),
-                 {'security_group_rule': security_group_rule})
+        LOG.debug("MidonetApiMixin.create_security_group_rule called: "
+                  "security_group_rule=%(security_group_rule)r",
+                  {'security_group_rule': security_group_rule})
 
         rule = super(MidonetApiMixin, self).create_security_group_rule(
             context, security_group_rule)
@@ -588,8 +580,8 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                 super(MidonetApiMixin, self).delete_security_group_rule(
                     context, rule['id'])
 
-        LOG.info(_LI("MidonetApiMixin.create_security_group_rule exiting: "
-                     "rule=%r"), rule)
+        LOG.debug("MidonetApiMixin.create_security_group_rule exiting: "
+                  "rule=%r", rule)
         return rule
 
     @util.handle_api_error
@@ -600,8 +592,8 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         Create multiple security group rules in the Neutron DB and
         corresponding MidoNet resources in its data store.
         """
-        LOG.info(_LI("MidonetApiMixin.create_security_group_rule_bulk called: "
-                     "security_group_rules=%(security_group_rules)r"),
+        LOG.debug("MidonetApiMixin.create_security_group_rule_bulk called: "
+                  "security_group_rules=%(security_group_rules)r",
                  {'security_group_rules': security_group_rules})
 
         rules = super(
@@ -618,8 +610,8 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                     super(MidonetApiMixin, self).delete_security_group_rule(
                         context, rule['id'])
 
-        LOG.info(_LI("MidonetApiMixin.create_security_group_rule_bulk exiting:"
-                     " rules=%r"), rules)
+        LOG.debug("MidonetApiMixin.create_security_group_rule_bulk exiting:"
+                  " rules=%r", rules)
         return rules
 
     @util.handle_api_error
@@ -630,16 +622,16 @@ class MidonetApiMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         Delete a security group rule from the Neutron DB and corresponding
         MidoNet resources from its data store.
         """
-        LOG.info(_LI("MidonetApiMixin.delete_security_group_rule called: "
-                     "sg_rule_id=%s"), sg_rule_id)
+        LOG.debug("MidonetApiMixin.delete_security_group_rule called: "
+                  "sg_rule_id=%s", sg_rule_id)
 
         with context.session.begin(subtransactions=True):
             super(MidonetApiMixin, self).delete_security_group_rule(
                 context, sg_rule_id)
             self.api_cli.delete_security_group_rule(sg_rule_id)
 
-        LOG.info(_LI("MidonetApiMixin.delete_security_group_rule exiting: "
-                     "id=%r"), id)
+        LOG.debug("MidonetApiMixin.delete_security_group_rule exiting: id=%r",
+                  id)
 
     @util.handle_api_error
     @util.retry_on_error(2, 1, db_exc.DBError)
