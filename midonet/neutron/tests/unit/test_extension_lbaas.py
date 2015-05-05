@@ -13,10 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import webob.exc
+from webob import exc
 
 from midonet.neutron.tests.unit import test_midonet_plugin as test_mn
-from midonet.neutron.tests.unit import test_midonet_plugin_api as test_mn_api
 
 from neutron.tests.unit.api import test_extensions as test_ex
 from neutron.tests.unit.extensions import test_l3
@@ -39,7 +38,8 @@ class LoadbalancerTestExtensionManager(test_l3.L3TestExtensionManager):
 
 
 class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
-                           test_l3.L3NatTestCaseMixin):
+                           test_l3.L3NatTestCaseMixin,
+                           test_mn.MidonetPluginV2TestCase,):
 
     def setUp(self, core_plugin=None, lb_plugin=None, lbaas_provider=None,
               ext_mgr=None):
@@ -109,25 +109,25 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
     def test_create_pool_with_bad_subnet(self):
         # Subnet does not exist so it should throw an error
         self._create_pool(self.fmt, 'pool1', 'ROUND_ROBIN', 'TCP', True,
-                          expected_res_status=404,
+                          expected_res_status=exc.HTTPNotFound.code,
                           subnet_id=uuidutils.generate_uuid())
 
     def test_create_pool_with_external_subnet(self):
         # Subnet is on an external network, which results in an error
         self._test_create_pool(subnet_id=self._ext_subnet['subnet']['id'],
-                               expected_res_status=400)
+                               expected_res_status=exc.HTTPBadRequest.code)
 
     def test_create_pool_with_no_router(self):
         # Subnet with no router association should throw an exception
         with self.subnet() as sub:
             self._test_create_pool(subnet_id=sub['subnet']['id'],
-                                   expected_res_status=400)
+                                   expected_res_status=exc.HTTPBadRequest.code)
 
     def test_delete_pool(self):
         with self.pool(do_delete=False) as pool:
             req = self.new_delete_request('pools', pool['pool']['id'])
             res = req.get_response(self.ext_api)
-            self.assertEqual(res.status_int, webob.exc.HTTPNoContent.code)
+            self.assertEqual(res.status_int, exc.HTTPNoContent.code)
 
     def test_show_pool(self):
         name = "pool1"
@@ -176,19 +176,19 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
         with self.pool() as pool:
             self._test_create_vip(pool_id=pool['pool']['id'],
                                   subnet_id=uuidutils.generate_uuid(),
-                                  expected_res_status=404)
+                                  expected_res_status=exc.HTTPNotFound.code)
 
     def test_create_vip_same_subnet_as_pool(self):
         # VIP and subnet cannot be set to the same subnet
         with self.pool() as pool:
             self._test_create_vip(pool_id=pool['pool']['id'],
                                   subnet_id=pool['pool']['subnet_id'],
-                                  expected_res_status=400)
+                                  expected_res_status=exc.HTTPBadRequest.code)
 
     def test_create_vip_with_bad_pool(self):
         # Non-existent pool results in an error
         self._test_create_vip(pool_id=uuidutils.generate_uuid(),
-                              expected_res_status=404)
+                              expected_res_status=exc.HTTPNotFound.code)
 
     def test_create_vip_with_ext_subnet_and_pool_with_no_gw(self):
         # Pool associated with vip must be attached to a router that has gw
@@ -197,16 +197,4 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
         with self.pool() as pool:
             self._test_create_vip(pool_id=pool['pool']['id'],
                                   subnet_id=self._ext_subnet['subnet']['id'],
-                                  expected_res_status=400)
-
-
-class LoadbalancerClusterTestCase(LoadbalancerTestCase,
-                                  test_mn.MidonetPluginV2TestCase):
-
-    pass
-
-
-class LoadbalancerApiTestCase(LoadbalancerTestCase,
-                              test_mn_api.MidonetPluginApiV2TestCase):
-
-    pass
+                                  expected_res_status=exc.HTTPBadRequest.code)

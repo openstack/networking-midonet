@@ -24,11 +24,8 @@ mido_opts = [
                help=_('IP that the cluster service can be reached on')),
     cfg.StrOpt('cluster_port', default='8088',
                help=_('Port that the cluster service can be reached on')),
-    cfg.BoolOpt('use_cluster', default=False,
-                help=_("Use the midonet plugin that interacts with the "
-                       "tasks-based architecture, rather than the plugin that "
-                       "interacts with the HTTP based architecture.")),
-
+    cfg.StrOpt('client', default='midonet.neutron.client.api.MidonetApiClient',
+               help=_('MidoNet client used to access MidoNet data storage.')),
 ]
 
 cfg.CONF.register_opts(mido_opts, "MIDONET")

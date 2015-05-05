@@ -1,0 +1,192 @@
+# Copyright (C) 2015 Midokura SARL.
+# All Rights Reserved.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
+from midonet.neutron.client import base
+from midonet.neutron.common import config  # noqa
+from midonet.neutron.db import task_db as task
+from midonet.neutron.rpc import topology_client as top
+
+import neutron.db.api as db
+
+from oslo_config import cfg
+
+
+class MidonetClusterClient(base.MidonetClientBase):
+
+    def initialize(self):
+        task.create_config_task(db.get_session(), dict(cfg.CONF.MIDONET))
+
+    def create_network_precommit(self, context, network):
+        task.create_task(context, task.CREATE, data_type=task.NETWORK,
+                         resource_id=network['id'], data=network)
+
+    def update_network_precommit(self, context, network_id, network):
+        task.create_task(context, task.UPDATE, data_type=task.NETWORK,
+                         resource_id=network_id, data=network)
+
+    def delete_network_precommit(self, context, network_id):
+        task.create_task(context, task.DELETE, data_type=task.NETWORK,
+                         resource_id=network_id)
+
+    def create_subnet_precommit(self, context, subnet):
+        task.create_task(context, task.CREATE, data_type=task.SUBNET,
+                         resource_id=subnet['id'], data=subnet)
+
+    def update_subnet_precommit(self, context, subnet_id, subnet):
+        task.create_task(context, task.UPDATE, data_type=task.SUBNET,
+                         resource_id=subnet_id, data=subnet)
+
+    def delete_subnet_precommit(self, context, subnet_id):
+        task.create_task(context, task.DELETE, data_type=task.SUBNET,
+                         resource_id=subnet_id)
+
+    def create_port_precommit(self, context, port):
+        task.create_task(context, task.CREATE, data_type=task.PORT,
+                         resource_id=port['id'], data=port)
+
+    def update_port_precommit(self, context, port_id, port):
+        task.create_task(context, task.UPDATE, data_type=task.PORT,
+                         resource_id=port_id, data=port)
+
+    def delete_port_precommit(self, context, port_id):
+        task.create_task(context, task.DELETE, data_type=task.PORT,
+                         resource_id=port_id)
+
+    def create_router_precommit(self, context, router):
+        task.create_task(context, task.CREATE, data_type=task.ROUTER,
+                         resource_id=router['id'], data=router)
+
+    def update_router_precommit(self, context, router_id, router):
+        task.create_task(context, task.UPDATE, data_type=task.ROUTER,
+                         resource_id=router_id, data=router)
+
+    def delete_router_precommit(self, context, router_id):
+        task.create_task(context, task.DELETE, data_type=task.ROUTER,
+                         resource_id=router_id)
+
+    def create_floatingip_precommit(self, context, floatingip):
+        task.create_task(context, task.CREATE, data_type=task.FLOATING_IP,
+                         resource_id=floatingip['id'], data=floatingip)
+
+    def update_floatingip_precommit(self, context, floatingip_id, floatingip):
+        task.create_task(context, task.UPDATE, data_type=task.FLOATING_IP,
+                         resource_id=floatingip_id, data=floatingip)
+
+    def delete_floatingip_precommit(self, context, floatingip_id):
+        task.create_task(context, task.DELETE, data_type=task.FLOATING_IP,
+                         resource_id=floatingip_id)
+
+    def create_security_group_precommit(self, context, security_group):
+        task.create_task(context, task.CREATE, data_type=task.SECURITY_GROUP,
+                         resource_id=security_group['id'], data=security_group)
+
+    def delete_security_group_precommit(self, context, security_group_id):
+        task.create_task(context, task.DELETE, data_type=task.SECURITY_GROUP,
+                         resource_id=security_group_id)
+
+    def create_security_group_rule_precommit(self, context,
+                                             security_group_rule):
+        task.create_task(context, task.CREATE,
+                         data_type=task.SECURITY_GROUP_RULE,
+                         resource_id=security_group_rule['id'],
+                         data=security_group_rule)
+
+    def delete_security_group_rule_precommit(self, context,
+                                             security_group_rule_id):
+        task.create_task(context, task.DELETE,
+                         data_type=task.SECURITY_GROUP_RULE,
+                         resource_id=security_group_rule_id)
+
+    # LBaaS methods - move these out when the advanced service driver-model is
+    # adopted
+
+    def create_vip_precommit(self, context, vip):
+        task.create_task(context, task.CREATE, data_type=task.VIP,
+                         resource_id=vip['id'], data=vip)
+
+    def update_vip_precommit(self, context, vip_id, vip):
+        task.create_task(context, task.UPDATE, data_type=task.VIP,
+                         resource_id=vip_id, data=vip)
+
+    def delete_vip_precommit(self, context, vip_id):
+        task.create_task(context, task.DELETE, data_type=task.VIP,
+                         resource_id=vip_id)
+
+    def create_pool_precommit(self, context, pool):
+        task.create_task(context, task.CREATE, data_type=task.POOL,
+                         resource_id=pool['id'], data=pool)
+
+    def update_pool_precommit(self, context, pool_id, pool):
+        task.create_task(context, task.UPDATE, data_type=task.POOL,
+                         resource_id=pool_id, data=pool)
+
+    def delete_pool_precommit(self, context, pool_id):
+        task.create_task(context, task.DELETE, data_type=task.POOL,
+                         resource_id=pool_id)
+
+    def create_member_precommit(self, context, member):
+        task.create_task(context, task.CREATE, data_type=task.MEMBER,
+                         resource_id=member['id'], data=member)
+
+    def update_member_precommit(self, context, member_id, member):
+        task.create_task(context, task.UPDATE, data_type=task.MEMBER,
+                         resource_id=member_id, data=member)
+
+    def delete_member_precommit(self, context, member_id):
+        task.create_task(context, task.DELETE, data_type=task.MEMBER,
+                         resource_id=member_id)
+
+    def create_health_monitor_precommit(self, context, health_monitor):
+        task.create_task(context, task.CREATE, data_type=task.HEALTH_MONITOR,
+                         resource_id=health_monitor['id'], data=health_monitor)
+
+    def update_health_monitor_precommit(self, context, health_monitor_id,
+                                        health_monitor):
+        task.create_task(context, task.UPDATE, data_type=task.HEALTH_MONITOR,
+                         resource_id=health_monitor_id, data=health_monitor)
+
+    def delete_health_monitor_precommit(self, context, health_monitor_id):
+        task.create_task(context, task.DELETE, data_type=task.HEALTH_MONITOR,
+                         resource_id=health_monitor_id)
+
+    # Agent membership extension
+
+    def create_agent_membership_precommit(self, context, agent_membership):
+        task.create_task(context, task.CREATE, data_type=task.AGENT_MEMBERSHIP,
+                         resource_id=agent_membership['id'],
+                         data=agent_membership)
+
+    def delete_agent_membership_precommit(self, context, agent_membership_id):
+        task.create_task(context, task.DELETE, data_type=task.AGENT_MEMBERSHIP,
+                         resource_id=agent_membership_id)
+
+    # Agent extension
+
+    def _midonet_hosts(self):
+        for mido_host in top.get_all_midonet_hosts(
+                cfg.CONF.MIDONET.cluster_ip, cfg.CONF.MIDONET.cluster_port):
+            yield mido_host
+
+    def get_agent(self, agent_id):
+        for mido_host in self._midonet_hosts():
+            if mido_host.get('id') == id:
+                return top.midonet_host_to_neutron_agent(mido_host)
+        return None
+
+    def get_agents(self):
+        res = []
+        for mido_host in self._midonet_hosts():
+            res.append(top.midonet_host_to_neutron_agent(mido_host))
+        return res

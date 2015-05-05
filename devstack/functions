@@ -62,9 +62,7 @@ function neutron_plugin_configure_service {
     iniset /$Q_PLUGIN_CONF_FILE MIDONET username $Q_ADMIN_USERNAME
     iniset /$Q_PLUGIN_CONF_FILE MIDONET password $SERVICE_PASSWORD
     iniset /$Q_PLUGIN_CONF_FILE MIDONET project_id $SERVICE_TENANT_NAME
-
-    # Set cluster/API mode flag
-    iniset /$Q_PLUGIN_CONF_FILE MIDONET use_cluster $USE_CLUSTER
+    iniset /$Q_PLUGIN_CONF_FILE MIDONET client $MIDONET_CLIENT
 
     Q_L3_ENABLED=True
     Q_L3_ROUTER_PER_TENANT=True
