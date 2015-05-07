@@ -17,6 +17,9 @@ MIDONET_CLIENT=${MIDONET_CLIENT:-midonet.neutron.client.api.MidonetApiClient}
 # Run neutron with noauth only in devstack if True
 MIDONET_ENABLE_Q_SVC_ONLY=${MIDONET_ENABLE_Q_SVC_ONLY:-False}
 
+# create the fake uplink by default
+MIDONET_CREATE_FAKE_UPLINK=${MIDONET_CREATE_FAKE_UPLINK:-True}
+
 #
 # Set all the devstack ENV VARS needed to run midonet
 #
@@ -34,6 +37,7 @@ if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "True" ]; then
     Q_AUTH_STRATEGY=noauth
     NEUTRON_CREATE_INITIAL_NETWORKS=False
     ENABLED_SERVICES=q-svc,mysql,rabbit
+    MIDONET_CREATE_FAKE_UPLINK=False
 else
     enable_service q-dhcp
     enable_service q-meta

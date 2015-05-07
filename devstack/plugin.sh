@@ -61,13 +61,9 @@ if [[ "$1" == "stack" ]]; then
 
     elif [[ "$2" == "extra" ]]; then
 
-        if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "False" ]; then
+        if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
             export CIDR=${FLOATING_RANGE:?Error \$FLOATING_RANGE is not set}
-            # TODO: Joe
-            # We will not create the fake uplink until the re-arch work is done.
-            if [[ "$USE_CLUSTER" = "False" ]]; then
-                $MIDONET_DIR/tools/devmido/create_fake_uplink.sh
-            fi
+            $MIDONET_DIR/tools/devmido/create_fake_uplink.sh
         fi
 
 
@@ -100,10 +96,8 @@ EOF"
 elif [[ "$1" == "unstack" ]]; then
 
     $MIDONET_DIR/tools/devmido/unmido.sh
-    if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "False" ]; then
+    if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
         CIDR=${FLOATING_RANGE:?Error \$FLOATING_RANGE is not set}
-        # TODO: Joe
-        # We will not create the fake uplink until the re-arch work is done.
-        # $MIDONET_DIR/tools/devmido/delete_fake_uplink.sh
+        $MIDONET_DIR/tools/devmido/delete_fake_uplink.sh
     fi
 fi
