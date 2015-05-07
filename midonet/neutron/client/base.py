@@ -283,7 +283,7 @@ class MidonetClientBase(object):
     # Agent extension
 
     def get_agent(self, agent_id):
-        pass
+        return None
 
     def get_agents(self):
-        pass
+        return []
