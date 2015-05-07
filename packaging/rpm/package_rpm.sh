@@ -93,7 +93,7 @@ version_tag=$(git describe --candidates 0)
 if [ $? -ne 0 ]; then
   snapshot
 else
-  if [[ "$version_tag" =~ ^[0-9]{4}(\.[0-9]+){4}$ ]]; then
+  if [[ "$version_tag" =~ ^[0-9]{4}(\.[0-9]+){2}$ ]]; then
     # Final version tag (no rc)
     echo "Final version ${BASH_REMATCH[0]}"
     if [[ "${BASH_REMATCH[0]}" != $VERSION ]]; then
@@ -102,7 +102,7 @@ else
     fi
     release
 
-  elif [[ "$version_tag" =~ ^([0-9]{4}(\.[0-9]+){4})-(rc[0-9]+)$ ]]; then
+  elif [[ "$version_tag" =~ ^([0-9]{4}(\.[0-9]+){2})-(rc[0-9]+)$ ]]; then
     # release candidate
     echo "Version ${BASH_REMATCH[1]}"
     echo "Release candidate version ${BASH_REMATCH[3]}"
