@@ -8,6 +8,5 @@ Build-Depends: debhelper (>=9), python-dev, python-setuptools
 Package: python-neutron-plugin-midonet
 Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends}, neutron-server (>= 2014.2), python-midonetclient
-Conflicts: neutron-server (>= 2015.1)
 Description: MidoNet Neutron Plugin
     This package provides MidoNet networking driver for OpenStack Neutron
