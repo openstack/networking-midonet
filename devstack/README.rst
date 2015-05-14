@@ -48,6 +48,3 @@ devstack, set the following in local.conf:
 
     enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas
     NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default"
-    # Use above is for the cluster-based driver.  To set the API-based driver:
-    # NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetApiLoadbalancerDriver:default"
-
