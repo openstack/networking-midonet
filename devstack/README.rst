@@ -16,6 +16,14 @@ To use the new MidoNet Cluster service:
 
 The default is False, which enables the legacy REST API service.
 
+Since the cluster service is still in an experimental stage, the 'uplink'
+configuration performed at the end of devstack would fail.  To bypass this
+error, set the following:
+
+::
+
+ MIDONET_CREATE_FAKE_UPLINK=False
+
 
 MidoNet Client
 --------------
