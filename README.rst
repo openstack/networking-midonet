@@ -25,6 +25,25 @@ The Kilo MidoNet plugin is not compatible with MidoNet prior to 2.0.  Please
 use the Juno plugin if you want to use it against MidoNet version 1.X.
 
 
+Configure
+---------
+
+Configuring the Midonet Plugin is done by modifying the midonet.ini file
+found by default at
+
+::
+
+    /etc/neutron/plugins/midonet.ini
+
+
+In order to enable more extensions, add the extension names in a list to
+the 'extra_extensions' key under the MIDONET section:
+
+::
+
+    extra_extensions = agent-membership,extraroute
+
+
 LBaaS
 -----
 

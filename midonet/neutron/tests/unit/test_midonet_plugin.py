@@ -27,10 +27,12 @@ from midonet.neutron.common import config  # noqa
 from midonet.neutron.db import data_state_db
 from midonet.neutron.db import data_version_db as dv_db
 from midonet.neutron.db import task_db  # noqa
+from midonet.neutron import plugin as mn_plugin
 
 from neutron import context
 from neutron.db import api as db_api
 from neutron.extensions import portbindings
+from neutron.tests import base
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 from neutron.tests.unit.api import test_extensions
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_plugin
@@ -44,7 +46,6 @@ from neutron.tests.unit import testlib_api
 from oslo_config import cfg
 from oslo_utils import uuidutils
 
-from midonet.neutron import plugin as mn_plugin  # noqa
 
 PLUGIN_NAME = 'neutron.plugins.midonet.plugin.MidonetPluginV2'
 TEST_MN_CLIENT = ('midonet.neutron.tests.unit.test_midonet_plugin.'
@@ -66,6 +67,9 @@ class MidonetPluginConf(object):
     def setUp(test_case, parent_setup=None):
         """Perform additional configuration around the parent's setUp."""
         cfg.CONF.set_override('client', TEST_MN_CLIENT, group='MIDONET')
+        cfg.CONF.set_override('extra_extensions',
+                              ['agent-membership', 'extraroute'],
+                              group='MIDONET')
         if parent_setup:
             parent_setup()
 
@@ -91,6 +95,26 @@ class MidonetPluginV2TestCase(test_plugin.NeutronDbPluginV2TestCase):
 
     def setUp(self, plugin=None, service_plugins=None, ext_mgr=None):
         self.setup_parent(service_plugins=service_plugins, ext_mgr=ext_mgr)
+
+
+class TestExtensions(base.BaseTestCase):
+
+    def test_invalid_extra_extensions(self):
+        self.assertRaises(SystemExit,
+                          mn_plugin._verify_extra_extensions_valid,
+                          {'foo'})
+
+    def test_partially_invalid_extra_extensions(self):
+        self.assertRaises(SystemExit,
+                          mn_plugin._verify_extra_extensions_valid,
+                          {'agent-membership', 'foo'})
+
+    def test_extra_extensions_empty_set(self):
+        mn_plugin._verify_extra_extensions_valid(set())
+
+    def test_extra_extensions(self):
+        mn_plugin._verify_extra_extensions_valid({'agent-membership',
+                                                  'extraroute'})
 
 
 class TestMidonetNetworksV2(MidonetPluginV2TestCase,

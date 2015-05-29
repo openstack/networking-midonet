@@ -26,6 +26,9 @@ mido_opts = [
                help=_('Port that the cluster service can be reached on')),
     cfg.StrOpt('client', default='midonet.neutron.client.api.MidonetApiClient',
                help=_('MidoNet client used to access MidoNet data storage.')),
+    cfg.ListOpt('extra_extensions', default=[],
+                help=_('Additional Neutron extensions to enable in '
+                       'the plugin.')),
 ]
 
 cfg.CONF.register_opts(mido_opts, "MIDONET")
