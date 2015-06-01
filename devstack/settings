@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 # MidoNet repo
 MIDONET_REPO=${MIDONET_REPO:-http://github.com/midonet/midonet.git}
@@ -14,14 +14,12 @@ MIDONET_API_URL="${MIDONET_SERVICE_PROTOCOL}://${MIDONET_SERVICE_HOST}:${MIDONET
 # MidoNet Client
 MIDONET_CLIENT=${MIDONET_CLIENT:-midonet.neutron.client.api.MidonetApiClient}
 
-# Run neutron with noauth only in devstack if True
-MIDONET_ENABLE_Q_SVC_ONLY=${MIDONET_ENABLE_Q_SVC_ONLY:-False}
-
 # create the fake uplink by default
 MIDONET_CREATE_FAKE_UPLINK=${MIDONET_CREATE_FAKE_UPLINK:-True}
 
 #
-# Set all the devstack ENV VARS needed to run midonet
+# Set all the devstack ENV VARS needed to run midonet in a full OpenStack
+# deployment setting
 #
 
 # Disable nova-network and enable neutron services
@@ -32,16 +30,9 @@ disable_service q-agt
 disable_service q-vpn
 enable_service q-svc
 enable_service q-lbaas
+enable_service q-dhcp
+enable_service q-meta
 
-if [ "$MIDONET_ENABLE_Q_SVC_ONLY" == "True" ]; then
-    Q_AUTH_STRATEGY=noauth
-    NEUTRON_CREATE_INITIAL_NETWORKS=False
-    ENABLED_SERVICES=q-svc,mysql,rabbit
-    MIDONET_CREATE_FAKE_UPLINK=False
-else
-    enable_service q-dhcp
-    enable_service q-meta
-fi
 # Use midonet as Neutron plugin
 Q_PLUGIN=midonet
 IP_VERSION=4

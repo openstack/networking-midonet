@@ -4,6 +4,32 @@ networking-midonet devstack
 
 This is the official Midonet Neutron devstack plugin.
 
+To Run DevStack with Full OpenStack Environment
+-----------------------------------------------
+
+1. Download DevStack
+2. run ``stack.sh``
+
+
+To Run DevStack with Networking-Only Environment
+------------------------------------------------
+
+1. Download DevStack
+2. Copy the sample local.conf.sample_net_only file over to the devstack
+directory.
+3. run ``stack.sh``
+
+Note that with these configurations, only the following services are started::
+
+    rabbit
+    mysql
+    keystone
+    nova
+    glance
+    neutron (with DHCP and metadata agents)
+    lbaas
+    tempest
+
 
 MidoNet Data Service
 --------------------
@@ -50,7 +76,7 @@ LBaaS
 
 Starting in Kilo, MidoNet plugin implements LBaaS v1 following the advanced
 service driver model.  To configure MidoNet as the LBaaS driver when running
-devstack, set the following in local.conf:
+devstack, make sure the following is defined in local.conf:
 
 ::
 

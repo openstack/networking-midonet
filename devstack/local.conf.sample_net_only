@@ -1,0 +1,42 @@
+[[local|localrc]]
+
+# This configuration file is intended to be used for CI and local develeopment
+# where you may only want networking related services to be running.
+
+enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas
+NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default"
+
+# Load the devstack plugin for midonet
+enable_plugin networking-midonet http://github.com/stackforge/networking-midonet.git
+
+# Enable keystone, nova, glance and neutron (w/ lbaas)
+# Also enable tempest since it's useful for CI and local dev
+ENABLED_SERVICES=rabbit,mysql,key
+ENABLED_SERVICES+=,n-api,n-crt,n-obj,n-cpu,n-cond,n-sch
+ENABLED_SERVICES+=,g-api,g-reg
+ENABLED_SERVICES+=,q-svc,q-dhcp,q-meta,neutron
+ENABLED_SERVICES+=,q-lbaas
+ENABLED_SERVICES+=,tempest
+
+# The following section contains environment variable settings that would
+# further minimalize the environment.  For example, in some cases you may just
+# want to run the Neutron API with no agents, or you may want to disable
+# authentication.
+
+# If you want to also disable auth for Neutron, uncomment this
+#
+# Q_AUTH_STRATEGY=noauth
+
+# If you don't want the host to be configured with fake uplink uncomment this
+#
+# MIDONET_CREATE_FAKE_UPLINK=False
+
+# If you don't want devstack to create default networks, uncomment this
+#
+# NEUTRON_CREATE_INITIAL_NETWORKS=False
+
+# If you want to disable Neutron agents so that only the API runs, uncomment
+# these
+#
+# disable_service q-dhcp
+# disable_service q-meta
