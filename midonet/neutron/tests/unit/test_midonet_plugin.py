@@ -36,6 +36,7 @@ from neutron.extensions import providernet as pnet
 from neutron.plugins.common import constants as p_const
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 from neutron.tests.unit.api import test_extensions
+from neutron.tests.unit.db import test_allowedaddresspairs_db as test_addr
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_plugin
 from neutron.tests.unit.extensions import test_agent
 from neutron.tests.unit.extensions import test_extra_dhcp_opt as test_dhcpopts
@@ -68,7 +69,8 @@ class MidonetPluginConf(object):
         """Perform additional configuration around the parent's setUp."""
         cfg.CONF.set_override('client', TEST_MN_CLIENT, group='MIDONET')
         cfg.CONF.set_override('extra_extensions',
-                              ['agent-membership', 'extraroute', 'provider'],
+                              ['allowed-address-pairs', 'agent-membership',
+                               'extraroute', 'provider'],
                               group='MIDONET')
         if parent_setup:
             parent_setup()
@@ -527,3 +529,8 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
                 res = self.deserialize(
                     self.fmt, req.get_response(self.api))
                 self.assertEqual(len(res['networks']), 0)
+
+
+class TestMidonetAllowedAddressPair(test_addr.TestAllowedAddressPairs,
+                                    MidonetPluginV2TestCase):
+    pass

@@ -26,6 +26,7 @@ from neutron.common import rpc as n_rpc
 from neutron.common import topics
 from neutron.db import agents_db
 from neutron.db import agentschedulers_db
+from neutron.db import allowedaddresspairs_db as addr_pair_db
 from neutron.db import db_base_plugin_v2
 from neutron.db import external_net_db
 from neutron.db import extradhcpopt_db
@@ -33,6 +34,7 @@ from neutron.db import extraroute_db
 from neutron.db import l3_gwmode_db
 from neutron.db import portbindings_db
 from neutron.db import securitygroups_db
+from neutron.extensions import allowedaddresspairs as addr_pair
 from neutron.extensions import extra_dhcp_opt as edo_ext
 from neutron.extensions import portbindings
 from neutron.extensions import providernet as pnet
@@ -47,7 +49,8 @@ from oslo_utils import importutils
 LOG = logging.getLogger(__name__)
 _LE = i18n._LE
 _SUPPORTED_EXTENSIONS = ['extra_dhcp_opt']
-_VALID_EXTRA_EXTENSIONS = {'agent-membership', 'extraroute', 'provider'}
+_VALID_EXTRA_EXTENSIONS = {'allowed-address-pairs', 'agent-membership',
+                           'extraroute', 'provider'}
 
 
 def _verify_extra_extensions_valid(extra_extensions):
@@ -64,7 +67,8 @@ def _verify_extra_extensions_valid(extra_extensions):
         raise SystemExit(1)
 
 
-class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
+class MidonetMixin(addr_pair_db.AllowedAddressPairsMixin,
+                   agentschedulers_db.DhcpAgentSchedulerDbMixin,
                    am_db.AgentMembershipDbMixin,
                    db_base_plugin_v2.NeutronDbPluginV2,
                    external_net_db.External_net_db_mixin,
@@ -291,6 +295,11 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
             self._process_port_create_extra_dhcp_opts(context, new_port,
                                                       dhcp_opts)
 
+            new_port[addr_pair.ADDRESS_PAIRS] = (
+                self._process_create_allowed_address_pairs(
+                    context, new_port,
+                    port_data.get(addr_pair.ADDRESS_PAIRS)))
+
             self.client.create_port_precommit(context, new_port)
 
         try:
@@ -331,6 +340,7 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         with context.session.begin(subtransactions=True):
 
             # update the port DB
+            original_port = super(MidonetMixin, self).get_port(context, id)
             p = super(MidonetMixin, self).update_port(context, id, port)
 
             has_sg = self._check_update_has_security_groups(port)
@@ -347,6 +357,8 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                                                          port['port'], p)
             self._process_mido_portbindings_create_and_update(context,
                                                               port['port'], p)
+            self.update_address_pairs_on_port(context, id, port,
+                                              original_port, p)
 
             self.client.update_port_precommit(context, id, p)
 
