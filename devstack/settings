@@ -38,8 +38,7 @@ enable_service q-lbaas
 enable_service q-dhcp
 enable_service q-meta
 
-# Use midonet as Neutron plugin
-Q_PLUGIN=midonet
+# Use IPv4
 IP_VERSION=4
 
 # Set the database driver for sqlalchemy

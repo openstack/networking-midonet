@@ -7,6 +7,7 @@ enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas
 NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default"
 
 # Load the devstack plugin for midonet
+Q_PLUGIN=midonet
 enable_plugin networking-midonet http://github.com/openstack/networking-midonet.git
 
 # Set all the passwords
