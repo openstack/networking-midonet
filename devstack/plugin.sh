@@ -95,6 +95,8 @@ EOF"
 
 elif [[ "$1" == "unstack" ]]; then
 
+    source $ABSOLUTE_PATH/functions
+
     $MIDONET_DIR/tools/devmido/unmido.sh
     if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
         CIDR=${FLOATING_RANGE:?Error \$FLOATING_RANGE is not set}
