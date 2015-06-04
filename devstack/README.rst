@@ -8,7 +8,11 @@ To Run DevStack with Full OpenStack Environment
 -----------------------------------------------
 
 1. Download DevStack
-2. run ``stack.sh``
+2. Prepare local.conf
+3. Run ``stack.sh``
+
+There are more detailed info on the wiki.
+http://wiki.midonet.org/Devstack
 
 
 To Run DevStack with Networking-Only Environment
@@ -16,8 +20,8 @@ To Run DevStack with Networking-Only Environment
 
 1. Download DevStack
 2. Copy the sample local.conf.sample_net_only file over to the devstack
-directory.
-3. run ``stack.sh``
+directory as local.conf.
+3. Run ``stack.sh``
 
 Note that with these configurations, only the following services are started::
 
