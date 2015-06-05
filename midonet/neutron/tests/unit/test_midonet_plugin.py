@@ -32,7 +32,6 @@ from midonet.neutron import plugin as mn_plugin
 from neutron import context
 from neutron.db import api as db_api
 from neutron.extensions import portbindings
-from neutron.tests import base
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 from neutron.tests.unit.api import test_extensions
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_plugin
@@ -97,7 +96,7 @@ class MidonetPluginV2TestCase(test_plugin.NeutronDbPluginV2TestCase):
         self.setup_parent(service_plugins=service_plugins, ext_mgr=ext_mgr)
 
 
-class TestExtensions(base.BaseTestCase):
+class TestExtensions(MidonetPluginV2TestCase):
 
     def test_invalid_extra_extensions(self):
         self.assertRaises(SystemExit,
@@ -115,6 +114,13 @@ class TestExtensions(base.BaseTestCase):
     def test_extra_extensions(self):
         mn_plugin._verify_extra_extensions_valid({'agent-membership',
                                                   'extraroute'})
+
+    def test_supported_extensions(self):
+        # Verify that the core extensions and extra extensions are loaded
+        core_extensions = ['security-group', 'binding', 'extra_dhcp_opt']
+        extra_extensions = ['agent-membership', 'extraroute']
+        for ext in core_extensions + extra_extensions:
+            self.assertIn(ext, self.plugin.supported_extension_aliases)
 
 
 class TestMidonetNetworksV2(MidonetPluginV2TestCase,

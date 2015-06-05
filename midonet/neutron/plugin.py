@@ -44,6 +44,7 @@ from oslo_utils import importutils
 
 LOG = logging.getLogger(__name__)
 _LE = i18n._LE
+_SUPPORTED_EXTENSIONS = ['extra_dhcp_opt']
 _VALID_EXTRA_EXTENSIONS = {'agent-membership', 'extraroute'}
 
 
@@ -72,13 +73,23 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                    portbindings_db.PortBindingMixin,
                    securitygroups_db.SecurityGroupDbMixin):
 
-    _extra_extensions = set(cfg.CONF.MIDONET.extra_extensions)
-    supported_extension_aliases = list(
-        _extra_extensions.union({'extra_dhcp_opt'}))
+    # The extensions are now loaded in __init__, so this variable is not
+    # required.  However it must remain here because the parent plugin accesses
+    # it when constructing the supported extension list.
+    # TODO(ryu): Change MidonetPluginV2 to not access this variable so that
+    # it can be removed
+    supported_extension_aliases = []
 
     def __init__(self):
         super(MidonetMixin, self).__init__()
-        _verify_extra_extensions_valid(self._extra_extensions)
+
+        # Load the supported extensions
+        extra_extensions = set(cfg.CONF.MIDONET.extra_extensions)
+        _verify_extra_extensions_valid(extra_extensions)
+        all_exts = (self.supported_extension_aliases + _SUPPORTED_EXTENSIONS +
+                    list(extra_extensions))
+        self.supported_extension_aliases = list(set(all_exts))
+
         neutron_extensions.append_api_extensions_path(extensions.__path__)
         self.setup_rpc()
 
