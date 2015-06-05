@@ -44,6 +44,21 @@ from oslo_utils import importutils
 
 LOG = logging.getLogger(__name__)
 _LE = i18n._LE
+_VALID_EXTRA_EXTENSIONS = {'agent-membership', 'extraroute'}
+
+
+def _verify_extra_extensions_valid(extra_extensions):
+    """Verifies that the extra extensions provided are legitimate.
+
+    This method expects a set, not a list.  TypeError will be thrown if
+    anything other than a set is provided, including None.
+    """
+    invalid_extensions = extra_extensions - _VALID_EXTRA_EXTENSIONS
+    if invalid_extensions:
+        msg = _LE("Invalid extra extensions detected: "
+                  "%(ext)s") % {'ext': invalid_extensions}
+        LOG.error(msg)
+        raise SystemExit(1)
 
 
 class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
@@ -57,13 +72,13 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                    portbindings_db.PortBindingMixin,
                    securitygroups_db.SecurityGroupDbMixin):
 
-    supported_extension_aliases = ['agent-membership',
-                                   'extra_dhcp_opt',
-                                   'extraroute']
+    _extra_extensions = set(cfg.CONF.MIDONET.extra_extensions)
+    supported_extension_aliases = list(
+        _extra_extensions.union({'extra_dhcp_opt'}))
 
     def __init__(self):
         super(MidonetMixin, self).__init__()
-
+        _verify_extra_extensions_valid(self._extra_extensions)
         neutron_extensions.append_api_extensions_path(extensions.__path__)
         self.setup_rpc()
 
