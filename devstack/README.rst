@@ -19,8 +19,8 @@ To Run DevStack with Networking-Only Environment
 ------------------------------------------------
 
 1. Download DevStack
-2. Copy the sample local.conf.sample_net_only file over to the devstack
-directory as local.conf.
+2. Copy the sample local.conf.sample file over to the devstack directory as
+local.conf.
 3. Run ``stack.sh``
 
 Note that with these configurations, only the following services are started::
@@ -33,6 +33,7 @@ Note that with these configurations, only the following services are started::
     neutron (with DHCP and metadata agents)
     lbaas
     tempest
+    horizon
 
 
 MidoNet Data Service
