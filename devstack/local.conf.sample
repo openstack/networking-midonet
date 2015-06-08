@@ -9,6 +9,13 @@ NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.
 # Load the devstack plugin for midonet
 enable_plugin networking-midonet http://github.com/stackforge/networking-midonet.git
 
+# Set all the passwords
+DATABASE_PASSWORD=midonet
+RABBIT_PASSWORD=midonet
+SERVICE_TOKEN=midonet
+SERVICE_PASSWORD=midonet
+ADMIN_PASSWORD=midonet
+
 # Enable keystone, nova, glance and neutron (w/ lbaas)
 # Also enable tempest since it's useful for CI and local dev
 ENABLED_SERVICES=rabbit,mysql,key
@@ -17,6 +24,7 @@ ENABLED_SERVICES+=,g-api,g-reg
 ENABLED_SERVICES+=,q-svc,q-dhcp,q-meta,neutron
 ENABLED_SERVICES+=,q-lbaas
 ENABLED_SERVICES+=,tempest
+ENABLED_SERVICES+=,horizon
 
 # The following section contains environment variable settings that would
 # further minimalize the environment.  For example, in some cases you may just
