@@ -39,7 +39,7 @@ if [[ "$1" == "stack" ]]; then
         export SERVICE_HOST=${MIDONET_SERVICE_HOST:?Error \$MIDONET_SERVICE_HOST is not set}
         export API_PORT=${MIDONET_API_PORT:?Error \$MIDONET_API_PORT is not set}
         export API_TIMEOUT=${MIDONET_API_TIMEOUT}
-        export USE_CLUSTER=${USE_CLUSTER:-False}
+        export USE_NEW_STACK=${USE_NEW_STACK:-False}
 
         export TIMESTAMP_FORMAT
         export LOGFILE
