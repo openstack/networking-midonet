@@ -16,6 +16,7 @@
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.db import agent_membership_db as am_db
 from midonet.neutron.db import port_binding_db as pb_db
+from midonet.neutron.db import provider_network_db as pnet_db
 from midonet.neutron import extensions
 from neutron.api import extensions as neutron_extensions
 from neutron.api.rpc.handlers import dhcp_rpc
@@ -34,6 +35,7 @@ from neutron.db import portbindings_db
 from neutron.db import securitygroups_db
 from neutron.extensions import extra_dhcp_opt as edo_ext
 from neutron.extensions import portbindings
+from neutron.extensions import providernet as pnet
 from neutron.extensions import securitygroup as ext_sg
 from neutron import i18n
 from oslo_config import cfg
@@ -45,7 +47,7 @@ from oslo_utils import importutils
 LOG = logging.getLogger(__name__)
 _LE = i18n._LE
 _SUPPORTED_EXTENSIONS = ['extra_dhcp_opt']
-_VALID_EXTRA_EXTENSIONS = {'agent-membership', 'extraroute'}
+_VALID_EXTRA_EXTENSIONS = {'agent-membership', 'extraroute', 'provider'}
 
 
 def _verify_extra_extensions_valid(extra_extensions):
@@ -69,6 +71,7 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
                    extradhcpopt_db.ExtraDhcpOptMixin,
                    extraroute_db.ExtraRoute_db_mixin,
                    l3_gwmode_db.L3_NAT_db_mixin,
+                   pnet_db.MidonetProviderNetworkMixin,
                    pb_db.MidonetPortBindingMixin,
                    portbindings_db.PortBindingMixin,
                    securitygroups_db.SecurityGroupDbMixin):
@@ -139,7 +142,10 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
 
         with context.session.begin(subtransactions=True):
             net = super(MidonetMixin, self).create_network(context, network)
+            net_data['id'] = net['id']
             self._process_l3_create(context, net, net_data)
+            self._create_provider_network(context, net_data)
+            self._extend_provider_network_dict(context, net)
             self.client.create_network_precommit(context, net)
 
         try:
@@ -153,14 +159,46 @@ class MidonetMixin(agentschedulers_db.DhcpAgentSchedulerDbMixin,
         LOG.debug("MidonetMixin.create_network exiting: net=%r", net)
         return net
 
+    def get_network(self, context, id, fields=None):
+        LOG.debug("MidonetMixin.get_network called: id=%(id)r", {'id': id})
+
+        session = context.session
+        with session.begin(subtransactions=True):
+            net = super(MidonetMixin, self).get_network(context, id, None)
+            self._extend_provider_network_dict(context, net)
+
+        return self._fields(net, fields)
+
+    def get_networks(self, context, filters=None, fields=None,
+                     sorts=None, limit=None, marker=None, page_reverse=False):
+        LOG.debug("MidonetMixin.get_networks called: filters=%(filters)r",
+                  {'filters': filters})
+
+        session = context.session
+        with session.begin(subtransactions=True):
+            nets = super(MidonetMixin,
+                         self).get_networks(context, filters, None, sorts,
+                                            limit, marker, page_reverse)
+            for net in nets:
+                self._extend_provider_network_dict(context, net)
+
+            nets = self._filter_nets_provider(nets, filters)
+
+        return [self._fields(net, fields) for net in nets]
+
     def update_network(self, context, id, network):
         LOG.debug("MidonetMixin.update_network called: id=%(id)r, "
                   "network=%(network)r", {'id': id, 'network': network})
+
+        # Disallow update of provider net
+        net_data = network['network']
+        pnet._raise_if_updates_provider_attributes(net_data)
 
         with context.session.begin(subtransactions=True):
             net = super(MidonetMixin, self).update_network(
                 context, id, network)
             self._process_l3_update(context, net, network['network'])
+            self._extend_provider_network_dict(context, net)
             self.client.update_network_precommit(context, id, net)
 
         self.client.update_network_postcommit(id, net)
