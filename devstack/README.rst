@@ -50,39 +50,30 @@ Also, MidoNet exposes two API services:
  1. MidoNet API (legacy REST)
  2. Cluster API/RPC (new API providing both REST and protobuf-based RPC)
 
-There are three ways in which the Neutron plugin could access MidoNet:
-
- 1. MidoNet API with DataClient (legacy version)
- 2. MidoNet API with ZOOM (transitional version)
- 3. MidoNet Cluster with ZOOM (final version)
-
 By default, when running devstack, both MidoNet API and MidoNet Cluster
 services are spawned.  Kilo is compatible with both the API and the Cluster,
 and to toggle between the two, configure the MIDONET_CLIENT envrionment
 variable appropriately.
 
-MidoNet API (default):
-
-::
-
- MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
-
-
-MidoNet Cluster:
-
-::
-
- MIDONET_CLIENT=midonet.neutron.client.cluster.MidonetClusterClient
-
-
 In addition, the MidoNet agent must be instructed to use either DataClient
 (default) or ZOOM.
 
-Set USE_NEW_STACK variable to enable ZOOM for the agent:
+There are three ways in which the Neutron plugin could access MidoNet:
 
-::
+1. MidoNet API with DataClient (legacy version)::
 
- USE_NEW_STACK=True
+ MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
+ MIDONET_USE_ZOOM=False
+
+2. MidoNet API with ZOOM (transitional version)::
+
+ MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
+ MIDONET_USE_ZOOM=True
+
+3. MidoNet Cluster with ZOOM (final version)::
+
+ MIDONET_CLIENT=midonet.neutron.client.cluster.MidonetClusterClient
+ MIDONET_USE_ZOOM=True
 
 Finally, since the cluster service is still in an experimental stage, the
 'uplink' configuration performed at the end of devstack would fail.  To bypass
