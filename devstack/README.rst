@@ -39,41 +39,58 @@ Note that with these configurations, only the following services are started::
 MidoNet Data Service
 --------------------
 
-To use the new MidoNet Cluster service:
+On the master branch of MidoNet, there are two types of Zookeeper data store
+engines available:
 
-::
+ 1. DataClient (legacy)
+ 2. ZOOM (enhanced version still in an experimental stage)
 
- USE_CLUSTER=True
+Also, MidoNet exposes two API services:
 
-The default is False, which enables the legacy REST API service.
+ 1. MidoNet API (legacy REST)
+ 2. Cluster API/RPC (new API providing both REST and protobuf-based RPC)
 
-Since the cluster service is still in an experimental stage, the 'uplink'
-configuration performed at the end of devstack would fail.  To bypass this
-error, set the following:
+There are three ways in which the Neutron plugin could access MidoNet:
 
-::
+ 1. MidoNet API with DataClient (legacy version)
+ 2. MidoNet API with ZOOM (transitional version)
+ 3. MidoNet Cluster with ZOOM (final version)
 
- MIDONET_CREATE_FAKE_UPLINK=False
+By default, when running devstack, both MidoNet API and MidoNet Cluster
+services are spawned.  Kilo is compatible with both the API and the Cluster,
+and to toggle between the two, configure the MIDONET_CLIENT envrionment
+variable appropriately.
 
-
-MidoNet Client
---------------
-
-Kilo is compatible with both REST API and Cluster services.  To choose one, set
-the MIDONET_CLIENT environment variable appropriately.
-
-The default is the REST API client:
+MidoNet API (default):
 
 ::
 
  MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
 
 
-To set the Cluster-based client:
+MidoNet Cluster:
 
 ::
 
  MIDONET_CLIENT=midonet.neutron.client.cluster.MidonetClusterClient
+
+
+In addition, the MidoNet agent must be instructed to use either DataClient
+(default) or ZOOM.
+
+Set USE_NEW_STACK variable to enable ZOOM for the agent:
+
+::
+
+ USE_NEW_STACK=True
+
+Finally, since the cluster service is still in an experimental stage, the
+'uplink' configuration performed at the end of devstack would fail.  To bypass
+this error, set the following:
+
+::
+
+ MIDONET_CREATE_FAKE_UPLINK=False
 
 
 LBaaS
