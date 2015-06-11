@@ -37,9 +37,10 @@ if [[ "$1" == "stack" ]]; then
     elif [[ "$2" == "install" ]]; then
 
         export SERVICE_HOST=${MIDONET_SERVICE_HOST:?Error \$MIDONET_SERVICE_HOST is not set}
-        export API_PORT=${MIDONET_API_PORT:?Error \$MIDONET_API_PORT is not set}
+        export API_PORT=$MIDONET_API_PORT
+        export CLUSTER_API_PORT=$MIDONET_CLUSTER_API_PORT
         export API_TIMEOUT=${MIDONET_API_TIMEOUT}
-        export USE_NEW_STACK=${USE_NEW_STACK:-False}
+        export USE_NEW_STACK=$MIDONET_USE_ZOOM
 
         export TIMESTAMP_FORMAT
         export LOGFILE

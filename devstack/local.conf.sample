@@ -48,3 +48,8 @@ ENABLED_SERVICES+=,horizon
 #
 # disable_service q-dhcp
 # disable_service q-meta
+
+# If you want to use the new V2 architecture of MidoNet, uncomment these:
+#
+# MIDONET_USE_ZOOM=True
+# MIDONET_CREATE_FAKE_UPLINK=False
