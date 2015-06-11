@@ -155,10 +155,15 @@ class MidonetMixin(addr_pair_db.AllowedAddressPairsMixin,
         try:
             self.client.create_network_postcommit(net)
         except Exception as ex:
-            LOG.error(_LE("Failed to create a network %(net_id)s in Midonet:"
-                          "%(err)s"), {"net_id": net["id"], "err": ex})
             with excutils.save_and_reraise_exception():
-                self.delete_network(context, net['id'])
+                LOG.error(_LE("Failed to create a network %(net_id)s "
+                              "in Midonet: %(err)s"),
+                          {"net_id": net["id"], "err": ex})
+                try:
+                    self.delete_network(context, net['id'])
+                except Exception:
+                    LOG.exception(_LE("Failed to delete network %s"),
+                                  net['id'])
 
         LOG.debug("MidonetMixin.create_network exiting: net=%r", net)
         return net
@@ -232,10 +237,13 @@ class MidonetMixin(addr_pair_db.AllowedAddressPairsMixin,
         try:
             self.client.create_subnet_postcommit(s)
         except Exception as ex:
-            LOG.error(_LE("Failed to create a subnet %(s_id)s in Midonet:"
-                          "%(err)s"), {"s_id": s["id"], "err": ex})
             with excutils.save_and_reraise_exception():
-                self.delete_subnet(context, s['id'])
+                LOG.error(_LE("Failed to create a subnet %(s_id)s in Midonet:"
+                              "%(err)s"), {"s_id": s["id"], "err": ex})
+                try:
+                    self.delete_subnet(context, s['id'])
+                except Exception:
+                    LOG.exception(_LE("Failed to delete subnet %s"), s['id'])
 
         LOG.debug("MidonetMixin.create_subnet exiting: subnet=%r", s)
         return s
@@ -305,10 +313,15 @@ class MidonetMixin(addr_pair_db.AllowedAddressPairsMixin,
         try:
             self.client.create_port_postcommit(new_port)
         except Exception as ex:
-            LOG.error(_LE("Failed to create a port %(new_port)s: %(err)s"),
-                      {"new_port": new_port, "err": ex})
             with excutils.save_and_reraise_exception():
-                self.delete_port(context, new_port['id'])
+                LOG.error(_LE("Failed to create a port %(new_port)s: %(err)s"),
+                          {"new_port": new_port, "err": ex})
+                try:
+                    self.delete_port(context, new_port['id'],
+                                     l3_port_check=False)
+                except Exception:
+                    LOG.exception(_LE("Failed to delete port %s"),
+                                  new_port['id'])
 
         LOG.debug("MidonetMixin.create_port exiting: port=%r", new_port)
         return new_port
@@ -378,10 +391,13 @@ class MidonetMixin(addr_pair_db.AllowedAddressPairsMixin,
         try:
             self.client.create_router_postcommit(r)
         except Exception as ex:
-            LOG.error(_LE("Failed to create a router %(r_id)s in Midonet:"
-                          "%(err)s"), {"r_id": r["id"], "err": ex})
             with excutils.save_and_reraise_exception():
-                self.delete_router(context, r['id'])
+                LOG.error(_LE("Failed to create a router %(r_id)s in Midonet:"
+                              "%(err)s"), {"r_id": r["id"], "err": ex})
+                try:
+                    self.delete_router(context, r['id'])
+                except Exception:
+                    LOG.exception(_LE("Failed to delete a router %s"), r["id"])
 
         LOG.debug("MidonetMixin.create_router exiting: router=%(router)s.",
                   {"router": r})
@@ -463,11 +479,14 @@ class MidonetMixin(addr_pair_db.AllowedAddressPairsMixin,
         try:
             self.client.create_floatingip_postcommit(fip)
         except Exception as ex:
-            LOG.error(_LE("Failed to create floating ip %(fip)s: %(err)s"),
-                      {"fip": fip, "err": ex})
             with excutils.save_and_reraise_exception():
-                # Try removing the fip
-                self.delete_floatingip(context, fip['id'])
+                LOG.error(_LE("Failed to create floating ip %(fip)s: %(err)s"),
+                          {"fip": fip, "err": ex})
+                try:
+                    self.delete_floatingip(context, fip['id'])
+                except Exception:
+                    LOG.exception(_LE("Failed to delete a floating ip %s"),
+                                  fip['id'])
 
         LOG.debug("MidonetMixin.create_floatingip exiting: fip=%r", fip)
         return fip
@@ -525,11 +544,15 @@ class MidonetMixin(addr_pair_db.AllowedAddressPairsMixin,
         try:
             self.client.create_security_group_postcommit(sg)
         except Exception as ex:
-            LOG.error(_LE("Failed to create MidoNet resources for sg %(sg)r,"
-                          "error=%(err)r"),
-                      {"sg": sg, "err": ex})
             with excutils.save_and_reraise_exception():
-                self.delete_security_group(context, sg['id'])
+                LOG.error(_LE("Failed to create MidoNet resources for "
+                              "sg %(sg)r, error=%(err)r"),
+                          {"sg": sg, "err": ex})
+                try:
+                    self.delete_security_group(context, sg['id'])
+                except Exception:
+                    LOG.exception(_LE("Failed to delete a security group %s"),
+                                  sg['id'])
 
         LOG.debug("MidonetMixin.create_security_group exiting: sg=%r", sg)
         return sg
@@ -565,10 +588,14 @@ class MidonetMixin(addr_pair_db.AllowedAddressPairsMixin,
         try:
             self.client.create_security_group_rule_postcommit(rule)
         except Exception as ex:
-            LOG.error(_LE('Failed to create security group rule %(sg)s,'
-                      'error: %(err)s'), {'sg': rule, 'err': ex})
             with excutils.save_and_reraise_exception():
-                self.delete_security_group_rule(context, rule['id'])
+                LOG.error(_LE('Failed to create security group rule %(sg)s,'
+                          'error: %(err)s'), {'sg': rule, 'err': ex})
+                try:
+                    self.delete_security_group_rule(context, rule['id'])
+                except Exception:
+                    LOG.exception(_LE("Failed to delete "
+                                      "a security group rule %s"), rule['id'])
 
         LOG.debug("MidonetMixin.create_security_group_rule exiting: rule=%r",
                   rule)
@@ -627,10 +654,14 @@ class MidonetMixin(addr_pair_db.AllowedAddressPairsMixin,
         try:
             self.client.create_agent_membership_postcommit(am)
         except Exception as ex:
-            LOG.error(_LE("Failed to create agent membership. am: %(am)r, "
-                          "error: %(err)s"), {'am': am, 'err': ex})
             with excutils.save_and_reraise_exception():
-                self.delete_agent_membership(context, am['id'])
+                LOG.error(_LE("Failed to create agent membership. am: %(am)r, "
+                              "error: %(err)s"), {'am': am, 'err': ex})
+                try:
+                    self.delete_agent_membership(context, am['id'])
+                except Exception:
+                    LOG.exception(_LE("Failed to delete "
+                                      "an agent membership %s"), am['id'])
 
         LOG.debug("MidonetMixin.create_agent_membership exiting: "
                   "%(agent_membership)r", {'agent_membership': am})
