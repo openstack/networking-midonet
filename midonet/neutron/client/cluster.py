@@ -129,7 +129,7 @@ class MidonetClusterClient(base.MidonetClientBase):
 
     def get_agent(self, agent_id):
         for mido_host in self._midonet_hosts():
-            if mido_host.get('id') == id:
+            if mido_host.get('id') == agent_id:
                 return top.midonet_host_to_neutron_agent(mido_host)
         return None
 
