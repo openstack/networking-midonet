@@ -18,6 +18,7 @@ from midonet.neutron import extensions
 
 from neutron.api import extensions as neutron_extensions
 from neutron.api.rpc.handlers import dhcp_rpc
+from neutron.api.rpc.handlers import metadata_rpc
 from neutron.common import constants as n_const
 from neutron.common import exceptions as n_exc
 from neutron.common import rpc as n_rpc
@@ -90,7 +91,8 @@ class MidonetMixinBase(db_base_plugin_v2.NeutronDbPluginV2,
         self.topic = topics.PLUGIN
         self.conn = n_rpc.create_connection(new=True)
         self.endpoints = [dhcp_rpc.DhcpRpcCallback(),
-                          agents_db.AgentExtRpcCallback()]
+                          agents_db.AgentExtRpcCallback(),
+                          metadata_rpc.MetadataRpcCallback()]
         self.conn.create_consumer(self.topic, self.endpoints,
                                   fanout=False)
         # Consume from all consumers in a thread
