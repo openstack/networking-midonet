@@ -36,6 +36,24 @@ Note that with these configurations, only the following services are started::
     horizon
 
 
+Kilo Plugin
+-----------
+
+There are two versions of Kilo plugin.  Set Q_PLUGIN_CLASS variable to the Kilo
+plugin that you want to load.
+
+Kilo plugin v1, which is compatible with MidoNet v2015.03 and v2015.06:
+
+::
+    Q_PLUGIN_CLASS=neutron.plugins.midonet.plugin.MidonetPluginV2
+
+
+Kilo plugin v2, which is compatible with MidoNet v2015.09 and beyond:
+
+::
+    Q_PLUGIN_CLASS=midonet.neutron.plugin_v2.MidonetPluginV2
+
+
 MidoNet Data Service
 --------------------
 

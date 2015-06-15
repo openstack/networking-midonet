@@ -18,7 +18,7 @@ import uuid
 import webob.exc
 
 from midonet.neutron.extensions import agent_membership as ext_am
-from midonet.neutron.tests.unit import test_midonet_plugin as test_mn
+from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 from neutron.tests.unit.api import test_extensions as test_ex
 from oslo_utils import uuidutils
