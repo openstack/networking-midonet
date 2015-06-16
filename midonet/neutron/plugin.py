@@ -41,6 +41,8 @@ from neutron.extensions import providernet as pnet
 from neutron.extensions import securitygroup as ext_sg
 from neutron import i18n
 from oslo_config import cfg
+from oslo_db import api as oslo_db_api
+from oslo_db import exception as oslo_db_exc
 from oslo_log import log as logging
 from oslo_utils import excutils
 from oslo_utils import importutils
@@ -48,6 +50,7 @@ from oslo_utils import importutils
 
 LOG = logging.getLogger(__name__)
 _LE = i18n._LE
+_LW = i18n._LW
 _SUPPORTED_EXTENSIONS = ['extra_dhcp_opt']
 _VALID_EXTRA_EXTENSIONS = {'allowed-address-pairs', 'agent-membership',
                            'extraroute', 'provider'}
@@ -215,12 +218,23 @@ class MidonetMixin(addr_pair_db.AllowedAddressPairsMixin,
         LOG.debug("MidonetMixin.update_network exiting: net=%r", net)
         return net
 
+    @oslo_db_api.wrap_db_retry(max_retries=3, retry_interval=1,
+                               retry_on_request=True)
     def delete_network(self, context, id):
         LOG.debug("MidonetMixin.delete_network called: id=%r", id)
 
         with context.session.begin(subtransactions=True):
             self._process_l3_delete(context, id)
-            super(MidonetMixin, self).delete_network(context, id)
+            try:
+                super(MidonetMixin, self).delete_network(context, id)
+            except n_exc.NetworkInUse as ex:
+                LOG.warning(_LW("Error deleting network %(net)s, retrying..."),
+                            {'net': id})
+                # Contention for DHCP port deletion and network deletion occur
+                # often which leads to NetworkInUse error.  Retry to get
+                # around this problem.
+                raise oslo_db_exc.RetryRequest(ex)
+
             self.client.delete_network_precommit(context, id)
 
         self.client.delete_network_postcommit(id)
