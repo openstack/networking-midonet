@@ -21,6 +21,7 @@ from sqlalchemy.orm import sessionmaker
 from webob import exc
 
 from midonet.neutron.common import config  # noqa
+from midonet.neutron.common import constants as m_const
 from midonet.neutron.db import agent_membership_db  # noqa
 from midonet.neutron.db import data_state_db
 from midonet.neutron.db import data_version_db as dv_db
@@ -398,7 +399,7 @@ class TestMidonetDataVersion(testlib_api.SqlTestCase):
 class TestMidonetProviderNet(MidonetPluginV2TestCase):
 
     @contextlib.contextmanager
-    def provider_net(self, name='name1', net_type=p_const.TYPE_LOCAL,
+    def provider_net(self, name='name1', net_type=m_const.TYPE_UPLINK,
                      admin_state_up=True):
         args = {pnet.NETWORK_TYPE: net_type,
                 'tenant_id': 'admin'}
@@ -408,7 +409,7 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
         yield net
 
     def test_create_provider_net(self):
-        keys = [(pnet.NETWORK_TYPE, p_const.TYPE_LOCAL),
+        keys = [(pnet.NETWORK_TYPE, m_const.TYPE_UPLINK),
                 ('name', 'name1')]
         with self.provider_net() as net:
             for k, v in keys:
@@ -416,43 +417,27 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
 
     def test_create_provider_net_with_bogus_type(self):
         # Create with a bogus network type
-        args = {'network': {pnet.NETWORK_TYPE: "random",
-                            'tenant_id': 'admin'}}
-        req = self.new_create_request('networks', args, self.fmt)
-        res = req.get_response(self.api)
-        self.assertEqual(res.status_int, 400)
+        with self.provider_net(net_type="random") as net:
+            self.assertNotIn(pnet.NETWORK_TYPE, net['network'])
 
     def test_create_provider_net_with_unsupported_type(self):
-        # Create with a bogus network type
-        args = {'network': {pnet.NETWORK_TYPE: "vlan",
-                            'tenant_id': 'admin'}}
-        req = self.new_create_request('networks', args, self.fmt)
-        res = req.get_response(self.api)
-        self.assertEqual(res.status_int, 400)
+        # Create with a local network type (unsupported)
+        with self.provider_net(net_type=p_const.TYPE_LOCAL) as net:
+            self.assertNotIn(pnet.NETWORK_TYPE, net['network'])
 
-    def test_create_provider_net_with_phys_net(self):
-        # Create with a bogus network type
-        args = {'network': {pnet.NETWORK_TYPE: "local",
-                            pnet.PHYSICAL_NETWORK: "phys_net",
-                            'tenant_id': 'admin'}}
+    def test_create_provider_net_without_type(self):
+        args = {'network': {'tenant_id': 'admin'}}
         req = self.new_create_request('networks', args, self.fmt)
         res = req.get_response(self.api)
-        self.assertEqual(res.status_int, 400)
-
-    def test_create_provider_net_with_segmentation(self):
-        # Create with a bogus network type
-        args = {'network': {pnet.NETWORK_TYPE: "local",
-                            pnet.SEGMENTATION_ID: "seg",
-                            'tenant_id': 'admin'}}
-        req = self.new_create_request('networks', args, self.fmt)
-        res = req.get_response(self.api)
-        self.assertEqual(res.status_int, 400)
+        self.assertEqual(res.status_int, 201)
+        net_res = self.deserialize(self.fmt, res)
+        self.assertNotIn(pnet.NETWORK_TYPE, net_res['network'])
 
     def test_update_provider_net_unsupported(self):
         # Update including the network type is not supported
         with self.provider_net() as net:
             args = {"network": {"name": "foo",
-                                pnet.NETWORK_TYPE: "local"}}
+                                pnet.NETWORK_TYPE: m_const.TYPE_UPLINK}}
             req = self.new_update_request('networks', args,
                                           net['network']['id'])
             res = req.get_response(self.api)
@@ -468,10 +453,11 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
         with self.provider_net() as net:
             req = self.new_show_request('networks', net['network']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.api))
-            self.assertEqual(res['network'][pnet.NETWORK_TYPE], "local")
+            self.assertEqual(res['network'][pnet.NETWORK_TYPE],
+                             m_const.TYPE_UPLINK)
 
     def test_list_provider_nets(self):
-        # Create two local prov nets and retrieve them
+        # Create two uplink prov nets and retrieve them
         with self.provider_net():
             with self.provider_net(name="net2"):
                 req = self.new_list_request('networks')
@@ -479,10 +465,11 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
                     self.fmt, req.get_response(self.api))
                 self.assertEqual(len(res['networks']), 2)
                 for res_net in res['networks']:
-                    self.assertEqual(res_net[pnet.NETWORK_TYPE], 'local')
+                    self.assertEqual(res_net[pnet.NETWORK_TYPE],
+                                     m_const.TYPE_UPLINK)
 
     def test_list_provider_nets_filtered_by_invalid_type(self):
-        # Search a list of two provider networks with type local with type vlan
+        # Search a list of two provider networks with type uplink and type vlan
         with self.provider_net(name="net2"):
             with self.provider_net(name="net2"):
                 params_str = "%s=%s" % (pnet.NETWORK_TYPE, 'vlan')

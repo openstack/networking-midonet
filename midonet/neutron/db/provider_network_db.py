@@ -12,14 +12,19 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron.common import constants as m_const
 from neutron.api.v2 import attributes
-from neutron.common import exceptions as n_exc
 from neutron.db import model_base
 from neutron.db import models_v2
 from neutron.extensions import providernet as pnet
-from neutron.plugins.common import constants as p_const
+from neutron import i18n
+from oslo_log import log as logging
 import sqlalchemy as sa
 from sqlalchemy import orm
+
+
+LOG = logging.getLogger(__name__)
+_LW = i18n._LW
 
 
 class NetworkBinding(model_base.BASEV2):
@@ -51,22 +56,21 @@ class MidonetProviderNetworkMixin(object):
             network[pnet.NETWORK_TYPE] = net_type
 
     def _process_provider_create(self, network):
+
         net_type = network.get(pnet.NETWORK_TYPE)
-
-        if attributes.is_attr_set(network.get(pnet.PHYSICAL_NETWORK)):
-            msg = _('physical network is not supported.')
-            raise n_exc.BadRequest(resource='network', msg=msg)
-        if attributes.is_attr_set(network.get(pnet.SEGMENTATION_ID)):
-            msg = _('segmentation id is not supported.')
-            raise n_exc.BadRequest(resource='network', msg=msg)
-
         if not attributes.is_attr_set(net_type):
             return None
 
-        if net_type != p_const.TYPE_LOCAL:
-            msg = (_('Only network type %(n_type)s supported.') %
-                   {'n_type': p_const.TYPE_LOCAL})
-            raise n_exc.BadRequest(resource='network', msg=msg)
+        # Instead of validating unsupported inputs, just log and ignore them.
+        # Horizon, for example, forces you to select a type, and because
+        # 'uplink' type is not known to Horizon, requests from Horizon would
+        # always include an unsupported type would be sent for external
+        # networks. To avoid completely stopping the user from proceeding in
+        # that case, log and continue on.
+        if net_type != m_const.TYPE_UPLINK:
+            LOG.warning(_LW('Unsupported network type %(type)s detected in a '
+                            'create network request.'), {'type': net_type})
+            net_type = None
 
         return net_type
 
