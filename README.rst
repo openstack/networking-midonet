@@ -15,33 +15,19 @@ Run the following command to install the plugin in the system:
     $ sudo python setup.py install
 
 
-The following entry in ``neutron.conf`` enables MidoNet as the Neutron plugin:
+The following entry in ``neutron.conf`` enables MidoNet as the Neutron plugin.
+There are two Kilo plugins to choose from.
+
+Kilo plugin v1, which is compatible with MidoNet v2015.03 and v2015.06:
 
 ::
     core_plugin = neutron.plugins.midonet.plugin.MidonetPluginV2
 
 
-The Kilo MidoNet plugin is not compatible with MidoNet prior to 2.0.  Please
-use the Juno plugin if you want to use it against MidoNet version 1.X.
-
-
-Configure
----------
-
-Configuring the Midonet Plugin is done by modifying the midonet.ini file
-found by default at
+Kilo plugin v2, which is compatible with MidoNet v2015.09 and beyond:
 
 ::
-
-    /etc/neutron/plugins/midonet.ini
-
-
-In order to enable more extensions, add the extension names in a list to
-the 'extra_extensions' key under the MIDONET section:
-
-::
-
-    extra_extensions = agent-membership,extraroute
+    core_plugin = midonet.neutron.plugin_v2.MidonetPluginV2
 
 
 LBaaS

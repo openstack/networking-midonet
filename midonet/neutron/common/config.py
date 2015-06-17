@@ -18,6 +18,17 @@ from oslo_config import cfg
 
 
 mido_opts = [
+    cfg.StrOpt('midonet_uri', default='http://localhost:8080/midonet-api',
+               help=_('MidoNet API server URI.')),
+    cfg.StrOpt('username', default='admin',
+               help=_('MidoNet admin username.')),
+    cfg.StrOpt('password', default='passw0rd',
+               secret=True,
+               help=_('MidoNet admin password.')),
+    cfg.StrOpt('project_id',
+               default='77777777-7777-7777-7777-777777777777',
+               help=_('ID of the project that MidoNet admin user '
+                      'belongs to.')),
     cfg.StrOpt('tunnel_protocol', default='vxlan',
                help=_('Tunnel protocol used by Midonet')),
     cfg.StrOpt('cluster_ip', default='localhost',
@@ -26,9 +37,6 @@ mido_opts = [
                help=_('Port that the cluster service can be reached on')),
     cfg.StrOpt('client', default='midonet.neutron.client.api.MidonetApiClient',
                help=_('MidoNet client used to access MidoNet data storage.')),
-    cfg.ListOpt('extra_extensions', default=[],
-                help=_('Additional Neutron extensions to enable in '
-                       'the plugin.')),
 ]
 
 cfg.CONF.register_opts(mido_opts, "MIDONET")
