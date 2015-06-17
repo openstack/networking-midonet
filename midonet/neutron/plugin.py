@@ -149,7 +149,8 @@ class MidonetMixin(MidonetMixinBase):
         return net
 
     @oslo_db_api.wrap_db_retry(max_retries=3, retry_interval=1,
-                               retry_on_request=True)
+                               retry_on_request=True,
+                               retry_on_deadlock=True)
     def delete_network(self, context, id):
         LOG.debug("MidonetMixin.delete_network called: id=%r", id)
 
