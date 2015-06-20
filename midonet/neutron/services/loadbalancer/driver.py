@@ -72,7 +72,7 @@ class MidonetLoadbalancerDriver(abstract_driver.LoadBalancerAbstractDriver,
                   "old_vip=%(old_vip)r, new_vip=%(new_vip)r",
                   {'old_vip': old_vip, 'new_vip': new_vip})
 
-        self.client.update_vip(self, context, old_vip['id'], new_vip)
+        self.client.update_vip(context, old_vip['id'], new_vip)
         self.plugin.update_status(context, ldb.Vip, old_vip["id"],
                                   constants.ACTIVE)
 
