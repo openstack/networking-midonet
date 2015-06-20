@@ -147,7 +147,7 @@ class MidonetLoadbalancerDriver(abstract_driver.LoadBalancerAbstractDriver,
                   "old_member=%(old_member)r, new_member=%(new_member)r",
                   {'old_member': old_member, 'new_member': new_member})
 
-        self.client.update_member(self, context, old_member['id'], new_member)
+        self.client.update_member(context, old_member['id'], new_member)
         self.plugin.update_status(context, ldb.Member, old_member["id"],
                                   constants.ACTIVE)
 
@@ -199,8 +199,7 @@ class MidonetLoadbalancerDriver(abstract_driver.LoadBalancerAbstractDriver,
                   {'old_health_monitor': old_health_monitor,
                    'health_monitor': health_monitor, 'pool_id': pool_id})
 
-        self.client.update_health_monitor(self, context,
-                                          old_health_monitor['id'],
+        self.client.update_health_monitor(context, old_health_monitor['id'],
                                           health_monitor)
         self.plugin.update_status(context, ldb.HealthMonitor,
                                   old_health_monitor["id"], constants.ACTIVE)
