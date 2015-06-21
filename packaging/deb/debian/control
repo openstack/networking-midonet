@@ -13,8 +13,10 @@ Build-Depends: dh-python,
 Package: python-neutron-plugin-midonet
 Architecture: all
 Depends: ${misc:Depends},
-         ${python:Depends},
-         neutron-server (>= 2015.1.0),
+         python:any (>= 2.7.5-5~),
+         python:any (<< 2.8),
+         python-neutron (>= 2015.1.0),
+         python-neutron-lbaas (>= 2015.1.0),
          python-oslo-log (>= 0.4.0),
          python-babel,
          python-midonetclient
