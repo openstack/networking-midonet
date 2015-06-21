@@ -63,12 +63,13 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
 
         # Subnet and router must always exist and associated
         network = self._make_network(self.fmt, 'net1', True)
-        subnet = self._make_subnet(self.fmt, network, "10.0.0.1",
+        self._subnet = self._make_subnet(self.fmt, network, "10.0.0.1",
                                    '10.0.0.0/24')
-        subnet_id = subnet['subnet']['id']
+        self._subnet_id = self._subnet['subnet']['id']
         router = self._make_router(self.fmt, self._tenant_id, 'router1', True)
         self._router_id = router['router']['id']
-        self._router_interface_action('add', self._router_id, subnet_id, None)
+        self._router_interface_action('add', self._router_id, self._subnet_id,
+                                      None)
 
         # Also prepare external network and subnet which are needed for VIP
         ext_network = self._make_network(self.fmt, 'ext_net1', True)
@@ -83,15 +84,23 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
         # Override the default subnet ID used in the upstream load balancer
         # tests so that the midonet-specific tests use the specific subnet
         # created in the setup
-        test_db_loadbalancer._subnet_id = subnet_id
+        test_db_loadbalancer._subnet_id = self._subnet_id
 
     def tearDown(self):
         super(LoadbalancerTestCase, self).tearDown()
 
     @contextlib.contextmanager
-    def pool_with_hm_associated(self):
-        with self.health_monitor() as hm:
-            with self.pool() as pool:
+    def subnet_with_router(self, cidr='10.0.1.0/24'):
+        with self.subnet(cidr=cidr) as sub:
+            subnet = sub['subnet']
+            self._router_interface_action('add', self._router_id,
+                                          subnet['id'], None)
+            yield sub
+
+    @contextlib.contextmanager
+    def pool_with_hm_associated(self, subnet_id=None, do_delete=True):
+        with self.health_monitor(do_delete=do_delete) as hm:
+            with self.pool(subnet_id=subnet_id, do_delete=do_delete) as pool:
                 # Associate the health_monitor to the pool
                 assoc = {"health_monitor": {
                          "id": hm['health_monitor']['id'],
@@ -118,17 +127,24 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
     def _test_create_vip(self, name="VIP", pool_id=None, protocol='HTTP',
                          port_number=80, admin_state_up=True,
                          subnet_id=None,
-                         expected_res_status=200):
+                         expected_res_status=exc.HTTPCreated.code):
         if subnet_id is None:
             subnet_id = self._ext_subnet['subnet']['id']
         self._create_vip(self.fmt, name, pool_id, protocol, port_number,
                          admin_state_up, subnet_id=subnet_id,
                          expected_res_status=expected_res_status)
 
+    def _test_vip_status(self, vip_id, status):
+        req = self.new_show_request('vips', vip_id)
+        resp = req.get_response(self.ext_api)
+        self.assertEqual(exc.HTTPOk.code, resp.status_int)
+        vip = self.deserialize(self.fmt, resp)
+        self.assertEqual(status, vip['vip']['status'])
+
     def _test_create_pool(self, name="pool", lb_method='ROUND_ROBIN',
                           protocol='TCP', admin_state_up=True,
                           subnet_id=test_db_loadbalancer._subnet_id,
-                          expected_res_status=200):
+                          expected_res_status=exc.HTTPOk.code):
         self._create_pool(self.fmt, name, lb_method, protocol, admin_state_up,
                           subnet_id=subnet_id,
                           expected_res_status=expected_res_status)
@@ -218,12 +234,18 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
                                   subnet_id=uuidutils.generate_uuid(),
                                   expected_res_status=exc.HTTPNotFound.code)
 
-    def test_create_vip_same_subnet_as_pool(self):
-        # VIP and subnet cannot be set to the same subnet
-        with self.pool() as pool:
+    def test_create_vip_same_subnet_as_pool_with_hm(self):
+        # VIP and pool subnets cannot be the same if HM is associated
+        with self.pool_with_hm_associated() as (pool, hm):
             self._test_create_vip(pool_id=pool['pool']['id'],
                                   subnet_id=pool['pool']['subnet_id'],
                                   expected_res_status=exc.HTTPBadRequest.code)
+
+    def test_create_vip_same_subnet_as_pool_with_no_hm(self):
+        # VIP and pool subnets can be the same if HM is not associated
+        with self.pool(do_delete=False) as pool:
+            self._test_create_vip(pool_id=pool['pool']['id'],
+                                  subnet_id=pool['pool']['subnet_id'])
 
     def test_create_vip_with_bad_pool(self):
         # Non-existent pool results in an error
@@ -238,6 +260,60 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
             self._test_create_vip(pool_id=pool['pool']['id'],
                                   subnet_id=self._ext_subnet['subnet']['id'],
                                   expected_res_status=exc.HTTPBadRequest.code)
+
+    def test_update_vip(self):
+        keys = [('name', 'new_name'),
+                ('subnet_id', self._ext_subnet['subnet']['id']),
+                ('tenant_id', self._tenant_id),
+                ('protocol', 'HTTP'),
+                ('protocol_port', 80),
+                ('admin_state_up', False)]
+        with self.pool() as pool:
+            with self.vip(pool=pool, subnet=self._ext_subnet) as vip:
+                req = self.new_update_request('vips',
+                                              {'vip': {
+                                                  'name': 'new_name',
+                                                  'admin_state_up': False}},
+                                              vip['vip']['id'])
+                res = self.deserialize(
+                    self.fmt, req.get_response(self.ext_api))
+                for k, v in keys:
+                    self.assertEqual(res['vip'][k], v)
+
+    def test_update_vip_same_subnet_as_pool_with_hm(self):
+        # Updating the pool Id to a pool with the same subnet as the VIP
+        # when HM is associated with the pool results in a validation error
+        with self.subnet_with_router() as sub:
+            subnet = sub['subnet']
+            with self.pool() as pool1:
+                with self.vip(pool=pool1, subnet=sub) as vip:
+                    with self.pool_with_hm_associated(
+                            do_delete=False,
+                            subnet_id=subnet['id']) as (pool2, hm):
+                        req = self.new_update_request(
+                            'vips', {'vip': {'pool_id': pool2['pool']['id']}},
+                            vip['vip']['id'])
+                        res = req.get_response(self.ext_api)
+                        self.assertEqual(exc.HTTPBadRequest.code,
+                                         res.status_int)
+                        self._test_vip_status(vip['vip']['id'],
+                                              constants.ERROR)
+
+    def test_update_vip_same_subnet_as_pool_with_no_hm(self):
+        # Updating the pool Id to a pool with the same subnet as the VIP
+        # when HM is NOT associated with the pool is accepted
+        with self.subnet_with_router() as sub:
+            subnet = sub['subnet']
+            with self.pool(subnet_id=subnet['id']) as pool1:
+                with self.pool(subnet_id=self._subnet_id) as pool2:
+                    with self.vip(pool=pool1, subnet=self._ext_subnet) as vip:
+                        req = self.new_update_request(
+                            'vips', {'vip': {'pool_id': pool2['pool']['id']}},
+                            vip['vip']['id'])
+                        res = req.get_response(self.ext_api)
+                        self.assertEqual(exc.HTTPOk.code, res.status_int)
+                        self._test_vip_status(vip['vip']['id'],
+                                              constants.ACTIVE)
 
     def test_create_pool_health_monitor(self):
         with self.pool_with_hm_associated() as (p, hm):
@@ -272,3 +348,18 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
             req = self.new_show_request('pools', p['pool']['id'], fmt=self.fmt)
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
             self.assertEqual(len(res['pool']['health_monitors']), 0)
+
+    def test_create_pool_health_monitor_with_same_vip_subnet(self):
+        # Associating two health monitors to a pool which is associated
+        # with a vip of the same subnet
+        with self.pool(subnet_id=self._subnet_id) as pool:
+            with self.vip(pool=pool, subnet=self._subnet):
+                with self.health_monitor() as hm:
+                    assoc = {"health_monitor": {
+                             "id": hm['health_monitor']['id'],
+                             'tenant_id': self._tenant_id}}
+                    req = self.new_create_request(
+                        "pools", assoc, fmt=self.fmt, id=pool['pool']['id'],
+                        subresource="health_monitors")
+                    res = req.get_response(self.ext_api)
+                    self.assertEqual(res.status_int, exc.HTTPBadRequest.code)

@@ -82,9 +82,11 @@ class LoadBalancerDriverDbMixin(object):
         subnet = self.core_plugin._get_subnet(context, vip['subnet_id'])
         pool = self.plugin.get_pool(context, vip['pool_id'])
 
-        # VIP and pool must not be on the same subnet
-        if pool['subnet_id'] == subnet['id']:
-            msg = (_LE("The VIP and pool cannot be on the same subnet"))
+        # VIP and pool must not be on the same subnet if pool is associated
+        # with a health monitor.  Health monitor would not work in that case.
+        if pool['health_monitors'] and pool['subnet_id'] == subnet['id']:
+            msg = (_LE("The VIP and pool cannot be on the same subnet if"
+                       "health monitor is associated"))
             raise n_exc.BadRequest(resource='vip', msg=msg)
 
         if not self._is_subnet_external(context, subnet):
@@ -114,3 +116,13 @@ class LoadBalancerDriverDbMixin(object):
                        "health monitor"))
             raise n_exc.BadRequest(resource='pool_monitor_association',
                                    msg=msg)
+
+        # When associating health monitor, the subnet of VIP and Pool must not
+        # match
+        if pool['vip_id']:
+            vip = self.plugin.get_vip(context, pool['vip_id'])
+            if vip['subnet_id'] == pool['subnet_id']:
+                msg = (_LE("The VIP and pool cannot be on the same subnet if"
+                           "health monitor is associated"))
+                raise n_exc.BadRequest(resource='pool_monitor_association',
+                                       msg=msg)

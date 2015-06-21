@@ -15,12 +15,14 @@
 
 from midonet.neutron.db import loadbalancer_db as mn_lb_db
 
+from neutron.common import exceptions as n_exc
 from neutron import i18n
 from neutron.plugins.common import constants
 from neutron_lbaas.db.loadbalancer import loadbalancer_db as ldb
 from neutron_lbaas.services.loadbalancer.drivers import abstract_driver
 
 from oslo_log import log as logging
+from oslo_utils import excutils
 
 _LE = i18n._LE
 LOG = logging.getLogger(__name__)
@@ -46,9 +48,14 @@ class MidonetLoadbalancerDriver(abstract_driver.LoadBalancerAbstractDriver,
 
         try:
             self._validate_vip_subnet(context, vip)
-        except Exception:
-            self.plugin._delete_db_vip(context, vip['id'])
-            raise
+        except n_exc.NeutronException as ex:
+            with excutils.save_and_reraise_exception():
+                LOG.error(_LE("Failed to create a vip %(vip_id)s in Midonet: "
+                              "%(err)s"), {"vip_id": vip["id"], "err": ex})
+                try:
+                    self.plugin._delete_db_vip(context, vip['id'])
+                except Exception:
+                    LOG.exception(_LE("Failed to delete vip %s"), vip['id'])
 
         self.client.create_vip(context, vip)
         self.plugin.update_status(context, ldb.Vip, vip['id'],
@@ -72,6 +79,19 @@ class MidonetLoadbalancerDriver(abstract_driver.LoadBalancerAbstractDriver,
                   "old_vip=%(old_vip)r, new_vip=%(new_vip)r",
                   {'old_vip': old_vip, 'new_vip': new_vip})
 
+        try:
+            self._validate_vip_subnet(context, new_vip)
+        except n_exc.NeutronException as ex:
+            with excutils.save_and_reraise_exception():
+                LOG.error(_LE("Failed to update a vip %(vip_id)s in Midonet: "
+                              "%(err)s"), {"vip_id": old_vip["id"], "err": ex})
+                try:
+                    self.plugin.update_status(context, ldb.Vip, old_vip["id"],
+                                              constants.ERROR)
+                except Exception:
+                    LOG.exception(_LE("Failed to update vip status %s"),
+                                  old_vip['id'])
+
         self.client.update_vip(context, old_vip['id'], new_vip)
         self.plugin.update_status(context, ldb.Vip, old_vip["id"],
                                   constants.ACTIVE)
@@ -87,9 +107,15 @@ class MidonetLoadbalancerDriver(abstract_driver.LoadBalancerAbstractDriver,
         try:
             router_id = self._check_and_get_router_id_for_pool(
                 context, pool['subnet_id'])
-        except Exception:
-            self.plugin._delete_db_pool(context, pool['id'])
-            raise
+        except n_exc.NeutronException as ex:
+            with excutils.save_and_reraise_exception():
+                LOG.error(_LE("Failed to create a pool %(pool_id)s in "
+                              "Midonet: %(err)s"),
+                          {"pool_id": pool["id"], "err": ex})
+                try:
+                    self.plugin._delete_db_pool(context, pool['id'])
+                except Exception:
+                    LOG.exception(_LE("Failed to delete pool %s"), pool['id'])
 
         pool.update({'router_id': router_id, 'status': constants.ACTIVE})
         self.client.create_pool(context, pool)
@@ -162,11 +188,21 @@ class MidonetLoadbalancerDriver(abstract_driver.LoadBalancerAbstractDriver,
         try:
             self._validate_pool_hm_assoc(context, pool_id,
                                          health_monitor['id'])
-        except Exception:
-            self.plugin._delete_db_pool_health_monitor(context,
-                                                       health_monitor['id'],
-                                                       pool_id)
-            raise
+        except n_exc.NeutronException as ex:
+            with excutils.save_and_reraise_exception():
+                LOG.error(_LE("Failed to create a pool-hm association "
+                              "in Midonet: pool=%(pool_id)s, hm=%(hm_id)s, "
+                              "%(err)s"),
+                          {"pool_id": pool_id, "hm_id": health_monitor['id'],
+                           "err": ex})
+                try:
+                    self.plugin._delete_db_pool_health_monitor(
+                        context, health_monitor['id'], pool_id)
+                except Exception:
+                    LOG.exception(_LE("Failed to delete pool-hm association:"
+                                      "pool_id=%(pool_id)s, hm_id=%(hm_id)s"),
+                                  {"pool_id": pool_id,
+                                   "hm_id": health_monitor['id']})
 
         self.client.create_health_monitor(context, health_monitor)
         self.plugin.update_pool_health_monitor(context, health_monitor['id'],
