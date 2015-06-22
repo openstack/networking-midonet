@@ -39,19 +39,19 @@ Note that with these configurations, only the following services are started::
 Kilo Plugin
 -----------
 
-There are two versions of Kilo plugin.  Set Q_PLUGIN_CLASS variable to the Kilo
-plugin that you want to load.
+There are two versions of Kilo plugin.  Set MIDONET_PLUGIN local.conf
+variable to the Kilo plugin that you want to load.
 
 Kilo plugin v1, which is compatible with MidoNet v2015.03 and v2015.06:
 
 ::
-    Q_PLUGIN_CLASS=neutron.plugins.midonet.plugin.MidonetPluginV2
+    MIDONET_PLUGIN=neutron.plugins.midonet.plugin.MidonetPluginV2
 
 
 Kilo plugin v2, which is compatible with MidoNet v2015.09 and beyond:
 
 ::
-    Q_PLUGIN_CLASS=midonet.neutron.plugin_v2.MidonetPluginV2
+    MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
 
 
 MidoNet Data Service
@@ -80,16 +80,19 @@ There are three ways in which the Neutron plugin could access MidoNet:
 
 1. MidoNet API with DataClient (legacy version)::
 
+ MIDONET_PLUGIN=neutron.plugins.midonet.plugin.MidonetPluginV2
  MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
  MIDONET_USE_ZOOM=False
 
 2. MidoNet API with ZOOM (transitional version)::
 
+ MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
  MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
  MIDONET_USE_ZOOM=True
 
 3. MidoNet Cluster with ZOOM (final version)::
 
+ MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
  MIDONET_CLIENT=midonet.neutron.client.cluster.MidonetClusterClient
  MIDONET_USE_ZOOM=True
 
