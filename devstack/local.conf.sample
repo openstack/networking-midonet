@@ -25,6 +25,9 @@ ENABLED_SERVICES+=,q-svc,q-dhcp,q-meta,neutron
 ENABLED_SERVICES+=,q-lbaas
 ENABLED_SERVICES+=,tempest
 ENABLED_SERVICES+=,horizon
+ENABLED_SERVICES+=,n-novnc,n-cauth
+
+NOVA_VNC_ENABLED=True
 
 # The following section contains environment variable settings that would
 # further minimalize the environment.  For example, in some cases you may just
