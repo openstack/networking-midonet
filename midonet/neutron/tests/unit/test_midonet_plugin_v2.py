@@ -42,6 +42,7 @@ from neutron.tests.unit.extensions import test_agent
 from neutron.tests.unit.extensions import test_extra_dhcp_opt as test_dhcpopts
 from neutron.tests.unit.extensions import test_extraroute as test_ext_route
 from neutron.tests.unit.extensions import test_l3_ext_gw_mode as test_gw_mode
+from neutron.tests.unit.extensions import test_portsecurity as test_psec
 from neutron.tests.unit.extensions import test_securitygroup as test_sg
 from neutron.tests.unit import testlib_api
 
@@ -502,4 +503,9 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
 
 class TestMidonetAllowedAddressPair(test_addr.TestAllowedAddressPairs,
                                     MidonetPluginV2TestCase):
+    pass
+
+
+class TestMidonetPortSecurity(test_psec.TestPortSecurity,
+                              MidonetPluginV2TestCase):
     pass
