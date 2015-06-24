@@ -63,10 +63,14 @@ if [[ "$1" == "stack" ]]; then
     elif [[ "$2" == "extra" ]]; then
 
         if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
-            export CIDR=${FLOATING_RANGE:?Error \$FLOATING_RANGE is not set}
-            $MIDONET_DIR/tools/devmido/create_fake_uplink.sh
+            if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
+                $MIDONET_DIR/tools/devmido/create_fake_uplink_l2.sh \
+                    $EXT_NET_ID $FLOATING_RANGE $PUBLIC_NETWORK_GATEWAY
+            else
+                $MIDONET_DIR/tools/devmido/create_fake_uplink.sh \
+                    $FLOATING_RANGE
+            fi
         fi
-
 
     elif [[ "$2" == "post-config" ]]; then
 
@@ -99,8 +103,11 @@ elif [[ "$1" == "unstack" ]]; then
     source $ABSOLUTE_PATH/functions
 
     if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
-        CIDR=${FLOATING_RANGE:?Error \$FLOATING_RANGE is not set}
-        $MIDONET_DIR/tools/devmido/delete_fake_uplink.sh
+        if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
+            $MIDONET_DIR/tools/devmido/delete_fake_uplink_l2.sh
+        else
+            $MIDONET_DIR/tools/devmido/delete_fake_uplink.sh
+        fi
     fi
     $MIDONET_DIR/tools/devmido/unmido.sh
 fi
