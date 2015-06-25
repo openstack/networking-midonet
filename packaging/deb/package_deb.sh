@@ -77,7 +77,7 @@ cp -r ${SOURCE_DIR}/packaging/deb/debian /tmp/networking-midonet-${VERSION}
 
 # Generate the 'changelog' file via 'dhc' based on current version
 cd /tmp/networking-midonet-${VERSION}
-dch --create -v ${FULL_VERSION} --package networking-midonet "Release ${FULL_VERSION}"
+dch --create -v 1:${FULL_VERSION} --package networking-midonet "Release 1:${FULL_VERSION}"
 
 debuild -us -uc
 

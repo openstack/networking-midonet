@@ -17,6 +17,7 @@
 Name:           %{pkgname}
 Version:        XXX
 Release:        XXX%{?dist}
+Epoch:          1
 Provides:       %{pkgname} = %{version}-%{release}
 Summary:        %{vendor} OpenStack Neutron driver
 
