@@ -36,6 +36,26 @@ if [[ "$1" == "stack" ]]; then
 
     elif [[ "$2" == "install" ]]; then
 
+        # Build neutron midonet plugin
+        pip_install --no-deps --editable $ABSOLUTE_PATH/..
+
+        # Build midonet client
+        pip_install --editable $MIDONET_DIR/python-midonetclient
+
+    elif [[ "$2" == "extra" ]]; then
+
+        if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
+            if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
+                $MIDONET_DIR/tools/devmido/create_fake_uplink_l2.sh \
+                    $EXT_NET_ID $FLOATING_RANGE $PUBLIC_NETWORK_GATEWAY
+            else
+                $MIDONET_DIR/tools/devmido/create_fake_uplink.sh \
+                    $FLOATING_RANGE
+            fi
+        fi
+
+    elif [[ "$2" == "post-config" ]]; then
+
         export SERVICE_HOST=${MIDONET_SERVICE_HOST:?Error \$MIDONET_SERVICE_HOST is not set}
         export API_PORT=$MIDONET_API_PORT
         export CLUSTER_API_PORT=$MIDONET_CLUSTER_API_PORT
@@ -51,28 +71,8 @@ if [[ "$1" == "stack" ]]; then
         export MIDO_DB_PASSWORD=$DATABASE_PASSWORD
         export CONFIGURE_LOGGING
 
-        # Build neutron midonet plugin
-        pip_install --no-deps --editable $ABSOLUTE_PATH/..
-
-        # Build midonet client
-        pip_install --editable $MIDONET_DIR/python-midonetclient
-
         # Run the command
         $MIDONET_DIR/tools/devmido/mido.sh
-
-    elif [[ "$2" == "extra" ]]; then
-
-        if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
-            if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
-                $MIDONET_DIR/tools/devmido/create_fake_uplink_l2.sh \
-                    $EXT_NET_ID $FLOATING_RANGE $PUBLIC_NETWORK_GATEWAY
-            else
-                $MIDONET_DIR/tools/devmido/create_fake_uplink.sh \
-                    $FLOATING_RANGE
-            fi
-        fi
-
-    elif [[ "$2" == "post-config" ]]; then
 
         # Set rootwrap.d to installed mm-ctl filters
         sudo cp $ABSOLUTE_PATH/midonet_rootwrap.filters /etc/neutron/rootwrap.d/
