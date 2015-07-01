@@ -223,6 +223,15 @@ class MidonetMixin(MidonetMixinBase):
         with context.session.begin(subtransactions=True):
             # Create a Neutron port
             new_port = super(MidonetMixin, self).create_port(context, port)
+
+            # Do not create a gateway port if it has no IP address assigned as
+            # MidoNet does not yet handle this case.
+            if (new_port.get('device_owner') == n_const.DEVICE_OWNER_ROUTER_GW
+                    and not new_port['fixed_ips']):
+                msg = (_("No IPs assigned to the gateway port for"
+                         " router %s") % port_data['device_id'])
+                raise n_exc.BadRequest(resource='router', msg=msg)
+
             dhcp_opts = port['port'].get(edo_ext.EXTRADHCPOPTS, [])
 
             # Make sure that the port created is valid

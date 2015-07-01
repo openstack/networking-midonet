@@ -120,3 +120,20 @@ class TestMidonetL3NatDBIntTest(test_l3.L3NatDBIntTestCase,
         #  the problem go away, but it would make create_subnet_precommit
         # meaningless.  Handle this case when MidoNet supports IPv6
         pass
+
+    def test_router_add_gateway_no_subnet(self):
+        # Midonet does not support the case where a gateway is set
+        # without a subnet, therefore we don't want to test this.
+        pass
+
+    def test_create_router_no_gateway_ip(self):
+        with self.network() as net:
+            self._set_net_external(net['network']['id'])
+            router_data = {'router': {
+                'tenant_id': 'tenant_one',
+                'external_gateway_info': {
+                    'network_id': net['network']['id']}}}
+            router_req = self.new_create_request('routers', router_data,
+                                                 self.fmt)
+            res = router_req.get_response(self.ext_api)
+            self.assertEqual(res.status_int, 400)
