@@ -274,6 +274,9 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
         # meaningless.  Handle this case when MidoNet supports IPv6
         pass
 
+    def test_router_update_gateway_upon_subnet_create_max_ips_ipv6(self):
+        pass
+
     def test_router_add_gateway_no_subnet(self):
         # Midonet does not support the case where a gateway is set
         # without a subnet, therefore we don't want to test this.

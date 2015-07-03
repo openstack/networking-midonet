@@ -35,7 +35,7 @@ def upgrade():
         sa.Column('id', sa.Integer(), primary_key=True),
         sa.Column('type', sa.String(length=36)),
         sa.Column('data_type', sa.String(length=36)),
-        sa.Column('data', sa.Text(length = 2 ** 24)),
+        sa.Column('data', sa.Text(length=2 ** 24)),
         sa.Column('resource_id', sa.String(length=36)),
         sa.Column('tenant_id', sa.String(length=255)),
         sa.Column('transaction_id', sa.String(length=40), nullable=False),

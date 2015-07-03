@@ -67,7 +67,7 @@ class AgentMembershipTestCase(test_mn.MidonetPluginV2TestCase):
     def test_create_agent_membership(self):
         expected = {'id': FAKE_AGENT_ID, 'ip_address': FAKE_IP}
         with self.agent_membership() as am:
-            for k, v in expected.iteritems():
+            for k, v in expected.items():
                 self.assertEqual(am['agent_membership'][k], v)
 
     def test_delete_agent_membership(self):
@@ -83,7 +83,7 @@ class AgentMembershipTestCase(test_mn.MidonetPluginV2TestCase):
             req = self.new_show_request('agent_memberships',
                                         am['agent_membership']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            for k, v in expected.iteritems():
+            for k, v in expected.items():
                 self.assertEqual(res['agent_membership'][k], v)
 
     def test_list_agent_memberships(self):

@@ -1,16 +1,9 @@
 # The order of packages is significant, because pip processes them in the order
 # of appearance. Changing the order has an impact on the overall integration
 # process, which may cause wedges in the gate later.
+pbr<2.0,>=0.11
 
-pbr>=0.6,!=0.7,<1.0
 Babel>=1.3
-oslo.log==1.0.0  # remove the dependency when will be declared in neutron
--e git://git.openstack.org/openstack/neutron.git@2015.1.0#egg=neutron
--e git://git.openstack.org/openstack/neutron-lbaas.git@2015.1.0#egg=neutron-lbaas
+-e git://git.openstack.org/openstack/neutron.git@master#egg=neutron
+-e git://git.openstack.org/openstack/neutron-lbaas.git@master#egg=neutron-lbaas
 -e git://github.com/midonet/python-midonetclient.git@master#egg=midonetclient
-
-# Keystoneclient 1.3.1, which is the correct version for kilo, is not
-# compatible with oslo.i18n 2.0.0. Until the library requirements are decided
-# for the stable releases, pin these to the version matching the version
-# defined in Kilo's OpenStack global requirements.
-oslo.i18n>=1.5.0,<1.6.0  # Apache-2.0
