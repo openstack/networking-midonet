@@ -2,7 +2,7 @@
 
 # MidoNet repo
 MIDONET_REPO=${MIDONET_REPO:-http://github.com/midonet/midonet.git}
-MIDONET_BRANCH=${MIDONET_BRANCH:-stable/v2015.03}
+MIDONET_BRANCH=${MIDONET_BRANCH:-master}
 MIDONET_DIR=${MIDONET_DIR:-$DEST/midonet}
 
 # This flag indicates to the MidoNet agent to use ZOOM instead of DataClient ZK

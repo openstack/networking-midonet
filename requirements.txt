@@ -10,7 +10,12 @@ oslo.log==1.0.0  # remove the dependency when will be declared in neutron
 -e git://github.com/midonet/python-midonetclient.git@master#egg=midonetclient
 
 # Keystoneclient 1.3.1, which is the correct version for kilo, is not
-# compatible with oslo.i18n 2.0.0. Until the library requirements are decided
-# for the stable releases, pin these to the version matching the version
-# defined in Kilo's OpenStack global requirements.
+# compatible with oslo.i18n, oslo.config, or oslo.utils 2.0.0. Until the
+# library requirements are decided for the stable releases, pin these to the
+# version matching the version defined in Kilo's OpenStack global requirements.
+# novaclient and oslo.serialization have this same problem, so we will specify
+# the versions here as well.
+oslo.config>=1.9.3,<1.10.0
+oslo.utils>=1.4.0,<1.5.0
+oslo.serialization>=1.4.0,<1.5.0
 oslo.i18n>=1.5.0,<1.6.0  # Apache-2.0
