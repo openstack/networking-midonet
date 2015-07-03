@@ -21,8 +21,10 @@ from neutron.common import constants as n_const
 from neutron.common import exceptions as n_exc
 from neutron.db import allowedaddresspairs_db as addr_pair_db
 from neutron.db import extraroute_db
+from neutron.db import portsecurity_db as ps_db
 from neutron.extensions import allowedaddresspairs as addr_pair
 from neutron.extensions import extra_dhcp_opt as edo_ext
+from neutron.extensions import portsecurity as psec
 from neutron.extensions import providernet as pnet
 from neutron.extensions import securitygroup as ext_sg
 from neutron import i18n
@@ -42,7 +44,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                       am_db.AgentMembershipDbMixin,
                       extraroute_db.ExtraRoute_db_mixin,
                       pnet_db.MidonetProviderNetworkMixin,
-                      pb_db.MidonetPortBindingMixin):
+                      pb_db.MidonetPortBindingMixin,
+                      ps_db.PortSecurityDbMixin):
 
     supported_extension_aliases = [
         'agent',
@@ -53,6 +56,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         'external-net',
         'extra_dhcp_opt',
         'extraroute',
+        'port-security',
         'provider',
         'quotas',
         'router',
@@ -79,6 +83,9 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             self._process_l3_create(context, net, net_data)
             self._create_provider_network(context, net_data)
             self._extend_provider_network_dict(context, net)
+            if psec.PORTSECURITY in net_data:
+                self._process_network_port_security_create(context, net_data,
+                                                           net)
             self.client.create_network_precommit(context, net)
 
         try:
@@ -137,6 +144,10 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                 context, id, network)
             self._process_l3_update(context, net, network['network'])
             self._extend_provider_network_dict(context, net)
+            if psec.PORTSECURITY in network['network']:
+                self._process_network_port_security_update(context,
+                                                           network['network'],
+                                                           net)
             self.client.update_network_precommit(context, id, net)
 
         self.client.update_network_postcommit(id, net)
@@ -238,8 +249,22 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             # Update fields
             port_data.update(new_port)
 
-            # Bind security groups to the port
-            self._ensure_default_security_group_on_port(context, port)
+            port_psec, has_ip = self._determine_port_security_and_has_ip(
+                context, port['port'])
+            port['port'][psec.PORTSECURITY] = port_psec
+            self._process_port_port_security_create(context,
+                                                    port['port'],
+                                                    new_port)
+
+            if port_psec is False:
+                if self._check_update_has_security_groups(port):
+                    raise psec.PortSecurityAndIPRequiredForSecurityGroups()
+                if self._check_update_has_allowed_address_pairs(port):
+                    raise addr_pair.AddressPairAndPortSecurityRequired()
+            else:
+                # Bind security groups to the port
+                self._ensure_default_security_group_on_port(context, port)
+
             sg_ids = self._get_security_groups_on_port(context, port)
             self._process_port_create_security_group(context, new_port, sg_ids)
 
@@ -322,6 +347,15 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                                                               port['port'], p)
             self.update_address_pairs_on_port(context, id, port,
                                               original_port, p)
+
+            self._process_port_port_security_update(context, port['port'], p)
+
+            port_psec = p.get(psec.PORTSECURITY)
+            if port_psec is False:
+                if p.get(ext_sg.SECURITYGROUPS):
+                    raise psec.PortSecurityPortHasSecurityGroup()
+                if p.get(addr_pair.ADDRESS_PAIRS):
+                    raise addr_pair.AddressPairAndPortSecurityRequired()
 
             self.client.update_port_precommit(context, id, p)
 
