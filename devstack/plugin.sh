@@ -57,8 +57,7 @@ if [[ "$1" == "stack" ]]; then
     elif [[ "$2" == "post-config" ]]; then
 
         export SERVICE_HOST=${MIDONET_SERVICE_HOST:?Error \$MIDONET_SERVICE_HOST is not set}
-        export API_PORT=$MIDONET_API_PORT
-        export CLUSTER_API_PORT=$MIDONET_CLUSTER_API_PORT
+        export API_PORT=$MIDONET_SERVICE_API_PORT
         export API_TIMEOUT=${MIDONET_API_TIMEOUT}
         export USE_NEW_STACK=$MIDONET_USE_ZOOM
 
