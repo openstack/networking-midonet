@@ -95,6 +95,9 @@ if [[ "$1" == "stack" ]]; then
         export USE_METADATA=$MIDONET_USE_METADATA
         export NOVA_METADATA_URL=$MIDONET_NOVA_METADATA_URL
         export METADATA_SHARED_SECRET=$MIDONET_METADATA_SHARED_SECRET
+        if [ $MIDONET_CLIENT = "midonet.neutron.client.cluster.MidonetClusterClient" ]; then
+            export ENABLE_TASKS_IMPORTER=True
+        fi
 
         # Run the command
         $MIDONET_DIR/tools/devmido/mido.sh
