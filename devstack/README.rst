@@ -42,15 +42,12 @@ Kilo Plugin
 There are two versions of Kilo plugin.  Set MIDONET_PLUGIN local.conf
 variable to the Kilo plugin that you want to load.
 
-Kilo plugin v1, which is compatible with MidoNet v2015.03 and v2015.06:
+Kilo plugin v1, which is compatible with MidoNet v2015.03 and v2015.06::
 
-::
     MIDONET_PLUGIN=neutron.plugins.midonet.plugin.MidonetPluginV2
 
+Kilo plugin v2, which is compatible with MidoNet v2015.09 and beyond::
 
-Kilo plugin v2, which is compatible with MidoNet v2015.09 and beyond:
-
-::
     MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
 
 
@@ -80,29 +77,27 @@ There are three ways in which the Neutron plugin could access MidoNet:
 
 1. MidoNet API with DataClient (legacy version)::
 
- MIDONET_PLUGIN=neutron.plugins.midonet.plugin.MidonetPluginV2
- MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
- MIDONET_USE_ZOOM=False
+    MIDONET_PLUGIN=neutron.plugins.midonet.plugin.MidonetPluginV2
+    MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
+    MIDONET_USE_ZOOM=False
 
 2. MidoNet API with ZOOM (transitional version)::
 
- MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
- MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
- MIDONET_USE_ZOOM=True
+    MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
+    MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
+    MIDONET_USE_ZOOM=True
 
 3. MidoNet Cluster with ZOOM (final version)::
 
- MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
- MIDONET_CLIENT=midonet.neutron.client.cluster.MidonetClusterClient
- MIDONET_USE_ZOOM=True
+    MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
+    MIDONET_CLIENT=midonet.neutron.client.cluster.MidonetClusterClient
+    MIDONET_USE_ZOOM=True
 
 Finally, since ZOOM is still in an experimental stage, the
 'uplink' configuration performed at the end of devstack would fail.
-To bypass this error, set the following:
+To bypass this error, set the following::
 
-::
-
- MIDONET_CREATE_FAKE_UPLINK=False
+    MIDONET_CREATE_FAKE_UPLINK=False
 
 
 LBaaS
@@ -110,9 +105,7 @@ LBaaS
 
 Starting in Kilo, MidoNet plugin implements LBaaS v1 following the advanced
 service driver model.  To configure MidoNet as the LBaaS driver when running
-devstack, make sure the following is defined in local.conf:
-
-::
+devstack, make sure the following is defined in local.conf::
 
     enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas
     NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default"
