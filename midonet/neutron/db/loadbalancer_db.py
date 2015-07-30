@@ -18,6 +18,8 @@ from neutron.common import exceptions as n_exc
 from neutron.db import l3_db
 from neutron.db import models_v2
 from neutron import i18n
+from neutron import manager
+from neutron.plugins.common import constants as service_constants
 from sqlalchemy.orm import exc
 
 _LE = i18n._LE
@@ -100,7 +102,9 @@ class LoadBalancerDriverDbMixin(object):
         # when we created the pool
         assert router_id is not None
 
-        router = self.core_plugin._get_router(context, router_id)
+        l3plugin = manager.NeutronManager.get_service_plugins().get(
+            service_constants.L3_ROUTER_NAT)
+        router = l3plugin._get_router(context, router_id)
         if router.get('gw_port_id') is None:
             msg = (_LE("The router must have its gateway set if the "
                        "VIP subnet is external"))
