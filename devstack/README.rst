@@ -93,12 +93,6 @@ There are three ways in which the Neutron plugin could access MidoNet:
     MIDONET_CLIENT=midonet.neutron.client.cluster.MidonetClusterClient
     MIDONET_USE_ZOOM=True
 
-Finally, since ZOOM is still in an experimental stage, the
-'uplink' configuration performed at the end of devstack would fail.
-To bypass this error, set the following::
-
-    MIDONET_CREATE_FAKE_UPLINK=False
-
 
 LBaaS
 -----

@@ -56,4 +56,3 @@ NOVA_VNC_ENABLED=True
 # If you want to use the new V2 architecture of MidoNet, uncomment these:
 #
 # MIDONET_USE_ZOOM=True
-# MIDONET_CREATE_FAKE_UPLINK=False
