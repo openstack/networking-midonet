@@ -71,6 +71,9 @@ if [[ "$1" == "stack" ]]; then
         export MIDO_DB_USER=$DATABASE_USER
         export MIDO_DB_PASSWORD=$DATABASE_PASSWORD
         export CONFIGURE_LOGGING
+        export USE_METADATA=$MIDONET_USE_METADATA
+        export NOVA_METADATA_URL=$MIDONET_NOVA_METADATA_URL
+        export METADATA_SHARED_SECRET=$MIDONET_METADATA_SHARED_SECRET
 
         # Run the command
         $MIDONET_DIR/tools/devmido/mido.sh
