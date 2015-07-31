@@ -27,17 +27,6 @@ MIDONET_CREATE_FAKE_UPLINK=${MIDONET_CREATE_FAKE_UPLINK:-True}
 # deployment setting
 #
 
-# Disable nova-network and enable neutron services
-disable_service n-net
-disable_service q-fwaas
-disable_service q-l3
-disable_service q-agt
-disable_service q-vpn
-enable_service q-svc
-enable_service q-lbaas
-enable_service q-dhcp
-enable_service q-meta
-
 # Use IPv4
 IP_VERSION=4
 
