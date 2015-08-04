@@ -1,0 +1,64 @@
+[[local|localrc]]
+
+# This configuration file is intended to be used for CI and local develeopment
+# where you may only want networking related services to be running.
+
+enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas
+NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default"
+
+# Load the devstack plugin for ml2
+Q_PLUGIN=ml2
+Q_ML2_PLUGIN_MECHANISM_DRIVERS=midonet
+Q_ML2_PLUGIN_TYPE_DRIVERS=midonet
+Q_ML2_TENANT_NETWORK_TYPE=midonet
+ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin
+
+enable_plugin networking-midonet http://github.com/openstack/networking-midonet.git
+
+# Set all the passwords
+DATABASE_PASSWORD=midonet
+RABBIT_PASSWORD=midonet
+SERVICE_TOKEN=midonet
+SERVICE_PASSWORD=midonet
+ADMIN_PASSWORD=midonet
+
+# Enable keystone, nova, glance and neutron (w/ lbaas)
+# Also enable tempest since it's useful for CI and local dev
+ENABLED_SERVICES=rabbit,mysql,key
+ENABLED_SERVICES+=,n-api,n-crt,n-obj,n-cpu,n-cond,n-sch
+ENABLED_SERVICES+=,g-api,g-reg
+ENABLED_SERVICES+=,q-svc,q-dhcp,q-meta,neutron
+ENABLED_SERVICES+=,q-lbaas
+ENABLED_SERVICES+=,tempest
+ENABLED_SERVICES+=,horizon
+ENABLED_SERVICES+=,n-novnc,n-cauth
+
+NOVA_VNC_ENABLED=True
+
+# ML2 only works with v2 architecture
+#
+MIDONET_USE_ZOOM=True
+
+# The following section contains environment variable settings that would
+# further minimalize the environment.  For example, in some cases you may just
+# want to run the Neutron API with no agents, or you may want to disable
+# authentication.
+
+# If you want to also disable auth for Neutron, uncomment this
+#
+# Q_AUTH_STRATEGY=noauth
+
+# If you don't want the host to be configured with fake uplink uncomment this
+#
+# MIDONET_CREATE_FAKE_UPLINK=False
+
+# If you don't want devstack to create default networks, uncomment this
+#
+# NEUTRON_CREATE_INITIAL_NETWORKS=False
+
+# If you want to disable Neutron agents so that only the API runs, uncomment
+# these
+#
+# disable_service q-dhcp
+# disable_service q-meta
+

@@ -15,3 +15,6 @@
 
 # Network Type constants
 TYPE_UPLINK = 'uplink'
+
+# ML2 Midonet type driver name
+TYPE_MIDONET = 'midonet'

@@ -30,9 +30,11 @@ ENABLED_SERVICES+=,n-novnc,n-cauth
 
 NOVA_VNC_ENABLED=True
 
-# To use the v2 plugin and l3 service, uncomment the following lines.
+# To use the v2 plugin with L3 service and MN v2 arch, uncomment the following lines.
+#
 # MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
 # Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin
+# MIDONET_USE_ZOOM=True
 
 # The following section contains environment variable settings that would
 # further minimalize the environment.  For example, in some cases you may just
@@ -57,6 +59,3 @@ NOVA_VNC_ENABLED=True
 # disable_service q-dhcp
 # disable_service q-meta
 
-# If you want to use the new V2 architecture of MidoNet, uncomment these:
-#
-# MIDONET_USE_ZOOM=True

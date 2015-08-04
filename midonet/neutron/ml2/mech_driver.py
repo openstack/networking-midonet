@@ -13,11 +13,22 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron.common import constants
+
+from midonet.neutron.client import base as c_base
+from midonet.neutron.common import config  # noqa
+from midonet.neutron.ml2 import sg_callback
+
+from neutron.common import constants as n_const
+from neutron.common import exceptions as n_exc
+from neutron.extensions import portbindings
+from neutron import i18n
+from neutron.plugins.ml2 import driver_api as api
+from oslo_config import cfg
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 
-from neutron.plugins.ml2 import driver_api as api
-
+_LE = i18n._LE
 LOG = logging.getLogger(__name__)
 
 
@@ -25,82 +36,120 @@ class MidonetMechanismDriver(api.MechanismDriver):
 
     """ML2 Mechanism Driver for Midonet."""
 
-    @log_helpers.log_method_call
+    def __init__(self):
+        self.vif_type = portbindings.VIF_TYPE_MIDONET
+        self.supported_vnic_types = [portbindings.VNIC_NORMAL]
+        self.vif_details = {portbindings.CAP_PORT_FILTER: True}
+
+        self.client = c_base.load_client(cfg.CONF.MIDONET)
+        self.client.initialize()
+
     def initialize(self):
-        pass
+        self.sec_handler = sg_callback.MidonetSecurityGroupsHandler(
+            self.client)
 
     @log_helpers.log_method_call
     def create_network_precommit(self, context):
-        pass
+        network = context.current
+        self.client.create_network_precommit(context, network)
 
     @log_helpers.log_method_call
     def create_network_postcommit(self, context):
-        pass
+        network = context.current
+        self.client.create_network_postcommit(network)
 
     @log_helpers.log_method_call
     def update_network_precommit(self, context):
-        pass
+        net = context.current
+        self.client.update_network_precommit(context, net['id'], net)
 
     @log_helpers.log_method_call
     def update_network_postcommit(self, context):
-        pass
+        net = context.current
+        self.client.update_network_postcommit(net['id'], net)
 
     @log_helpers.log_method_call
     def delete_network_precommit(self, context):
-        pass
+        network_id = context.current['id']
+        self.client.delete_network_precommit(context, network_id)
 
     @log_helpers.log_method_call
     def delete_network_postcommit(self, context):
-        pass
+        network_id = context.current['id']
+        self.client.delete_network_postcommit(network_id)
 
     @log_helpers.log_method_call
     def create_subnet_precommit(self, context):
-        pass
+        subnet = context.current
+        self.client.create_subnet_precommit(context, subnet)
 
     @log_helpers.log_method_call
     def create_subnet_postcommit(self, context):
-        pass
+        subnet = context.current
+        self.client.create_subnet_postcommit(subnet)
 
     @log_helpers.log_method_call
     def update_subnet_precommit(self, context):
-        pass
+        subnet = context.current
+        self.client.update_subnet_precommit(context, subnet['id'], subnet)
 
     @log_helpers.log_method_call
     def update_subnet_postcommit(self, context):
-        pass
+        subnet = context.current
+        self.client.update_subnet_postcommit(subnet['id'], subnet)
 
     @log_helpers.log_method_call
     def delete_subnet_precommit(self, context):
-        pass
+        subnet_id = context.current['id']
+        self.client.delete_subnet_precommit(context, subnet_id)
 
     @log_helpers.log_method_call
     def delete_subnet_postcommit(self, context):
-        pass
+        subnet_id = context.current['id']
+        self.client.delete_subnet_postcommit(subnet_id)
 
     @log_helpers.log_method_call
     def create_port_precommit(self, context):
-        pass
+        port = context.current
+        self.client.create_port_precommit(context, port)
+
+    def _validate_port_create(self, port):
+        if (port.get('device_owner') == n_const.DEVICE_OWNER_ROUTER_GW
+            and not port['fixed_ips']):
+            msg = (_("No IPs assigned to the gateway port for"
+                     " router %s") % port['device_id'])
+            raise n_exc.BadRequest(resource='router', msg=msg)
 
     @log_helpers.log_method_call
     def create_port_postcommit(self, context):
-        pass
+        port = context.current
+        self._validate_port_create(port)
+        self.client.create_port_postcommit(port)
 
     @log_helpers.log_method_call
     def update_port_precommit(self, context):
-        pass
+        port = context.current
+        self.client.update_port_precommit(context, port['id'], port)
 
     @log_helpers.log_method_call
     def update_port_postcommit(self, context):
-        pass
+        port = context.current
+        self.client.update_port_postcommit(port['id'], port)
 
     @log_helpers.log_method_call
     def delete_port_precommit(self, context):
-        pass
+        port_id = context.current['id']
+        self.client.delete_port_precommit(context, port_id)
 
     @log_helpers.log_method_call
     def delete_port_postcommit(self, context):
-        pass
+        port_id = context.current['id']
+        self.client.delete_port_postcommit(port_id)
 
     @log_helpers.log_method_call
     def bind_port(self, context):
-        pass
+        for segment in context.segments_to_bind:
+            context.set_binding(segment[api.ID],
+                                self.vif_type,
+                                self.vif_details,
+                                constants.PORT_STATUS_ACTIVE)

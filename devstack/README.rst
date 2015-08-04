@@ -14,12 +14,21 @@ There are more detailed info on the wiki.
 http://wiki.midonet.org/Devstack
 
 
-To Run DevStack with Networking-Only Environment
-------------------------------------------------
+To Run DevStack with monolithic midonet plugin
+-----------------------------------------------
 
 1. Download DevStack
-2. Copy the sample ``local.conf.sample`` file over to the devstack directory as
-   ``local.conf``.
+2. Copy the sample ``midonet/local.conf.sample`` file over to the devstack
+   directory as ``local.conf``.
+3. Run ``stack.sh``
+
+
+To Run DevStack with ML2 and midonet mechanism driver
+-----------------------------------------------------
+
+1. Download DevStack
+2. Copy the sample ``ml2/local.conf.sample`` file over to the devstack directory
+   as ``local.conf``.
 3. Run ``stack.sh``
 
 Note that with these configurations, only the following services are started::

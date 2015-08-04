@@ -5,7 +5,6 @@
 
 
 function is_neutron_ovs_base_plugin {
-    # MidoNet does not use l3-agent
     # 0 means True here
     return 1
 }
@@ -66,4 +65,8 @@ function has_neutron_plugin_security_group {
 function neutron_plugin_check_adv_test_requirements {
     # 0 means True here
     return 1
+}
+
+function configure_neutron_midonet {
+    :
 }

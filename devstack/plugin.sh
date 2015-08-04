@@ -23,7 +23,7 @@ if [[ "$1" == "stack" ]]; then
 
     if [[ "$2" == "pre-install" ]]; then
 
-        source $ABSOLUTE_PATH/functions
+        source $ABSOLUTE_PATH/$Q_PLUGIN/functions
 
         # Clone and build midonet service
         ERROR_ON_CLONE_BAK=$ERROR_ON_CLONE
@@ -55,6 +55,8 @@ if [[ "$1" == "stack" ]]; then
         fi
 
     elif [[ "$2" == "post-config" ]]; then
+
+        configure_neutron_midonet
 
         export SERVICE_HOST=${MIDONET_SERVICE_HOST:?Error \$MIDONET_SERVICE_HOST is not set}
         export API_PORT=$MIDONET_SERVICE_API_PORT
@@ -99,7 +101,7 @@ EOF"
 
 elif [[ "$1" == "unstack" ]]; then
 
-    source $ABSOLUTE_PATH/functions
+    source $ABSOLUTE_PATH/$Q_PLUGIN/functions
 
     if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
         if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
