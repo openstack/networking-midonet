@@ -13,6 +13,7 @@ Contents:
 
    readme
    installation
+   devstack
    usage
    contributing
 
