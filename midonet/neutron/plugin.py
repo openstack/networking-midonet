@@ -52,7 +52,6 @@ class MidonetMixinBase(db_base_plugin_v2.NeutronDbPluginV2,
                        agentschedulers_db.DhcpAgentSchedulerDbMixin,
                        external_net_db.External_net_db_mixin,
                        extradhcpopt_db.ExtraDhcpOptMixin,
-                       l3_gwmode_db.L3_NAT_db_mixin,
                        portbindings_db.PortBindingMixin,
                        securitygroups_db.SecurityGroupDbMixin):
 
@@ -99,7 +98,8 @@ class MidonetMixinBase(db_base_plugin_v2.NeutronDbPluginV2,
         self.conn.consume_in_threads()
 
 
-class MidonetMixin(MidonetMixinBase):
+class MidonetMixin(MidonetMixinBase,
+                   l3_gwmode_db.L3_NAT_db_mixin):
 
     supported_extension_aliases = ['extra_dhcp_opt']
 

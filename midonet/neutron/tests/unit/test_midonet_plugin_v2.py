@@ -76,6 +76,14 @@ class MidonetPluginV2TestCase(test_plugin.NeutronDbPluginV2TestCase):
         self.client_mock = mock.MagicMock()
         patcher.start().return_value = self.client_mock
 
+        l3_plugin = {'l3_plugin_name':
+            'midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin'}
+
+        if service_plugins:
+            service_plugins.update(l3_plugin)
+        else:
+            service_plugins = l3_plugin
+
         # Ensure that the parent setup can be called without arguments
         # by the common configuration setUp.
         parent_setup = functools.partial(
