@@ -17,6 +17,8 @@ from neutron.common import constants
 
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
+from midonet.neutron.common import constants as const
+from midonet.neutron.common import util
 from midonet.neutron.ml2 import sg_callback
 
 from neutron.common import constants as n_const
@@ -48,66 +50,79 @@ class MidonetMechanismDriver(api.MechanismDriver):
         self.sec_handler = sg_callback.MidonetSecurityGroupsHandler(
             self.client)
 
+    @util.midonet_network_filter
     @log_helpers.log_method_call
     def create_network_precommit(self, context):
         network = context.current
         self.client.create_network_precommit(context, network)
 
+    @util.midonet_network_filter
     @log_helpers.log_method_call
     def create_network_postcommit(self, context):
         network = context.current
         self.client.create_network_postcommit(network)
 
+    @util.midonet_network_filter
     @log_helpers.log_method_call
     def update_network_precommit(self, context):
         net = context.current
         self.client.update_network_precommit(context, net['id'], net)
 
+    @util.midonet_network_filter
     @log_helpers.log_method_call
     def update_network_postcommit(self, context):
         net = context.current
         self.client.update_network_postcommit(net['id'], net)
 
+    @util.midonet_network_filter
     @log_helpers.log_method_call
     def delete_network_precommit(self, context):
         network_id = context.current['id']
         self.client.delete_network_precommit(context, network_id)
 
+    @util.midonet_network_filter
     @log_helpers.log_method_call
     def delete_network_postcommit(self, context):
         network_id = context.current['id']
         self.client.delete_network_postcommit(network_id)
 
+    @util.midonet_subnet_filter
     @log_helpers.log_method_call
     def create_subnet_precommit(self, context):
         subnet = context.current
         self.client.create_subnet_precommit(context, subnet)
 
+    @util.midonet_subnet_filter
     @log_helpers.log_method_call
     def create_subnet_postcommit(self, context):
         subnet = context.current
         self.client.create_subnet_postcommit(subnet)
 
+    @util.midonet_subnet_filter
     @log_helpers.log_method_call
     def update_subnet_precommit(self, context):
         subnet = context.current
         self.client.update_subnet_precommit(context, subnet['id'], subnet)
 
+    @util.midonet_subnet_filter
     @log_helpers.log_method_call
     def update_subnet_postcommit(self, context):
         subnet = context.current
         self.client.update_subnet_postcommit(subnet['id'], subnet)
 
+    @util.midonet_subnet_filter
     @log_helpers.log_method_call
     def delete_subnet_precommit(self, context):
         subnet_id = context.current['id']
         self.client.delete_subnet_precommit(context, subnet_id)
 
+    @util.midonet_subnet_filter
     @log_helpers.log_method_call
     def delete_subnet_postcommit(self, context):
         subnet_id = context.current['id']
         self.client.delete_subnet_postcommit(subnet_id)
 
+    @util.midonet_port_filter
     @log_helpers.log_method_call
     def create_port_precommit(self, context):
         port = context.current
@@ -120,27 +135,32 @@ class MidonetMechanismDriver(api.MechanismDriver):
                      " router %s") % port['device_id'])
             raise n_exc.BadRequest(resource='router', msg=msg)
 
+    @util.midonet_port_filter
     @log_helpers.log_method_call
     def create_port_postcommit(self, context):
         port = context.current
         self._validate_port_create(port)
         self.client.create_port_postcommit(port)
 
+    @util.midonet_port_filter
     @log_helpers.log_method_call
     def update_port_precommit(self, context):
         port = context.current
         self.client.update_port_precommit(context, port['id'], port)
 
+    @util.midonet_port_filter
     @log_helpers.log_method_call
     def update_port_postcommit(self, context):
         port = context.current
         self.client.update_port_postcommit(port['id'], port)
 
+    @util.midonet_port_filter
     @log_helpers.log_method_call
     def delete_port_precommit(self, context):
         port_id = context.current['id']
         self.client.delete_port_precommit(context, port_id)
 
+    @util.midonet_port_filter
     @log_helpers.log_method_call
     def delete_port_postcommit(self, context):
         port_id = context.current['id']
@@ -149,7 +169,12 @@ class MidonetMechanismDriver(api.MechanismDriver):
     @log_helpers.log_method_call
     def bind_port(self, context):
         for segment in context.segments_to_bind:
-            context.set_binding(segment[api.ID],
-                                self.vif_type,
-                                self.vif_details,
-                                constants.PORT_STATUS_ACTIVE)
+            if segment['network_type'] == const.TYPE_MIDONET:
+                context.set_binding(segment[api.ID],
+                                    self.vif_type,
+                                    self.vif_details,
+                                    constants.PORT_STATUS_ACTIVE)
+                break
+            else:
+                LOG.debug(('midonet mechanism driver did NOT bind '
+                           'port for segment %r'), segment)
