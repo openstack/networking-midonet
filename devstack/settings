@@ -30,6 +30,9 @@ MIDONET_CREATE_FAKE_UPLINK=${MIDONET_CREATE_FAKE_UPLINK:-True}
 # Routers should be per tenant
 Q_L3_ROUTER_PER_TENANT=True
 
+# Enable L3
+Q_L3_ENABLED=True
+
 # Use IPv4
 IP_VERSION=4
 
@@ -38,7 +41,11 @@ SQLALCHEMY_DATABASE_DRIVER=${SQLALCHEMY_DATABASE_DRIVER:-mysqlconnector}
 
 # Tempest options
 IPV6_ENABLED=False
-NETWORK_API_EXTENSIONS=external-net,router,security-group,agent,dhcp_agent_scheduler,binding,quotas
+
+NETWORK_API_EXTENSIONS=external-net,router,security-group,agent,dhcp_agent_scheduler,binding,quotas,extra_dhcp_opt
+if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
+    NETWORK_API_EXTENSIONS+=,allowed-address-pairs,port-security
+fi
 
 # Don't let mido.sh configure the logging
 CONFIGURE_LOGGING=False
