@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron.client import base as c_base
 from midonet.neutron.db import loadbalancer_db as mn_lb_db
 
 from neutron.common import exceptions as n_exc
@@ -21,6 +22,7 @@ from neutron.plugins.common import constants
 from neutron_lbaas.db.loadbalancer import loadbalancer_db as ldb
 from neutron_lbaas.services.loadbalancer.drivers import abstract_driver
 
+from oslo_config import cfg
 from oslo_log import log as logging
 from oslo_utils import excutils
 
@@ -33,14 +35,11 @@ class MidonetLoadbalancerDriver(abstract_driver.LoadBalancerAbstractDriver,
 
     def __init__(self, plugin):
         self.plugin = plugin
+        self.client = c_base.load_client(cfg.CONF.MIDONET)
 
     @property
     def core_plugin(self):
         return self.plugin._core_plugin
-
-    @property
-    def client(self):
-        return self.core_plugin.client
 
     def create_vip(self, context, vip):
         LOG.debug("MidonetLoadbalancerDriver.create_vip called: %(vip)r",

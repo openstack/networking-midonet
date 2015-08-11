@@ -14,16 +14,13 @@
 #    under the License.
 
 from midonet.neutron.client import base
-from midonet.neutron.common import config  # noqa
-from midonetclient import client
 
-from oslo_config import cfg
+from midonetclient import client
 
 
 class MidonetApiClient(base.MidonetClientBase):
 
-    def __init__(self):
-        conf = cfg.CONF.MIDONET
+    def __init__(self, conf):
         self.api_cli = client.MidonetClient(conf.midonet_uri, conf.username,
                                             conf.password,
                                             project_id=conf.project_id)

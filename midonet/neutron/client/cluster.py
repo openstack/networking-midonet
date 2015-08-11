@@ -14,19 +14,19 @@
 #    under the License.
 
 from midonet.neutron.client import base
-from midonet.neutron.common import config  # noqa
 from midonet.neutron.db import task_db as task
 from midonet.neutron.rpc import topology_client as top
 
 import neutron.db.api as db
 
-from oslo_config import cfg
-
 
 class MidonetClusterClient(base.MidonetClientBase):
 
+    def __init__(self, conf):
+        self.conf = conf
+
     def initialize(self):
-        task.create_config_task(db.get_session(), dict(cfg.CONF.MIDONET))
+        task.create_config_task(db.get_session(), dict(self.conf))
 
     def create_network_precommit(self, context, network):
         task.create_task(context, task.CREATE, data_type=task.NETWORK,
@@ -124,7 +124,7 @@ class MidonetClusterClient(base.MidonetClientBase):
 
     def _midonet_hosts(self):
         for mido_host in top.get_all_midonet_hosts(
-                cfg.CONF.MIDONET.cluster_ip, cfg.CONF.MIDONET.cluster_port):
+                self.conf.cluster_ip, self.conf.cluster_port):
             yield mido_host
 
     def get_agent(self, agent_id):

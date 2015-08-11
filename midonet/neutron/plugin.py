@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
 from midonet.neutron import extensions
 
@@ -59,7 +60,7 @@ class MidonetMixinBase(db_base_plugin_v2.NeutronDbPluginV2,
         super(MidonetMixinBase, self).__init__()
 
         # Instantiate MidoNet API client
-        self._load_client()
+        self.client = c_base.load_client(cfg.CONF.MIDONET)
 
         neutron_extensions.append_api_extensions_path(extensions.__path__)
         self.setup_rpc()
@@ -74,16 +75,6 @@ class MidonetMixinBase(db_base_plugin_v2.NeutronDbPluginV2,
         self.network_scheduler = importutils.import_object(
             cfg.CONF.network_scheduler_driver
         )
-
-    def _load_client(self):
-        try:
-            self.client = importutils.import_object(cfg.CONF.MIDONET.client)
-            LOG.debug("Loaded midonet client '%(client)s'",
-                      {'client': self.client})
-        except ImportError:
-            with excutils.save_and_reraise_exception():
-                LOG.exception(_LE("Error loading midonet client '%(client)s'"),
-                              {'client': self.client})
 
     def setup_rpc(self):
         # RPC support

@@ -16,6 +16,26 @@
 import abc
 import six
 
+from neutron import i18n
+
+from oslo_log import log as logging
+from oslo_utils import excutils
+from oslo_utils import importutils
+
+_LE = i18n._LE
+LOG = logging.getLogger(__name__)
+
+
+def load_client(conf):
+    try:
+        client = importutils.import_object(conf.client, conf)
+        LOG.debug("Loaded midonet client '%(client)s'", {'client': client})
+        return client
+    except ImportError:
+        with excutils.save_and_reraise_exception():
+            LOG.exception(_LE("Error loading midonet client '%(client)s'"),
+                          {'client': conf.client})
+
 
 @six.add_metaclass(abc.ABCMeta)
 class MidonetClientBase(object):

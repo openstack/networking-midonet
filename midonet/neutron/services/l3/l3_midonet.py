@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
 from midonet.neutron import extensions
 
@@ -27,8 +28,6 @@ from oslo_config import cfg
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 from oslo_utils import excutils
-from oslo_utils import importutils
-
 
 LOG = logging.getLogger(__name__)
 _LE = i18n._LE
@@ -49,19 +48,9 @@ class MidonetL3ServicePlugin(db_base_plugin_v2.NeutronDbPluginV2,
         super(MidonetL3ServicePlugin, self).__init__()
 
         # Instantiate MidoNet API client
-        self._load_client()
+        self.client = c_base.load_client(cfg.CONF.MIDONET)
 
         neutron_extensions.append_api_extensions_path(extensions.__path__)
-
-    def _load_client(self):
-        try:
-            self.client = importutils.import_object(cfg.CONF.MIDONET.client)
-            LOG.debug("Loaded midonet client '%(client)s'",
-                      {'client': self.client})
-        except ImportError:
-            with excutils.save_and_reraise_exception():
-                LOG.exception(_LE("Error loading midonet client '%(client)s'"),
-                              {'client': self.client})
 
     def get_plugin_type(self):
         return constants.L3_ROUTER_NAT
