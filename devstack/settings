@@ -42,9 +42,11 @@ SQLALCHEMY_DATABASE_DRIVER=${SQLALCHEMY_DATABASE_DRIVER:-mysqlconnector}
 # Tempest options
 IPV6_ENABLED=False
 
-NETWORK_API_EXTENSIONS=external-net,router,security-group,agent,dhcp_agent_scheduler,binding,quotas,extra_dhcp_opt
+NETWORK_API_EXTENSIONS=agent,binding,dhcp_agent_scheduler,external-net
+NETWORK_API_EXTENSIONS+=,ext-gw-mode,extra_dhcp_opts,quotas,router
+NETWORK_API_EXTENSIONS+=,security-group
 if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
-    NETWORK_API_EXTENSIONS+=,allowed-address-pairs,port-security
+    NETWORK_API_EXTENSIONS+=,allowed-address-pairs,extraroute,port-security
 fi
 
 # Don't let mido.sh configure the logging
