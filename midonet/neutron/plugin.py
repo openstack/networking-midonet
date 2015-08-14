@@ -619,21 +619,62 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
         LOG.info(_("MidonetPluginV2.delete_security_group_rule exiting: "
                    "id=%r"), id)
 
-    def _validate_vip_subnet(self, context, subnet_id, pool_id):
+    def _validate_vip_subnet(self, context, pool_id, subnet_id):
+
+        # VIP and pool must not be on the same subnet if pool is associated
+        # with a health monitor.  Health monitor would not work in that case.
+        pool = self.get_pool(context, pool_id)
+        if pool is None:
+            msg = (_("Pool %(pool_id)s does not exist") % {'pool_id': pool_id})
+            raise n_exc.NotFound(resource='pool', msg=msg)
+
+        if pool['health_monitors'] and pool['subnet_id'] == subnet_id:
+            msg = (_("The VIP and pool cannot be on the same subnet if"
+                     "health monitor is associated"))
+            raise n_exc.BadRequest(resource='vip', msg=msg)
+
         # ensure that if the vip subnet is public, the router has its
         # gateway set.
         subnet = self._get_subnet(context, subnet_id)
+        if subnet is None:
+            msg = (_("Subnet %(subnet_id)s does not exit")
+                   % {'subnet_id': subnet_id})
+            raise n_exc.NotFound(resource='subnet', msg=msg)
+
         if db_util.is_subnet_external(context, subnet):
             router_id = db_util.get_router_from_pool(context, pool_id)
-            # router_id should never be None because it was already validated
-            # when we created the pool
-            assert router_id is not None
+            if router_id is None:
+                # Make sure that the pool is associated with a router
+                msg = (_("Pool %(pool_id)s does not have router association")
+                       % {'pool_id': pool_id})
+                raise n_exc.NotFound(resource='router', msg=msg)
 
             router = self._get_router(context, router_id)
             if router.get('gw_port_id') is None:
                 msg = _("The router must have its gateway set if the "
                         "VIP subnet is external")
                 raise n_exc.BadRequest(resource='router', msg=msg)
+
+    def _validate_pool_hm_assoc(self, context, pool_id, hm_id):
+        pool = self.get_pool(context, pool_id)
+        assoc = next((x for x in pool['health_monitors'] if x != hm_id), None)
+
+        # There is an association with a different health monitor
+        if assoc:
+            msg = (_("The pool is already associated with a different "
+                     "health monitor"))
+            raise n_exc.BadRequest(resource='pool_hm_monitor_association',
+                                   msg=msg)
+
+        # When associating health monitor, the subnet of VIP and Pool must not
+        # match
+        if pool['vip_id']:
+            vip = self.get_vip(context, pool['vip_id'])
+            if vip['subnet_id'] == pool['subnet_id']:
+                msg = (_("The VIP and pool cannot be on the same subnet if"
+                         "health monitor is associated"))
+                raise n_exc.BadRequest(resource='pool_hm_monitor_association',
+                                       msg=msg)
 
     @util.handle_api_error
     def create_vip(self, context, vip):
@@ -642,9 +683,8 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
 
         with context.session.begin(subtransactions=True):
 
-            self._validate_vip_subnet(context, vip['vip']['subnet_id'],
-                                      vip['vip']['pool_id'])
-
+            self._validate_vip_subnet(context, vip['vip']['pool_id'],
+                                      vip['vip']['subnet_id'])
             v = super(MidonetPluginV2, self).create_vip(context, vip)
             self.api_cli.create_vip(v)
             v['status'] = constants.ACTIVE
@@ -672,6 +712,11 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                   "vip=%(vip)r", {'id': id, 'vip': vip})
 
         with context.session.begin(subtransactions=True):
+            pool_id = vip['vip'].get('pool_id')
+            if pool_id:
+                old_vip = self.get_vip(context, id)
+                self._validate_vip_subnet(context, pool_id,
+                                          old_vip['subnet_id'])
             v = super(MidonetPluginV2, self).update_vip(context, id, vip)
             self.api_cli.update_vip(id, v)
 
@@ -685,6 +730,11 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                   {'pool': pool})
 
         subnet = db_util.get_subnet(context, pool['pool']['subnet_id'])
+        if subnet is None:
+            msg = (_("Subnet %(subnet_id)s does not exist")
+                   % {'subnet_id': pool['pool']['subnet_id']})
+            raise n_exc.NotFound(resource='subnet', msg=msg)
+
         if db_util.is_subnet_external(context, subnet):
             msg = _("pool subnet must not be public")
             raise n_exc.BadRequest(resource='subnet', msg=msg)
@@ -696,11 +746,6 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
             raise n_exc.BadRequest(resource='router', msg=msg)
 
         pool['pool'].update({'router_id': router_id})
-
-        if self._get_resource_router_id_binding(context, loadbalancer_db.Pool,
-                                                router_id=router_id):
-            msg = _("A pool is already associated with the router")
-            raise n_exc.BadRequest(resource='router', msg=msg)
 
         with context.session.begin(subtransactions=True):
             p = super(MidonetPluginV2, self).create_pool(context, pool)
@@ -836,13 +881,9 @@ class MidonetPluginV2(db_base_plugin_v2.NeutronDbPluginV2,
                   "hm=%(health_monitor)r, pool_id=%(pool_id)r",
                   {'health_monitor': health_monitor, 'pool_id': pool_id})
 
-        pool = self.get_pool(context, pool_id)
-        monitors = pool.get('health_monitors')
-        if len(monitors) > 0:
-            msg = _("MidoNet right now can only support one monitor per pool")
-            raise n_exc.BadRequest(resource='pool_health_monitor', msg=msg)
-
         hm = health_monitor['health_monitor']
+        self._validate_pool_hm_assoc(context, pool_id, hm['id'])
+
         with context.session.begin(subtransactions=True):
             monitors = super(MidonetPluginV2, self).create_pool_health_monitor(
                 context, health_monitor, pool_id)
