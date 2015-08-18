@@ -273,18 +273,6 @@ class TestMidonetExtraDHCPOpts(test_dhcpopts.TestExtraDhcpOpt,
 class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
                                  MidonetPluginV2TestCase):
 
-    def test_router_update_gateway_upon_subnet_create_ipv6(self):
-        # This test in the parent test class fails because 'create_subnet' and
-        # 'update_port' are executed in the same transaction, where within
-        # 'update_port', a look up is made on the subnet that has not been
-        # committed.  Removing the transaction block in 'create_subnet' makes
-        #  the problem go away, but it would make create_subnet_precommit
-        # meaningless.  Handle this case when MidoNet supports IPv6
-        pass
-
-    def test_router_update_gateway_upon_subnet_create_max_ips_ipv6(self):
-        pass
-
     def test_router_add_gateway_no_subnet(self):
         # Midonet does not support the case where a gateway is set
         # without a subnet, therefore we don't want to test this.
