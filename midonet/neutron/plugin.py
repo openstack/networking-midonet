@@ -101,7 +101,7 @@ class MidonetMixinBase(db_base_plugin_v2.NeutronDbPluginV2,
 
 class MidonetMixin(MidonetMixinBase):
 
-    supported_extension_aliases = ['extra_dhcp_opt']
+    supported_extension_aliases = ['ext-gw-mode', 'extra_dhcp_opt']
 
     def create_network(self, context, network):
         LOG.debug('MidonetMixin.create_network called: network=%r', network)
