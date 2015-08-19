@@ -3,7 +3,6 @@
 # This configuration file is intended to be used for CI and local develeopment
 # where you may only want networking related services to be running.
 
-enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas
 NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default"
 
 # Load the devstack plugin for ml2

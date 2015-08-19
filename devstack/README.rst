@@ -105,9 +105,8 @@ There are three ways in which the Neutron plugin could access MidoNet:
 LBaaS
 -----
 
-Starting in Kilo, MidoNet plugin implements LBaaS v1 following the advanced
-service driver model.  To configure MidoNet as the LBaaS driver when running
-devstack, make sure the following is defined in local.conf::
+MidoNet plugin implements LBaaS v1 following the advanced service driver model.
+To configure MidoNet as the LBaaS driver when running devstack, make sure the
+following is defined in ``local.conf``::
 
-    enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas
     NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default"
