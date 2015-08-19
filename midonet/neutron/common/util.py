@@ -13,16 +13,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import functools
-
 import time
 from webob import exc as w_exc
 
-from midonet.neutron.common import constants as const
 from midonet.neutron.common import exceptions as exc
 from midonetclient import exc as mn_exc
 
-from neutron.extensions import providernet
 from neutron import i18n
 from oslo_log import log as logging
 
@@ -69,38 +65,3 @@ def retry_on_error(attempts, delay, error_cls):
             raise err
         return retry
     return internal_wrapper
-
-
-def is_midonet_network(network):
-    return network.get(providernet.NETWORK_TYPE) == const.TYPE_MIDONET
-
-
-def filter_network(context):
-    return is_midonet_network(context.current)
-
-
-def filter_subnet(context):
-    # REVISIT(joe): implement this filtering using upstream neutron info
-    # after the subnet context has the network information
-    netid = context.current['network_id']
-    network = context._plugin.get_network(context._plugin_context, netid)
-    return is_midonet_network(network)
-
-
-def filter_port(context):
-    return is_midonet_network(context.network.current)
-
-
-def midonet_filter(filter_func):
-    def filter_resource(func):
-        @functools.wraps(func)
-        def wrapper(self, context):
-            if filter_func(context):
-                func(self, context)
-        return wrapper
-    return filter_resource
-
-
-midonet_network_filter = midonet_filter(filter_network)
-midonet_subnet_filter = midonet_filter(filter_subnet)
-midonet_port_filter = midonet_filter(filter_port)
