@@ -28,6 +28,7 @@ from midonet.neutron.db import data_version_db as dv_db
 from midonet.neutron.db import port_binding_db  # noqa
 from midonet.neutron.db import provider_network_db  # noqa
 from midonet.neutron.db import task_db  # noqa
+from midonet.neutron import extensions as m_ext
 from midonet.neutron.tests.unit import test_midonet_plugin as test_mn_plugin
 from neutron import context
 from neutron.db import api as db_api
@@ -50,6 +51,7 @@ from oslo_config import cfg
 from oslo_utils import uuidutils
 
 PLUGIN_NAME = 'midonet.neutron.plugin_v2.MidonetPluginV2'
+extensions_path = m_ext.__path__[0]
 
 
 class MidonetPluginConf(object):
@@ -63,6 +65,21 @@ class MidonetPluginConf(object):
         """Perform additional configuration around the parent's setUp."""
         cfg.CONF.set_override('client', test_mn_plugin.TEST_MN_CLIENT,
                               group='MIDONET')
+
+        # Override with the midonet extension path. This is needed because in
+        # some projects' tests, (FWaaS, for example) two entries of the same
+        # path may get registered.  It then relies on the
+        # get_extensions_path method to remove the duplicate.  But when midonet
+        # plugin appends its own extension path, the dedup logic fails and
+        # causes the tests to fail to load.  By always setting the extension
+        # path here, it removes the duplicate extension paths by making
+        # midonet extension path the only one registered.  Projects such as
+        # FWaaS and LBaaS get their extension paths inserted by neutron
+        # differently, and their paths do not need to be overridden in CONF.
+        # This is a bug in get_extension_path method, and this is a temporary
+        # work around.
+        # TODO(Ryu): Remove this when the bug #1486861 is fixed
+        cfg.CONF.set_override('api_extensions_path', extensions_path)
         if parent_setup:
             parent_setup()
 
