@@ -18,3 +18,6 @@ TYPE_UPLINK = 'uplink'
 
 # ML2 Midonet type driver name
 TYPE_MIDONET = 'midonet'
+
+# Midonet VIF TYPE
+VIF_TYPE_MIDONET = 'midonet'
