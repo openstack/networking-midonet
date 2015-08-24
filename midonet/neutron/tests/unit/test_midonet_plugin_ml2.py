@@ -29,6 +29,8 @@ from oslo_config import cfg
 
 PLUGIN_NAME = 'neutron.plugins.ml2.plugin.Ml2Plugin'
 
+cfg.CONF.import_group('ml2', 'neutron.plugins.ml2.config')
+
 
 class MidonetPluginConf(object):
     """Plugin configuration shared across the unit and functional tests.
