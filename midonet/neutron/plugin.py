@@ -15,6 +15,7 @@
 
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
+from midonet.neutron.common import constants as const
 from midonet.neutron import extensions
 
 from neutron.api import extensions as neutron_extensions
@@ -66,7 +67,7 @@ class MidonetMixinBase(db_base_plugin_v2.NeutronDbPluginV2,
         self.setup_rpc()
 
         self.base_binding_dict = {
-            portbindings.VIF_TYPE: portbindings.VIF_TYPE_MIDONET,
+            portbindings.VIF_TYPE: const.VIF_TYPE_MIDONET,
             portbindings.VNIC_TYPE: portbindings.VNIC_NORMAL,
             portbindings.VIF_DETAILS: {
                 # TODO(rkukura): Replace with new VIF security details

@@ -138,7 +138,7 @@ class TestMidonetPortsV2(MidonetPluginV2TestCase,
 class TestMidonetPortBinding(MidonetPluginV2TestCase,
                              test_bindings.PortBindingsTestCase):
 
-    VIF_TYPE = portbindings.VIF_TYPE_MIDONET
+    VIF_TYPE = m_const.VIF_TYPE_MIDONET
     HAS_PORT_FILTER = True
 
     @contextlib.contextmanager
