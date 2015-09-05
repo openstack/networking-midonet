@@ -34,10 +34,6 @@ ENABLED_SERVICES+=,n-novnc,n-cauth
 
 NOVA_VNC_ENABLED=True
 
-# ML2 only works with v2 architecture
-#
-MIDONET_USE_ZOOM=True
-
 # The following section contains environment variable settings that would
 # further minimalize the environment.  For example, in some cases you may just
 # want to run the Neutron API with no agents, or you may want to disable

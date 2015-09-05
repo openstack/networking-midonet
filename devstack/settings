@@ -5,18 +5,17 @@ MIDONET_REPO=${MIDONET_REPO:-http://github.com/midonet/midonet.git}
 MIDONET_BRANCH=${MIDONET_BRANCH:-master}
 MIDONET_DIR=${MIDONET_DIR:-$DEST/midonet}
 
-# This flag indicates to the MidoNet agent to use ZOOM instead of DataClient ZK
-# backend of MidoNet NSDB.
-MIDONET_USE_ZOOM=${MIDONET_USE_ZOOM:-False}
+# This flag indicates to the MidoNet agent to use ZOOM (MN v2)
+MIDONET_USE_ZOOM=${MIDONET_USE_ZOOM:-True}
 
 # MidoNet service endpoint configuration
-MIDONET_SERVICE_API_PORT=${MIDONET_SERVICE_API_PORT:-8081}
+MIDONET_SERVICE_API_PORT=${MIDONET_SERVICE_API_PORT:-8181}
 MIDONET_SERVICE_PROTOCOL=${MIDONET_SERVICE_PROTOCOL:-$SERVICE_PROTOCOL}
 MIDONET_SERVICE_HOST=${MIDONET_SERVICE_HOST:-$SERVICE_HOST}
 MIDONET_API_URL="${MIDONET_SERVICE_PROTOCOL}://${MIDONET_SERVICE_HOST}:${MIDONET_SERVICE_API_PORT}/midonet-api"
 
 # MidoNet Plugin and Client
-MIDONET_PLUGIN=${MIDONET_PLUGIN:-neutron.plugins.midonet.plugin.MidonetPluginV2}
+MIDONET_PLUGIN=${MIDONET_PLUGIN:-midonet.neutron.plugin_v2.MidonetPluginV2}
 MIDONET_CLIENT=${MIDONET_CLIENT:-midonet.neutron.client.api.MidonetApiClient}
 
 # create the fake uplink by default
