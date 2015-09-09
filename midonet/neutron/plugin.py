@@ -27,6 +27,7 @@ from neutron.common import rpc as n_rpc
 from neutron.common import topics
 from neutron.db import agents_db
 from neutron.db import agentschedulers_db
+from neutron.db import api as db_api
 from neutron.db import db_base_plugin_v2
 from neutron.db import external_net_db
 from neutron.db import extradhcpopt_db
@@ -212,7 +213,9 @@ class MidonetMixin(MidonetMixinBase,
         LOG.debug("MidonetMixin.create_port called: port=%r", port)
 
         port_data = port['port']
-        with context.session.begin(subtransactions=True):
+        # REVISIT(yamamoto): this nested transaction is a workaround
+        # for bug #1490917.
+        with db_api.autonested_transaction(context.session):
             # Create a Neutron port
             new_port = super(MidonetMixin, self).create_port(context, port)
 
@@ -533,15 +536,15 @@ class MidonetMixin(MidonetMixinBase,
                   rule)
         return rule
 
-    def create_security_group_rule_bulk(self, context, rules):
+    def create_security_group_rule_bulk(self, context, security_group_rules):
         LOG.debug("MidonetMixin.create_security_group_rule_bulk called: "
                   "security_group_rules=%(security_group_rules)r",
-                  {'security_group_rules': rules})
+                  {'security_group_rules': security_group_rules})
 
         with context.session.begin(subtransactions=True):
             rules = super(
                 MidonetMixin, self).create_security_group_rule_bulk_native(
-                    context, rules)
+                    context, security_group_rules)
             self.client.create_security_group_rule_bulk_precommit(context,
                                                                   rules)
 

@@ -20,6 +20,7 @@ from midonet.neutron import plugin
 from neutron.common import constants as n_const
 from neutron.common import exceptions as n_exc
 from neutron.db import allowedaddresspairs_db as addr_pair_db
+from neutron.db import api as db_api
 from neutron.db import portsecurity_db as ps_db
 from neutron.extensions import allowedaddresspairs as addr_pair
 from neutron.extensions import extra_dhcp_opt as edo_ext
@@ -225,7 +226,9 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.create_port called: port=%r", port)
 
         port_data = port['port']
-        with context.session.begin(subtransactions=True):
+        # REVISIT(yamamoto): this nested transaction is a workaround
+        # for bug #1490917.
+        with db_api.autonested_transaction(context.session):
             # Create a Neutron port
             new_port = super(MidonetPluginV2, self).create_port(context, port)
 
@@ -443,15 +446,15 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                   "rule=%r", rule)
         return rule
 
-    def create_security_group_rule_bulk(self, context, rules):
+    def create_security_group_rule_bulk(self, context, security_group_rules):
         LOG.debug("MidonetPluginV2.create_security_group_rule_bulk called: "
                   "security_group_rules=%(security_group_rules)r",
-                  {'security_group_rules': rules})
+                  {'security_group_rules': security_group_rules})
 
         with context.session.begin(subtransactions=True):
             rules = super(
                 MidonetPluginV2, self).create_security_group_rule_bulk_native(
-                    context, rules)
+                    context, security_group_rules)
             self.client.create_security_group_rule_bulk_precommit(context,
                                                                   rules)
 
