@@ -230,7 +230,7 @@ class MidonetLoadbalancerDriver(abstract_driver.LoadBalancerAbstractDriver,
                                    health_monitor, pool_id):
         LOG.debug("MidonetLoadbalancerDriver.update_pool_health_monitor "
                   "called: old_health_monitor=%(old_health_monitor)r, "
-                  "health_monitor=%(health_monitor)r, pool_id=%(pool_id)",
+                  "health_monitor=%(health_monitor)r, pool_id=%(pool_id)r",
                   {'old_health_monitor': old_health_monitor,
                    'health_monitor': health_monitor, 'pool_id': pool_id})
 
