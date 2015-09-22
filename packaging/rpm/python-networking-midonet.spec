@@ -53,4 +53,3 @@ rm -rf %{buildroot}
 %attr(-, root, root) %doc LICENSE
 %attr(-, root, root) %{python2_sitelib}/midonet
 %attr(-, root, root) %{python2_sitelib}/networking_midonet-%{version}-py%{python2_version}.egg-info
-%attr(-, root, root) %{_bindir}/midonet-db-manage
