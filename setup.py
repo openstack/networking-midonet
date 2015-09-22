@@ -27,6 +27,6 @@ setuptools.setup(
     packages=setuptools.find_packages(
         exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     url='https://github.com/stackforge/networking-midonet',
-    version='2014.2.2.1.0',
+    version='2014.2.3.1.1',
     zip_safe=False,
 )
