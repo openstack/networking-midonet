@@ -61,3 +61,9 @@ MIDONET_USE_ZOOM=True
 # disable_service q-dhcp
 # disable_service q-meta
 
+# If you want to use the embedded metadata proxy, uncomment these:
+#
+# MIDONET_USE_METADATA=True
+# Q_METADATA_ENABLED=True
+# disable_service q-dhcp
+# disable_service q-meta
