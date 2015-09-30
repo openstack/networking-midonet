@@ -14,16 +14,18 @@
 #    under the License.
 
 import contextlib
+import mock
 from webob import exc
 
 from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
+from neutron.db import servicetype_db as st_db
 from neutron.plugins.common import constants
+from neutron.services import provider_configuration as provconf
 from neutron.tests.unit.api import test_extensions as test_ex
 from neutron.tests.unit.extensions import test_l3
 from neutron_lbaas.extensions import loadbalancer
 from neutron_lbaas.tests.unit.db.loadbalancer import test_db_loadbalancer
-from oslo_config import cfg
 from oslo_utils import uuidutils
 
 MN_DRIVER_KLASS = ('midonet.neutron.services.loadbalancer.driver.'
@@ -52,10 +54,12 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
             'lb_plugin_name': test_db_loadbalancer.DB_LB_PLUGIN_KLASS}
         lbaas_provider = (constants.LOADBALANCER + ':lbaas:' +
                           MN_DRIVER_KLASS + ':default')
+        mock.patch.object(provconf.NeutronModule, 'service_providers',
+                          return_value=[lbaas_provider]).start()
+        manager = st_db.ServiceTypeManager.get_instance()
+        manager.add_provider_configuration(
+            constants.LOADBALANCER, provconf.ProviderConfiguration())
         ext_mgr = LoadbalancerTestExtensionManager()
-        cfg.CONF.set_override('service_provider',
-                              [lbaas_provider],
-                              'service_providers')
 
         super(LoadbalancerTestCase, self).setUp(
             service_plugins=service_plugins, ext_mgr=ext_mgr)
