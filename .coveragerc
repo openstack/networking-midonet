@@ -4,4 +4,4 @@ source = networking-midonet
 omit = networking-midonet/tests/*,networking-midonet/openstack/*
 
 [report]
-ignore-errors = True
+ignore_errors = True
