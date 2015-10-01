@@ -40,3 +40,9 @@ mido_opts = [
 ]
 
 cfg.CONF.register_opts(mido_opts, "MIDONET")
+
+
+def list_opts():
+    return [
+        ('midonet', mido_opts),
+    ]
