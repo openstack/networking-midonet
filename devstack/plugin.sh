@@ -81,7 +81,7 @@ if [[ "$1" == "stack" ]]; then
         # Set rootwrap.d to installed mm-ctl filters
         sudo cp $ABSOLUTE_PATH/midonet_rootwrap.filters /etc/neutron/rootwrap.d/
 
-        midonet-db-manage upgrade head
+        neutron-db-manage --subproject networking-midonet upgrade head
 
         if is_service_enabled nova; then
             sudo cp $ABSOLUTE_PATH/midonet_rootwrap.filters /etc/nova/rootwrap.d/
