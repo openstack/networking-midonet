@@ -44,17 +44,17 @@ Note that with these configurations, only the following services are started::
     horizon
 
 
-Kilo Plugin
------------
+Plugin
+------
 
-There are two versions of Kilo plugin.  Set MIDONET_PLUGIN local.conf
-variable to the Kilo plugin that you want to load.
+There are two versions of MidoNet plugin.  Set MIDONET_PLUGIN local.conf
+variable to the plugin that you want to load.
 
-Kilo plugin v1, which is compatible with MidoNet v2015.03 and v2015.06::
+MidoNet plugin v1, which is compatible with MidoNet v2015.03 and v2015.06::
 
     MIDONET_PLUGIN=neutron.plugins.midonet.plugin.MidonetPluginV2
 
-Kilo plugin v2, which is compatible with MidoNet v2015.09 and beyond::
+MidoNet plugin v2, which is compatible with MidoNet v2015.09 and beyond::
 
     MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
 
@@ -66,36 +66,42 @@ On the master branch of MidoNet, there are two types of Zookeeper data store
 engines available:
 
 1. DataClient (legacy)
-2. ZOOM (enhanced version still in an experimental stage)
+2. ZOOM (default)
 
-Also, MidoNet exposes two API services:
+By default, the ZOOM backend is enabled.  If you want to use the legacy
+DataClient data store, set the following::
 
-1. MidoNet API (legacy REST)
-2. Cluster API/RPC (new API providing both REST and protobuf-based RPC)
+    MIDONET_USE_ZOOM=False
 
-By default, when running devstack, both MidoNet API and MidoNet Cluster
-services are spawned.  Kilo is compatible with both the API and the Cluster,
-and to toggle between the two, configure the MIDONET_CLIENT envrionment
-variable appropriately.
+Also, MidoNet exposes two ways to communicate to its service:
 
-In addition, the MidoNet agent must be instructed to use either DataClient
-(default) or ZOOM.
+1. REST (synchronous)
+2. Tasks DB (asynchronous - experimental)
+
+By default, the plugin is configured to use the REST API service.  The REST API
+client is specified as::
+
+    MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
+
+If you want to use the experimental Tasks based API, set the following::
+
+    MIDONET_CLIENT=midonet.neutron.client.cluster.MidonetClusterClient
 
 There are three ways in which the Neutron plugin could access MidoNet:
 
-1. MidoNet API with DataClient (legacy version)::
+1. MidoNet REST API with DataClient (legacy version)::
 
     MIDONET_PLUGIN=neutron.plugins.midonet.plugin.MidonetPluginV2
     MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
     MIDONET_USE_ZOOM=False
 
-2. MidoNet API with ZOOM (transitional version)::
+2. MidoNet REST API with ZOOM (current version)::
 
     MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
     MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
     MIDONET_USE_ZOOM=True
 
-3. MidoNet Cluster with ZOOM (final version)::
+3. MidoNet Tasks API with ZOOM (experimental version)::
 
     MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
     MIDONET_CLIENT=midonet.neutron.client.cluster.MidonetClusterClient
