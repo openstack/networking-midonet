@@ -87,6 +87,12 @@ class MidonetMixinBase(db_base_plugin_v2.NeutronDbPluginV2,
                           metadata_rpc.MetadataRpcCallback()]
         self.conn.create_consumer(self.topic, self.endpoints,
                                   fanout=False)
+        # TODO(yamamoto): Remove the hasattr check after branching Liberty
+        if hasattr(topics, 'REPORTS'):
+            self.conn.create_consumer(topics.REPORTS,
+                                      [agents_db.AgentExtRpcCallback()],
+                                      fanout=False)
+
         # Consume from all consumers in a thread
         self.conn.consume_in_threads()
 
