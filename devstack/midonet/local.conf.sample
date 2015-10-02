@@ -32,7 +32,7 @@ NOVA_VNC_ENABLED=True
 # To use the v1 plugin with MN v1 arch, uncomment the following lines and
 # comment out the line to set Q_SERVICE_PLUGIN_CLASSES.
 #
-# MIDONET_PLUGIN=neutron.plugins.midonet.plugin.MidonetPluginV2
+# MIDONET_PLUGIN=midonet.neutron.plugin_v1.MidonetPluginV2
 # MIDONET_USE_ZOOM=False
 Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin
 
