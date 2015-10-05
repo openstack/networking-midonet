@@ -30,7 +30,7 @@ from neutron.tests.unit.extensions import test_securitygroup as test_sg
 from oslo_config import cfg
 
 
-PLUGIN_NAME = 'neutron.plugins.midonet.plugin.MidonetPluginV2'
+PLUGIN_NAME = 'midonet.neutron.plugin_v1.MidonetPluginV2'
 TEST_MN_CLIENT = ('midonet.neutron.tests.unit.test_midonet_plugin.'
                   'NoopMidonetClient')
 
