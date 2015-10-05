@@ -48,6 +48,10 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                       pb_db.MidonetPortBindingMixin,
                       ps_db.PortSecurityDbMixin):
 
+    # REVISIT(yamamoto): Consider dropping agent and dhcp_agent_scheduler,
+    # probably after a cycle. (for M release)
+    # This plugin is for MidoNet v2015.09 and later, where we have an
+    # alternative metadata proxy which doesn't require Neutron agents.
     supported_extension_aliases = [
         'agent',
         'agent-membership',
