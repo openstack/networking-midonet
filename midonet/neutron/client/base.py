@@ -255,3 +255,14 @@ class MidonetClientBase(object):
 
     def delete_health_monitor(self, context, health_monitor_id):
         pass
+
+    # FWaaS methods - these are not called inside DB transaction.
+
+    def create_firewall(self, context, firewall):
+        pass
+
+    def delete_firewall(self, context, firewall):
+        pass
+
+    def update_firewall(self, context, firewall):
+        pass

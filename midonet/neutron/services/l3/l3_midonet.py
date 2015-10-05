@@ -21,6 +21,8 @@ from neutron.api import extensions as neutron_extensions
 from neutron.common import constants as n_const
 from neutron.db import db_base_plugin_v2
 from neutron.db import extraroute_db
+# Import l3_dvr_db to get the config options required for FWaaS
+from neutron.db import l3_dvr_db  # noqa
 from neutron.db import l3_gwmode_db
 from neutron import i18n
 from neutron.plugins.common import constants
@@ -50,6 +52,8 @@ class MidonetL3ServicePlugin(db_base_plugin_v2.NeutronDbPluginV2,
         # Instantiate MidoNet API client
         self.client = c_base.load_client(cfg.CONF.MIDONET)
 
+        # Avoid any side effect from DVR getting set to true
+        cfg.CONF.set_override("router_distributed", False)
         neutron_extensions.append_api_extensions_path(extensions.__path__)
 
     def get_plugin_type(self):

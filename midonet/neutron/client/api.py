@@ -127,3 +127,12 @@ class MidonetApiClient(base.MidonetClientBase):
 
     def delete_health_monitor(self, context, health_monitor_id):
         self.api_cli.delete_health_monitor(health_monitor_id)
+
+    def create_firewall(self, context, firewall):
+        self.api_cli.create_firewall(firewall)
+
+    def delete_firewall(self, context, firewall):
+        self.api_cli.delete_firewall(firewall['id'])
+
+    def update_firewall(self, context, firewall):
+        self.api_cli.update_firewall(firewall['id'], firewall)
