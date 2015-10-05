@@ -16,6 +16,7 @@ Contents:
    devstack
    usage
    contributing
+   devref/firewall
 
 Indices and tables
 ==================
