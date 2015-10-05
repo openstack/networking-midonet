@@ -52,6 +52,9 @@ NETWORK_API_EXTENSIONS+=,security-group
 if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
     NETWORK_API_EXTENSIONS+=,allowed-address-pairs,extraroute,port-security
 fi
+if is_service_enabled q-lbaas; then
+    NETWORK_API_EXTENSIONS+=,lbaas
+fi
 
 # Don't let mido.sh configure the logging
 CONFIGURE_LOGGING=False
