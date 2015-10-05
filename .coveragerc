@@ -1,7 +1,7 @@
 [run]
 branch = True
-source = networking-midonet
-omit = networking-midonet/tests/*,networking-midonet/openstack/*
+source = midonet
+omit = midonet/neutron/tests/*
 
 [report]
 ignore_errors = True
