@@ -15,9 +15,11 @@
 
 from midonet.neutron.client import base as c_base
 
+from neutron.api import extensions as neutron_extensions
 from neutron import i18n
 from neutron.plugins.common import constants as const
 from neutron_fwaas.db.firewall import firewall_db
+from neutron_fwaas import extensions
 from neutron_fwaas.services.firewall import fwaas_plugin as fw_plugin
 
 from oslo_config import cfg
@@ -122,6 +124,9 @@ class MidonetFirewallPlugin(fw_plugin.FirewallPlugin):
         to the _MidonetFirewallDriver class so that it handles the FWaaS update
         events.
         """
+
+        # Register the FWaaS extensions path
+        neutron_extensions.append_api_extensions_path(extensions.__path__)
 
         # Although callbacks are unnecessary in midonet, use FirewallCallbacks
         # because it contains useful methods for DB updates.
