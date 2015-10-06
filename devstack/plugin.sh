@@ -26,10 +26,16 @@ if [[ "$1" == "stack" ]]; then
         source $ABSOLUTE_PATH/$Q_PLUGIN/functions
 
         # Clone and build midonet service
-        ERROR_ON_CLONE_BAK=$ERROR_ON_CLONE
-        ERROR_ON_CLONE=False
-        git_clone $MIDONET_REPO $MIDONET_DIR $MIDONET_BRANCH
-        ERROR_ON_CLONE=$ERROR_ON_CLONE_BAK
+        if [[ "$OFFLINE" != "True" ]]; then
+            if [[ ! -d $MIDONET_DIR ]]; then
+                local orig_dir=$(pwd)
+
+                git clone $MIDONET_REPO $MIDONET_DIR
+                cd $MIDONET_DIR
+                git checkout $MIDONET_BRANCH
+                cd ${orig_dir}
+            fi
+        fi
 
         # Clone and build neutron midonet plugin
         PLUGIN_PATH=$ABSOLUTE_PATH/..
