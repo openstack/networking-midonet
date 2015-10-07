@@ -51,6 +51,9 @@ NETWORK_API_EXTENSIONS+=,ext-gw-mode,extra_dhcp_opts,quotas,router
 NETWORK_API_EXTENSIONS+=,security-group
 if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
     NETWORK_API_EXTENSIONS+=,allowed-address-pairs,extraroute,port-security
+    if is_service_enabled q-fwaas; then
+        NETWORK_API_EXTENSIONS+=,fwaas
+    fi
 fi
 if is_service_enabled q-lbaas; then
     NETWORK_API_EXTENSIONS+=,lbaas

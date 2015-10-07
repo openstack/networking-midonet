@@ -23,6 +23,7 @@ if [[ "$1" == "stack" ]]; then
 
     if [[ "$2" == "pre-install" ]]; then
 
+        source $ABSOLUTE_PATH/functions
         source $ABSOLUTE_PATH/$Q_PLUGIN/functions
 
         # Clone and build midonet service
@@ -110,6 +111,7 @@ EOF"
 
 elif [[ "$1" == "unstack" ]]; then
 
+    source $ABSOLUTE_PATH/functions
     source $ABSOLUTE_PATH/$Q_PLUGIN/functions
 
     if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then

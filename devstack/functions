@@ -1,0 +1,21 @@
+#!/bin/bash
+#
+# Common functions for devstack
+# -----------------------------
+
+# Override this function in devstack/lib/neutron_plugins/services/firewall so
+# that it does not try to always set the default firewall plugin to the
+# services list.  Instead, set it to the midonet FWaaS plugin.
+MIDONET_FWAAS_PLUGIN=midonet.neutron.services.firewall.plugin.MidonetFirewallPlugin
+function neutron_fwaas_configure_common {
+    _neutron_service_plugin_class_add $MIDONET_FWAAS_PLUGIN
+}
+
+# Override this function so that FWaaS agent is explicitly disabled in
+# the agent configuration file.
+function neutron_fwaas_configure_driver {
+    FWAAS_DRIVER_CONF_FILENAME=/etc/neutron/fwaas_driver.ini
+    cp $NEUTRON_FWAAS_DIR/etc/fwaas_driver.ini $FWAAS_DRIVER_CONF_FILENAME
+
+    iniset_multiline $FWAAS_DRIVER_CONF_FILENAME fwaas enabled False
+}
