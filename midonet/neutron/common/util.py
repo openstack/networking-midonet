@@ -14,10 +14,6 @@
 #    under the License.
 
 import time
-from webob import exc as w_exc
-
-from midonet.neutron.common import exceptions as exc
-from midonetclient import exc as mn_exc
 
 from neutron import i18n
 from oslo_log import log as logging
@@ -25,16 +21,6 @@ from oslo_log import log as logging
 
 LOG = logging.getLogger(__name__)
 _LW = i18n._LW
-
-
-def handle_api_error(fn):
-    """Wrapper for methods that throws custom exceptions."""
-    def wrapped(*args, **kwargs):
-        try:
-            return fn(*args, **kwargs)
-        except (w_exc.HTTPException, mn_exc.MidoApiConnectionError) as ex:
-            raise exc.MidonetApiException(msg=ex)
-    return wrapped
 
 
 def retry_on_error(attempts, delay, error_cls):
