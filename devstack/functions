@@ -19,3 +19,12 @@ function neutron_fwaas_configure_driver {
 
     iniset_multiline $FWAAS_DRIVER_CONF_FILENAME fwaas enabled False
 }
+
+function create_nova_conf_midonet {
+    if [[ "${MIDONET_USE_METADATA}" == "True" ]]; then
+        iniset $NOVA_CONF neutron service_metadata_proxy "True"
+        if is_service_enabled n-cells; then
+            iniset $NOVA_CELLS_CONF neutron service_metadata_proxy "True"
+        fi
+    fi
+}
