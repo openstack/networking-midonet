@@ -64,6 +64,7 @@ if [[ "$1" == "stack" ]]; then
     elif [[ "$2" == "post-config" ]]; then
 
         configure_neutron_midonet
+        create_nova_conf_midonet
 
         export SERVICE_HOST=${MIDONET_SERVICE_HOST:?Error \$MIDONET_SERVICE_HOST is not set}
         export API_PORT=$MIDONET_SERVICE_API_PORT
