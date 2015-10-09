@@ -1,6 +1,0 @@
-#!/usr/bin/make -f
-
-export OSLO_PACKAGE_VERSION=$(VERSION)
-
-%:
-	dh $@ --with python2 --buildsystem=python_distutils

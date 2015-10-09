@@ -1,8 +1,0 @@
-License-format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: networking-midonet
-Upstream-Contact: midonet-dev@lists.midonet.org
-Source: http://github.com/openstack/networking-midonet
-
-Files: *
-Copyright: Copyright 2015 Midokura SARL
-License: /usr/share/common-licenses/Apache-2.0
