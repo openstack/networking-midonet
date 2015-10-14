@@ -54,7 +54,7 @@ MidoNet plugin v1, which is compatible with MidoNet v2015.03 and v2015.06::
 
     MIDONET_PLUGIN=midonet.neutron.plugin_v1.MidonetPluginV2
 
-MidoNet plugin v2, which is compatible with MidoNet v2015.09 and beyond::
+MidoNet plugin v2, which is compatible with MidoNet v5.0 and beyond::
 
     MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
 
