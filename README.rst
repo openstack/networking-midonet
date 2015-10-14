@@ -84,15 +84,6 @@ To know more detail about command options, please execute it with ``--help``::
     $ ./run_tests.sh --help
 
 
-Creating Packages
------------------
-
-Run the following command to generate both both the RPM and Debian packages
-with the provided version::
-
-    $ ./package.sh some_version
-
-
 HACKING
 -------
 
