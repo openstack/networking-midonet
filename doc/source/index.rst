@@ -14,6 +14,7 @@ Contents:
    readme
    installation
    devstack
+   upgrade
    usage
    contributing
    devref/firewall
