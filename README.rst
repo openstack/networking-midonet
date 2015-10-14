@@ -61,14 +61,3 @@ following entries in the Neutron configuration file
 
     [service_providers]
     service_provider=LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default
-
-
-HACKING
--------
-
-To contribute to this repo, please go through the following steps.
-
-1. Keep your working tree updated
-2. Make modifications on your working tree
-3. Run tests
-4. If the tests pass, submit patches to our Gerrit server to get them reviewed
