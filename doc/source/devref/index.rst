@@ -28,6 +28,15 @@ Developer Guide
 
 In the Developer Guide, you will find information on Networking MidoNet's lower
 level designs.
+The developer guide also includes information about testing infrastructure.
+
+
+Programming HowTos and Tutorials
+--------------------------------
+.. toctree::
+   :maxdepth: 3
+
+   testing
 
 
 Networking MidoNet Internals
