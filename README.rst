@@ -8,10 +8,19 @@ This is the official Midonet Neutron plugin.
 How to Install
 --------------
 
-Run the following command to install the plugin in the system::
+For productional deployments, we recommend to use a package for your
+distribution if available::
+
+    http://repo.midonet.org/
+
+You can install the plugin from the source code by running the following
+command::
 
     $ sudo python setup.py install
 
+
+Core plugin and L3 service plugin
+---------------------------------
 
 The following entry in ``neutron.conf`` enables MidoNet as the Neutron plugin.
 There are two plugins to choose from.
