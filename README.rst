@@ -4,6 +4,15 @@ networking-midonet
 
 This is the official Midonet Neutron plugin.
 
+The current set of supported versions of MidoNet are:
+
+- v2015.03
+- v2015.06
+- v5.0
+
+NOTE: MidoNet recently changed its versioning scheme.
+v5.0 is what used to be called v2015.09.
+
 
 How to Install
 --------------
@@ -30,7 +39,7 @@ Plugin v1, which is compatible with MidoNet v2015.03 and v2015.06::
     [DEFAULT]
     core_plugin = midonet.neutron.plugin_v1.MidonetPluginV2
 
-Plugin v2, which is compatible with MidoNet v2015.09 and beyond.
+Plugin v2, which is compatible with MidoNet v5.0 and beyond.
 It works with a separate L3 plugin which you need to add to the list of
 service plugins::
 
