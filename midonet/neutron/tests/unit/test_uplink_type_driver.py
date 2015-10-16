@@ -1,4 +1,4 @@
-# Copyright (C) 2015 Midokura SARL.
+# Copyright (c) 2015 Midokura SARL
 # All Rights Reserved.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -13,11 +13,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-# MidoNet Network Type constants
-TYPE_UPLINK = 'uplink'
-TYPE_MIDONET = 'midonet'
+from midonet.neutron.common import constants as const
+from midonet.neutron.ml2 import type_uplink
+from midonet.neutron.tests.unit import test_midonet_type_driver as test_midonet
 
-MIDONET_NET_TYPES = [TYPE_MIDONET, TYPE_UPLINK]
 
-# Midonet VIF TYPE
-VIF_TYPE_MIDONET = 'midonet'
+class UplinkTypeTest(test_midonet.MidonetTypeTest):
+
+    network_type = const.TYPE_UPLINK
+    driver = type_uplink.UplinkTypeDriver()

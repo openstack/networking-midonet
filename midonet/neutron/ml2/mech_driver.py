@@ -169,7 +169,7 @@ class MidonetMechanismDriver(api.MechanismDriver):
     @log_helpers.log_method_call
     def bind_port(self, context):
         for segment in context.segments_to_bind:
-            if segment['network_type'] == const.TYPE_MIDONET:
+            if segment['network_type'] in const.MIDONET_NET_TYPES:
                 context.set_binding(segment[api.ID],
                                     self.vif_type,
                                     self.vif_details,

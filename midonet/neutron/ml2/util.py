@@ -35,7 +35,7 @@ def is_midonet_network(context):
     else:
         raise ValueError("Invalid Mechanism driver context passed in.")
 
-    return net.get(providernet.NETWORK_TYPE) == const.TYPE_MIDONET
+    return net.get(providernet.NETWORK_TYPE) in const.MIDONET_NET_TYPES
 
 
 def filter_midonet_network(func):
