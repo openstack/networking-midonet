@@ -61,3 +61,17 @@ following entries in the Neutron configuration file
 
     [service_providers]
     service_provider=LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default
+
+
+FWaaS
+-----
+
+Starting v5.0, MidoNet implements Neutron FWaaS extention API.
+
+To configure it, add the following service plugin to the `service_plugins` list
+in the DEFAULT section of `neutron.conf`::
+
+    midonet.neutron.services.firewall.plugin.MidonetFirewallPlugin
+
+NOTE: No need to configure `Firewall Driver` at all.  It's irrelevant
+because this plugin does not use Neutron L3 agent.
