@@ -11,7 +11,7 @@ To Run DevStack with Full OpenStack Environment
 3. Run ``stack.sh``
 
 There are more detailed info on the wiki.
-http://wiki.midonet.org/Devstack
+https://wiki.midonet.org/Devstack
 
 
 To Run DevStack with monolithic midonet plugin

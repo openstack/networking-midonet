@@ -2,7 +2,7 @@ Metadata-Version: 1.1
 Name: networking-midonet
 Version: 2015.2.0
 Summary: OpenStack MidoNet Neutron Plugin
-Home-page: http://www.midonet.org
+Home-page: https://www.midonet.org
 Author: MidoNet
 Author-email: midonet-dev@lists.midonet.org
 License: UNKNOWN
