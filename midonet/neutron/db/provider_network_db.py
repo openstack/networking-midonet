@@ -14,10 +14,12 @@
 
 from midonet.neutron.common import constants as m_const
 from neutron.api.v2 import attributes
+from neutron.common import exceptions as n_exc
 from neutron.db import model_base
 from neutron.db import models_v2
 from neutron.extensions import providernet as pnet
 from neutron import i18n
+from neutron.plugins.common import constants as p_const
 from oslo_log import log as logging
 import sqlalchemy as sa
 from sqlalchemy import orm
@@ -25,6 +27,12 @@ from sqlalchemy import orm
 
 LOG = logging.getLogger(__name__)
 _LW = i18n._LW
+
+
+_MIDONET_TYPES = [
+    p_const.TYPE_LOCAL,
+    m_const.TYPE_MIDONET,
+]
 
 
 class NetworkBinding(model_base.BASEV2):
@@ -61,16 +69,22 @@ class MidonetProviderNetworkMixin(object):
         if not attributes.is_attr_set(net_type):
             return None
 
-        # Instead of validating unsupported inputs, just log and ignore them.
-        # Horizon, for example, forces you to select a type, and because
-        # 'uplink' type is not known to Horizon, requests from Horizon would
-        # always include an unsupported type would be sent for external
-        # networks. To avoid completely stopping the user from proceeding in
-        # that case, log and continue on.
+        if net_type in _MIDONET_TYPES:
+            # NOTE(yamamoto): Accept a few well-known types as
+            # the default type.  This is a workaround for Horizon, which
+            # currently doesn't have a way to specify MidoNet network types
+            # or "no provider network".
+            # REVISIT(yamamoto): Clean this up once Horizon is fixed
+            if net_type != m_const.TYPE_MIDONET:
+                LOG.warning(_LW('Unsupported network type %(type)s detected '
+                                'in a create network request.'),
+                            {'type': net_type})
+            return None
+
         if net_type != m_const.TYPE_UPLINK:
-            LOG.warning(_LW('Unsupported network type %(type)s detected in a '
-                            'create network request.'), {'type': net_type})
-            net_type = None
+            msg = _('Unsupported network type %(type)s detected '
+                    'in a create network request.') % {'type': net_type}
+            raise n_exc.InvalidInput(error_message=msg)
 
         return net_type
 

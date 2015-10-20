@@ -18,6 +18,7 @@ import datetime
 import functools
 import mock
 from sqlalchemy.orm import sessionmaker
+import testtools
 from webob import exc
 
 from midonet.neutron.common import config  # noqa
@@ -434,12 +435,43 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
 
     def test_create_provider_net_with_bogus_type(self):
         # Create with a bogus network type
-        with self.provider_net(net_type="random") as net:
+        with testtools.ExpectedException(exc.HTTPClientError), \
+            self.provider_net(net_type="random"):
+            pass
+
+    def test_create_provider_net_with_local(self):
+        # We map well-known types to the default value
+        # REVISIT(yamamoto): Clean this up once horizon is fixed
+        with self.provider_net(net_type=p_const.TYPE_LOCAL) as net:
             self.assertNotIn(pnet.NETWORK_TYPE, net['network'])
 
-    def test_create_provider_net_with_unsupported_type(self):
-        # Create with a local network type (unsupported)
-        with self.provider_net(net_type=p_const.TYPE_LOCAL) as net:
+    def test_create_provider_net_with_flat(self):
+        with testtools.ExpectedException(exc.HTTPClientError), \
+            self.provider_net(net_type=p_const.TYPE_FLAT):
+            pass
+
+    def test_create_provider_net_with_gre(self):
+        with testtools.ExpectedException(exc.HTTPClientError), \
+            self.provider_net(net_type=p_const.TYPE_GRE):
+            pass
+
+    def test_create_provider_net_with_vlan(self):
+        with testtools.ExpectedException(exc.HTTPClientError), \
+            self.provider_net(net_type=p_const.TYPE_VLAN):
+            pass
+
+    def test_create_provider_net_with_vxlan(self):
+        with testtools.ExpectedException(exc.HTTPClientError), \
+            self.provider_net(net_type=p_const.TYPE_VXLAN):
+            pass
+
+    def test_create_provider_net_with_geneve(self):
+        with testtools.ExpectedException(exc.HTTPClientError), \
+            self.provider_net(net_type=p_const.TYPE_GENEVE):
+            pass
+
+    def test_create_provider_net_with_midonet(self):
+        with self.provider_net(net_type=m_const.TYPE_MIDONET) as net:
             self.assertNotIn(pnet.NETWORK_TYPE, net['network'])
 
     def test_create_provider_net_without_type(self):
