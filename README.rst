@@ -48,6 +48,19 @@ service plugins::
     service_plugins = midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin
 
 
+Interaction with Neutron agents
+-------------------------------
+
+For v2015.03 and v2015.06, OpenStack deployment with MidoNet works with
+Neutron DHCP and Metadata agents.
+
+For MidoNet v5.0 and later, no Neutron agents are necessary.
+
+For details, please refer to MidoNet documentation::
+
+    https://docs.midonet.org
+
+
 LBaaS
 -----
 
@@ -61,6 +74,8 @@ following entries in the Neutron configuration file
 
     [service_providers]
     service_provider=LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default
+
+NOTE: This plugin does not use Neutron LBaaS agent.
 
 
 FWaaS
