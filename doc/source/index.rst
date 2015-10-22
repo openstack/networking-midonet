@@ -17,7 +17,7 @@ Contents:
    upgrade
    usage
    contributing
-   devref/firewall
+   devref/index
 
 Indices and tables
 ==================
