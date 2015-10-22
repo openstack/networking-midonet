@@ -37,6 +37,7 @@ Programming HowTos and Tutorials
    :maxdepth: 3
 
    testing
+   packages
 
 
 Networking MidoNet Internals
