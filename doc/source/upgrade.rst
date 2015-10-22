@@ -26,7 +26,9 @@ From Kilo to Liberty
 
       core_plugin = midonet.neutron.plugin_v1.MidonetPluginV2
 
-- `midonet-db-manage` command has been removed.
+- `midonet-db-manage` command is not obsolete.
+  While it's still provided for backward compatibility, we plan to remove
+  it in a feature release.
   You can use `neutron-db-manage --subproject networking-midonet` instead.
 
   For example,::
