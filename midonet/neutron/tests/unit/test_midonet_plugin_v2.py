@@ -18,6 +18,7 @@ import datetime
 import functools
 import mock
 from sqlalchemy.orm import sessionmaker
+import testscenarios
 import testtools
 from webob import exc
 
@@ -33,7 +34,10 @@ from midonet.neutron.tests.unit import test_midonet_plugin as test_mn_plugin
 from neutron import context
 from neutron.db import api as db_api
 from neutron.extensions import portbindings
+from neutron.extensions import portsecurity as psec
 from neutron.extensions import providernet as pnet
+from neutron.extensions import securitygroup as sg
+from neutron import manager
 from neutron.plugins.common import constants as p_const
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 from neutron.tests.unit.api import test_extensions
@@ -49,6 +53,10 @@ from neutron.tests.unit import testlib_api
 
 from oslo_config import cfg
 from oslo_utils import uuidutils
+
+
+load_tests = testscenarios.load_tests_apply_scenarios
+
 
 PLUGIN_NAME = 'midonet.neutron.plugin_v2.MidonetPluginV2'
 
@@ -537,3 +545,81 @@ class TestMidonetAllowedAddressPair(test_addr.TestAllowedAddressPairs,
 class TestMidonetPortSecurity(test_psec.TestPortSecurity,
                               MidonetPluginV2TestCase):
     pass
+
+
+class TestMidonetPortSecurityKludge(MidonetPluginV2TestCase):
+    # Ensure that a lack of portsecurity db row is considered as
+    # the API default. (true)
+
+    scenarios = testscenarios.multiply_scenarios(
+        [
+            ('have port psec row',
+             dict(mock_port=False)),
+            ('no port psec row',
+             dict(mock_port=True)),
+        ], [
+            ('have network psec row',
+             dict(mock_network=False)),
+            ('no network psec row',
+             dict(mock_network=True)),
+        ]
+    )
+
+    @contextlib.contextmanager
+    def _do_mock(self, plugin):
+        port_mock = mock.patch.object(plugin,
+            '_process_port_port_security_create',
+            auto_spec=True,
+            return_value={})
+        network_mock = mock.patch.object(plugin,
+            '_process_network_port_security_create',
+            auto_spec=True,
+            return_value={})
+        if self.mock_port:
+            port_mock.start()
+        if self.mock_network:
+            network_mock.start()
+        yield (port_mock, network_mock)
+        if self.mock_network:
+            network_mock.stop()
+        if self.mock_port:
+            port_mock.stop()
+
+    def test_get_network(self):
+        ctx = context.get_admin_context()
+        plugin = manager.NeutronManager.get_plugin()
+        with self._do_mock(plugin), self.network() as net:
+            pass
+        net2 = plugin.get_network(ctx, net['network']['id'])
+        self.assertTrue(net2[psec.PORTSECURITY])
+
+    def test_get_port(self):
+        ctx = context.get_admin_context()
+        plugin = manager.NeutronManager.get_plugin()
+        with self._do_mock(plugin), self.port() as port:
+            pass
+        port2 = plugin.get_port(ctx, port['port']['id'])
+        self.assertTrue(port2[psec.PORTSECURITY])
+
+    def test_update_network(self):
+        ctx = context.get_admin_context()
+        plugin = manager.NeutronManager.get_plugin()
+        with self._do_mock(plugin), self.port() as port:
+            pass
+        net2 = plugin.update_network(ctx, port['port']['network_id'],
+                                     {'network': {psec.PORTSECURITY: False}})
+        self.assertFalse(net2[psec.PORTSECURITY])
+        net3 = plugin.get_network(ctx, port['port']['network_id'])
+        self.assertFalse(net3[psec.PORTSECURITY])
+
+    def test_update_port(self):
+        ctx = context.get_admin_context()
+        plugin = manager.NeutronManager.get_plugin()
+        with self._do_mock(plugin), self.port() as port:
+            pass
+        port2 = plugin.update_port(ctx, port['port']['id'],
+                                   {'port': {psec.PORTSECURITY: False,
+                                             sg.SECURITYGROUPS: []}})
+        self.assertFalse(port2[psec.PORTSECURITY])
+        port3 = plugin.get_port(ctx, port['port']['id'])
+        self.assertFalse(port3[psec.PORTSECURITY])

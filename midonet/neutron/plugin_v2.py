@@ -567,3 +567,51 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         if not agent:
             agent = super(MidonetPluginV2, self).get_agent(context, id, fields)
         return agent
+
+    # Patch PortSecurityDbCommon to fix up the lack of DB rows at runtime.
+    # See bug/1507651 for details.
+    # REVISIT(yamamoto): The most of these should be fixed in the base class
+
+    def _extend_port_security_dict(self, response_data, db_data):
+        # NOTE(yamamoto): This method is used for both of networks and ports
+        if db_data.get('port_security') is None:
+            response_data[psec.PORTSECURITY] = (
+                psec.EXTENDED_ATTRIBUTES_2_0['networks']
+                [psec.PORTSECURITY]['default'])
+        else:
+            response_data[psec.PORTSECURITY] = (
+                                db_data['port_security'][psec.PORTSECURITY])
+
+    def _get_network_security_binding(self, context, network_id):
+        # NOTE(yamamoto): used via _determine_port_security_and_has_ip
+        try:
+            return super(MidonetPluginV2,
+                         self)._get_network_security_binding(context,
+                                                             network_id)
+        except psec.PortSecurityBindingNotFound:
+            return (psec.EXTENDED_ATTRIBUTES_2_0['networks']
+                    [psec.PORTSECURITY]['default'])
+
+    def _get_port_security_binding(self, context, network_id):
+        # NOTE(yamamoto): Currently not used by our plugin.
+        # Override just to detect future problems earlier.
+        raise NotImplementedError()
+
+    def _process_network_port_security_update(self, context, network_req,
+                                              network_res):
+        try:
+            super(MidonetPluginV2, self)._process_network_port_security_update(
+                context, network_req, network_res)
+        except psec.PortSecurityBindingNotFound:
+            self._process_network_port_security_create(context, network_req,
+                                                       network_res)
+
+    def _process_port_port_security_update(self, context, port_req, port_res):
+        try:
+            super(MidonetPluginV2, self)._process_port_port_security_update(
+                context, port_req, port_res)
+        except psec.PortSecurityBindingNotFound:
+            self._process_port_port_security_create(context, port_req,
+                                                    port_res)
+
+    # End of patching
