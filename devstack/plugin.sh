@@ -44,7 +44,9 @@ if [[ "$1" == "stack" ]]; then
     elif [[ "$2" == "install" ]]; then
 
         # Build neutron midonet plugin
-        pip_install --no-deps --editable $ABSOLUTE_PATH/..
+        pip_install --no-deps --editable $PLUGIN_PATH
+        # Ensure that we can do "tox -e genconfig" in the later phase
+        safe_chown -R $STACK_USER $PLUGIN_PATH/*.egg-info
 
         # Build midonet client
         pip_install --editable $MIDONET_DIR/python-midonetclient
