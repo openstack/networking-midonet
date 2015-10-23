@@ -19,7 +19,7 @@ from midonet.neutron import extensions
 
 from neutron.api import extensions as neutron_extensions
 from neutron.common import constants as n_const
-from neutron.db import db_base_plugin_v2
+from neutron.db import common_db_mixin
 from neutron.db import extraroute_db
 # Import l3_dvr_db to get the config options required for FWaaS
 from neutron.db import l3_dvr_db  # noqa
@@ -36,7 +36,7 @@ _LE = i18n._LE
 _LW = i18n._LW
 
 
-class MidonetL3ServicePlugin(db_base_plugin_v2.NeutronDbPluginV2,
+class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
                              extraroute_db.ExtraRoute_db_mixin,
                              l3_gwmode_db.L3_NAT_db_mixin):
 
