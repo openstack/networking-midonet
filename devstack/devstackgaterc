@@ -32,3 +32,8 @@ export OVERRIDE_ENABLED_SERVICES="$s"
 
 # only run tempest.api.network/scenario tests (part of the default for 'full')
 export DEVSTACK_GATE_TEMPEST_REGEX="tempest.api.network tempest.scenario"
+
+# Explicitly set LOGDIR to align with the SCREEN_LOGDIR setting
+# from devstack-gate.  Otherwise, devstack infers it from LOGFILE,
+# which is not appropriate for our gate jobs.
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"LOGDIR=$BASE/new/screen-logs"
