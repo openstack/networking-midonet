@@ -63,6 +63,11 @@ if [[ "$1" == "stack" ]]; then
             fi
         fi
 
+        # Set log level to DEBUG.
+        # REVISIT(yamamoto): Revisit when MNA-1025 is fixed on
+        # all relevant bracnches.
+        echo agent.loggers.root: DEBUG|mn-conf set
+
     elif [[ "$2" == "post-config" ]]; then
 
         configure_neutron_midonet
