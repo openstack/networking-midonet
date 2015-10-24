@@ -19,6 +19,13 @@
 # http://git.openstack.org/cgit/openstack-infra/project-config/tree/jenkins/jobs/networking-midonet.yaml
 #
 
+if echo "${DEVSTACK_LOCAL_CONFIG}" | fgrep "MIDONET_USE_ZOOM=True" > /dev/null;
+then
+    _ZOOM=True
+else
+    _ZOOM=False
+fi
+
 # We are only interested on Neutron, so very few services are needed
 # to deploy devstack and run the tests
 s=""
@@ -28,8 +35,7 @@ s+=",n-api,n-cond,n-cpu,n-crt,n-obj,n-sch"
 s+=",g-api,g-reg"
 s+=",q-svc,quantum"
 s+=",tempest"
-if echo "${DEVSTACK_LOCAL_CONFIG}" | fgrep "MIDONET_USE_ZOOM=True" > /dev/null;
-then
+if [ "${_ZOOM}" = "True" ]; then
     # Use midonet metadata proxy
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_METADATA=True"
 
@@ -46,8 +52,26 @@ else
 fi
 export OVERRIDE_ENABLED_SERVICES="$s"
 
+# Begin list of exclusions.
+r="^(?!.*"
+
+# exclude the slow tag (part of the default for 'full')
+r="$r(?:.*\[.*\bslow\b.*\])"
+
+if [ "${_ZOOM}" = "True" ]; then
+    # https://bugs.launchpad.net/tempest/+bug/1509590
+    r="$r|(?:tempest\.api\.network\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\.test_add_remove_network_from_dhcp_agent.*)"
+    r="$r|(?:tempest\.api\.network\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\.test_list_networks_hosted_by_one_dhcp.*)"
+    r="$r|(?:tempest\.api\.network\.admin\.test_agent_management\.AgentManagementTestJSON.*)"
+fi
+
+# End list of exclusions.
+r="$r)"
+
 # only run tempest.api.network/scenario tests (part of the default for 'full')
-export DEVSTACK_GATE_TEMPEST_REGEX="tempest.api.network tempest.scenario"
+r="$r(tempest\.(api|scenario)).*$"
+
+export DEVSTACK_GATE_TEMPEST_REGEX="$r"
 
 # Explicitly set LOGDIR to align with the SCREEN_LOGDIR setting
 # from devstack-gate.  Otherwise, devstack infers it from LOGFILE,
