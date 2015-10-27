@@ -20,7 +20,7 @@ How to Install
 For productional deployments, we recommend to use a package for your
 distribution if available::
 
-    http://repo.midonet.org/
+    http://builds.midonet.org/
 
 You can install the plugin from the source code by running the following
 command::
