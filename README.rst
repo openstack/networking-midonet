@@ -37,14 +37,14 @@ There are two plugins to choose from.
 Plugin v1, which is compatible with MidoNet v2015.03 and v2015.06::
 
     [DEFAULT]
-    core_plugin = midonet.neutron.plugin_v1.MidonetPluginV2
+    core_plugin = midonet
 
 Plugin v2, which is compatible with MidoNet v5.0 and beyond.
 It works with a separate L3 plugin which you need to add to the list of
 service plugins::
 
     [DEFAULT]
-    core_plugin = midonet.neutron.plugin_v2.MidonetPluginV2
+    core_plugin = midonet_v2
     service_plugins = midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin
 
 
