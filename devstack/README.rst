@@ -52,11 +52,11 @@ variable to the plugin that you want to load.
 
 MidoNet plugin v1, which is compatible with MidoNet v2015.03 and v2015.06::
 
-    MIDONET_PLUGIN=midonet.neutron.plugin_v1.MidonetPluginV2
+    MIDONET_PLUGIN=midonet
 
 MidoNet plugin v2, which is compatible with MidoNet v5.0 and beyond::
 
-    MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
+    MIDONET_PLUGIN=midonet_v2
 
 
 MidoNet Data Service
@@ -91,19 +91,19 @@ There are three ways in which the Neutron plugin could access MidoNet:
 
 1. MidoNet REST API with DataClient (legacy version)::
 
-    MIDONET_PLUGIN=midonet.neutron.plugin_v1.MidonetPluginV2
+    MIDONET_PLUGIN=midonet
     MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
     MIDONET_USE_ZOOM=False
 
 2. MidoNet REST API with ZOOM (current version)::
 
-    MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
+    MIDONET_PLUGIN=midonet_v2
     MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient
     MIDONET_USE_ZOOM=True
 
 3. MidoNet Tasks API with ZOOM (experimental version)::
 
-    MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2
+    MIDONET_PLUGIN=midonet_v2
     MIDONET_CLIENT=midonet.neutron.client.cluster.MidonetClusterClient
     MIDONET_USE_ZOOM=True
 

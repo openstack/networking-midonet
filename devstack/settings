@@ -15,7 +15,7 @@ MIDONET_SERVICE_HOST=${MIDONET_SERVICE_HOST:-$SERVICE_HOST}
 MIDONET_API_URL="${MIDONET_SERVICE_PROTOCOL}://${MIDONET_SERVICE_HOST}:${MIDONET_SERVICE_API_PORT}/midonet-api"
 
 # MidoNet Plugin and Client
-MIDONET_PLUGIN=${MIDONET_PLUGIN:-midonet.neutron.plugin_v2.MidonetPluginV2}
+MIDONET_PLUGIN=${MIDONET_PLUGIN:-midonet_v2}
 MIDONET_CLIENT=${MIDONET_CLIENT:-midonet.neutron.client.api.MidonetApiClient}
 
 # Midonet metadata service
