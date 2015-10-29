@@ -46,6 +46,9 @@ if [ "${_ZOOM}" = "True" ]; then
     #   https://github.com/openstack-infra/system-config/blob/master/modules/openstack_project/manifests/single_use_slave.pp
     #   https://github.com/openstack-infra/puppet-iptables
     sudo iptables -I openstack-INPUT 1 -i metadata -j ACCEPT
+
+    # Enable FWaaS
+    s+=",q-fwaas"
 else
     # Use neutron metadata proxy
     s+=",q-dhcp,q-meta"
