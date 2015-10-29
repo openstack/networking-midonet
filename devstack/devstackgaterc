@@ -50,6 +50,11 @@ else
     # Use neutron metadata proxy
     s+=",q-dhcp,q-meta"
 fi
+
+# Enable LBaaS
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_LBAAS_SERVICE_PROVIDERV1=\"LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default\""
+s+=",q-lbaas"
+
 export OVERRIDE_ENABLED_SERVICES="$s"
 
 # Begin list of exclusions.
