@@ -30,7 +30,6 @@ from neutron.extensions import securitygroup as ext_sg
 from neutron import i18n
 from neutron import manager
 from neutron.plugins.common import constants as service_constants
-from oslo_db import api as oslo_db_api
 from oslo_db import exception as oslo_db_exc
 from oslo_log import log as logging
 from oslo_utils import excutils
@@ -158,9 +157,6 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.update_network exiting: net=%r", net)
         return net
 
-    @oslo_db_api.wrap_db_retry(max_retries=3, retry_interval=1,
-                               retry_on_request=True,
-                               retry_on_deadlock=True)
     def delete_network(self, context, id):
         LOG.debug("MidonetPluginV2.delete_network called: id=%r", id)
 
