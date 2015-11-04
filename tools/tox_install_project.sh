@@ -14,18 +14,19 @@
 # pip install {opts} {packages}
 
 PROJ=$1
-shift 1
+MOD=$2
+shift 2
 
 ZUUL_CLONER=/usr/zuul-env/bin/zuul-cloner
-neutron_installed=$(echo "import ${PROJ}" | python 2>/dev/null ; echo $?)
+neutron_installed=$(echo "import ${MOD}" | python 2>/dev/null ; echo $?)
 
 set -e
 
 if [ $neutron_installed -eq 0 ]; then
-    echo "ALREADY INSTALLED" > /tmp/tox_install.txt
-    echo "Neutron already installed; using existing package"
+    echo "ALREADY INSTALLED" > /tmp/tox_install-${PROJ}.txt
+    echo "${PROJ} already installed; using existing package"
 elif [ -x "$ZUUL_CLONER" ]; then
-    echo "ZUUL CLONER" > /tmp/tox_install.txt
+    echo "ZUUL CLONER" > /tmp/tox_install-${PROJ}.txt
     cwd=$(/bin/pwd)
     cd /tmp
     $ZUUL_CLONER --cache-dir \
@@ -36,7 +37,7 @@ elif [ -x "$ZUUL_CLONER" ]; then
     pip install -e .
     cd "$cwd"
 else
-    echo "PIP HARDCODE" > /tmp/tox_install.txt
+    echo "PIP HARDCODE" > /tmp/tox_install-${PROJ}.txt
     pip install -U -egit+https://git.openstack.org/openstack/${PROJ}#egg=${PROJ}
 fi
 
