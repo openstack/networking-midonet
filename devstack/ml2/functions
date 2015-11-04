@@ -5,7 +5,7 @@
 
 function neutron_plugin_setup_interface_driver {
     local conf_file=$1
-    iniset $conf_file DEFAULT interface_driver neutron.agent.linux.interface.MidonetInterfaceDriver
+    iniset $conf_file DEFAULT interface_driver midonet
 }
 
 function configure_neutron_midonet {
