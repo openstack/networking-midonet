@@ -15,7 +15,6 @@
 #    under the License.
 
 from oslo_config import cfg
-from oslo_db import api as oslo_db_api
 from oslo_db import exception as oslo_db_exc
 from oslo_log import log as logging
 from oslo_utils import excutils
@@ -104,9 +103,6 @@ class MidonetMixin(plugin.MidonetMixinBase,
         LOG.debug("MidonetMixin.update_network exiting: net=%r", net)
         return net
 
-    @oslo_db_api.wrap_db_retry(max_retries=3, retry_interval=1,
-                               retry_on_request=True,
-                               retry_on_deadlock=True)
     def delete_network(self, context, id):
         LOG.debug("MidonetMixin.delete_network called: id=%r", id)
 
