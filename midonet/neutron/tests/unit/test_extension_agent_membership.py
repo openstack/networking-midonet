@@ -68,14 +68,14 @@ class AgentMembershipTestCase(test_mn.MidonetPluginV2TestCase):
         expected = {'id': FAKE_AGENT_ID, 'ip_address': FAKE_IP}
         with self.agent_membership() as am:
             for k, v in expected.items():
-                self.assertEqual(am['agent_membership'][k], v)
+                self.assertEqual(v, am['agent_membership'][k])
 
     def test_delete_agent_membership(self):
         with self.agent_membership() as am:
             req = self.new_delete_request('agent_memberships',
                                           am['agent_membership']['id'])
             res = req.get_response(self.ext_api)
-            self.assertEqual(res.status_int, webob.exc.HTTPNoContent.code)
+            self.assertEqual(webob.exc.HTTPNoContent.code, res.status_int)
 
     def test_show_agent_membership(self):
         expected = {'id': FAKE_AGENT_ID, 'ip_address': FAKE_IP}
@@ -84,7 +84,7 @@ class AgentMembershipTestCase(test_mn.MidonetPluginV2TestCase):
                                         am['agent_membership']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
             for k, v in expected.items():
-                self.assertEqual(res['agent_membership'][k], v)
+                self.assertEqual(v, res['agent_membership'][k])
 
     def test_list_agent_memberships(self):
         with self.agent_membership():
@@ -92,4 +92,4 @@ class AgentMembershipTestCase(test_mn.MidonetPluginV2TestCase):
                 req = self.new_list_request('agent_memberships')
                 res = self.deserialize(
                     self.fmt, req.get_response(self.ext_api))
-                self.assertEqual(len(res['agent_memberships']), 2)
+                self.assertEqual(2, len(res['agent_memberships']))

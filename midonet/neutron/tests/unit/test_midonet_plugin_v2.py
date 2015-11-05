@@ -149,7 +149,7 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
                 (portbindings.HOST_ID, 'host')]
         with self.port_with_binding_profile() as port:
             for k, v in keys:
-                self.assertEqual(port['port'][k], v)
+                self.assertEqual(v, port['port'][k])
 
     def test_create_mido_portbinding_no_profile_specified(self):
         with self.port() as port:
@@ -166,7 +166,7 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
                              portbindings.HOST_ID: None}}
             req = self.new_create_request('ports', args, self.fmt)
             res = req.get_response(self.api)
-            self.assertEqual(res.status_int, 400)
+            self.assertEqual(400, res.status_int)
 
     def test_create_mido_portbinding_no_interface(self):
         # Create binding with no interface name.  Should return an error.
@@ -177,7 +177,7 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
                              portbindings.HOST_ID: 'host'}}
             req = self.new_create_request('ports', args, self.fmt)
             res = req.get_response(self.api)
-            self.assertEqual(res.status_int, 400)
+            self.assertEqual(400, res.status_int)
 
     def test_create_mido_portbinding_bad_interface(self):
         # Create binding with a bad interface name.  Should return an error.
@@ -188,7 +188,7 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
                              portbindings.HOST_ID: 'host'}}
             req = self.new_create_request('ports', args, self.fmt)
             res = req.get_response(self.api)
-            self.assertEqual(res.status_int, 400)
+            self.assertEqual(400, res.status_int)
 
     def test_update_mido_portbinding(self):
         keys = [(portbindings.HOST_ID, 'host2'),
@@ -204,7 +204,7 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
             req = self.new_update_request('ports', args, port['port']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.api))
             for k, v in keys:
-                self.assertEqual(res['port'][k], v)
+                self.assertEqual(v, res['port'][k])
 
     def test_update_mido_portbinding_no_profile_specified(self):
         # Modify binding without specifying the profile.
@@ -219,7 +219,7 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
             req = self.new_update_request('ports', args, port['port']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.api))
             for k, v in keys:
-                self.assertEqual(res['port'][k], v)
+                self.assertEqual(v, res['port'][k])
 
     def test_update_mido_portbinding_no_host_binding(self):
         # Update a binding when there is no host binding.  This should throw
@@ -229,7 +229,7 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
                 'port': {portbindings.PROFILE: {'interface_name': 'if_name2'}}}
             req = self.new_update_request('ports', args, port['port']['id'])
             res = req.get_response(self.api)
-            self.assertEqual(res.status_int, 400)
+            self.assertEqual(400, res.status_int)
 
     def test_update_mido_portbinding_unbind(self):
         # Unbinding a bound port
@@ -255,7 +255,7 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
                 'port': {portbindings.PROFILE: {'foo': ''}}}
             req = self.new_update_request('ports', args, port['port']['id'])
             res = req.get_response(self.api)
-            self.assertEqual(res.status_int, 400)
+            self.assertEqual(400, res.status_int)
 
     def test_update_mido_portbinding_bad_interface(self):
         # Update binding with a bad interface name.  Should return an error.
@@ -264,7 +264,7 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
                 'port': {portbindings.PROFILE: {'interface_name': ''}}}
             req = self.new_update_request('ports', args, port['port']['id'])
             res = req.get_response(self.api)
-            self.assertEqual(res.status_int, 400)
+            self.assertEqual(400, res.status_int)
 
 
 class TestMidonetExtGwMode(test_gw_mode.ExtGwModeIntTestCase,
@@ -297,7 +297,7 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
             router_req = self.new_create_request('routers', router_data,
                                                  self.fmt)
             res = router_req.get_response(self.ext_api)
-            self.assertEqual(res.status_int, 400)
+            self.assertEqual(400, res.status_int)
 
 
 class TestMidonetDataState(testlib_api.SqlTestCase):
@@ -375,7 +375,7 @@ class TestMidonetAgent(MidonetPluginV2TestCase,
             'agent_type': 'Midonet Agent'}
 
         agent = self._show('agents', agent_id)
-        self.assertEqual(agent['agent']['id'], agent_id)
+        self.assertEqual(agent_id, agent['agent']['id'])
 
     def test_show_non_existent_midonet_agent(self):
         self._register_agent_states()
@@ -397,17 +397,17 @@ class TestMidonetDataVersion(testlib_api.SqlTestCase):
         session = self.get_session()
         dv_db.create_data_version(session)
         version = dv_db.get_last_version(session)
-        self.assertEqual(version.id, 1)
-        self.assertEqual(version.sync_tasks_status, dv_db.STARTED)
+        self.assertEqual(1, version.id)
+        self.assertEqual(dv_db.STARTED, version.sync_tasks_status)
 
     def _test_version_status(self, version_update_func, status):
         session = self.get_session()
         dv_db.create_data_version(session)
         version = dv_db.get_last_version(session)
-        self.assertEqual(version.sync_tasks_status, dv_db.STARTED)
+        self.assertEqual(dv_db.STARTED, version.sync_tasks_status)
         version_update_func(session)
         version = dv_db.get_last_version(session)
-        self.assertEqual(version.sync_tasks_status, status)
+        self.assertEqual(status, version.sync_tasks_status)
 
     def test_update_version_status_completed(self):
         self._test_version_status(dv_db.complete_last_version,
@@ -439,7 +439,7 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
                 ('name', 'name1')]
         with self.provider_net() as net:
             for k, v in keys:
-                self.assertEqual(net['network'][k], v)
+                self.assertEqual(v, net['network'][k])
 
     def test_create_provider_net_with_bogus_type(self):
         # Create with a bogus network type
@@ -486,7 +486,7 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
         args = {'network': {'tenant_id': 'admin'}}
         req = self.new_create_request('networks', args, self.fmt)
         res = req.get_response(self.api)
-        self.assertEqual(res.status_int, 201)
+        self.assertEqual(201, res.status_int)
         net_res = self.deserialize(self.fmt, res)
         self.assertNotIn(pnet.NETWORK_TYPE, net_res['network'])
 
@@ -498,20 +498,20 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
             req = self.new_update_request('networks', args,
                                           net['network']['id'])
             res = req.get_response(self.api)
-            self.assertEqual(res.status_int, 400)
+            self.assertEqual(400, res.status_int)
 
     def test_delete_provider_net(self):
         with self.provider_net() as net:
             req = self.new_delete_request('networks', net['network']['id'])
             res = req.get_response(self.api)
-            self.assertEqual(res.status_int, exc.HTTPNoContent.code)
+            self.assertEqual(exc.HTTPNoContent.code, res.status_int)
 
     def test_show_provider_net(self):
         with self.provider_net() as net:
             req = self.new_show_request('networks', net['network']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.api))
-            self.assertEqual(res['network'][pnet.NETWORK_TYPE],
-                             m_const.TYPE_UPLINK)
+            self.assertEqual(m_const.TYPE_UPLINK,
+                             res['network'][pnet.NETWORK_TYPE])
 
     def test_list_provider_nets(self):
         # Create two uplink prov nets and retrieve them
@@ -520,10 +520,10 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
                 req = self.new_list_request('networks')
                 res = self.deserialize(
                     self.fmt, req.get_response(self.api))
-                self.assertEqual(len(res['networks']), 2)
+                self.assertEqual(2, len(res['networks']))
                 for res_net in res['networks']:
-                    self.assertEqual(res_net[pnet.NETWORK_TYPE],
-                                     m_const.TYPE_UPLINK)
+                    self.assertEqual(m_const.TYPE_UPLINK,
+                                     res_net[pnet.NETWORK_TYPE])
 
     def test_list_provider_nets_filtered_by_invalid_type(self):
         # Search a list of two provider networks with type uplink and type vlan
@@ -534,7 +534,7 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
                                             params=params_str)
                 res = self.deserialize(
                     self.fmt, req.get_response(self.api))
-                self.assertEqual(len(res['networks']), 0)
+                self.assertEqual(0, len(res['networks']))
 
 
 class TestMidonetAllowedAddressPair(test_addr.TestAllowedAddressPairs,
