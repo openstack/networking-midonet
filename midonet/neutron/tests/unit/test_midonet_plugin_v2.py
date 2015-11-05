@@ -316,7 +316,7 @@ class TestMidonetDataState(testlib_api.SqlTestCase):
 
     def test_data_show(self):
         ds = data_state_db.get_data_state(self.session)
-        self.assertTrue(ds.id is not None)
+        self.assertIsNotNone(ds.id)
 
     def test_data_state_readonly(self):
         data_state_db.set_readonly(self.session)
@@ -326,7 +326,7 @@ class TestMidonetDataState(testlib_api.SqlTestCase):
         # with further task_db changes coming in data sync
         data_state_db.set_readwrite(self.session)
         ds = data_state_db.get_data_state(self.session)
-        self.assertTrue(not ds.readonly)
+        self.assertFalse(ds.readonly)
 
 
 class TestMidonetAgent(MidonetPluginV2TestCase,
