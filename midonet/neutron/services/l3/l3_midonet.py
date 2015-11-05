@@ -102,6 +102,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
 
     @log_helpers.log_method_call
     def add_router_interface(self, context, router_id, interface_info):
+        by_port = bool(interface_info.get('port_id'))
         with context.session.begin(subtransactions=True):
             info = super(MidonetL3ServicePlugin, self).add_router_interface(
                 context, router_id, interface_info)
@@ -116,7 +117,8 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
                           "error=%(err)r"),
                       {"info": info, "router_id": router_id, "err": ex})
             with excutils.save_and_reraise_exception():
-                self.remove_router_interface(context, router_id, info)
+                if not by_port:
+                    self.remove_router_interface(context, router_id, info)
 
         return info
 
