@@ -293,3 +293,14 @@ TaaS plugin configuration file `/etc/neutron/taas_plugin.ini`::
 
     [service_providers]
     service_provider = TAAS:Midonet:midonet.neutron.services.taas.service_drivers.taas_midonet.MidonetTaasDriver:default
+
+
+Horizon
+-------
+
+Starting with Newton, Horizon has built-in support for MidoNet network types.
+
+To enable it, add the following configuration to the
+`OPENSTACK_NEUTRON_NETWORK` dict in `local_settings.py`::
+
+    'supported_provider_types': ['midonet', 'uplink'],
