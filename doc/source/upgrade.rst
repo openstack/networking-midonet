@@ -5,6 +5,22 @@ Upgrade Notes
 This section describes changes which might impact upgrades from the previous
 releases.
 
+----------------------
+From Liberty to Mitaka
+----------------------
+
+- Neutron MidoNet interface driver has been moved out of Neutron tree.
+  If your deployment uses Neutron DHCP agent and its configuration doesn't
+  use the stevedore alias ("midonet"), you should update it:
+
+  Before::
+
+      interface_driver = neutron.agent.linux.interface:MidonetInterfaceDriver
+
+  After::
+
+      interface_driver = midonet
+
 --------------------
 From Kilo to Liberty
 --------------------
