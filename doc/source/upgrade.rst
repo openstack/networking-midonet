@@ -20,11 +20,11 @@ From Kilo to Liberty
 
   Before::
 
-      core_plugin = midonet
+      core_plugin = neutron.plugins.midonet.plugin.MidonetPluginV2
 
   After::
 
-      core_plugin = midonet_v2
+      core_plugin = midonet
 
 - `midonet-db-manage` command is now obsolete.
   While it's still provided for backward compatibility, we plan to remove
