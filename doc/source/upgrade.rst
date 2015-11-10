@@ -13,7 +13,7 @@ From Kilo to Liberty
   was introduced::
 
       core_plugin = midonet_v2
-      service_plugins = midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlug
+      service_plugins = midonet_l3
 
 - Plugin entry point for v1 plugin (the older plugin which is compatible with
   MidoNet v2015.03 and v2015.06) has been moved out of Neutron tree:

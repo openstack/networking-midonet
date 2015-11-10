@@ -20,8 +20,7 @@ from neutron_fwaas.tests.unit.services.firewall import test_fwaas_plugin as tfp
 
 # Overwrite the FWaaS plugin constant so that the MidoNet FWaaS plugin gets
 # loaded when the tests run.
-tfp.FW_PLUGIN_KLASS = ("midonet.neutron.services.firewall.plugin"
-                       ".MidonetFirewallPlugin")
+tfp.FW_PLUGIN_KLASS = "midonet_firewall"
 
 
 class FirewallTestCase(tfp.TestFirewallPluginBase,
