@@ -45,7 +45,7 @@ service plugins::
 
     [DEFAULT]
     core_plugin = midonet_v2
-    service_plugins = midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin
+    service_plugins = midonet_l3
 
 
 Interaction with Neutron agents
@@ -86,7 +86,7 @@ Starting v5.0, MidoNet implements Neutron FWaaS extention API.
 To configure it, add the following service plugin to the `service_plugins` list
 in the DEFAULT section of `neutron.conf`::
 
-    midonet.neutron.services.firewall.plugin.MidonetFirewallPlugin
+    midonet_firewall
 
 NOTE: No need to configure `Firewall Driver` at all.  It's irrelevant
 because this plugin does not use Neutron L3 agent.
