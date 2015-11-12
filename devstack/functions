@@ -6,7 +6,7 @@
 # Override this function in devstack/lib/neutron_plugins/services/firewall so
 # that it does not try to always set the default firewall plugin to the
 # services list.  Instead, set it to the midonet FWaaS plugin.
-MIDONET_FWAAS_PLUGIN=midonet.neutron.services.firewall.plugin.MidonetFirewallPlugin
+MIDONET_FWAAS_PLUGIN=midonet_firewall
 function neutron_fwaas_configure_common {
     _neutron_service_plugin_class_add $MIDONET_FWAAS_PLUGIN
 }

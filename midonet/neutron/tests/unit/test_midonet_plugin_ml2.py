@@ -65,8 +65,7 @@ class MidonetPluginML2TestCase(test_plugin.NeutronDbPluginV2TestCase):
         self.client_mock = mock.MagicMock()
         patcher.start().return_value = self.client_mock
 
-        l3_plugin = {'l3_plugin_name':
-            'midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin'}
+        l3_plugin = {'l3_plugin_name': 'midonet_l3'}
 
         if service_plugins:
             service_plugins.update(l3_plugin)

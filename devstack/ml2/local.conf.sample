@@ -10,7 +10,7 @@ Q_PLUGIN=ml2
 Q_ML2_PLUGIN_MECHANISM_DRIVERS=midonet
 Q_ML2_PLUGIN_TYPE_DRIVERS=midonet,uplink
 Q_ML2_TENANT_NETWORK_TYPE=midonet
-ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin
+ML2_L3_PLUGIN=midonet_l3
 
 enable_plugin networking-midonet http://github.com/openstack/networking-midonet.git
 
