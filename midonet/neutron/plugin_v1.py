@@ -326,6 +326,7 @@ class MidonetMixin(plugin.MidonetMixinBase,
                   "router_id=%(router_id)s, interface_info=%(interface_info)r",
                   {'router_id': router_id, 'interface_info': interface_info})
 
+        by_port = bool(interface_info.get('port_id'))
         with context.session.begin(subtransactions=True):
             info = super(MidonetMixin, self).add_router_interface(
                 context, router_id, interface_info)
@@ -340,7 +341,8 @@ class MidonetMixin(plugin.MidonetMixinBase,
                           "error=%(err)r"),
                       {"info": info, "router_id": router_id, "err": ex})
             with excutils.save_and_reraise_exception():
-                self.remove_router_interface(context, router_id, info)
+                if not by_port:
+                    self.remove_router_interface(context, router_id, info)
 
         LOG.debug("MidonetMixin.add_router_interface exiting: info=%r", info)
         return info
