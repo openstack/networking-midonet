@@ -76,10 +76,10 @@ fi
 # End list of exclusions.
 r="$r)"
 
-# only run tempest.api.network/scenario tests (part of the default for 'full')
-r="$r(tempest\.(api|scenario)).*$"
+r="$r(tempest\.(api|scenario)|neutron_fwaas).*$"
 
 export DEVSTACK_GATE_TEMPEST_REGEX="$r"
+export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS=1
 
 # Explicitly set LOGDIR to align with the SCREEN_LOGDIR setting
 # from devstack-gate.  Otherwise, devstack infers it from LOGFILE,
