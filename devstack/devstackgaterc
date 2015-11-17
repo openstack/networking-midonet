@@ -44,4 +44,8 @@ if [ "${_ZOOM}" = "True" ]; then
     # project-config configures the separate L3 plugin for liberty and later.
     # Override it as kilo plugin is monolithic.
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES="
+else
+    # project-config uses the new plugin path which is not appropriate for
+    # kilo.  Override it to use the old path.
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_PLUGIN=neutron.plugins.midonet.plugin.MidonetPluginV2"
 fi
