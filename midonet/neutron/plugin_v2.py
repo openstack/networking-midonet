@@ -60,7 +60,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         'provider',
         'quotas',
         'router',
-        'security-group'
+        'security-group',
+        'subnet_allocation',
     ]
 
     __native_bulk_support = True
