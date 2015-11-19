@@ -12,7 +12,7 @@ From Kilo to Liberty
 - A separate plugin ("v2 plugin") which is compatible with MidoNet v2015.09
   was introduced::
 
-      core_plugin = midonet.neutron.plugin_v2.MidonetPluginV2
+      core_plugin = midonet_v2
       service_plugins = midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlug
 
 - Plugin entry point for v1 plugin (the older plugin which is compatible with
@@ -20,11 +20,11 @@ From Kilo to Liberty
 
   Before::
 
-      core_plugin = neutron.plugins.midonet.plugin.MidonetPluginV2
+      core_plugin = midonet
 
   After::
 
-      core_plugin = midonet.neutron.plugin_v1.MidonetPluginV2
+      core_plugin = midonet_v2
 
 - `midonet-db-manage` command is not obsolete.
   While it's still provided for backward compatibility, we plan to remove
