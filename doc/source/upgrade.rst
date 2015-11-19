@@ -9,8 +9,8 @@ releases.
 From Kilo to Liberty
 --------------------
 
-- A separate plugin ("v2 plugin") which is compatible with MidoNet v2015.09
-  was introduced::
+- A separate plugin ("v2 plugin") which is compatible with MidoNet v5.0
+  (previously called v2015.09) was introduced::
 
       core_plugin = midonet_v2
       service_plugins = midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlug
@@ -26,7 +26,7 @@ From Kilo to Liberty
 
       core_plugin = midonet_v2
 
-- `midonet-db-manage` command is not obsolete.
+- `midonet-db-manage` command is now obsolete.
   While it's still provided for backward compatibility, we plan to remove
   it in a feature release.
   You can use `neutron-db-manage --subproject networking-midonet` instead.
