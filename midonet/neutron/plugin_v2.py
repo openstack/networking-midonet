@@ -64,7 +64,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         'port-security',
         'provider',
         'quotas',
-        'security-group'
+        'security-group',
+        'subnet_allocation',
     ]
 
     __native_bulk_support = True

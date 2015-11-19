@@ -48,7 +48,7 @@ IPV6_ENABLED=False
 
 NETWORK_API_EXTENSIONS=agent,binding,dhcp_agent_scheduler,external-net
 NETWORK_API_EXTENSIONS+=,ext-gw-mode,extra_dhcp_opts,quotas,router
-NETWORK_API_EXTENSIONS+=,security-group
+NETWORK_API_EXTENSIONS+=,security-group,subnet_allocation
 if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
     NETWORK_API_EXTENSIONS+=,allowed-address-pairs,extraroute,port-security
     if is_service_enabled q-fwaas; then
