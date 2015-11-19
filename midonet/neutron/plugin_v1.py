@@ -53,6 +53,7 @@ midonet_opts = [
 cfg.CONF.register_opts(midonet_opts, "MIDONET")
 
 
+# TODO(yamamoto): Merge MidonetMixin into MidonetPluginV2
 class MidonetMixin(plugin.MidonetMixinBase,
                    l3_gwmode_db.L3_NAT_db_mixin):
 
