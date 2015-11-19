@@ -541,9 +541,17 @@ class MidonetMixin(plugin.MidonetMixinBase,
 class MidonetPluginV2(MidonetMixin):
 
     vendor_extensions = MidonetMixin.supported_extension_aliases
-    supported_extension_aliases = ['external-net', 'router', 'security-group',
-                                   'agent', 'dhcp_agent_scheduler', 'binding',
-                                   'quotas'] + vendor_extensions
+    # NOTE(yamamoto): While the order in this list doesn't matter
+    # functionality-wise, it's alphabetically sorted for easier comparison.
+    supported_extension_aliases = [
+        'agent',
+        'binding',
+        'dhcp_agent_scheduler',
+        'external-net',
+        'quotas',
+        'router',
+        'security-group',
+    ] + vendor_extensions
 
     __native_bulk_support = True
 
