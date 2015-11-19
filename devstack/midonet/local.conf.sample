@@ -34,7 +34,7 @@ NOVA_VNC_ENABLED=True
 #
 # MIDONET_PLUGIN=midonet
 # MIDONET_USE_ZOOM=False
-Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin
+Q_SERVICE_PLUGIN_CLASSES=midonet_l3
 
 # The following section contains environment variable settings that would
 # further minimalize the environment.  For example, in some cases you may just
