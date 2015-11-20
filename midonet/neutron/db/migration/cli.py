@@ -161,7 +161,6 @@ def data_version_activate(config, cmd):
 
 
 def add_command_parsers(subparsers):
-    n_cli.add_command_parsers(subparsers)
     parser = subparsers.add_parser('task-list')
     parser.add_argument('-u', action='store_true')
     parser.set_defaults(func=task_list)
@@ -188,7 +187,7 @@ command_opt = cfg.SubCommandOpt('command',
                                 help=_('Available commands'),
                                 handler=add_command_parsers)
 
-# Override the db management options with our own extended version
+# Override the db management options with our own version
 CONF.unregister_opt(n_cli.command_opt)
 CONF.register_cli_opt(command_opt)
 
