@@ -19,6 +19,13 @@
 # http://git.openstack.org/cgit/openstack-infra/project-config/tree/jenkins/jobs/networking-midonet.yaml
 #
 
+if echo "${DEVSTACK_LOCAL_CONFIG}" | fgrep "MIDONET_USE_ZOOM=True" > /dev/null;
+then
+    _ZOOM=True
+else
+    _ZOOM=False
+fi
+
 # We are only interested on Neutron, so very few services are needed
 # to deploy devstack and run the tests
 s=""
@@ -32,3 +39,9 @@ export OVERRIDE_ENABLED_SERVICES="$s"
 
 # only run tempest.api.network/scenario tests (part of the default for 'full')
 export DEVSTACK_GATE_TEMPEST_REGEX="tempest.api.network tempest.scenario"
+
+if [ "${_ZOOM}" = "True" ]; then
+    # project-config configures the separate L3 plugin for liberty and later.
+    # Override it as kilo plugin is monolithic.
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES="
+fi
