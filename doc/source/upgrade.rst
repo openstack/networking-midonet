@@ -38,6 +38,14 @@ From Liberty to Mitaka
 
       neutron-db-manage --subproject networking-midonet upgrade head
 
+- At the start of the Mitaka development cycle (immediately after "liberty"
+  db milestone), our sub-project db migration chain was separated into
+  two branches, "expand" and "contract", to allow a shorter downtime
+  as Neutron does.
+  See the blueprint [#neutron_online_schema_migrations]_ for details.
+
+.. [#neutron_online_schema_migrations] http://specs.openstack.org/openstack/neutron-specs/specs/liberty/online-schema-migrations.html
+
 --------------------
 From Kilo to Liberty
 --------------------
