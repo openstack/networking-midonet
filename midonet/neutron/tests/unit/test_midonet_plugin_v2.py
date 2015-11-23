@@ -298,6 +298,29 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
             res = router_req.get_response(self.ext_api)
             self.assertEqual(400, res.status_int)
 
+    def test_add_router_interface_by_port_failure(self):
+        class _MyException(Exception):
+            pass
+
+        with self.port() as port, self.router() as router:
+            ctx = context.get_admin_context()
+            plugin = manager.NeutronManager.get_plugin()
+            l3_plugin = manager.NeutronManager.get_service_plugins().get(
+                p_const.L3_ROUTER_NAT)
+            router_id = router['router']['id']
+            port_id = port['port']['id']
+            interface_info = {
+                'port_id': port_id,
+            }
+            with mock.patch.object(l3_plugin.client,
+                                   'add_router_interface_postcommit',
+                                   auto_spec=True,
+                                   side_effect=_MyException), \
+                testtools.ExpectedException(_MyException):
+                l3_plugin.add_router_interface(ctx, router_id, interface_info)
+            port2 = plugin.get_port(ctx, port_id)
+            self.assertEqual(port_id, port2['id'])
+
 
 class TestMidonetDataState(testlib_api.SqlTestCase):
 
