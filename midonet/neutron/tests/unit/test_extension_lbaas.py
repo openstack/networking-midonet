@@ -115,7 +115,7 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
                                               id=pool['pool']['id'],
                                               subresource="health_monitors")
                 res = req.get_response(self.ext_api)
-                self.assertEqual(res.status_int, exc.HTTPCreated.code)
+                self.assertEqual(exc.HTTPCreated.code, res.status_int)
 
                 # Due to the policy check, the returned response gets the
                 # associated health monitor IDs stripped and an empty list is
@@ -164,7 +164,7 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
                 ('status', 'ACTIVE')]
         with self.pool(name=name) as pool:
             for k, v in keys:
-                self.assertEqual(pool['pool'][k], v)
+                self.assertEqual(v, pool['pool'][k])
 
     def test_create_pool_with_bad_subnet(self):
         # Subnet does not exist so it should throw an error
@@ -187,7 +187,7 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
         with self.pool(do_delete=False) as pool:
             req = self.new_delete_request('pools', pool['pool']['id'])
             res = req.get_response(self.ext_api)
-            self.assertEqual(res.status_int, exc.HTTPNoContent.code)
+            self.assertEqual(exc.HTTPNoContent.code, res.status_int)
 
     def test_show_pool(self):
         name = "pool1"
@@ -204,7 +204,7 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
                                         fmt=self.fmt)
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
             for k, v in keys:
-                self.assertEqual(res['pool'][k], v)
+                self.assertEqual(v, res['pool'][k])
 
     def test_update_pool(self):
         keys = [('name', 'new_name'),
@@ -217,7 +217,7 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
                                           pool['pool']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
             for k, v in keys:
-                self.assertEqual(res['pool'][k], v)
+                self.assertEqual(v, res['pool'][k])
 
     def test_create_vip(self):
         keys = [('name', 'vip1'),
@@ -229,7 +229,7 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
         with self.pool() as pool:
             with self.vip(pool=pool, subnet=self._ext_subnet) as vip:
                 for k, v in keys:
-                    self.assertEqual(vip['vip'][k], v)
+                    self.assertEqual(v, vip['vip'][k])
 
     def test_create_vip_with_bad_subnet(self):
         # Subnet does not exist so it should throw an error
@@ -282,7 +282,7 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
                 res = self.deserialize(
                     self.fmt, req.get_response(self.ext_api))
                 for k, v in keys:
-                    self.assertEqual(res['vip'][k], v)
+                    self.assertEqual(v, res['vip'][k])
 
     def test_update_vip_same_subnet_as_pool_with_hm(self):
         # Updating the pool Id to a pool with the same subnet as the VIP
@@ -321,7 +321,7 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
 
     def test_create_pool_health_monitor(self):
         with self.pool_with_hm_associated() as (p, hm):
-            self.assertEqual(len(p['pool']['health_monitors']), 1)
+            self.assertEqual(1, len(p['pool']['health_monitors']))
             self.assertEqual(p['pool']['health_monitors'][0],
                              hm['health_monitor']['id'])
 
@@ -337,7 +337,7 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
                     "pools", assoc2, fmt=self.fmt, id=p['pool']['id'],
                     subresource="health_monitors")
                 res2 = req2.get_response(self.ext_api)
-                self.assertEqual(res2.status_int, exc.HTTPBadRequest.code)
+                self.assertEqual(exc.HTTPBadRequest.code, res2.status_int)
 
     def test_delete_pool_health_monitor(self):
         with self.pool_with_hm_associated() as (p, hm):
@@ -346,12 +346,12 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
                                           sub_id=hm['health_monitor']['id'],
                                           subresource="health_monitors")
             res = req.get_response(self.ext_api)
-            self.assertEqual(res.status_int, exc.HTTPNoContent.code)
+            self.assertEqual(exc.HTTPNoContent.code, res.status_int)
 
             # Verify that it's gone
             req = self.new_show_request('pools', p['pool']['id'], fmt=self.fmt)
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            self.assertEqual(len(res['pool']['health_monitors']), 0)
+            self.assertEqual(0, len(res['pool']['health_monitors']))
 
     def test_create_pool_health_monitor_with_same_vip_subnet(self):
         # Associating two health monitors to a pool which is associated
@@ -366,4 +366,4 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
                         "pools", assoc, fmt=self.fmt, id=pool['pool']['id'],
                         subresource="health_monitors")
                     res = req.get_response(self.ext_api)
-                    self.assertEqual(res.status_int, exc.HTTPBadRequest.code)
+                    self.assertEqual(exc.HTTPBadRequest.code, res.status_int,)

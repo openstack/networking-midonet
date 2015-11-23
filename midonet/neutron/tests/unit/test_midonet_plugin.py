@@ -127,4 +127,4 @@ class TestMidonetL3NatDBIntTest(test_l3.L3NatDBIntTestCase,
             router_req = self.new_create_request('routers', router_data,
                                                  self.fmt)
             res = router_req.get_response(self.ext_api)
-            self.assertEqual(res.status_int, 400)
+            self.assertEqual(400, res.status_int)
