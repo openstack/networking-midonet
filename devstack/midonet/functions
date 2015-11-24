@@ -24,6 +24,7 @@ function neutron_plugin_configure_common {
     Q_PLUGIN_CONF_FILENAME=midonet.ini
     Q_PLUGIN_CLASS=${MIDONET_PLUGIN}
 
+    pip_install tox
     cd ${PLUGIN_PATH}; tox -e genconfig; cd -
     mkdir -p /${Q_PLUGIN_CONF_PATH}
     if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
