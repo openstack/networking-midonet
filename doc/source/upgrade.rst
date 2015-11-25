@@ -21,6 +21,23 @@ From Liberty to Mitaka
 
       interface_driver = midonet
 
+- The following sub-commands were removed from `midonet-db-manage` command::
+
+    current             Display the current revision for a database.
+    history             List changeset scripts in chronological order.
+    branches            Show current branch points
+    check_migration     Show current branch points and validate head file
+    upgrade             Upgrade to a later version.
+    downgrade           (No longer supported)
+    stamp               'stamp' the revision table with the given revision;
+    revision            Create a new revision file.
+
+  You can use `neutron-db-manage --subproject networking-midonet` instead.
+
+  For example,::
+
+      neutron-db-manage --subproject networking-midonet upgrade head
+
 --------------------
 From Kilo to Liberty
 --------------------
