@@ -18,6 +18,7 @@ Contents:
    usage
    contributing
    devref/index
+   specs/index
 
 Indices and tables
 ==================
