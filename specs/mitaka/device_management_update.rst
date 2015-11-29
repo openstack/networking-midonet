@@ -14,15 +14,20 @@ MidoNet provides a Neutron extension API called Gateway Device Management to
 provide device-level gateway management service to the operators.
 This API is required in order to propagate device connectivity details to enable
 Midonet to manage VTEP Logical Switch configuration upon Logical Gateway definition.
-In order to support Router Peering use case, Overlay VTEP Router device is supported
-by MidoNet. While for the routing functionality this device is managed as
+In order to support Router Peering and Direct Connect use cases following definition
+in [2]_, Overlay VTEP Router device is supported by MidoNet.
+While for the routing functionality this device is managed as
 traditional neutron Router, it should be possible for operator
 (or Orchestration Layer) to enable its VTEP functionality.
 While for HW VTEP Device this API is used for management IP and Port settings,
 for Overlay VTEP Router Device it is used to enable Router with VTEP
 Logical Switch management capability.
 
-VTEP status, VTEP configuration, such as Tunnel IP are out of the scope of
+
+VTEP Tunnel IPs and Remote MAC Table management is currenly supported for the 'router_vtep'
+type of gateway device only.
+
+Other VTEP configurations as well as VTEP device status are out of the scope of
 the current version of this API.
 
 Gateway device should be identified by the user driven name in order to correlate
@@ -50,6 +55,9 @@ REST API
 |name               |string    |CRU   |No       |User defined device name         |
 |                   |          |      |         |                                 |
 +-------------------+----------+------+---------+---------------------------------+
+|tenant_id          |string    |CR    |Yes      |Tenant ID of gateway Device      |
+|                   |          |      |         |object owner                     |
++-------------------+----------+------+---------+---------------------------------+
 |management_ip      |string    |CR    |No       |Management IP to the device.     |
 |                   |(ip addr) |      |         |Defaults to None.                |
 +-------------------+----------+------+---------+---------------------------------+
@@ -62,14 +70,126 @@ REST API
 |                   |          |      |         |specified, defaults to ovsdb.    |
 |                   |          |      |         |Otherwise to none.               |
 +-------------------+----------+------+---------+---------------------------------+
-|**type**           |string    |CR    |No       |Type of the device: hw_vtep or   |
-|                   |          |      |         |router. Defaults to hw_vtep.     |
+|type               |string    |CR    |No       |Type of the device: hw_vtep or   |
+|                   |          |      |         |router_vtep. Defaults to hw_vtep |
 +-------------------+----------+------+---------+---------------------------------+
-|**resource_id**    |string    |CR    |No       |Resource UUID or None (for type  |
-|                   |(UUID)    |      |         |router will be router UUID).     |
+|resource_id        |string    |CR    |No       |Resource UUID or None (for type  |
+|                   |(UUID)    |      |         |router_vtep will be router UUID) |
++-------------------+----------+------+---------+---------------------------------+
+|tunnel_ips         |string    |CRU   |No       |IP addresses on which gateway    |
+|                   |(list of  |      |         |device originates or terminates  |
+|                   | ip addrs)|      |         |tunnels.                         |
++-------------------+----------+------+---------+---------------------------------+
+|remote_mac_entries |list of   |CR    |No       |Mapping of MAC addresses to the  |
+|                   |entries   |      |         |tunnel IP addresses of the       |
+|                   |          |      |         |corresponding VTEP               |
 +-------------------+----------+------+---------+---------------------------------+
 
-Currently, only the HW VTEP device and Router are supported.
+Currently, only the HW VTEP device and Router VTEP are supported.
+
+Remote MAC Table entries are managed as sub-resource of the gateway_device.
+
+**RemoteMac**
+
++-------------------+----------+------+---------+---------------------------------+
+|Attribute          |Type      |CRUD  |Required |Description                      |
+|Name               |          |      |         |                                 |
++===================+==========+======+=========+=================================+
+|id                 |string    |CR    |generated|ID of the remote mac entry       |
+|                   |(UUID)    |      |         |                                 |
++-------------------+----------+------+---------+---------------------------------+
+|mac_address        |string    |CR    |Yes      |MAC address                      |
+|                   |          |      |         |                                 |
++-------------------+----------+------+---------+---------------------------------+
+|vtep_address       |string    |CR    |Yes      |Remote VTEP Tunnel IP to be used |
+|                   |          |      |         |to reach this MAC address        |
++-------------------+----------+------+---------+---------------------------------+
+|segmentation_id    |int       |CR    |Yes      |VNI to be used to reach this     |
+|                   |          |      |         |MAC address                      |
++-------------------+----------+------+---------+---------------------------------+
+
+REST API Impact
+---------------
+
+RESOURCE_ATTRIBUTE_MAP = {
+    'gateway_devices': {
+        'id': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:uuid': None},
+               'is_visible': True, 'primary_key': True},
+        'name': {'allow_post': True, 'allow_put': True,
+                 'is_visible': True, 'default': '',
+                 'validate': {'type:string': None}},
+        'tenant_id': {'allow_post': True, 'allow_put': False,
+                      'required_by_policy': True,
+                      'is_visible': True},
+        'management_ip': {'allow_post': True, 'allow_put': False,
+                 'is_visible': True, 'default': ''},
+        'management_port': {'allow_post': True, 'allow_put': False,
+                 'is_visible': True, 'default': ''}'
+        'management_protocol': {'allow_post': True, 'allow_put': False,
+                 'is_visible': True, 'default': ''}'
+        'type': {'allow_post': True, 'allow_put': False,
+                 'is_visible': True, 'default': 'hw_vtep'},
+        'resource_id': {'allow_post': True, 'allow_put': False,
+                 'is_visible': True, 'default': None}'
+        'tunnel_ips': {'allow_post': True, 'allow_put': True,
+                 'is_visible': True, 'default': ''},
+        ‘remote_mac_table’: {'allow_post': False, 'allow_put': False, 'is_visible': True},
+    },
+}
+
+
+SUB_RESOURCE_ATTRIBUTE_MAP = {
+    'remote_mac_entries': {
+        'parent': {'collection_name': 'gateway_devices',
+                   'member_name': 'gateway_device'},
+    'vtep_address': {
+                 'allow_post': True, 'allow_put': False,
+                 'is_visible': True, 'default': None,
+                 'validate': {'type:ip_address': None}},
+    'mac_address': {
+                  'allow_post': True, 'allow_put': False,
+                  'is_visible': True,
+                  'validate': {'type:mac_address':None}},
+    'segmentation_id': {
+                  'allow_post': True, 'allow_put': False,
+                  'is_visible': True,
+                  'validate': {'type:non_negative': None}},
+    }
+}
+
+
+Sample request/response:
+
+Update Remote MAC Entry Request::
+
+        POST /v2.0/gw/gateway_devices/46ebaec0-0570-43ac-82f6-60d2b03168c4/remote_mac_entries/
+        {
+            "mac_address": "10:20:30:40:50:60",
+            "vtep_ip": "192.168.34.5",
+            "segmentation_id": 304
+        }
+
+
+        Response:
+        {
+            "gateway_device": {
+                  "tenant_id": "8d4c70a21fed4aeba121a1a429ba0d04",
+                  "id": "46ebaec0-0570-43ac-82f6-60d2b03168c4",
+                  "name": "gw_device1",
+                  "type": "router_vtep",
+                  "tunnel_ips": ["10.0.0.2"],
+                  "management_ip": "",
+                  "management_port": "",
+                  "resource_id": "73ebaec0-0570-434f-8267-50d2b03168c9",
+                  "remote_mac_entries":[{
+                      "id": "5f126d84-551a-4dcf-bb01-0e9c0df0c793",
+                      "mac_address": "10:20:30:40:50:60",
+                      "vtep_ip": "192.168.34.5",
+                      "segmentation_id": 304
+                  }]
+          }
+        }
 
 
 DB Model
@@ -84,7 +204,8 @@ DB Model
 +-------------------+---------+-----------------------------------------------+
 | name              | String  | Name of the gateway device                    |
 +-------------------+---------+-----------------------------------------------+
-| type              | String  | Type of the gateway device (hw_vtep or router)|
+| type              | String  | Type of the gateway device (hw_vtep or        |
+|                   |         | router_vtep)                                  |
 +-------------------+---------+-----------------------------------------------+
 
 
@@ -114,6 +235,33 @@ DB Model
 +--------------------+---------+----------------------------------------------+
 
 
+**midonet_gateway_tunnel_ips**
+
++--------------------+---------+----------------------------------------------+
+| Name               | Type    | Description                                  |
++====================+=========+==============================================+
+| device_id          | String  | ID of the gateway device                     |
++--------------------+---------+----------------------------------------------+
+| tunnel_ip          | String  | Tunnel IP to originate/terminate traffic     |
++--------------------+---------+----------------------------------------------+
+
+
+**midonet_gateway_remote_mac_table**
+
++--------------------+---------+----------------------------------------------+
+| Name               | Type    | Description                                  |
++====================+=========+==============================================+
+| id                 | String  | ID of the entry                              |
++--------------------+---------+----------------------------------------------+
+| device_id          | String  | ID of the gateway device                     |
++--------------------+---------+----------------------------------------------+
+| mac_address        | String  | MAC address to be reached                    |
++--------------------+---------+----------------------------------------------+
+| vtep_address       | String  | VTEP IP address to reach MAC address         |
++--------------------+---------+----------------------------------------------+
+| segmentation_id    | int     | VNI to reach the MAC address                 |
++--------------------+---------+----------------------------------------------+
+
 Client
 ------
 
@@ -121,7 +269,7 @@ The following command enables a gateway capabilities on the router device:
 
 ::
 
-    neutron gateway-device-create [--name NAME] [--type router] [--resource-id UUID]
+    neutron gateway-device-create [--name NAME] [--type router_vtep] [--resource-id UUID]
 
 
 The following command creates a HW VTEP gateway device:
@@ -162,3 +310,5 @@ The following command deletes a gateway device:
 References
 ==========
 .. [1] https://raw.githubusercontent.com/openstack/networking-midonet/master/specs/kilo/device_management.rst
+.. [2] https://docs.google.com/presentation/d/1b_lmDLF-i2rZlOGnZfYwZgim3W2BNf2rLWao3aULHC4/edit#slide=id.p
+.. [3] https://docs.google.com/document/d/1QMcQ33L76c_igBomOAeH9yiiOJwJQ8QK7ZVV8-jrPVA/edit#
