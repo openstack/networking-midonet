@@ -124,9 +124,11 @@ The data sync operation is implemented as follows:
     midonet-db-manage sets 'sync_started_at' to the current time, and
     'sync_tasks_status' and 'sync_status' to STARTED.  Syncing is disallowed in
     the following cases:
+
         a. Sync is already being executed
         b. There are unprocessed tasks (so that truncate does not delete
            unprocessed tasks)
+
  2. Immediately following the DATA_VERSION_SYNC task insertion,
     midonet-db-manage queries Neutron DB and generates CREATE tasks for all the
     existing resources.  Cluster processes them as usual and creates these
