@@ -51,6 +51,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
     # probably after a cycle. (for M release)
     # This plugin is for MidoNet v5.0 and later, where we have an
     # alternative metadata proxy which doesn't require Neutron agents.
+    # NOTE(yamamoto): While the order in this list doesn't matter
+    # functionality-wise, it's alphabetically sorted for easier comparison.
     supported_extension_aliases = [
         'agent',
         'agent-membership',
