@@ -136,3 +136,23 @@ class MidonetApiClient(base.MidonetClientBase):
 
     def update_firewall(self, context, firewall):
         self.api_cli.update_firewall(firewall['id'], firewall)
+
+    def create_vpn_service(self, context, vpn_service):
+        self.api_cli.create_vpn_service(vpn_service)
+
+    def update_vpn_service(self, context, vpn_service_id, vpn_service):
+        self.api_cli.update_vpn_service(vpn_service_id, vpn_service)
+
+    def delete_vpn_service(self, context, vpn_service_id):
+        self.api_cli.delete_vpn_service(vpn_service_id)
+
+    def create_ipsec_site_conn(self, context, ipsec_site_conn):
+        self.api_cli.create_ipsec_site_conn(ipsec_site_conn)
+
+    def update_ipsec_site_conn(self, context, ipsec_site_conn_id,
+            ipsec_site_conn):
+        self.api_cli.update_ipsec_site_conn(ipsec_site_conn_id,
+                ipsec_site_conn)
+
+    def delete_ipsec_site_conn(self, context, ipsec_site_conn_id):
+        self.api_cli.delete_ipsec_site_conn(ipsec_site_conn_id)

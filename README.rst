@@ -90,3 +90,21 @@ in the DEFAULT section of `neutron.conf`::
 
 NOTE: No need to configure `Firewall Driver` at all.  It's irrelevant
 because this plugin does not use Neutron L3 agent.
+
+
+VPNaaS
+------
+
+Starting v5.1, MidoNet implements Neutron VPNaaS extension API.
+
+MidoNet plugin implements VPNaaS as a service driver.  To configure it,
+add the following entries in the Neutron configuration file
+``/etc/neutron/neutron.conf``::
+
+    [DEFAULT]
+    service_plugins = vpnaas
+
+    [service_providers]
+    service_provider=VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default
+
+NOTE: This plugin does not use Neutron VPNaaS agent.
