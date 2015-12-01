@@ -35,6 +35,7 @@ s+=",n-api,n-cond,n-cpu,n-crt,n-obj,n-sch"
 s+=",g-api,g-reg"
 s+=",q-svc,quantum"
 s+=",tempest"
+s+=",dstat"
 if [ "${_ZOOM}" = "True" ]; then
     # Use midonet metadata proxy
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_METADATA=True"
