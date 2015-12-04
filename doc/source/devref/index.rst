@@ -36,6 +36,7 @@ Programming HowTos and Tutorials
 .. toctree::
    :maxdepth: 3
 
+   alembic_migrations
    testing
    packages
 
