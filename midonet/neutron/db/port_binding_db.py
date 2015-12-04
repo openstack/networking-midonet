@@ -25,6 +25,7 @@ class PortBindingInfo(model_base.BASEV2):
     __tablename__ = 'midonet_port_bindings'
 
     port_id = sa.Column(sa.String(36),
+                        sa.ForeignKey('ports.id'),
                         sa.ForeignKey('portbindingports.port_id',
                                       ondelete="CASCADE"),
                         primary_key=True)

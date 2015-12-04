@@ -27,7 +27,8 @@ class DataState(model_base.BASEV2):
     last_processed_task_id = sa.Column(sa.Integer(),
                                        sa.ForeignKey('midonet_tasks.id'))
     updated_at = sa.Column(sa.DateTime(), nullable=False)
-    active_version = sa.Column(sa.Integer())
+    active_version = sa.Column(sa.Integer(),
+                               sa.ForeignKey('midonet_data_versions.id'))
     readonly = sa.Column(sa.Boolean(), nullable=False)
 
 

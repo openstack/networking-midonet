@@ -25,7 +25,7 @@ AGENT_MEMBERSHIP = 'midonet_agent_memberships'
 class AgentMembership(model_base.BASEV2):
     __tablename__ = AGENT_MEMBERSHIP
     id = sa.Column(sa.String(36), primary_key=True)
-    ip_address = sa.Column(sa.String(64))
+    ip_address = sa.Column(sa.String(64), nullable=False)
 
 
 class AgentMembershipDbMixin(ext_am.AgentMembershipPluginBase):

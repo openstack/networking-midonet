@@ -33,7 +33,7 @@ class DataVersion(model_base.BASEV2):
     sync_finished_at = sa.Column(sa.DateTime())
     sync_status = sa.Column(sa.String(length=50))
     sync_tasks_status = sa.Column(sa.String(length=50))
-    stale = sa.Column(sa.Boolean())
+    stale = sa.Column(sa.Boolean(), nullable=False)
 
 
 def get_last_version(session):

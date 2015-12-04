@@ -63,8 +63,9 @@ class Task(model_base.BASEV2):
     data_type = sa.Column(sa.String(length=36))
     data = sa.Column(sa.Text(length=2 ** 24))
     resource_id = sa.Column(sa.String(36))
-    transaction_id = sa.Column(sa.String(40))
-    created_at = sa.Column(sa.DateTime(), default=datetime.datetime.utcnow)
+    transaction_id = sa.Column(sa.String(40), nullable=False)
+    created_at = sa.Column(sa.DateTime(), default=datetime.datetime.utcnow,
+                           nullable=False)
 
 
 def get_current_task_data(session):
