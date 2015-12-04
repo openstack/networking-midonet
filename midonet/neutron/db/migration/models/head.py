@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from neutron.db.migration.models import head
+
 import midonet.neutron.db.agent_membership_db  # noqa
 import midonet.neutron.db.data_state_db  # noqa
 import midonet.neutron.db.data_version_db  # noqa
@@ -19,3 +21,7 @@ import midonet.neutron.db.loadbalancer_db  # noqa
 import midonet.neutron.db.port_binding_db  # noqa
 import midonet.neutron.db.provider_network_db  # noqa
 import midonet.neutron.db.task_db  # noqa
+
+
+def get_metadata():
+    return head.model_base.BASEV2.metadata
