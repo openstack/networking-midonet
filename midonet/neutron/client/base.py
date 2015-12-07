@@ -266,3 +266,24 @@ class MidonetClientBase(object):
 
     def update_firewall(self, context, firewall):
         pass
+
+    # VPNaaS methods
+
+    def create_vpn_service(self, context, vpn_service):
+        pass
+
+    def update_vpn_service(self, context, vpn_service_id, vpn_service):
+        pass
+
+    def delete_vpn_service(self, context, vpn_service_id):
+        pass
+
+    def create_ipsec_site_conn(self, context, ipsec_site_conn):
+        pass
+
+    def update_ipsec_site_conn(self, context, ipsec_site_conn_id,
+            ipsec_site_conn):
+        pass
+
+    def delete_ipsec_site_conn(self, context, ipsec_site_conn_id):
+        pass
