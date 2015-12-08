@@ -72,9 +72,8 @@ the scope of this document.
 REST API
 --------
 
-An example of a port binding attributes in the request to create a port is:
+An example of a port binding attributes in the request to create a port is::
 
-::
   {
     "binding:host_id": "HOST_ID",
     "binding:profile": {"interface_name": "eth0"}

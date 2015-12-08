@@ -60,9 +60,8 @@ provide:
    field of the API.
  * 'configurations': A dictionary that includes configurations specific to the
    agent.  For MidoNet, this dictionary contains the IP addresses and the
-   interfaces of the host:
+   interfaces of the host::
 
-::
         {
             "interfaces":
                 [
