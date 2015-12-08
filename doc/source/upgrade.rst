@@ -51,7 +51,7 @@ From Kilo to Liberty
 --------------------
 
 - v2 plugin was separated into two plugins, core plugin and L3 service plugin.
-  You need to configure L3 service plugin in addition to the core plugin.
+  You need to configure L3 service plugin in addition to the core plugin::
 
       core_plugin = midonet.neutron.plugin_v2.MidonetPluginV2
       service_plugins = midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin
@@ -81,6 +81,6 @@ From Juno to Kilo
 -----------------
 
 - A separate plugin ("v2 plugin") which is compatible with MidoNet v5.0
-  (previously called v2015.09) was introduced:
+  (previously called v2015.09) was introduced::
 
       core_plugin = midonet.neutron.plugin_v2.MidonetPluginV2
