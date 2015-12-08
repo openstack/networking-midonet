@@ -74,6 +74,12 @@ if [ "${_ZOOM}" = "True" ]; then
     r="$r|(?:tempest\.api\.network\.admin\.test_agent_management\.AgentManagementTestJSON.*)"
 fi
 
+# bug 1513312
+r="$r|(?:.*test_host_name_is_same_as_server_name.*)"
+
+# bug 1521185
+r="$r|(?:.*test_port_security_macspoofing_port.*)"
+
 # End list of exclusions.
 r="$r)"
 
