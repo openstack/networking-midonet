@@ -40,9 +40,6 @@ Q_L3_ENABLED=True
 # Use IPv4
 IP_VERSION=4
 
-# Set the database driver for sqlalchemy
-SQLALCHEMY_DATABASE_DRIVER=${SQLALCHEMY_DATABASE_DRIVER:-mysqlconnector}
-
 # Tempest options
 IPV6_ENABLED=False
 
