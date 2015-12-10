@@ -33,6 +33,11 @@ ENABLED_SERVICES+=,tempest
 ENABLED_SERVICES+=,horizon
 ENABLED_SERVICES+=,n-novnc,n-cauth
 
+# If you want to use VPNaaS, uncomment the following line and manually install
+# ipsec package "librewan".
+#
+# ENABLED_SERVICES+=,q-vpn
+
 NOVA_VNC_ENABLED=True
 
 # The following section contains environment variable settings that would

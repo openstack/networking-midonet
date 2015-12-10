@@ -55,6 +55,9 @@ fi
 if is_service_enabled q-lbaas; then
     NETWORK_API_EXTENSIONS+=,lbaas
 fi
+if is_service_enabled q-vpn; then
+    NETWORK_API_EXTENSIONS+=,vpnaas
+fi
 
 # Don't let mido.sh configure the logging
 CONFIGURE_LOGGING=False
