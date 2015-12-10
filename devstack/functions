@@ -28,3 +28,16 @@ function create_nova_conf_midonet {
         fi
     fi
 }
+
+function neutron_plugin_create_nova_conf {
+    :
+}
+
+function is_neutron_ovs_base_plugin {
+    # 0 means True here
+    return 1
+}
+
+function neutron_plugin_configure_debug_command {
+    :
+}
