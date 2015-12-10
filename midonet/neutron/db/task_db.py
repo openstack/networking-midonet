@@ -61,7 +61,7 @@ class Task(model_base.BASEV2):
     type = sa.Column(sa.String(length=36))
     tenant_id = sa.Column(sa.String(255))
     data_type = sa.Column(sa.String(length=36))
-    data = sa.Column(sa.Text(length=2 ** 24))
+    data = sa.Column(sa.Text())
     resource_id = sa.Column(sa.String(36))
     transaction_id = sa.Column(sa.String(40), nullable=False)
     created_at = sa.Column(sa.DateTime(), default=datetime.datetime.utcnow,

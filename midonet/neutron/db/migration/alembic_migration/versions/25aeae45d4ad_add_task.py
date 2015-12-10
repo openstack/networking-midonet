@@ -30,12 +30,19 @@ import sqlalchemy as sa
 
 def upgrade():
 
+    if op.get_bind().engine.dialect.name == 'mysql':
+        # NOTE(yamamoto): Specify a length long enough to make
+        # the dialict to choose LONGTEXT
+        data_type = sa.Text(length=2 ** 24)
+    else:
+        data_type = sa.Text()
+
     op.create_table(
         'midonet_tasks',
         sa.Column('id', sa.Integer(), primary_key=True),
         sa.Column('type', sa.String(length=36)),
         sa.Column('data_type', sa.String(length=36)),
-        sa.Column('data', sa.Text(length=2 ** 24)),
+        sa.Column('data', data_type),
         sa.Column('resource_id', sa.String(length=36)),
         sa.Column('tenant_id', sa.String(length=255)),
         sa.Column('transaction_id', sa.String(length=40), nullable=False),
