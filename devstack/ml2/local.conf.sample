@@ -7,6 +7,7 @@ NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.
 
 # Load the devstack plugin for ml2
 Q_PLUGIN=ml2
+Q_AGENT=none  # dummy value to avoid pulling functions from openvswitch_agent
 Q_ML2_PLUGIN_MECHANISM_DRIVERS=midonet
 Q_ML2_PLUGIN_TYPE_DRIVERS=midonet,uplink
 Q_ML2_TENANT_NETWORK_TYPE=midonet
