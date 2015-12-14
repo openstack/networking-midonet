@@ -22,6 +22,7 @@ from oslo_utils import excutils
 from neutron.common import constants as n_const
 from neutron.common import exceptions as n_exc
 from neutron.db import api as db_api
+from neutron.db import l3_db
 from neutron.db import l3_gwmode_db
 from neutron.extensions import extra_dhcp_opt as edo_ext
 from neutron.extensions import securitygroup as ext_sg
@@ -559,6 +560,7 @@ class MidonetPluginV2(MidonetMixin):
 
     def __init__(self):
         super(MidonetPluginV2, self).__init__()
+        l3_db.subscribe()
 
 
 def list_opts():
