@@ -287,3 +287,23 @@ class MidonetClientBase(object):
 
     def delete_ipsec_site_conn(self, context, ipsec_site_conn_id):
         pass
+
+    # Gateway Device extensions
+
+    def create_gateway_device_precommit(self, context, gw_dev):
+        pass
+
+    def create_gateway_device_postcommit(self, gw_dev):
+        pass
+
+    def update_gateway_device_precommit(self, context, gw_dev_id, gw_dev):
+        pass
+
+    def update_gateway_device_postcommit(self, gw_dev_id, gw_dev):
+        pass
+
+    def delete_gateway_device_precommit(self, context, gw_dev_id):
+        pass
+
+    def delete_gateway_device_postcommit(self, gw_dev_id):
+        pass
