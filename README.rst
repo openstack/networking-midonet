@@ -48,6 +48,22 @@ service plugins::
     service_plugins = midonet_l3
 
 
+ML2 mechanism and type drivers
+------------------------------
+
+Experimental ML2 mechanism driver and type drivers are available.
+They are compatible with MidoNet v5.0 and beyond::
+
+    [DEFAULT]
+    core_plugin = ml2
+    service_plugins = midonet_l3
+
+    [ml2]
+    tenant_network_types = midonet
+    type_drivers = midonet,uplink
+    mechanism_drivers = midonet
+
+
 Interaction with Neutron agents
 -------------------------------
 
