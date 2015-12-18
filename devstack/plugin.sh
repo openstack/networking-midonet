@@ -57,6 +57,7 @@ if [[ "$1" == "stack" ]]; then
             if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
                 $MIDONET_DIR/tools/devmido/create_fake_uplink_l2.sh \
                     $EXT_NET_ID $FLOATING_RANGE $PUBLIC_NETWORK_GATEWAY
+                sudo ip route replace ${FIXED_RANGE} via ${PUBLIC_NETWORK_GATEWAY}
             else
                 $MIDONET_DIR/tools/devmido/create_fake_uplink.sh \
                     $FLOATING_RANGE
