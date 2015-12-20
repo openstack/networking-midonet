@@ -134,7 +134,7 @@ RESOURCE_ATTRIBUTE_MAP = {
                  'is_visible': True, 'default': None}'
         'tunnel_ips': {'allow_post': True, 'allow_put': True,
                  'is_visible': True, 'default': ''},
-        ‘remote_mac_table’: {'allow_post': False, 'allow_put': False, 'is_visible': True},
+        ‘remote_mac_entries’: {'allow_post': False, 'allow_put': False, 'is_visible': True},
     },
 }
 
@@ -143,18 +143,26 @@ SUB_RESOURCE_ATTRIBUTE_MAP = {
     'remote_mac_entries': {
         'parent': {'collection_name': 'gateway_devices',
                    'member_name': 'gateway_device'},
-    'vtep_address': {
-                 'allow_post': True, 'allow_put': False,
-                 'is_visible': True, 'default': None,
-                 'validate': {'type:ip_address': None}},
-    'mac_address': {
-                  'allow_post': True, 'allow_put': False,
-                  'is_visible': True,
-                  'validate': {'type:mac_address':None}},
-    'segmentation_id': {
-                  'allow_post': True, 'allow_put': False,
-                  'is_visible': True,
-                  'validate': {'type:non_negative': None}},
+    'parameters': {
+        'id': {
+            'allow_post': False, 'allow_put': False,
+            'validate': {'type:uuid': None},
+            'is_visible': True}},
+        'tenant_id': {'allow_post': True, 'allow_put': False,
+                      'required_by_policy': True,
+                      'is_visible': True},
+        'vtep_address': {
+            'allow_post': True, 'allow_put': False,
+            'is_visible': True, 'default': None,
+            'validate': {'type:ip_address': None}},
+        'mac_address': {
+            'allow_post': True, 'allow_put': False,
+            'is_visible': True,
+            'validate': {'type:mac_address':None}},
+        'segmentation_id': {
+            'allow_post': True, 'allow_put': False,
+            'is_visible': True,
+            'validate': {'type:non_negative': None}},
     }
 }
 
@@ -163,32 +171,24 @@ Sample request/response:
 
 Update Remote MAC Entry Request::
 
-        POST /v2.0/gw/gateway_devices/46ebaec0-0570-43ac-82f6-60d2b03168c4/remote_mac_entries/
+        POST /v2.0/gw/gateway_devices/46ebaec0-0570-43ac-82f6-60d2b03168c4/remote_mac_entries
         {
-            "mac_address": "10:20:30:40:50:60",
-            "vtep_ip": "192.168.34.5",
-            "segmentation_id": 304
+            "remote_mac_entry: {
+                "mac_address": "10:20:30:40:50:60",
+                "vtep_ip": "192.168.34.5",
+                "segmentation_id": 304
+            }
         }
 
 
         Response:
         {
-            "gateway_device": {
-                  "tenant_id": "8d4c70a21fed4aeba121a1a429ba0d04",
-                  "id": "46ebaec0-0570-43ac-82f6-60d2b03168c4",
-                  "name": "gw_device1",
-                  "type": "router_vtep",
-                  "tunnel_ips": ["10.0.0.2"],
-                  "management_ip": "",
-                  "management_port": "",
-                  "resource_id": "73ebaec0-0570-434f-8267-50d2b03168c9",
-                  "remote_mac_entries":[{
-                      "id": "5f126d84-551a-4dcf-bb01-0e9c0df0c793",
-                      "mac_address": "10:20:30:40:50:60",
-                      "vtep_ip": "192.168.34.5",
-                      "segmentation_id": 304
-                  }]
-          }
+            "remote_mac_entry": {
+                "id": "5f126d84-551a-4dcf-bb01-0e9c0df0c793",
+                "mac_address": "10:20:30:40:50:60",
+                "vtep_ip": "192.168.34.5",
+                "segmentation_id": 304
+            }
         }
 
 
