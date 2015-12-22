@@ -49,7 +49,7 @@ NETWORK_API_EXTENSIONS+=,security-group,subnet_allocation
 if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
     NETWORK_API_EXTENSIONS+=,allowed-address-pairs,extraroute,port-security
     if is_service_enabled q-fwaas; then
-        NETWORK_API_EXTENSIONS+=,fwaas
+        NETWORK_API_EXTENSIONS+=,fwaas,fwaasrouterinsertion
     fi
 fi
 if is_service_enabled q-lbaas; then
