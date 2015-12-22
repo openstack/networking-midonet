@@ -1,4 +1,4 @@
-# Copyright 2014 Midokura SARL
+# Copyright 2014, 2015 Midokura SARL
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,11 +15,15 @@
 from logging import config as logging_config
 
 from alembic import context
+from neutron.db.migration.alembic_migrations import external
+from neutron.db.migration.models import head  # noqa
 from neutron.db import model_base
 from oslo_config import cfg
 from oslo_db.sqlalchemy import session
 import sqlalchemy as sa
 from sqlalchemy import event
+
+from midonet.neutron.db.migration.models import head  # noqa
 
 
 MYSQL_ENGINE = None
@@ -39,6 +43,10 @@ def set_mysql_engine():
     global MYSQL_ENGINE
     MYSQL_ENGINE = (mysql_engine or
                     model_base.BASEV2.__table_args__['mysql_engine'])
+
+
+def include_object(object, name, type_, reflected, compare_to):
+    return not (type_ == 'table' and name in external.TABLES)
 
 
 def run_migrations_offline():
@@ -70,6 +78,7 @@ def run_migrations_online():
     context.configure(
         connection=connection,
         target_metadata=target_metadata,
+        include_object=include_object,
         version_table=MIDONET_VERSION_TABLE
     )
     try:
