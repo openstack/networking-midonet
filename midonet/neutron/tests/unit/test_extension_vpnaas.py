@@ -14,6 +14,7 @@
 #    under the License.
 
 import mock
+import testtools
 import webob.exc
 
 from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
@@ -127,6 +128,7 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
         res = self.deserialize(self.fmt, req.get_response(self.ext_api))
         self.assertFalse(res['vpnservices'])
 
+    @testtools.skip("bug/1528447")
     def test_create_ipsec_site_connection(self):
         with self.ipsec_site_connection() as ipsec_site_connection:
             req = self.new_show_request('ipsec-site-connections',
@@ -151,6 +153,7 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
             self.assertFalse(res['ipsec_site_connections'])
 
+    @testtools.skip("bug/1528447")
     def test_update_ipsec_site_connection(self):
         with self.ipsec_site_connection() as ipsec_site_connection:
             data = {'ipsec_site_connection': {'mtu': '1300'}}
@@ -162,6 +165,7 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
             self.assertEqual(n_const.ACTIVE,
                     res['ipsec_site_connection']['status'])
 
+    @testtools.skip("bug/1528447")
     def test_update_ipsec_site_connection_error(self):
         self.client_mock.update_ipsec_site_conn.side_effect = Exception(
                 "Fake Error")
@@ -180,6 +184,7 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
             self.assertEqual(n_const.ERROR,
                     res['ipsec_site_connection']['status'])
 
+    @testtools.skip("bug/1528447")
     def test_delete_ipsec_site_connection(self):
         with self.ipsec_site_connection(name="site_conn2",
                 do_delete=False) as ipsec_site_connection:
@@ -190,6 +195,7 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
             res = req.get_response(self.ext_api)
             self.assertEqual(204, res.status_int)
 
+    @testtools.skip("bug/1528447")
     def test_delete_ipsec_site_connection_error(self):
         self.client_mock.delete_ipsec_site_conn.side_effect = Exception(
                 "Fake Error")
