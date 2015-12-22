@@ -12,9 +12,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from sqlalchemy.dialects import mysql
-from sqlalchemy import types
-
 from oslo_config import cfg
 
 from neutron.db.migration.alembic_migrations import external
@@ -62,15 +59,6 @@ class _TestModelsMigrationsMidonet(test_migrations._TestModelsMigrations):
     def get_metadata(self):
         return head.get_metadata()
 
-    def compare_type(self, ctxt, insp_col, meta_col, insp_type, meta_type):
-        # NOTE(yamamoto): A workaround for midonet_tasks.data,
-        # LONGTEXT() vs Text(length=16777216)
-        if (isinstance(insp_type, mysql.LONGTEXT) and
-            isinstance(meta_type, types.Text)):
-            return False
-        return super(_TestModelsMigrationsMidonet, self).compare_type(
-            ctxt, insp_col, meta_col, insp_type, meta_type)
-
     def include_object(self, object_, name, type_, reflected, compare_to):
         if type_ == 'table' and (name.startswith('alembic') or
                                  name == VERSION_TABLE or
@@ -83,4 +71,9 @@ class _TestModelsMigrationsMidonet(test_migrations._TestModelsMigrations):
 
 class TestModelsMigrationsMysql(_TestModelsMigrationsMidonet,
                                 base.MySQLTestCase):
+    pass
+
+
+class TestModelsMigrationsPostgresql(_TestModelsMigrationsMidonet,
+                                     base.PostgreSQLTestCase):
     pass
