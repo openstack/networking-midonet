@@ -41,9 +41,26 @@ FWAAS_TABLES = {
     'cisco_firewall_associations',
 }
 
+L2GW_TABLES = {
+    'l2gw_alembic_version',
+    'physical_locators',
+    'physical_switches',
+    'physical_ports',
+    'logical_switches',
+    'ucast_macs_locals',
+    'ucast_macs_remotes',
+    'vlan_bindings',
+    'l2gatewayconnections',
+    'l2gatewayinterfaces',
+    'l2gatewaydevices',
+    'l2gateways',
+    'pending_ucast_macs_remotes'
+}
+
 # EXTERNAL_TABLES should contain all names of tables that are not related to
 # current repo.
-EXTERNAL_TABLES = set(external.TABLES) | LBAAS_TABLES | FWAAS_TABLES
+EXTERNAL_TABLES = (set(external.TABLES) | LBAAS_TABLES | FWAAS_TABLES |
+                   L2GW_TABLES)
 VERSION_TABLE = 'alembic_version_midonet'
 
 

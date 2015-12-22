@@ -165,3 +165,9 @@ class MidonetApiClient(base.MidonetClientBase):
 
     def delete_gateway_device_postcommit(self, gw_dev_id):
         self.api_cli.delete_gateway_device(gw_dev_id)
+
+    def create_l2_gateway_connection(self, context, l2_gw_conn):
+        self.api_cli.create_l2gw_conn(l2_gw_conn)
+
+    def delete_l2_gateway_connection(self, context, l2_gw_conn_id):
+        self.api_cli.delete_l2gw_conn(l2_gw_conn_id)
