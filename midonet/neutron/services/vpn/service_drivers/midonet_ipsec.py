@@ -137,12 +137,13 @@ class MidonetIPsecVPNDriver(base_ipsec.BaseIPsecVPNDriver):
         ipsec_site_conn = self.service_plugin._get_ipsec_site_connection(
                 context, ipsec_site_conn_id)
         vpnservice = ipsec_site_conn.vpnservice
-        vpnservice.ipsec_site_connections = [ipsec_site_conn]
 
         local_cidr_map = self.service_plugin._build_local_subnet_cidr_map(
                     context)
         vpnservice_dict = self.make_vpnservice_dict(vpnservice, local_cidr_map)
-        ipsec_site_conn_dict = vpnservice_dict['ipsec_site_connections'][0]
+        ipsec_site_conn_dict = list(filter(
+                lambda conn: conn['id'] == ipsec_site_conn_id,
+                vpnservice_dict['ipsec_site_connections']))[0]
         del ipsec_site_conn_dict['vpnservice']
 
         return ipsec_site_conn_dict

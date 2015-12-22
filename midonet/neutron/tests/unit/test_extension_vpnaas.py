@@ -137,6 +137,32 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
             self.assertEqual(n_const.ACTIVE,
                 res['ipsec_site_connection']['status'])
 
+    def test_create_two_ipsec_site_connections_one_vpnservice(self):
+        with self.vpnservice() as vpnservice, \
+                self.ipsec_site_connection(vpnservice=vpnservice), \
+                self.ipsec_site_connection(vpnservice=vpnservice,
+                                           peer_address='192.168.1.11',
+                                           peer_id='192.168.1.11',
+                                           peer_cidrs=['10.0.11.0/24']):
+            # Check there are two ipsec site connections
+            req = self.new_list_request('ipsec-site-connections')
+            res = self.deserialize(self.fmt, req.get_response(self.ext_api))
+            self.assertTrue(len(res['ipsec_site_connections']) == 2)
+            self.assertNotEqual(res['ipsec_site_connections'][0]['id'],
+                                res['ipsec_site_connections'][1]['id'])
+
+            for ipsec_site_connection in res['ipsec_site_connections']:
+                # Check that the associated vpnservice is the correct one
+                req = self.new_show_request(
+                        'vpnservices', ipsec_site_connection['vpnservice_id'])
+                res = self.deserialize(self.fmt,
+                                       req.get_response(self.ext_api))
+                self.assertEqual(vpnservice['vpnservice']['id'],
+                                 res['vpnservice']['id'])
+
+                self.assertEqual(n_const.ACTIVE,
+                                 ipsec_site_connection['status'])
+
     def test_create_ipsec_site_connection_error_delete_neutron_resouce(self):
         self.client_mock.create_ipsec_site_conn.side_effect = Exception(
                 "Fake Error")
