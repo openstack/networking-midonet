@@ -21,3 +21,6 @@ MIDONET_NET_TYPES = [TYPE_MIDONET, TYPE_UPLINK]
 
 # Midonet VIF TYPE
 VIF_TYPE_MIDONET = 'midonet'
+
+# Neutron well-known service type constants:
+GATEWAY_DEVICE = "GATEWAY_DEVICE"

@@ -156,3 +156,12 @@ class MidonetApiClient(base.MidonetClientBase):
 
     def delete_ipsec_site_conn(self, context, ipsec_site_conn_id):
         self.api_cli.delete_ipsec_site_conn(ipsec_site_conn_id)
+
+    def create_gateway_device_postcommit(self, gw_dev):
+        self.api_cli.create_gateway_device(gw_dev)
+
+    def update_gateway_device_postcommit(self, gw_dev_id, gw_dev):
+        self.api_cli.update_gateway_device(gw_dev_id, gw_dev)
+
+    def delete_gateway_device_postcommit(self, gw_dev_id):
+        self.api_cli.delete_gateway_device(gw_dev_id)

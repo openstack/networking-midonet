@@ -15,6 +15,7 @@
 
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
+from midonet.neutron.db import l3_db_midonet
 from midonet.neutron import extensions
 
 from neutron.api import extensions as neutron_extensions
@@ -24,7 +25,6 @@ from neutron.db import extraroute_db
 from neutron.db import l3_db
 # Import l3_dvr_db to get the config options required for FWaaS
 from neutron.db import l3_dvr_db  # noqa
-from neutron.db import l3_gwmode_db
 from neutron import i18n
 from neutron.plugins.common import constants
 from oslo_config import cfg
@@ -39,7 +39,7 @@ _LW = i18n._LW
 
 class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
                              extraroute_db.ExtraRoute_db_mixin,
-                             l3_gwmode_db.L3_NAT_db_mixin):
+                             l3_db_midonet.MidonetL3DBMixin):
 
     """
     Implements L3 Router service plugin for Midonet.
@@ -96,6 +96,8 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
 
     @log_helpers.log_method_call
     def delete_router(self, context, id):
+        self._check_router_not_in_use(context, id)
+
         with context.session.begin(subtransactions=True):
             super(MidonetL3ServicePlugin, self).delete_router(context, id)
             self.client.delete_router_precommit(context, id)

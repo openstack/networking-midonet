@@ -1,0 +1,287 @@
+# Copyright (C) 2015 Midokura SARL
+# All Rights Reserved.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
+import abc
+
+from neutron.api import extensions
+from neutron.api.v2 import attributes as attr
+from neutron.api.v2 import base
+from neutron.api.v2 import resource_helper
+from neutron.common import exceptions as nexception
+from neutron import i18n
+from neutron import manager
+from oslo_log import log as logging
+import six
+
+
+class GatewayDeviceNotFound(nexception.NotFound):
+    message = _("Gateway device %(id)s does not exist")
+
+
+class RemoteMacEntryNotFound(nexception.NotFound):
+    message = _("Remote MAC entry %(id)s does not exist")
+
+
+class ResourceNotFound(nexception.NotFound):
+    message = _("specified resource %(resource_id)s does not exist")
+
+
+class HwVtepTypeInvalid(nexception.InvalidInput):
+    message = _("Gateway device %(type)s must be specified with "
+                "management_port and management_ip")
+
+
+class RouterVtepTypeInvalid(nexception.InvalidInput):
+    message = _("Gateway device %(type)s must be specified with "
+                "resource_id")
+
+
+class GatewayDeviceParamDuplicate(nexception.InUse):
+    message = _("%(param_name)s %(param_value)s %(reason)s")
+
+    def __init__(self, **kwargs):
+        if 'reason' not in kwargs:
+            kwargs['reason'] = "is already used"
+        super(GatewayDeviceParamDuplicate, self).__init__(**kwargs)
+
+
+class GatewayDeviceInUse(nexception.InUse):
+    message = _("Gateway device %(id)s %(reason)s")
+
+    def __init__(self, **kwargs):
+        if 'reason' not in kwargs:
+            kwargs['reason'] = "router still has ports"
+        super(GatewayDeviceInUse, self).__init__(**kwargs)
+
+
+class DeviceInUseByGatewayDevice(nexception.InUse):
+    message = _("device %(resource_id)s %(reason)s")
+
+    def __init__(self, **kwargs):
+        if 'reason' not in kwargs:
+            kwargs['reason'] = "is in use by gateway device"
+        super(DeviceInUseByGatewayDevice, self).__init__(**kwargs)
+
+
+class TunnelIPsExhausted(nexception.BadRequest):
+    message = _("Unable to complete operation for Gateway Device. "
+                "The number of tunnel ips exceeds the maximum 1.")
+
+
+GATEWAY_DEVICE = 'gateway_device'
+GATEWAY_DEVICES = '%ss' % GATEWAY_DEVICE
+
+HW_VTEP_TYPE = 'hw_vtep'
+ROUTER_DEVICE_TYPE = 'router_vtep'
+gateway_device_valid_types = [HW_VTEP_TYPE, ROUTER_DEVICE_TYPE]
+
+OVSDB = 'ovsdb'
+gateway_device_valid_protocols = [OVSDB]
+
+GATEWAY_DEVICE_PREFIX = '/gw'
+PLURAL_IES = 'ies'
+
+LOG = logging.getLogger(__name__)
+_LE = i18n._LE
+_LW = i18n._LW
+
+# Attribute Map
+RESOURCE_ATTRIBUTE_MAP = {
+    'gateway_devices': {
+        'id': {'allow_post': False, 'allow_put': False,
+               'validate': {'type:uuid': None},
+               'is_visible': True,
+               'primary_key': True},
+        'name': {'allow_post': True, 'allow_put': True,
+                 'validate': {'type:string': attr.NAME_MAX_LEN},
+                 'default': "",
+                 'is_visible': True},
+        'type': {'allow_post': True, 'allow_put': False,
+                 'validate': {'type:values': gateway_device_valid_types},
+                 'default': HW_VTEP_TYPE,
+                 'is_visible': True},
+        'tenant_id': {'allow_post': True, 'allow_put': False,
+                      'required_by_policy': True,
+                      'is_visible': True},
+        'management_ip': {'allow_post': True, 'allow_put': False,
+                          'default': None,
+                          'validate': {'type:ip_address_or_none': None},
+                          'is_visible': True},
+        'management_port': {'allow_post': True, 'allow_put': False,
+                            'validate': {'type:port_range': None},
+                            #'convert_to': convert_port_to_string,
+                            'default': None, 'is_visible': True},
+        'management_protocol': {'allow_post': True, 'allow_put': False,
+                                'is_visible': True, 'default': None},
+        'resource_id': {'allow_post': True, 'allow_put': False,
+                        'validate': {'type:string': attr.DEVICE_ID_MAX_LEN},
+                        'is_visible': True, 'required_by_policy': True,
+                        'default': ""},
+        'tunnel_ips': {'allow_post': True, 'allow_put': True,
+                       'is_visible': True, 'default': ''},
+        'remote_mac_entries': {'allow_post': False, 'allow_put': False,
+                               'default': None,
+                               'is_visible': True}
+    }
+}
+
+SUB_RESOURCE_ATTRIBUTE_MAP = {
+    'remote_mac_entries': {
+        'parent': {'collection_name': 'gateway_devices',
+                   'member_name': 'gateway_device'},
+        'parameters': {'id': {
+                           'allow_post': False, 'allow_put': False,
+                           'validate': {'type:uuid': None},
+                           'is_visible': True,
+                           'primary_key': True},
+                       'tenant_id': {
+                           'allow_post': True, 'allow_put': False,
+                           'required_by_policy': True,
+                           'is_visible': True},
+                       'vtep_address': {
+                           'allow_post': True, 'allow_put': False,
+                           'is_visible': True, 'default': None,
+                           'validate': {'type:ip_address': None}},
+                       'mac_address': {
+                           'allow_post': True, 'allow_put': False,
+                           'is_visible': True,
+                           'validate': {'type:mac_address': None}},
+                       'segmentation_id': {
+                           'allow_post': True, 'allow_put': False,
+                           'is_visible': True,
+                           'validate': {'type:non_negative': None}}}
+    }
+}
+
+
+class Gateway_device(extensions.ExtensionDescriptor):
+    """Gateway device extension."""
+
+    @classmethod
+    def get_name(cls):
+        return "Midonet Gateway Device Extension"
+
+    @classmethod
+    def get_alias(cls):
+        return "gateway-device"
+
+    @classmethod
+    def get_description(cls):
+        return "The gateway device extension."
+
+    @classmethod
+    def get_namespace(cls):
+        return "http://docs.openstack.org/ext/gateway_device/api/v2.0"
+
+    @classmethod
+    def get_updated(cls):
+        return "2015-11-11T10:00:00-00:00"
+
+    @classmethod
+    def get_resources(cls):
+        """Returns Ext Resources."""
+
+        plural_mappings = resource_helper.build_plural_mappings(
+            {}, RESOURCE_ATTRIBUTE_MAP)
+
+        attr.PLURALS.update(plural_mappings)
+        resources = resource_helper.build_resource_info(
+            plural_mappings,
+            RESOURCE_ATTRIBUTE_MAP,
+            'GATEWAY_DEVICE')
+        plugin = manager.NeutronManager.get_service_plugins()[
+            'GATEWAY_DEVICE']
+
+        for collection_name in SUB_RESOURCE_ATTRIBUTE_MAP:
+            # Special handling needed for sub-resources with 'y' ending
+            # (e.g. proxies -> proxy)
+            if collection_name[-3:] == PLURAL_IES:
+                resource_name = collection_name[:-3] + 'y'
+            else:
+                resource_name = collection_name[:-1]
+            parent = SUB_RESOURCE_ATTRIBUTE_MAP[collection_name].get('parent')
+            params = SUB_RESOURCE_ATTRIBUTE_MAP[collection_name].get(
+                'parameters')
+
+            controller = base.create_resource(collection_name, resource_name,
+                                              plugin, params,
+                                              allow_bulk=True,
+                                              parent=parent)
+
+            resource = extensions.ResourceExtension(
+                collection_name,
+                controller, parent,
+                path_prefix=GATEWAY_DEVICE_PREFIX,
+                attr_map=params)
+            resources.append(resource)
+
+        return resources
+
+    def get_extended_resources(self, version):
+        if version == "2.0":
+            return RESOURCE_ATTRIBUTE_MAP
+        else:
+            return {}
+
+
+@six.add_metaclass(abc.ABCMeta)
+class GwDevicePluginBase(object):
+
+    path_prefix = GATEWAY_DEVICE_PREFIX
+
+    @abc.abstractmethod
+    def create_gateway_device(self, context, gw_dev):
+        pass
+
+    @abc.abstractmethod
+    def update_gateway_device(self, context, id, gw_dev):
+        pass
+
+    @abc.abstractmethod
+    def delete_gateway_device(self, context, id):
+        pass
+
+    @abc.abstractmethod
+    def get_gateway_devices(self, context, filters=None, fields=None,
+                           sorts=None, limit=None, marker=None,
+                           page_reverse=False):
+        pass
+
+    @abc.abstractmethod
+    def get_gateway_device(self, context, id, fields=None):
+        pass
+
+    @abc.abstractmethod
+    def create_gateway_device_remote_mac_entry(self, context,
+                                               remote_mac_entry,
+                                               gateway_device_id):
+        pass
+
+    @abc.abstractmethod
+    def delete_gateway_device_remote_mac_entry(self, context,
+                                               id, gateway_device_id):
+        pass
+
+    @abc.abstractmethod
+    def get_gateway_device_remote_mac_entries(self, context, gateway_device_id,
+                                              filters=None, fields=None,
+                                              sorts=None, limit=None,
+                                              marker=None, page_reverse=False):
+        pass
+
+    @abc.abstractmethod
+    def get_gateway_device_remote_mac_entry(self, context, id,
+                                            gateway_device_id, fields=None):
+        pass
