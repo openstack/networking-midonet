@@ -56,3 +56,32 @@ function neutron_plugin_configure_dhcp_agent {
     iniset $Q_DHCP_CONF_FILE DEFAULT use_namespaces True
     iniset $Q_DHCP_CONF_FILE DEFAULT enable_isolated_metadata True
 }
+
+# Override this function so that VPN Agent is disabled.
+AGENT_VPN_BINARY="/bin/true"
+function neutron_vpn_stop {
+    local service=q-vpn
+
+    # The file $service.pid records the process id of AGENT_VPN_BINARY though
+    # its process will end soon. Delete the file here so that stop_process
+    # doesn't kill an unintended process.
+    rm -f $SERVICE_DIR/$SCREEN_NAME/$service.pid
+
+    stop_process $service
+}
+
+# Override this function to stop installing ipsec package here.
+function neutron_vpn_install_agent_packages {
+    :
+}
+
+# Override this function so that MidonetIPsecVPNDriver is activated.
+function neutron_vpn_configure_common {
+    VPNAAS_CONF_FILENAME=$NEUTRON_CONF_DIR/neutron_vpnaas.conf
+    VPNAAS_SERVICE_PROVIDER="VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default"
+
+    _neutron_service_plugin_class_add $VPN_PLUGIN
+    _neutron_deploy_rootwrap_filters $NEUTRON_VPNAAS_DIR
+    inicomment $VPNAAS_CONF_FILENAME service_providers service_provider
+    iniadd $VPNAAS_CONF_FILENAME service_providers service_provider $VPNAAS_SERVICE_PROVIDER
+}

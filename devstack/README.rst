@@ -116,3 +116,14 @@ To configure MidoNet as the LBaaS driver when running devstack, make sure the
 following is defined in ``local.conf``::
 
     NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default"
+
+
+VPNaaS
+------
+
+Starting v5.1, MidoNet implements Neutron VPNaaS extension API.
+This devstack plugin sets Midonet as the VPNaaS driver when the q-vpn service is
+enabled in ``local.conf``.
+
+NOTE: Currently, this devstack plugin doesn't install ipsec package "libreswan".
+Please install it manually.
