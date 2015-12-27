@@ -117,7 +117,7 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
     def create_gateway_device_remote_mac_entry(self, context,
                                                remote_mac_entry,
                                                gateway_device_id):
-        self._check_gateway_device_exists(context, gateway_device_id)
+        self._get_gateway_device(context, gateway_device_id)
         with context.session.begin(subtransactions=True):
             rme = super(MidonetGwDeviceServicePlugin,
                 self).create_gateway_device_remote_mac_entry(
@@ -146,7 +146,7 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
 
     def delete_gateway_device_remote_mac_entry(self, context, id,
                                                gateway_device_id):
-        self._check_gateway_device_exists(context, gateway_device_id)
+        self._get_gateway_device(context, gateway_device_id)
         with context.session.begin(subtransactions=True):
             super(MidonetGwDeviceServicePlugin,
                 self).delete_gateway_device_remote_mac_entry(

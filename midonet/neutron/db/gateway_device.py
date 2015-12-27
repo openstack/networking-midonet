@@ -132,9 +132,6 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
         except l3.RouterInUse:
             raise gateway_device.GatewayDeviceInUse(id=gw_dev['id'])
 
-    def _check_gateway_device_exists(self, context, gateway_device_id):
-        self._get_gateway_device(context, gateway_device_id)
-
     def _ensure_gateway_device_not_in_use(self, context, gw_dev_id):
         """Ensure that resource is not in use.
            Checking logic is different from gateway device type
