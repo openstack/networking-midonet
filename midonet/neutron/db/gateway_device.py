@@ -23,6 +23,7 @@ from neutron.db import model_base
 from neutron.extensions import l3
 from neutron import manager
 from neutron.plugins.common import constants as service_constants
+from oslo_db import exception as db_exc
 from oslo_utils import uuidutils
 
 import sqlalchemy as sa
@@ -279,18 +280,6 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
         if gw_dev['type'] == gateway_device.ROUTER_DEVICE_TYPE:
             self._validate_router_vtep(gw_dev, context)
 
-    def _validate_remote_mac_entry(self, context, rme, gateway_device_id):
-        gw_dev_db = self._get_gateway_device(context, gateway_device_id)
-        for item in gw_dev_db.mac_table_list:
-            if item['mac_address'] == rme['mac_address']:
-                raise gateway_device.GatewayDeviceParamDuplicate(
-                    param_name='mac_address',
-                    param_value=rme['mac_address'])
-            if item['vtep_address'] == rme['vtep_address']:
-                raise gateway_device.GatewayDeviceParamDuplicate(
-                    param_name='vtep_address',
-                    param_value=rme['vtep_address'])
-
     def _validate_hw_vtep(self, gw_dev, context):
         if not gw_dev['management_ip'] or not gw_dev['management_port']:
             raise gateway_device.HwVtepTypeInvalid(type=gw_dev['type'])
@@ -362,16 +351,20 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
                                                remote_mac_entry,
                                                gateway_device_id):
         rme = remote_mac_entry['remote_mac_entry']
-        self._validate_remote_mac_entry(context, rme, gateway_device_id)
 
-        with context.session.begin(subtransactions=True):
-            gw_rmt_db = GatewayRemoteMacTable(
-                id=uuidutils.generate_uuid(),
-                device_id=gateway_device_id,
+        try:
+            with context.session.begin(subtransactions=True):
+                gw_rmt_db = GatewayRemoteMacTable(
+                    id=uuidutils.generate_uuid(),
+                    device_id=gateway_device_id,
+                    mac_address=rme['mac_address'],
+                    segmentation_id=rme['segmentation_id'],
+                    vtep_address=rme['vtep_address'])
+                context.session.add(gw_rmt_db)
+        except db_exc.DBDuplicateEntry:
+            raise gateway_device.DuplicateRemoteMacEntry(
                 mac_address=rme['mac_address'],
-                segmentation_id=rme['segmentation_id'],
                 vtep_address=rme['vtep_address'])
-            context.session.add(gw_rmt_db)
 
         return self._make_remote_mac_dict(gw_rmt_db)
 
