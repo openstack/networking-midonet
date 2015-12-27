@@ -53,14 +53,14 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
 
     def get_plugin_description(self):
         """Returns string description of the plugin."""
-        return ("Midonet Gateway Device Service Plugin")
+        return "Midonet Gateway Device Service Plugin"
 
     @log_helpers.log_method_call
     def create_gateway_device(self, context, gateway_device):
 
         with context.session.begin(subtransactions=True):
             gw = super(MidonetGwDeviceServicePlugin,
-                self).create_gateway_device(context, gateway_device)
+                       self).create_gateway_device(context, gateway_device)
             self.client.create_gateway_device_precommit(context, gw)
 
         try:
@@ -68,13 +68,13 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
         except Exception as ex:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Failed to create a gateway "
-                              "device %(gw_id)s in Midonet:"
-                             "%(err)s"), {"gw_id": gw["id"], "err": ex})
+                              "device %(gw_id)s in Midonet: %(err)s"),
+                          {"gw_id": gw["id"], "err": ex})
                 try:
                     self.delete_gateway_device(context, gw['id'])
                 except Exception:
-                    LOG.exception(_LE("Failed to delete a "
-                                      "gateway device %s"), gw["id"])
+                    LOG.exception(_LE("Failed to delete a gateway device %s"),
+                                  gw["id"])
         return gw
 
     @log_helpers.log_method_call
@@ -86,7 +86,7 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
         backup_body = {'gateway_device': backup}
         with context.session.begin(subtransactions=True):
             gw = super(MidonetGwDeviceServicePlugin,
-                self).update_gateway_device(context, id, gateway_device)
+                       self).update_gateway_device(context, id, gateway_device)
             self.client.update_gateway_device_precommit(context, id, gw)
 
         if rollback:
@@ -109,7 +109,7 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
     def delete_gateway_device(self, context, id):
         with context.session.begin(subtransactions=True):
             super(MidonetGwDeviceServicePlugin,
-                self).delete_gateway_device(context, id)
+                  self).delete_gateway_device(context, id)
             self.client.delete_gateway_device_precommit(context, id)
 
         self.client.delete_gateway_device_postcommit(id)
@@ -121,7 +121,7 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
         self._get_gateway_device(context, gateway_device_id)
         with context.session.begin(subtransactions=True):
             rme = super(MidonetGwDeviceServicePlugin,
-                self).create_gateway_device_remote_mac_entry(
+                        self).create_gateway_device_remote_mac_entry(
                 context, gateway_device_id, remote_mac_entry)
             gw_dev = self.get_gateway_device(context, gateway_device_id)
             self.client.update_gateway_device_precommit(
@@ -133,9 +133,9 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
         except Exception as ex:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Failed to create a remote mac entry "
-                    "%(rme_id)s for %(gw_id)s in Midonet:%(err)s"),
-                    {"rme_id": rme["id"],
-                     "gw_id": gateway_device_id, "err": ex})
+                              "%(rme_id)s for %(gw_id)s in Midonet:%(err)s"),
+                          {"rme_id": rme["id"], "gw_id": gateway_device_id,
+                           "err": ex})
                 try:
                     self.delete_gateway_device_remote_mac_entry(
                         context, rme["id"], gateway_device_id)
@@ -151,11 +151,11 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
         self._get_gateway_device(context, gateway_device_id)
         with context.session.begin(subtransactions=True):
             super(MidonetGwDeviceServicePlugin,
-                self).delete_gateway_device_remote_mac_entry(
-                    context, id, gateway_device_id)
+                  self).delete_gateway_device_remote_mac_entry(
+                context, id, gateway_device_id)
             gw_dev = self.get_gateway_device(context, gateway_device_id)
-            self.client.update_gateway_device_precommit(
-                context, gateway_device_id, gw_dev)
+            self.client.update_gateway_device_precommit(context,
+                                                        gateway_device_id,
+                                                        gw_dev)
 
-        self.client.update_gateway_device_postcommit(
-            gateway_device_id, gw_dev)
+        self.client.update_gateway_device_postcommit(gateway_device_id, gw_dev)
