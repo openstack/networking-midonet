@@ -135,7 +135,8 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
                           {"rme_id": rme["id"], "gw_id": gateway_device_id,
                            "err": ex})
                 try:
-                    self.delete_gateway_device_remote_mac_entry(
+                    super(MidonetGwDeviceServicePlugin,
+                          self).delete_gateway_device_remote_mac_entry(
                         context, rme["id"], gateway_device_id)
                 except Exception:
                     LOG.exception(_LE("Failed to delete a "
