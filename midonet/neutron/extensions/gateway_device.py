@@ -147,10 +147,6 @@ SUB_RESOURCE_ATTRIBUTE_MAP = {
             'validate': {'type:uuid': None},
             'is_visible': True,
             'primary_key': True},
-            'tenant_id': {
-                'allow_post': True, 'allow_put': False,
-                'required_by_policy': True,
-                'is_visible': True},
             'vtep_address': {
                 'allow_post': True, 'allow_put': False,
                 'is_visible': True, 'default': None,

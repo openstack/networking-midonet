@@ -165,8 +165,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                                  segmentation_id=FAKE_SEG_ID):
         data = {'remote_mac_entry': {'mac_address': mac_address,
                                      'vtep_address': vtep_address,
-                                     'segmentation_id': segmentation_id,
-                                     'tenant_id': FAKE_TENANT_ID}}
+                                     'segmentation_id': segmentation_id}}
         gw_dev_mac_req = self.new_create_request('gw/gateway_devices/'
                                                  + gw_dev_id
                                                  + '/remote_mac_entries',
