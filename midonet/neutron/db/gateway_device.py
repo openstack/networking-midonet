@@ -103,7 +103,7 @@ class GatewayRemoteMacTable(model_base.BASEV2):
     device_id = sa.Column(sa.String(36),
                           sa.ForeignKey('midonet_gateway_devices.id',
                           ondelete="CASCADE"),
-                          nullable=False, primary_key=True)
+                          nullable=False)
     mac_address = sa.Column(sa.String(length=32), nullable=False,
                             unique=True)
     vtep_address = sa.Column(sa.String(length=64), nullable=False,
