@@ -232,7 +232,8 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
         res = {'id': gw_rme_db['id'],
                'mac_address': gw_rme_db['mac_address'],
                'vtep_address': gw_rme_db['vtep_address'],
-               'segmentation_id': gw_rme_db['segmentation_id']}
+               'segmentation_id': gw_rme_db['segmentation_id'],
+               'device_id': gw_rme_db['device_id']}
         return self._fields(res, fields)
 
     def _tunnel_ip_db_add(self, context, gw_dev_id, add_ips):

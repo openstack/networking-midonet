@@ -282,8 +282,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                          [FAKE_TUNNEL_IP])
 
     def test_create_remote_mac_entry_error_delete_neutron_resource(self):
-        self.client_mock.update_gateway_device_postcommit.side_effect = (
-            Exception("Fake Error"))
+        (self.client_mock.create_gateway_device_remote_mac_entry_postcommit.
+         side_effect) = Exception("Fake Error")
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
             try:
@@ -314,11 +314,11 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             self.assertFalse(res['gateway_devices'])
 
     def test_delete_remote_mac_entry_error_delete_neutron_resource(self):
+        (self.client_mock.delete_gateway_device_remote_mac_entry_postcommit.
+         side_effect) = Exception("Fake Error")
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
             with self.remote_mac_entry(gw_dev['gateway_device']['id']) as rme:
-                (self.client_mock.update_gateway_device_postcommit.
-                 side_effect) = Exception("Fake Error")
                 req = self.new_delete_request('gw/gateway_devices/'
                                               + gw_dev['gateway_device']['id']
                                               + '/remote_mac_entries',

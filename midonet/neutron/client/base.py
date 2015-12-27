@@ -308,6 +308,20 @@ class MidonetClientBase(object):
     def delete_gateway_device_postcommit(self, gw_dev_id):
         pass
 
+    def create_gateway_device_remote_mac_entry_precommit(self, context,
+                                                         mac_entry):
+        pass
+
+    def create_gateway_device_remote_mac_entry_postcommit(self, mac_entry):
+        pass
+
+    def delete_gateway_device_remote_mac_entry_precommit(self, context,
+                                                         mac_entry_id):
+        pass
+
+    def delete_gateway_device_remote_mac_entry_postcommit(self, mac_entry_id):
+        pass
+
     # L2 Gateway extensions
 
     def create_l2_gateway_connection(self, context, l2_gw_conn):

@@ -123,13 +123,11 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
             rme = super(MidonetGwDeviceServicePlugin,
                         self).create_gateway_device_remote_mac_entry(
                 context, gateway_device_id, remote_mac_entry)
-            gw_dev = self.get_gateway_device(context, gateway_device_id)
-            self.client.update_gateway_device_precommit(
-                context, gateway_device_id, gw_dev)
+            self.client.create_gateway_device_remote_mac_entry_precommit(
+                context, rme)
 
         try:
-            self.client.update_gateway_device_postcommit(gateway_device_id,
-                                                         gw_dev)
+            self.client.create_gateway_device_remote_mac_entry_postcommit(rme)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Failed to create a remote mac entry "
@@ -153,9 +151,7 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
             super(MidonetGwDeviceServicePlugin,
                   self).delete_gateway_device_remote_mac_entry(
                 context, id, gateway_device_id)
-            gw_dev = self.get_gateway_device(context, gateway_device_id)
-            self.client.update_gateway_device_precommit(context,
-                                                        gateway_device_id,
-                                                        gw_dev)
+            self.client.delete_gateway_device_remote_mac_entry_precommit(
+                context, id)
 
-        self.client.update_gateway_device_postcommit(gateway_device_id, gw_dev)
+        self.client.delete_gateway_device_remote_mac_entry_postcommit(id)
