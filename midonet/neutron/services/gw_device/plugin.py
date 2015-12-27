@@ -114,6 +114,7 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
 
         self.client.delete_gateway_device_postcommit(id)
 
+    @log_helpers.log_method_call
     def create_gateway_device_remote_mac_entry(self, context,
                                                remote_mac_entry,
                                                gateway_device_id):
@@ -144,6 +145,7 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
 
         return rme
 
+    @log_helpers.log_method_call
     def delete_gateway_device_remote_mac_entry(self, context, id,
                                                gateway_device_id):
         self._get_gateway_device(context, gateway_device_id)
