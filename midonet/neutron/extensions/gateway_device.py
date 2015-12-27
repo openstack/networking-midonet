@@ -267,8 +267,8 @@ class GwDevicePluginBase(object):
 
     @abc.abstractmethod
     def create_gateway_device_remote_mac_entry(self, context,
-                                               remote_mac_entry,
-                                               gateway_device_id):
+                                               gateway_device_id,
+                                               remote_mac_entry):
         pass
 
     @abc.abstractmethod

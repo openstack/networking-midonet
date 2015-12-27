@@ -121,7 +121,7 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
         with context.session.begin(subtransactions=True):
             rme = super(MidonetGwDeviceServicePlugin,
                 self).create_gateway_device_remote_mac_entry(
-                context, remote_mac_entry, gateway_device_id)
+                context, gateway_device_id, remote_mac_entry)
             gw_dev = self.get_gateway_device(context, gateway_device_id)
             self.client.update_gateway_device_precommit(
                 context, gateway_device_id, gw_dev)

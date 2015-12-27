@@ -348,8 +348,8 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
         return self._make_gateway_device_dict(gw_dev_db)
 
     def create_gateway_device_remote_mac_entry(self, context,
-                                               remote_mac_entry,
-                                               gateway_device_id):
+                                               gateway_device_id,
+                                               remote_mac_entry):
         rme = remote_mac_entry['remote_mac_entry']
 
         try:
