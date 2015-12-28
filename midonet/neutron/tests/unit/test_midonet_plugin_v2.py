@@ -32,6 +32,7 @@ from midonet.neutron.db import port_binding_db  # noqa
 from midonet.neutron.db import provider_network_db  # noqa
 from midonet.neutron.db import task_db  # noqa
 from midonet.neutron.tests.unit import test_midonet_plugin as test_mn_plugin
+from networking_l2gw.db.l2gateway import l2gateway_models  # noqa
 from neutron import context
 from neutron.db import api as db_api
 from neutron.extensions import portbindings

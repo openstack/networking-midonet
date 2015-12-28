@@ -307,3 +307,11 @@ class MidonetClientBase(object):
 
     def delete_gateway_device_postcommit(self, gw_dev_id):
         pass
+
+    # L2 Gateway extensions
+
+    def create_l2_gateway_connection(self, context, l2_gw_conn):
+        pass
+
+    def delete_l2_gateway_connection(self, context, l2_gw_conn_id):
+        pass
