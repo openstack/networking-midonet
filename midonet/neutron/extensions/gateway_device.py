@@ -15,6 +15,7 @@
 
 import abc
 
+from midonet.neutron.common import constants
 from neutron.api import extensions
 from neutron.api.v2 import attributes as attr
 from neutron.api.v2 import base
@@ -142,26 +143,26 @@ SUB_RESOURCE_ATTRIBUTE_MAP = {
         'parent': {'collection_name': 'gateway_devices',
                    'member_name': 'gateway_device'},
         'parameters': {'id': {
-                           'allow_post': False, 'allow_put': False,
-                           'validate': {'type:uuid': None},
-                           'is_visible': True,
-                           'primary_key': True},
-                       'tenant_id': {
-                           'allow_post': True, 'allow_put': False,
-                           'required_by_policy': True,
-                           'is_visible': True},
-                       'vtep_address': {
-                           'allow_post': True, 'allow_put': False,
-                           'is_visible': True, 'default': None,
-                           'validate': {'type:ip_address': None}},
-                       'mac_address': {
-                           'allow_post': True, 'allow_put': False,
-                           'is_visible': True,
-                           'validate': {'type:mac_address': None}},
-                       'segmentation_id': {
-                           'allow_post': True, 'allow_put': False,
-                           'is_visible': True,
-                           'validate': {'type:non_negative': None}}}
+            'allow_post': False, 'allow_put': False,
+            'validate': {'type:uuid': None},
+            'is_visible': True,
+            'primary_key': True},
+            'tenant_id': {
+                'allow_post': True, 'allow_put': False,
+                'required_by_policy': True,
+                'is_visible': True},
+            'vtep_address': {
+                'allow_post': True, 'allow_put': False,
+                'is_visible': True, 'default': None,
+                'validate': {'type:ip_address': None}},
+            'mac_address': {
+                'allow_post': True, 'allow_put': False,
+                'is_visible': True,
+                'validate': {'type:mac_address': None}},
+            'segmentation_id': {
+                'allow_post': True, 'allow_put': False,
+                'is_visible': True,
+                'validate': {'type:non_negative': None}}}
     }
 }
 
@@ -200,9 +201,9 @@ class Gateway_device(extensions.ExtensionDescriptor):
         resources = resource_helper.build_resource_info(
             plural_mappings,
             RESOURCE_ATTRIBUTE_MAP,
-            'GATEWAY_DEVICE')
+            constants.GATEWAY_DEVICE)
         plugin = manager.NeutronManager.get_service_plugins()[
-            'GATEWAY_DEVICE']
+            constants.GATEWAY_DEVICE]
 
         for collection_name in SUB_RESOURCE_ATTRIBUTE_MAP:
             # Special handling needed for sub-resources with 'y' ending
