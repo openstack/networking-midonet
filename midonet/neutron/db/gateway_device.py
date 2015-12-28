@@ -121,127 +121,30 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
 
     __native_bulk_support = False
 
-    def create_gateway_device(self, context, gw_device):
-        """Create a gateway device"""
-        gw_dev = gw_device['gateway_device']
-        tenant_id = self._get_tenant_id_for_create(context, gw_dev)
-        self._validate_gateway_device(context, gw_dev)
-        self._validate_tunnel_ips(gw_dev.get('tunnel_ips') or [])
+    def _check_for_router(self, context, gw_dev_id):
+        l3plugin = manager.NeutronManager.get_service_plugins().get(
+            service_constants.L3_ROUTER_NAT)
 
-        with context.session.begin(subtransactions=True):
-            gw_dev_db = GatewayDevice(id=uuidutils.generate_uuid(),
-                name=gw_dev['name'],
-                type=(gw_dev['type'] or gateway_device.HW_VTEP_TYPE),
-                tenant_id=tenant_id)
-            context.session.add(gw_dev_db)
-            if gw_dev_db['type'] == gateway_device.HW_VTEP_TYPE:
-                gw_hw_vtep_db = GatewayHwVtepDevice(
-                    device_id=gw_dev_db['id'],
-                    management_ip=gw_dev['management_ip'],
-                    management_port=gw_dev['management_port'],
-                    management_protocol=(
-                        gw_dev['management_protocol'] or gateway_device.OVSDB))
-                context.session.add(gw_hw_vtep_db)
+        try:
+            gw_dev = self.get_gateway_device(context, gw_dev_id)
+            l3plugin._ensure_router_not_in_use(context, gw_dev['resource_id'])
+        except l3.RouterInUse:
+            raise gateway_device.GatewayDeviceInUse(id=gw_dev['id'])
 
-            if gw_dev_db['type'] == gateway_device.ROUTER_DEVICE_TYPE:
-                gw_router_db = GatewayOverlayRouterDevice(
-                    device_id=gw_dev_db['id'],
-                    resource_id=gw_dev['resource_id'])
-                context.session.add(gw_router_db)
+    def _check_gateway_device_exists(self, context, gateway_device_id):
+        self._get_gateway_device(context, gateway_device_id)
 
-            if gw_dev.get('tunnel_ips'):
-                self._tunnel_ip_db_add(context,
-                                       gw_dev_db['id'], gw_dev['tunnel_ips'])
+    def _ensure_gateway_device_not_in_use(self, context, gw_dev_id):
+        """Ensure that resource is not in use.
+           Checking logic is different from gateway device type
+           router: there are any interfaces or not.
+           hw_vtep: NOP
+        """
+        gw_dev = self._get_gateway_device(context, gw_dev_id)
+        if gw_dev['type'] == gateway_device.ROUTER_DEVICE_TYPE:
+            self._check_for_router(context, gw_dev_id)
 
-        return self._make_gateway_device_dict(gw_dev_db)
-
-    def update_gateway_device(self, context, id, gw_device):
-        gw_dev = gw_device['gateway_device']
-        self._validate_tunnel_ips(gw_dev.get('tunnel_ips') or [])
-        gw_dev_db = self._update_gateway_device_db(context, id, gw_dev)
-        return self._make_gateway_device_dict(gw_dev_db)
-
-    def delete_gateway_device(self, context, id):
-        gw_dev = self._ensure_gateway_device_not_in_use(context, id)
-        with context.session.begin(subtransactions=True):
-            context.session.delete(gw_dev)
-
-    def get_gateway_device(self, context, id, fields=None):
-        gw_dev = self._get_gateway_device(context, id)
-        return self._make_gateway_device_dict(gw_dev, fields)
-
-    def get_gateway_devices(self, context, filters=None, fields=None,
-                            sorts=None, limit=None, marker=None,
-                            page_reverse=False):
-        marker_obj = self._get_marker_obj(context, 'gateway_device', limit,
-                                          marker)
-
-        return self._get_collection(context,
-                                    GatewayDevice,
-                                    self._make_gateway_device_dict,
-                                    filters=filters, fields=fields,
-                                    sorts=sorts,
-                                    limit=limit, marker_obj=marker_obj,
-                                    page_reverse=page_reverse)
-
-    def create_gateway_device_remote_mac_entry(self, context,
-                                               remote_mac_entry,
-                                               gateway_device_id):
-        rme = remote_mac_entry['remote_mac_entry']
-        self._get_tenant_id_for_create(context, rme)
-        self._validate_remote_mac_entry(context, rme, gateway_device_id)
-
-        with context.session.begin(subtransactions=True):
-            gw_rmt_db = GatewayRemoteMacTable(
-                id=uuidutils.generate_uuid(),
-                device_id=gateway_device_id,
-                mac_address=rme['mac_address'],
-                segmentation_id=rme['segmentation_id'],
-                vtep_address=rme['vtep_address'])
-            context.session.add(gw_rmt_db)
-
-        return self._make_remote_mac_dict(gw_rmt_db)
-
-    def _validate_remote_mac_entry(self, context, rme, gateway_device_id):
-        gw_dev_db = self._get_gateway_device(context, gateway_device_id)
-        for item in gw_dev_db.mac_table_list:
-            if item['mac_address'] == rme['mac_address']:
-                raise gateway_device.GatewayDeviceParamDuplicate(
-                    param_name='mac_address',
-                    param_value=rme['mac_address'])
-            if item['vtep_address'] == rme['vtep_address']:
-                raise gateway_device.GatewayDeviceParamDuplicate(
-                    param_name='vtep_address',
-                    param_value=rme['vtep_address'])
-
-    def delete_gateway_device_remote_mac_entry(self,
-                                               context, id, gateway_device_id):
-        self._check_gateway_device_exists(context, gateway_device_id)
-        rmt_db = self._get_remote_mac_entry(context, id)
-        with context.session.begin(subtransactions=True):
-            context.session.delete(rmt_db)
-
-    def get_gateway_device_remote_mac_entries(self, context, gateway_device_id,
-                                              filters=None, fields=None,
-                                              sorts=None, limit=None,
-                                              marker=None, page_reverse=False):
-        self._check_gateway_device_exists(context, gateway_device_id)
-        marker_obj = self._get_marker_obj(context, 'remote_mac_entry', limit,
-                                          marker)
-
-        return self._get_collection(context,
-                                    GatewayRemoteMacTable,
-                                    self._make_remote_mac_dict,
-                                    filters=filters, fields=fields,
-                                    sorts=sorts,
-                                    limit=limit, marker_obj=marker_obj,
-                                    page_reverse=page_reverse)
-
-    def get_gateway_device_remote_mac_entry(self, context, id,
-                                            gateway_device_id, fields=None):
-        self._check_gateway_device_exists(context, gateway_device_id)
-        rme = self._get_remote_mac_entry(context, id)
-        return self._make_remote_mac_dict(rme, fields)
+        return gw_dev
 
     def _get_gateway_device(self, context, id):
         try:
@@ -252,16 +155,6 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
             raise gateway_device.GatewayDeviceNotFound(id=id)
 
         return gw_dev_db
-
-    def _get_remote_mac_entry(self, context, id):
-        try:
-            query = self._model_query(context, GatewayRemoteMacTable)
-            rmt_db = query.filter(GatewayRemoteMacTable.id == id).one()
-
-        except exc.NoResultFound:
-            raise gateway_device.RemoteMacEntryNotFound(id=id)
-
-        return rmt_db
 
     def _get_gateway_device_from_router(self, context, router_id):
         try:
@@ -287,9 +180,18 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
         else:
             return gw_hw_vtep_db
 
+    def _get_remote_mac_entry(self, context, id):
+        try:
+            query = self._model_query(context, GatewayRemoteMacTable)
+            rmt_db = query.filter(GatewayRemoteMacTable.id == id).one()
+
+        except exc.NoResultFound:
+            raise gateway_device.RemoteMacEntryNotFound(id=id)
+
+        return rmt_db
+
     def _get_tunnel_ip_from_ip_address(self, context, ip):
         try:
-
             query = self._model_query(context, GatewayTunnelIp)
             gw_tun_ip_db = query.filter(
                 GatewayTunnelIp.tunnel_ip == ip).one()
@@ -335,6 +237,18 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
                'segmentation_id': gw_rme_db['segmentation_id']}
         return self._fields(res, fields)
 
+    def _tunnel_ip_db_add(self, context, gw_dev_id, add_ips):
+        for ip in add_ips:
+            tun_ip_db = GatewayTunnelIp(
+                device_id=gw_dev_id,
+                tunnel_ip=ip)
+            context.session.add(tun_ip_db)
+
+    def _tunnel_ip_db_delete(self, context, gw_dev_id, delete_ips):
+        for ip in delete_ips:
+            tun_ip_db = self._get_tunnel_ip_from_ip_address(context, ip)
+            context.session.delete(tun_ip_db)
+
     def _update_gateway_device_db(self, context, gw_dev_id, data):
         """Update the DB object.
            following parameter can be updated.
@@ -359,29 +273,23 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
 
         return gw_dev_db
 
-    def _tunnel_ip_db_add(self, context, gw_dev_id, add_ips):
-        for ip in add_ips:
-            tun_ip_db = GatewayTunnelIp(
-                device_id=gw_dev_id,
-                tunnel_ip=ip)
-            context.session.add(tun_ip_db)
-
-    def _tunnel_ip_db_delete(self, context, gw_dev_id, delete_ips):
-        for ip in delete_ips:
-            tun_ip_db = self._get_tunnel_ip_from_ip_address(context, ip)
-            context.session.delete(tun_ip_db)
-
     def _validate_gateway_device(self, context, gw_dev):
         if gw_dev['type'] == gateway_device.HW_VTEP_TYPE:
             self._validate_hw_vtep(gw_dev, context)
         if gw_dev['type'] == gateway_device.ROUTER_DEVICE_TYPE:
             self._validate_router_vtep(gw_dev, context)
 
-    def _validate_router_vtep(self, gw_dev, context):
-        if not gw_dev['resource_id']:
-            raise gateway_device.RouterVtepTypeInvalid(type=gw_dev['type'])
-        self._validate_resource_router_vtep(context,
-                                            gw_dev['resource_id'])
+    def _validate_remote_mac_entry(self, context, rme, gateway_device_id):
+        gw_dev_db = self._get_gateway_device(context, gateway_device_id)
+        for item in gw_dev_db.mac_table_list:
+            if item['mac_address'] == rme['mac_address']:
+                raise gateway_device.GatewayDeviceParamDuplicate(
+                    param_name='mac_address',
+                    param_value=rme['mac_address'])
+            if item['vtep_address'] == rme['vtep_address']:
+                raise gateway_device.GatewayDeviceParamDuplicate(
+                    param_name='vtep_address',
+                    param_value=rme['vtep_address'])
 
     def _validate_hw_vtep(self, gw_dev, context):
         if not gw_dev['management_ip'] or not gw_dev['management_port']:
@@ -406,34 +314,120 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
             raise gateway_device.DeviceInUseByGatewayDevice(
                 resource_id=router_id)
 
+    def _validate_router_vtep(self, gw_dev, context):
+        if not gw_dev['resource_id']:
+            raise gateway_device.RouterVtepTypeInvalid(type=gw_dev['type'])
+        self._validate_resource_router_vtep(context,
+                                            gw_dev['resource_id'])
+
     def _validate_tunnel_ips(self, tunnel_ips):
         if len(tunnel_ips) > 1:
             raise gateway_device.TunnelIPsExhausted()
 
-    def _ensure_gateway_device_not_in_use(self, context, gw_dev_id):
-        """Ensure that resource is not in use.
-           Checking logic is different from gateway device type
-           router: there are any interfaces or not.
-           hw_vtep: NOP
-        """
-        gw_dev = self._get_gateway_device(context, gw_dev_id)
-        if gw_dev['type'] == gateway_device.ROUTER_DEVICE_TYPE:
-            self._check_for_router(context, gw_dev_id)
+    def create_gateway_device(self, context, gw_device):
+        """Create a gateway device"""
+        gw_dev = gw_device['gateway_device']
+        tenant_id = self._get_tenant_id_for_create(context, gw_dev)
+        self._validate_gateway_device(context, gw_dev)
+        self._validate_tunnel_ips(gw_dev.get('tunnel_ips') or [])
 
-        return gw_dev
+        with context.session.begin(subtransactions=True):
+            gw_dev_db = GatewayDevice(id=uuidutils.generate_uuid(),
+                name=gw_dev['name'],
+                type=(gw_dev['type'] or gateway_device.HW_VTEP_TYPE),
+                tenant_id=tenant_id)
+            context.session.add(gw_dev_db)
+            if gw_dev_db['type'] == gateway_device.HW_VTEP_TYPE:
+                gw_hw_vtep_db = GatewayHwVtepDevice(
+                    device_id=gw_dev_db['id'],
+                    management_ip=gw_dev['management_ip'],
+                    management_port=gw_dev['management_port'],
+                    management_protocol=(
+                        gw_dev['management_protocol'] or gateway_device.OVSDB))
+                context.session.add(gw_hw_vtep_db)
 
-    def _check_for_router(self, context, gw_dev_id):
-        l3plugin = manager.NeutronManager.get_service_plugins().get(
-            service_constants.L3_ROUTER_NAT)
+            if gw_dev_db['type'] == gateway_device.ROUTER_DEVICE_TYPE:
+                gw_router_db = GatewayOverlayRouterDevice(
+                    device_id=gw_dev_db['id'],
+                    resource_id=gw_dev['resource_id'])
+                context.session.add(gw_router_db)
 
-        try:
-            gw_dev = self.get_gateway_device(context, gw_dev_id)
-            l3plugin._ensure_router_not_in_use(context, gw_dev['resource_id'])
-        except l3.RouterInUse:
-            raise gateway_device.GatewayDeviceInUse(id=gw_dev['id'])
+            if gw_dev.get('tunnel_ips'):
+                self._tunnel_ip_db_add(context,
+                                       gw_dev_db['id'], gw_dev['tunnel_ips'])
 
-    def _check_gateway_device_exists(self, context, gateway_device_id):
-        self._get_gateway_device(context, gateway_device_id)
+        return self._make_gateway_device_dict(gw_dev_db)
+
+    def create_gateway_device_remote_mac_entry(self, context,
+                                               remote_mac_entry,
+                                               gateway_device_id):
+        rme = remote_mac_entry['remote_mac_entry']
+        self._validate_remote_mac_entry(context, rme, gateway_device_id)
+
+        with context.session.begin(subtransactions=True):
+            gw_rmt_db = GatewayRemoteMacTable(
+                id=uuidutils.generate_uuid(),
+                device_id=gateway_device_id,
+                mac_address=rme['mac_address'],
+                segmentation_id=rme['segmentation_id'],
+                vtep_address=rme['vtep_address'])
+            context.session.add(gw_rmt_db)
+
+        return self._make_remote_mac_dict(gw_rmt_db)
+
+    def delete_gateway_device(self, context, id):
+        gw_dev = self._ensure_gateway_device_not_in_use(context, id)
+        with context.session.begin(subtransactions=True):
+            context.session.delete(gw_dev)
+
+    def delete_gateway_device_remote_mac_entry(self, context, id,
+                                               gateway_device_id):
+        rmt_db = self._get_remote_mac_entry(context, id)
+        with context.session.begin(subtransactions=True):
+            context.session.delete(rmt_db)
+
+    def get_gateway_device(self, context, id, fields=None):
+        gw_dev = self._get_gateway_device(context, id)
+        return self._make_gateway_device_dict(gw_dev, fields)
+
+    def get_gateway_devices(self, context, filters=None, fields=None,
+                            sorts=None, limit=None, marker=None,
+                            page_reverse=False):
+        marker_obj = self._get_marker_obj(context, 'gateway_device', limit,
+                                          marker)
+
+        return self._get_collection(context,
+                                    GatewayDevice,
+                                    self._make_gateway_device_dict,
+                                    filters=filters, fields=fields,
+                                    sorts=sorts,
+                                    limit=limit, marker_obj=marker_obj,
+                                    page_reverse=page_reverse)
+
+    def get_gateway_device_remote_mac_entries(self, context, gateway_device_id,
+                                              filters=None, fields=None,
+                                              sorts=None, limit=None,
+                                              marker=None, page_reverse=False):
+        marker_obj = self._get_marker_obj(context, 'remote_mac_entry', limit,
+                                          marker)
+        return self._get_collection(context,
+                                    GatewayRemoteMacTable,
+                                    self._make_remote_mac_dict,
+                                    filters=filters, fields=fields,
+                                    sorts=sorts,
+                                    limit=limit, marker_obj=marker_obj,
+                                    page_reverse=page_reverse)
+
+    def get_gateway_device_remote_mac_entry(self, context, id,
+                                            gateway_device_id, fields=None):
+        rme = self._get_remote_mac_entry(context, id)
+        return self._make_remote_mac_dict(rme, fields)
+
+    def update_gateway_device(self, context, id, gw_device):
+        gw_dev = gw_device['gateway_device']
+        self._validate_tunnel_ips(gw_dev.get('tunnel_ips') or [])
+        gw_dev_db = self._update_gateway_device_db(context, id, gw_dev)
+        return self._make_gateway_device_dict(gw_dev_db)
 
 
 def gateway_device_callback(resource, event, trigger, **kwargs):
