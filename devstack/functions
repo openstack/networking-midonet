@@ -85,3 +85,10 @@ function neutron_vpn_configure_common {
     inicomment $VPNAAS_CONF_FILENAME service_providers service_provider
     iniadd $VPNAAS_CONF_FILENAME service_providers service_provider $VPNAAS_SERVICE_PROVIDER
 }
+
+# MidonetL2gwDriver is activated.
+function l2gw_configure_midonet {
+    L2GW_SERVICE_PROVIDER="L2GW:Midonet:midonet.neutron.services.l2gateway.service_drivers.l2gw_midonet.MidonetL2gwDriver:default"
+    inicomment $L2GW_PLUGIN_CONF_FILE service_providers service_provider
+    iniadd $L2GW_PLUGIN_CONF_FILE service_providers service_provider $L2GW_SERVICE_PROVIDER
+}

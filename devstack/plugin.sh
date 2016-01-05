@@ -72,6 +72,9 @@ if [[ "$1" == "stack" ]]; then
     elif [[ "$2" == "post-config" ]]; then
 
         configure_neutron_midonet
+        if is_service_enabled l2gw-plugin; then
+            l2gw_configure_midonet
+        fi
         create_nova_conf_midonet
 
         export SERVICE_HOST=${MIDONET_SERVICE_HOST:?Error \$MIDONET_SERVICE_HOST is not set}
