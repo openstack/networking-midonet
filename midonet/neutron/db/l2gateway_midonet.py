@@ -13,11 +13,23 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron.common import constants as midonet_const
+from midonet.neutron.services.l2gateway import exceptions
 from networking_l2gw.db.l2gateway import l2gateway_db
+from networking_l2gw.services.l2gateway import exceptions as l2gw_exc
+from neutron.api import extensions as neutron_extensions
+from neutron import manager
 
 
 class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
     # Override L2GatewayMixin to customize for Midonet L2GW
+
+    def _check_and_get_gw_dev_service(self):
+        gw_plugin = manager.NeutronManager.get_service_plugins().get(
+            midonet_const.GATEWAY_DEVICE)
+        if not gw_plugin:
+            raise exceptions.MidonetL2GatewayUnavailable()
+        return gw_plugin
 
     def _validate_any_seg_id_empty_in_interface_dict(self, devices):
         # HACK: Override this since this validation method is not
@@ -28,7 +40,10 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
         # HACK: set the device_name to device_id so that the networking-l2gw
         # DB class does not throw an error.
         gw = l2_gateway[self.gateway_resource]
+
+        gw_plugin = self._check_and_get_gw_dev_service()
         for device in gw['devices']:
+            gw_plugin.get_gateway_device(context, device['device_id'])
             device['device_name'] = device['device_id']
         return super(MidonetL2GatewayMixin, self).create_l2_gateway(
             context, l2_gateway)
@@ -46,6 +61,19 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
                 del device['id']
                 del device['interfaces']
         return l2gw
+
+    def create_l2_gateway_connection(self, context, l2_gateway_connection):
+        gw_connection = l2_gateway_connection[self.connection_resource]
+        l2gw = self.get_l2_gateway(context, gw_connection['l2_gateway_id'])
+        if not l2gw:
+            raise l2gw_exc.L2GatewayNotFound(
+                gateway_id=gw_connection['l2_gateway_id'])
+        if not self._core_plugin.get_network(context,
+                gw_connection['network_id']):
+            raise neutron_extensions.NetworkNotFound(
+                net_id=gw_connection['network_id'])
+        return super(MidonetL2GatewayMixin, self).create_l2_gateway_connection(
+            context, l2_gateway_connection)
 
     def update_l2_gateway(self, context, id, l2_gateway):
         raise NotImplementedError()
