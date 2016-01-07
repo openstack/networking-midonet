@@ -165,7 +165,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                                  segmentation_id=FAKE_SEG_ID):
         data = {'remote_mac_entry': {'mac_address': mac_address,
                                      'vtep_address': vtep_address,
-                                     'segmentation_id': segmentation_id}}
+                                     'segmentation_id': segmentation_id,
+                                     'tenant_id': FAKE_TENANT_ID}}
         gw_dev_mac_req = self.new_create_request('gw/gateway_devices/'
                                                  + gw_dev_id
                                                  + '/remote_mac_entries',
@@ -356,7 +357,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                     'type': TYPE_HW_VTEP,
                     'management_ip': FAKE_MANAGEMENT_IP,
                     'management_port': FAKE_MANAGEMENT_PORT,
-                    'management_protocol': OVSDB}
+                    'management_protocol': OVSDB,
+                    'tenant_id': FAKE_TENANT_ID}
         with self.gateway_device_type_hw_vtep() as gw_dev:
             for k, v in expected.items():
                 self.assertEqual(gw_dev['gateway_device'][k], v)
@@ -364,7 +366,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
     def test_create_gateway_device_router_vtep(self):
         expected = {'name': TYPE_ROUTER_VTEP,
                     'type': TYPE_ROUTER_VTEP,
-                    'resource_id': self._router_id}
+                    'resource_id': self._router_id,
+                    'tenant_id': FAKE_TENANT_ID}
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
             for k, v in expected.items():
@@ -472,7 +475,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                     'type': TYPE_HW_VTEP,
                     'management_ip': FAKE_MANAGEMENT_IP,
                     'management_port': FAKE_MANAGEMENT_PORT,
-                    'management_protocol': OVSDB}
+                    'management_protocol': OVSDB,
+                    'tenant_id': FAKE_TENANT_ID}
         with self.gateway_device_type_hw_vtep() as gw_dev:
             req = self.new_show_request('gw/gateway_devices',
                                         gw_dev['gateway_device']['id'])
@@ -483,7 +487,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
     def test_show_gateway_device_router_vtep(self):
         expected = {'name': TYPE_ROUTER_VTEP,
                     'type': TYPE_ROUTER_VTEP,
-                    'resource_id': self._router_id}
+                    'resource_id': self._router_id,
+                    'tenant_id': FAKE_TENANT_ID}
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
             req = self.new_show_request('gw/gateway_devices',
