@@ -330,8 +330,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                 req = self.new_list_request('gw/gateway_devices')
                 res = self.deserialize(self.fmt,
                                        req.get_response(self.ext_api))
-                self.assertEqual(
-                    res['gateway_devices'][0]['remote_mac_entries'], [])
+                self.assertEqual([],
+                    res['gateway_devices'][0]['remote_mac_entries'])
 
     def _make_remote_mac_entry(self, gw_dev_id, mac_address=FAKE_MAC_ADDRESS,
                                vtep_address=FAKE_VTEP_ADDRESS,
