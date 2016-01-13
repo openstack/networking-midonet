@@ -64,7 +64,7 @@ class MidonetMixin(plugin.MidonetMixinBase,
         LOG.debug('MidonetMixin.create_network called: network=%r', network)
 
         net_data = network['network']
-        tenant_id = self._get_tenant_id_for_create(context, net_data)
+        tenant_id = net_data['tenant_id']
         net_data['tenant_id'] = tenant_id
         self._ensure_default_security_group(context, tenant_id)
 
@@ -429,7 +429,7 @@ class MidonetMixin(plugin.MidonetMixinBase,
                   {'security_group': security_group, 'default_sg': default_sg})
 
         sg = security_group.get('security_group')
-        tenant_id = self._get_tenant_id_for_create(context, sg)
+        tenant_id = sg['tenant_id']
         if not default_sg:
             self._ensure_default_security_group(context, tenant_id)
 

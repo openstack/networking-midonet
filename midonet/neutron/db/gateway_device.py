@@ -314,7 +314,7 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
     def create_gateway_device(self, context, gw_device):
         """Create a gateway device"""
         gw_dev = gw_device['gateway_device']
-        tenant_id = self._get_tenant_id_for_create(context, gw_dev)
+        tenant_id = gw_dev['tenant_id']
         self._validate_gateway_device(context, gw_dev)
         self._validate_tunnel_ips(gw_dev.get('tunnel_ips') or [])
 
