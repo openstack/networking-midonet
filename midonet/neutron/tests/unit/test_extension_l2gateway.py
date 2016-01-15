@@ -197,8 +197,8 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
                     network_id=self._network_id,
                     segmentation_id=str(INVALID_VXLAN_ID))
                 self.deserialize(self.fmt, res)
-                self.assertEqual(res.status_int,
-                                 webob.exc.HTTPBadRequest.code)
+                self.assertEqual(webob.exc.HTTPBadRequest.code,
+                                 res.status_int)
 
     def test_create_midonet_l2gateway_connection_with_duplicate_network(self):
         with self.gateway_device_type_router_vtep(
@@ -214,8 +214,8 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
                         network_id=self._network_id,
                         segmentation_id=FAKE_SEG_ID)
                     self.deserialize(self.fmt, res)
-                    self.assertEqual(res.status_int,
-                                     webob.exc.HTTPConflict.code)
+                    self.assertEqual(webob.exc.HTTPConflict.code,
+                                     res.status_int)
 
     def test_create_midonet_l2gateway_conn_error_delete_neutron_resouce(self):
         self.client_mock.create_l2_gateway_connection.side_effect = Exception(

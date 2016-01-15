@@ -183,7 +183,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             resource_id=self._router_id) as gw_dev:
             with self.remote_mac_entry(gw_dev['gateway_device']['id']) as rme:
                 for k, v in expected.items():
-                    self.assertEqual(rme['remote_mac_entry'][k], v)
+                    self.assertEqual(v, rme['remote_mac_entry'][k])
 
     def test_create_remote_mac_with_duplicate_mac_address(self):
         with self.gateway_device_type_router_vtep(
@@ -193,7 +193,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                     gw_dev['gateway_device']['id'],
                     vtep_address=FAKE_VTEP_ADDRESS2)
                 self.deserialize(self.fmt, res)
-                self.assertEqual(res.status_int, webob.exc.HTTPConflict.code)
+                self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
 
     def test_create_remote_mac_with_duplicate_vtep_address(self):
         with self.gateway_device_type_router_vtep(
@@ -204,7 +204,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                     mac_address=FAKE_MAC_ADDRESS2,
                     vtep_address=FAKE_VTEP_ADDRESS)
                 self.deserialize(self.fmt, res)
-                self.assertEqual(res.status_int, webob.exc.HTTPConflict.code)
+                self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
 
     def test_show_remote_mac(self):
         expected = {'mac_address': FAKE_MAC_ADDRESS,
@@ -220,7 +220,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                 res = self.deserialize(self.fmt,
                                        req.get_response(self.ext_api))
                 for k, v in expected.items():
-                    self.assertEqual(res['remote_mac_entry'][k], v)
+                    self.assertEqual(v, res['remote_mac_entry'][k])
 
     def test_list_remote_mac(self):
         with self.gateway_device_type_router_vtep(
@@ -231,7 +231,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                                             + '/remote_mac_entries')
                 res = self.deserialize(
                     self.fmt, req.get_response(self.ext_api))
-                self.assertEqual(len(res['remote_mac_entries']), 1)
+                self.assertEqual(1, len(res['remote_mac_entries']))
 
     def test_delete_remote_mac(self):
         with self.gateway_device_type_router_vtep(
@@ -242,7 +242,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                                               + '/remote_mac_entries',
                                               rme['remote_mac_entry']['id'])
                 res = req.get_response(self.ext_api)
-                self.assertEqual(res.status_int, webob.exc.HTTPNoContent.code)
+                self.assertEqual(webob.exc.HTTPNoContent.code, res.status_int)
 
     def test_delete_gateway_device_with_remote_mac(self):
         with self.gateway_device_type_router_vtep(
@@ -251,7 +251,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                 req = self.new_delete_request('gw/gateway_devices',
                                               gw_dev['gateway_device']['id'])
                 res = req.get_response(self.ext_api)
-                self.assertEqual(res.status_int, webob.exc.HTTPNoContent.code)
+                self.assertEqual(webob.exc.HTTPNoContent.code, res.status_int)
 
     def test_create_gateway_device_with_tunnel_ips(self):
         expected = {'name': TYPE_ROUTER_VTEP,
@@ -263,7 +263,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                 resource_id=self._router_id,
                 tunnel_ips=[FAKE_TUNNEL_IP]) as gw_dev:
             for k, v in expected.items():
-                self.assertEqual(gw_dev['gateway_device'][k], v)
+                self.assertEqual(v, gw_dev['gateway_device'][k])
 
     def test_create_gateway_device_error_delete_neutron_resource(self):
         self.client_mock.create_gateway_device_postcommit.side_effect = (
@@ -279,8 +279,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
         self.test_update_gateway_device_tunnel_ips()
         req = self.new_list_request('gw/gateway_devices')
         res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-        self.assertEqual(res['gateway_devices'][0]['tunnel_ips'],
-                         [FAKE_TUNNEL_IP])
+        self.assertEqual([FAKE_TUNNEL_IP],
+                         res['gateway_devices'][0]['tunnel_ips'])
 
     def test_create_remote_mac_entry_error_delete_neutron_resource(self):
         (self.client_mock.create_gateway_device_remote_mac_entry_postcommit.
@@ -306,8 +306,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             req = self.new_delete_request('gw/gateway_devices',
                                           gw_dev['gateway_device']['id'])
             res = req.get_response(self.ext_api)
-            self.assertEqual(res.status_int,
-                             webob.exc.HTTPInternalServerError.code)
+            self.assertEqual(webob.exc.HTTPInternalServerError.code,
+                             res.status_int)
             # check the resource deleted in Neutron DB
             req = self.new_list_request('gw/gateway_devices')
             res = self.deserialize(self.fmt,
@@ -325,8 +325,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                                               + '/remote_mac_entries',
                                               rme['remote_mac_entry']['id'])
                 res = req.get_response(self.ext_api)
-                self.assertEqual(res.status_int,
-                                 webob.exc.HTTPInternalServerError.code)
+                self.assertEqual(webob.exc.HTTPInternalServerError.code,
+                                 res.status_int)
                 # check the resource deleted in Neutron DB
                 req = self.new_list_request('gw/gateway_devices')
                 res = self.deserialize(self.fmt,
@@ -361,7 +361,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                     'tenant_id': FAKE_TENANT_ID}
         with self.gateway_device_type_hw_vtep() as gw_dev:
             for k, v in expected.items():
-                self.assertEqual(gw_dev['gateway_device'][k], v)
+                self.assertEqual(v, gw_dev['gateway_device'][k])
 
     def test_create_gateway_device_router_vtep(self):
         expected = {'name': TYPE_ROUTER_VTEP,
@@ -371,19 +371,19 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
             for k, v in expected.items():
-                self.assertEqual(gw_dev['gateway_device'][k], v)
+                self.assertEqual(v, gw_dev['gateway_device'][k])
 
     def test_create_gateway_device_router_vtep_not_found(self):
         res = self._create_gateway_device_router_vtep(resource_id='a')
         self.deserialize(self.fmt, res)
-        self.assertEqual(res.status_int, webob.exc.HTTPNotFound.code)
+        self.assertEqual(webob.exc.HTTPNotFound.code, res.status_int)
 
     def test_create_gateway_device_with_multiple_tunnel_ips(self):
         res = self._create_gateway_device_router_vtep(
             resource_id=self._router_id,
             tunnel_ips=[FAKE_TUNNEL_IP, FAKE_TUNNEL_IP2])
         self.deserialize(self.fmt, res)
-        self.assertEqual(res.status_int, webob.exc.HTTPBadRequest.code)
+        self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
 
     def test_update_gateway_device_with_multiple_tunnel_ips(self):
         with self.gateway_device_type_router_vtep(
@@ -396,7 +396,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                 gw_dev['gateway_device']['id'])
             res = gw_dev_req.get_response(self.ext_api)
             self.deserialize(self.fmt, res)
-            self.assertEqual(res.status_int, webob.exc.HTTPBadRequest.code)
+            self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
 
     def test_create_gateway_device_router_with_duplicate_router(self):
         with self.gateway_device_type_router_vtep(
@@ -404,24 +404,24 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             res = self._create_gateway_device_router_vtep(
                 resource_id=gw_dev['gateway_device']['resource_id'])
             self.deserialize(self.fmt, res)
-            self.assertEqual(res.status_int, webob.exc.HTTPConflict.code)
+            self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
 
     def test_create_gateway_device_hw_vtep_without_management_ip(self):
         res = self._create_gateway_device_hw_vtep(
             management_port=FAKE_MANAGEMENT_PORT)
         self.deserialize(self.fmt, res)
-        self.assertEqual(res.status_int, webob.exc.HTTPBadRequest.code)
+        self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
 
     def test_create_gateway_device_hw_vtep_without_management_port(self):
         res = self._create_gateway_device_hw_vtep(
             management_ip=FAKE_MANAGEMENT_IP)
         self.deserialize(self.fmt, res)
-        self.assertEqual(res.status_int, webob.exc.HTTPBadRequest.code)
+        self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
 
     def test_create_gateway_device_router_vtep_without_resource_id(self):
         res = self._create_gateway_device_router_vtep()
         self.deserialize(self.fmt, res)
-        self.assertEqual(res.status_int, webob.exc.HTTPBadRequest.code)
+        self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
 
     def test_delete_gateway_device(self):
         with self.gateway_device_type_router_vtep(
@@ -429,7 +429,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             req = self.new_delete_request('gw/gateway_devices',
                                           gw_dev['gateway_device']['id'])
             res = req.get_response(self.ext_api)
-            self.assertEqual(res.status_int, webob.exc.HTTPNoContent.code)
+            self.assertEqual(webob.exc.HTTPNoContent.code, res.status_int)
 
     def test_delete_gateway_device_in_use(self):
         with self.gateway_device_type_router_vtep(
@@ -437,7 +437,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             req = self.new_delete_request('gw/gateway_devices',
                                           gw_dev['gateway_device']['id'])
             res = req.get_response(self.ext_api)
-            self.assertEqual(res.status_int, webob.exc.HTTPConflict.code)
+            self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
 
     def test_delete_router_in_use(self):
         with self.gateway_device_type_router_vtep(
@@ -445,7 +445,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             req = self.new_delete_request('routers',
                                           self._router_id)
             res = req.get_response(self.ext_api)
-            self.assertEqual(res.status_int, webob.exc.HTTPConflict.code)
+            self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
 
     def test_update_gateway_device(self):
         with self.gateway_device_type_router_vtep(
@@ -455,8 +455,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                                           data,
                                           gw_dev['gateway_device']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            self.assertEqual(res['gateway_device']['name'],
-                             data['gateway_device']['name'])
+            self.assertEqual(data['gateway_device']['name'],
+                             res['gateway_device']['name'])
 
     def test_update_gateway_device_tunnel_ips(self):
         with self.gateway_device_type_router_vtep(
@@ -467,8 +467,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                                           data,
                                           gw_dev['gateway_device']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            self.assertEqual(res['gateway_device']['tunnel_ips'],
-                             data['gateway_device']['tunnel_ips'])
+            self.assertEqual(data['gateway_device']['tunnel_ips'],
+                             res['gateway_device']['tunnel_ips'])
 
     def test_show_gateway_device_hw_vtep(self):
         expected = {'name': TYPE_HW_VTEP,
@@ -482,7 +482,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                                         gw_dev['gateway_device']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
             for k, v in expected.items():
-                self.assertEqual(res['gateway_device'][k], v)
+                self.assertEqual(v, res['gateway_device'][k])
 
     def test_show_gateway_device_router_vtep(self):
         expected = {'name': TYPE_ROUTER_VTEP,
@@ -495,7 +495,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                                         gw_dev['gateway_device']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
             for k, v in expected.items():
-                self.assertEqual(res['gateway_device'][k], v)
+                self.assertEqual(v, res['gateway_device'][k])
 
     def test_list_gateway_devices(self):
         with self.gateway_device_type_router_vtep(resource_id=self._router_id):
@@ -503,4 +503,4 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                 req = self.new_list_request('gw/gateway_devices')
                 res = self.deserialize(
                     self.fmt, req.get_response(self.ext_api))
-                self.assertEqual(len(res['gateway_devices']), 2)
+                self.assertEqual(2, len(res['gateway_devices']))
