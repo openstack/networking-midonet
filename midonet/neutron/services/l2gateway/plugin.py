@@ -13,10 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron.common import constants as mido_const
 from midonet.neutron.db import l2gateway_midonet as l2gw_db
 from midonet.neutron.services.l2gateway.common import l2gw_midonet_validators
 from networking_l2gw import extensions as l2gateway_ext
-from networking_l2gw.services.l2gateway.common import constants
 from networking_l2gw.services.l2gateway.common import l2gw_validators
 from networking_l2gw.services.l2gateway import plugin as l2gw_plugin
 from neutron.api import extensions as neutron_extensions
@@ -50,6 +50,20 @@ class MidonetL2GatewayPlugin(l2gw_plugin.L2GatewayPlugin,
         neutron_extensions.append_api_extensions_path(l2gateway_ext.__path__)
         super(MidonetL2GatewayPlugin, self).__init__()
 
+    def add_port_mac(self, context, port_dict):
+        # This function is not implemented now in MidoNet plugin.
+        # We block this function in plugin level to prevent from loading
+        # l2gw driver in upstream.
+        self._get_driver_for_provider(mido_const.MIDONET_L2GW_PROVIDER
+                                      ).add_port_mac(context, port_dict)
+
+    def delete_port_mac(self, context, port):
+        # This function is not implemented now in MidoNet plugin.
+        # We block this function in plugin level to prevent from loading
+        # l2gw driver in upstream.
+        self._get_driver_for_provider(mido_const.MIDONET_L2GW_PROVIDER
+                                      ).delete_port_mac(context, port)
+
     @log_helpers.log_method_call
     def create_l2_gateway_connection(self, context, l2_gateway_connection):
         l2_gw_conn = (l2gw_db.MidonetL2GatewayMixin.
@@ -61,7 +75,7 @@ class MidonetL2GatewayPlugin(l2gw_plugin.L2GatewayPlugin,
         gw_connection["id"] = l2_gw_conn["id"]
 
         try:
-            self._get_driver_for_provider(constants.l2gw
+            self._get_driver_for_provider(mido_const.MIDONET_L2GW_PROVIDER
                                           ).create_l2_gateway_connection(
                 context, l2_gateway_connection)
         except Exception as ex:
@@ -81,6 +95,6 @@ class MidonetL2GatewayPlugin(l2gw_plugin.L2GatewayPlugin,
     def delete_l2_gateway_connection(self, context, l2_gateway_connection):
         l2gw_db.MidonetL2GatewayMixin.delete_l2_gateway_connection(
             self, context, l2_gateway_connection)
-        self._get_driver_for_provider(constants.l2gw
+        self._get_driver_for_provider(mido_const.MIDONET_L2GW_PROVIDER
                                       ).delete_l2_gateway_connection(
             context, l2_gateway_connection)
