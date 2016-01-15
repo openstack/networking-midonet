@@ -120,6 +120,7 @@ RESOURCE_ATTRIBUTE_MAP = {
                  'is_visible': True},
         'tenant_id': {'allow_post': True, 'allow_put': False,
                       'required_by_policy': True,
+                      'validate': {'type:string': attr.TENANT_ID_MAX_LEN},
                       'is_visible': True},
         'management_ip': {'allow_post': True, 'allow_put': False,
                           'default': None,
@@ -127,7 +128,6 @@ RESOURCE_ATTRIBUTE_MAP = {
                           'is_visible': True},
         'management_port': {'allow_post': True, 'allow_put': False,
                             'validate': {'type:port_range': None},
-                            #'convert_to': convert_port_to_string,
                             'default': None, 'is_visible': True},
         'management_protocol': {'allow_post': True, 'allow_put': False,
                                 'is_visible': True, 'default': None},
@@ -163,7 +163,18 @@ SUB_RESOURCE_ATTRIBUTE_MAP = {
             'segmentation_id': {
                 'allow_post': True, 'allow_put': False,
                 'is_visible': True,
-                'validate': {'type:non_negative': None}}}
+                'validate': {'type:non_negative': None}},
+            # FIXME(kengo): Workaround to avoid 400 error
+            # when issue creation request without tenant_id.
+            # We will address with one of following solution this
+            # after discussion with neutron.
+            # 1. delete this definition if neutron core is modified.
+            # 2. add DB column and remain this definition
+            #    if neutron core is not modified.
+            'tenant_id': {'allow_post': True, 'allow_put': False,
+                          'required_by_policy': True,
+                          'validate': {'type:string': attr.TENANT_ID_MAX_LEN},
+                          'is_visible': False}}
     }
 }
 
