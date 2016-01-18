@@ -20,6 +20,7 @@ from midonet.neutron import extensions
 
 from neutron.api import extensions as neutron_extensions
 from neutron.common import constants as n_const
+from neutron.common import exceptions as n_exc
 from neutron.db import common_db_mixin
 from neutron.db import extraroute_db
 from neutron.db import l3_db
@@ -170,6 +171,16 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         with context.session.begin(subtransactions=True):
             fip = super(MidonetL3ServicePlugin, self).update_floatingip(
                 context, id, floatingip)
+            port_id = fip['port_id']
+            if port_id is not None:
+                port = self._core_plugin.get_port(context, port_id)
+                owner = port['device_owner']
+                # REVISIT(yamamoto): Empty owner is allowed for tempest and
+                # unit tests.
+                if (owner and
+                   not owner.startswith(n_const.DEVICE_OWNER_COMPUTE_PREFIX)):
+                    msg = _('Cannot associate floating IP to non-compute port')
+                    raise n_exc.BadRequest(resource='floatingip', msg=msg)
             self.client.update_floatingip_precommit(context, id, fip)
 
             # Update status based on association
