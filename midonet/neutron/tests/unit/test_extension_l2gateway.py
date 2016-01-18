@@ -18,6 +18,7 @@ import mock
 import uuid
 import webob.exc
 
+from midonet.neutron.common import constants as mido_const
 from midonet.neutron.tests.unit import test_extension_gateway_device as test_gw
 from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 from networking_l2gw.extensions import l2gateway
@@ -62,8 +63,9 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
         service_plugins = {'l2gw_plugin_name': MN_PLUGIN_KLASS,
                            'gateway_device_plugin_name':
                                test_gw.DB_GATEWAY_DEVICE_PLUGIN_KLASS}
-        l2gw_provider = (l2gw_consts.L2GW + ':l2gw:' +
-                         MN_DRIVER_KLASS + ':default')
+        l2gw_provider = (l2gw_consts.L2GW + ':' +
+                         mido_const.MIDONET_L2GW_PROVIDER +
+                         ':' + MN_DRIVER_KLASS + ':default')
         mock.patch.object(provconf.NeutronModule, 'service_providers',
                           return_value=[l2gw_provider]).start()
         manager = st_db.ServiceTypeManager.get_instance()
