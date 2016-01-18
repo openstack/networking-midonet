@@ -276,11 +276,23 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
     def test_update_gateway_device_error_rollback_neutron_resource(self):
         self.client_mock.update_gateway_device_postcommit.side_effect = (
             Exception("Fake Error"))
-        self.test_update_gateway_device_tunnel_ips()
-        req = self.new_list_request('gw/gateway_devices')
-        res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-        self.assertEqual([FAKE_TUNNEL_IP],
-                         res['gateway_devices'][0]['tunnel_ips'])
+        with self.gateway_device_type_router_vtep(
+            resource_id=self._router_id,
+                tunnel_ips=[FAKE_TUNNEL_IP]) as gw_dev:
+            data = {'gateway_device': {'tunnel_ips': [FAKE_TUNNEL_IP2]}}
+            req = self.new_update_request('gw/gateway_devices',
+                                          data,
+                                          gw_dev['gateway_device']['id'])
+            res = req.get_response(self.ext_api)
+            self.assertEqual(webob.exc.HTTPInternalServerError.code,
+                             res.status_int)
+            # ensure TunnelIPs are not changed.
+            expected = {'tunnel_ips': [FAKE_TUNNEL_IP]}
+            req = self.new_show_request('gw/gateway_devices',
+                                        gw_dev['gateway_device']['id'])
+            res = self.deserialize(self.fmt, req.get_response(self.ext_api))
+            for k, v in expected.items():
+                self.assertEqual(v, res['gateway_device'][k])
 
     def test_create_remote_mac_entry_error_delete_neutron_resource(self):
         (self.client_mock.create_gateway_device_remote_mac_entry_postcommit.
