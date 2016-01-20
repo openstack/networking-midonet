@@ -78,8 +78,7 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
         return gw
 
     @log_helpers.log_method_call
-    def update_gateway_device(self, context, id,
-                              gateway_device, rollback=False):
+    def update_gateway_device(self, context, id, gateway_device):
         backup = self.get_gateway_device(context, id)
         del backup['id']
         del backup['remote_mac_entries']
@@ -89,20 +88,20 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
                        self).update_gateway_device(context, id, gateway_device)
             self.client.update_gateway_device_precommit(context, id, gw)
 
-        if rollback:
-            return
         try:
             self.client.update_gateway_device_postcommit(id, gw)
         except Exception as ex:
-            LOG.error(_LE("Failed to update a gateway "
-                          "device %(gw_id)s in Midonet:"
-                          "%(err)s"), {"gw_id": gw["id"], "err": ex})
-            try:
-                self.update_gateway_device(context, gw['id'],
-                                           backup_body, rollback=True)
-            except Exception:
-                LOG.exception(_LE("Failed to update a gateway "
-                                  "device for rollback %s"), gw["id"])
+            with excutils.save_and_reraise_exception():
+                LOG.error(_LE("Failed to update a gateway "
+                              "device %(gw_id)s in Midonet:"
+                              "%(err)s"), {"gw_id": gw["id"], "err": ex})
+                try:
+                    super(MidonetGwDeviceServicePlugin,
+                        self).update_gateway_device(
+                            context, gw['id'], backup_body)
+                except Exception:
+                    LOG.exception(_LE("Failed to update a gateway "
+                                      "device for rollback %s"), gw["id"])
         return gw
 
     @log_helpers.log_method_call
