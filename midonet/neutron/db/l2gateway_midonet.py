@@ -68,6 +68,10 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
         if not l2gw:
             raise l2gw_exc.L2GatewayNotFound(
                 gateway_id=gw_connection['l2_gateway_id'])
+        if self._get_l2_gateway_connection_by_l2gw_id(
+                context, gw_connection['l2_gateway_id']):
+            raise exceptions.MidonetL2GatewayConnectionExists(
+                    l2_gateway_id=gw_connection['l2_gateway_id'])
         if not self._core_plugin.get_network(context,
                 gw_connection['network_id']):
             raise neutron_extensions.NetworkNotFound(

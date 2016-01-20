@@ -19,3 +19,8 @@ from neutron.common import exceptions as nexception
 class MidonetL2GatewayUnavailable(nexception.ServiceUnavailable):
     message = _("Midonet L2 Gateway Service is unavailable "
                 "because Gateway Device Management Service is disabled.")
+
+
+class MidonetL2GatewayConnectionExists(nexception.InUse):
+    message = _("L2 Gateway Connection related to "
+                "specified L2 Gateway %(l2_gateway_id)s already exists")
