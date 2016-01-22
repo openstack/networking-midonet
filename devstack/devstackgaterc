@@ -77,6 +77,12 @@ fi
 # bug 1521185
 r="$r|(?:.*test_port_security_macspoofing_port.*)"
 
+# bug 1535185
+# bug 1535981
+# bug 1537969
+# https://midonet.atlassian.net/browse/MNA-1118
+r="$r|(?:.*test_firewall_admin_disable.*)"
+
 # End list of exclusions.
 r="$r)"
 
