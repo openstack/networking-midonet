@@ -26,15 +26,13 @@ from neutron.db import l3_db
 from neutron.db import l3_gwmode_db
 from neutron.extensions import extra_dhcp_opt as edo_ext
 from neutron.extensions import securitygroup as ext_sg
-from neutron import i18n
 
+from midonet.neutron._i18n import _LE, _LW
 from midonet.neutron.common import utils as c_utils
 from midonet.neutron import plugin
 
 
 LOG = logging.getLogger(__name__)
-_LE = i18n._LE
-_LW = i18n._LW
 
 
 midonet_opts = [

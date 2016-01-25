@@ -17,12 +17,12 @@ from neutron.common import constants as n_const
 from neutron.common import exceptions as n_exc
 from neutron.db import l3_db
 from neutron.db import models_v2
-from neutron import i18n
 from neutron import manager
 from neutron.plugins.common import constants as service_constants
-from sqlalchemy.orm import exc
 
-_LE = i18n._LE
+from midonet.neutron._i18n import _LE
+
+from sqlalchemy.orm import exc
 
 
 class LoadBalancerDriverDbMixin(object):

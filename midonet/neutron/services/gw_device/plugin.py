@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as midonet_const
@@ -20,15 +21,12 @@ from midonet.neutron.db import gateway_device as gateway_device_db
 from midonet.neutron import extensions
 
 from neutron.api import extensions as neutron_extensions
-from neutron import i18n
 from oslo_config import cfg
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 from oslo_utils import excutils
 
 LOG = logging.getLogger(__name__)
-_LE = i18n._LE
-_LW = i18n._LW
 
 
 class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):

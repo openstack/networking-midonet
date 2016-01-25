@@ -13,9 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
 
-from neutron import i18n
 from neutron.plugins.common import constants as const
 from neutron_vpnaas.services.vpn import plugin
 from neutron_vpnaas.services.vpn.service_drivers import base_ipsec
@@ -25,7 +25,6 @@ from oslo_config import cfg
 from oslo_log import log as logging
 from oslo_utils import excutils
 
-_LE = i18n._LE
 LOG = logging.getLogger(__name__)
 
 

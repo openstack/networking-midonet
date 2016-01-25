@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.db import l3_db_midonet
@@ -25,7 +26,6 @@ from neutron.db import extraroute_db
 from neutron.db import l3_db
 # Import l3_dvr_db to get the config options required for FWaaS
 from neutron.db import l3_dvr_db  # noqa
-from neutron import i18n
 from neutron.plugins.common import constants
 from oslo_config import cfg
 from oslo_log import helpers as log_helpers
@@ -33,8 +33,6 @@ from oslo_log import log as logging
 from oslo_utils import excutils
 
 LOG = logging.getLogger(__name__)
-_LE = i18n._LE
-_LW = i18n._LW
 
 
 class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,

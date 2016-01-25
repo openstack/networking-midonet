@@ -25,13 +25,11 @@ from midonet.neutron.ml2 import util as m_util
 from neutron.common import constants as n_const
 from neutron.common import exceptions as n_exc
 from neutron.extensions import portbindings
-from neutron import i18n
 from neutron.plugins.ml2 import driver_api as api
 from oslo_config import cfg
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 
-_LE = i18n._LE
 LOG = logging.getLogger(__name__)
 
 

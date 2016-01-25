@@ -16,13 +16,13 @@
 from neutron.callbacks import events
 from neutron.callbacks import registry
 from neutron.callbacks import resources
-from neutron import i18n
 
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 from oslo_utils import excutils
 
-_LE = i18n._LE
+from midonet.neutron._i18n import _LE
+
 LOG = logging.getLogger(__name__)
 
 

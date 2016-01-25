@@ -13,11 +13,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
 from midonet.neutron.db import loadbalancer_db as mn_lb_db
 
 from neutron.common import exceptions as n_exc
-from neutron import i18n
 from neutron.plugins.common import constants
 from neutron_lbaas.db.loadbalancer import loadbalancer_db as ldb
 from neutron_lbaas.services.loadbalancer.drivers import abstract_driver
@@ -26,7 +26,6 @@ from oslo_config import cfg
 from oslo_log import log as logging
 from oslo_utils import excutils
 
-_LE = i18n._LE
 LOG = logging.getLogger(__name__)
 
 
