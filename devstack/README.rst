@@ -127,3 +127,29 @@ enabled in ``local.conf``.
 
 NOTE: Currently, this devstack plugin doesn't install ipsec package "libreswan".
 Please install it manually.
+
+
+Gateway Device Management Service
+---------------------------------
+
+Starting v5.1, MidoNet implements
+Neutron Gateway Device Management Service extension API.
+To configure MidoNet including Gateway Device Management Service
+when running devstack, make sure the following is defined in ``local.conf``::
+
+    Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.gw_device.plugin.MidonetGwDeviceServicePlugin
+
+
+L2 Gateway Management Service
+---------------------------------
+
+Starting v5.1, MidoNet implements
+Neutron L2 Gateway Management Service extension API.
+To configure MidoNet including L2 Gateway Management Service
+when running devstack, make sure the following is defined in ``local.conf``::
+
+    enable_plugin networking-l2gw https://github.com/openstack/networking-l2gw
+    enable_service l2gw-plugin
+    Q_PLUGIN_EXTRA_CONF_PATH=/etc/neutron
+    Q_PLUGIN_EXTRA_CONF_FILES=(l2gw_plugin.ini)
+    L2GW_PLUGIN="midonet.neutron.services.l2gateway.plugin.MidonetL2GatewayPlugin"
