@@ -182,8 +182,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
         with self.gateway_device_type_router_vtep(
             resource_id=self._router_id) as gw_dev:
             with self.remote_mac_entry(gw_dev['gateway_device']['id']) as rme:
-                for k, v in expected.items():
-                    self.assertEqual(v, rme['remote_mac_entry'][k])
+                self.assertDictSupersetOf(expected, rme['remote_mac_entry'])
 
     def test_create_remote_mac_with_duplicate_mac_address(self):
         with self.gateway_device_type_router_vtep(
@@ -219,8 +218,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                                             rme['remote_mac_entry']['id'])
                 res = self.deserialize(self.fmt,
                                        req.get_response(self.ext_api))
-                for k, v in expected.items():
-                    self.assertEqual(v, res['remote_mac_entry'][k])
+                self.assertDictSupersetOf(expected, res['remote_mac_entry'])
 
     def test_list_remote_mac(self):
         with self.gateway_device_type_router_vtep(
@@ -262,8 +260,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id,
                 tunnel_ips=[FAKE_TUNNEL_IP]) as gw_dev:
-            for k, v in expected.items():
-                self.assertEqual(v, gw_dev['gateway_device'][k])
+            self.assertDictSupersetOf(expected, gw_dev['gateway_device'])
 
     def test_create_gateway_device_error_delete_neutron_resource(self):
         self.client_mock.create_gateway_device_postcommit.side_effect = (
@@ -291,8 +288,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             req = self.new_show_request('gw/gateway_devices',
                                         gw_dev['gateway_device']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            for k, v in expected.items():
-                self.assertEqual(v, res['gateway_device'][k])
+            self.assertDictSupersetOf(expected, res['gateway_device'])
 
     def test_create_remote_mac_entry_error_delete_neutron_resource(self):
         (self.client_mock.create_gateway_device_remote_mac_entry_postcommit.
@@ -372,8 +368,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                     'management_protocol': OVSDB,
                     'tenant_id': FAKE_TENANT_ID}
         with self.gateway_device_type_hw_vtep() as gw_dev:
-            for k, v in expected.items():
-                self.assertEqual(v, gw_dev['gateway_device'][k])
+            self.assertDictSupersetOf(expected, gw_dev['gateway_device'])
 
     def test_create_gateway_device_router_vtep(self):
         expected = {'name': TYPE_ROUTER_VTEP,
@@ -382,8 +377,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                     'tenant_id': FAKE_TENANT_ID}
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
-            for k, v in expected.items():
-                self.assertEqual(v, gw_dev['gateway_device'][k])
+            self.assertDictSupersetOf(expected, gw_dev['gateway_device'])
 
     def test_create_gateway_device_router_vtep_not_found(self):
         res = self._create_gateway_device_router_vtep(resource_id='a')
@@ -493,8 +487,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             req = self.new_show_request('gw/gateway_devices',
                                         gw_dev['gateway_device']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            for k, v in expected.items():
-                self.assertEqual(v, res['gateway_device'][k])
+            self.assertDictSupersetOf(expected, res['gateway_device'])
 
     def test_show_gateway_device_router_vtep(self):
         expected = {'name': TYPE_ROUTER_VTEP,
@@ -506,8 +499,7 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             req = self.new_show_request('gw/gateway_devices',
                                         gw_dev['gateway_device']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            for k, v in expected.items():
-                self.assertEqual(v, res['gateway_device'][k])
+            self.assertDictSupersetOf(expected, res['gateway_device'])
 
     def test_list_gateway_devices(self):
         with self.gateway_device_type_router_vtep(resource_id=self._router_id):
