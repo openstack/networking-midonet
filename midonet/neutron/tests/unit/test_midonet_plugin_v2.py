@@ -146,11 +146,10 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
             yield port
 
     def test_create_mido_portbinding(self):
-        keys = [(portbindings.PROFILE, {'interface_name': 'if_name'}),
-                (portbindings.HOST_ID, 'host')]
+        keys = {portbindings.PROFILE: {'interface_name': 'if_name'},
+                portbindings.HOST_ID: 'host'}
         with self.port_with_binding_profile() as port:
-            for k, v in keys:
-                self.assertEqual(v, port['port'][k])
+            self.assertDictSupersetOf(keys, port['port'])
 
     def test_create_mido_portbinding_no_profile_specified(self):
         with self.port() as port:
@@ -192,10 +191,10 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
             self.assertEqual(400, res.status_int)
 
     def test_update_mido_portbinding(self):
-        keys = [(portbindings.HOST_ID, 'host2'),
-                (portbindings.PROFILE, {'interface_name': 'if_name2'}),
-                ('admin_state_up', False),
-                ('name', 'test_port2')]
+        keys = {portbindings.HOST_ID: 'host2',
+                portbindings.PROFILE: {'interface_name': 'if_name2'},
+                'admin_state_up': False,
+                'name': 'test_port2'}
         with self.port_with_binding_profile() as port:
             args = {
                 'port': {portbindings.PROFILE: {'interface_name': 'if_name2'},
@@ -204,23 +203,21 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
                          'name': 'test_port2'}}
             req = self.new_update_request('ports', args, port['port']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.api))
-            for k, v in keys:
-                self.assertEqual(v, res['port'][k])
+            self.assertDictSupersetOf(keys, res['port'])
 
     def test_update_mido_portbinding_no_profile_specified(self):
         # Modify binding without specifying the profile.
-        keys = [(portbindings.HOST_ID, 'host2'),
-                (portbindings.PROFILE, {'interface_name': 'if_name'}),
-                ('admin_state_up', False),
-                ('name', 'test_port2')]
+        keys = {portbindings.HOST_ID: 'host2',
+                portbindings.PROFILE: {'interface_name': 'if_name'},
+                'admin_state_up': False,
+                'name': 'test_port2'}
         with self.port_with_binding_profile() as port:
             args = {'port': {portbindings.HOST_ID: 'host2',
                              'admin_state_up': False,
                              'name': 'test_port2'}}
             req = self.new_update_request('ports', args, port['port']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.api))
-            for k, v in keys:
-                self.assertEqual(v, res['port'][k])
+            self.assertDictSupersetOf(keys, res['port'])
 
     def test_update_mido_portbinding_no_host_binding(self):
         # Update a binding when there is no host binding.  This should throw
@@ -459,11 +456,10 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
         yield net
 
     def test_create_provider_net(self):
-        keys = [(pnet.NETWORK_TYPE, m_const.TYPE_UPLINK),
-                ('name', 'name1')]
+        keys = {pnet.NETWORK_TYPE: m_const.TYPE_UPLINK,
+                'name': 'name1'}
         with self.provider_net() as net:
-            for k, v in keys:
-                self.assertEqual(v, net['network'][k])
+            self.assertDictSupersetOf(keys, net['network'])
 
     def test_create_provider_net_with_bogus_type(self):
         # Create with a bogus network type

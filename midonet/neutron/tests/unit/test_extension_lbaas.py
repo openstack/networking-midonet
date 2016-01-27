@@ -155,16 +155,15 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
 
     def test_create_pool(self):
         name = "pool1"
-        keys = [('name', name),
-                ('subnet_id', test_db_loadbalancer._subnet_id),
-                ('tenant_id', self._tenant_id),
-                ('protocol', 'HTTP'),
-                ('lb_method', 'ROUND_ROBIN'),
-                ('admin_state_up', True),
-                ('status', 'ACTIVE')]
+        keys = {'name': name,
+                'subnet_id': test_db_loadbalancer._subnet_id,
+                'tenant_id': self._tenant_id,
+                'protocol': 'HTTP',
+                'lb_method': 'ROUND_ROBIN',
+                'admin_state_up': True,
+                'status': 'ACTIVE'}
         with self.pool(name=name) as pool:
-            for k, v in keys:
-                self.assertEqual(v, pool['pool'][k])
+            self.assertDictSupersetOf(keys, pool['pool'])
 
     def test_create_pool_with_bad_subnet(self):
         # Subnet does not exist so it should throw an error
@@ -191,24 +190,23 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
 
     def test_show_pool(self):
         name = "pool1"
-        keys = [('name', name),
-                ('subnet_id', test_db_loadbalancer._subnet_id),
-                ('tenant_id', self._tenant_id),
-                ('protocol', 'HTTP'),
-                ('lb_method', 'ROUND_ROBIN'),
-                ('admin_state_up', True),
-                ('status', 'ACTIVE')]
+        keys = {'name': name,
+                'subnet_id': test_db_loadbalancer._subnet_id,
+                'tenant_id': self._tenant_id,
+                'protocol': 'HTTP',
+                'lb_method': 'ROUND_ROBIN',
+                'admin_state_up': True,
+                'status': 'ACTIVE'}
         with self.pool(name=name) as pool:
             req = self.new_show_request('pools',
                                         pool['pool']['id'],
                                         fmt=self.fmt)
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            for k, v in keys:
-                self.assertEqual(v, res['pool'][k])
+            self.assertDictSupersetOf(keys, res['pool'])
 
     def test_update_pool(self):
-        keys = [('name', 'new_name'),
-                ('admin_state_up', False)]
+        keys = {'name': 'new_name',
+                'admin_state_up': False}
         with self.pool() as pool:
             req = self.new_update_request('pools',
                                           {'pool': {
@@ -216,20 +214,18 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
                                               'admin_state_up': False}},
                                           pool['pool']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            for k, v in keys:
-                self.assertEqual(v, res['pool'][k])
+            self.assertDictSupersetOf(keys, res['pool'])
 
     def test_create_vip(self):
-        keys = [('name', 'vip1'),
-                ('subnet_id', self._ext_subnet['subnet']['id']),
-                ('tenant_id', self._tenant_id),
-                ('protocol', 'HTTP'),
-                ('protocol_port', 80),
-                ('admin_state_up', True)]
+        keys = {'name': 'vip1',
+                'subnet_id': self._ext_subnet['subnet']['id'],
+                'tenant_id': self._tenant_id,
+                'protocol': 'HTTP',
+                'protocol_port': 80,
+                'admin_state_up': True}
         with self.pool() as pool:
             with self.vip(pool=pool, subnet=self._ext_subnet) as vip:
-                for k, v in keys:
-                    self.assertEqual(v, vip['vip'][k])
+                self.assertDictSupersetOf(keys, vip['vip'])
 
     def test_create_vip_with_bad_subnet(self):
         # Subnet does not exist so it should throw an error
@@ -266,12 +262,12 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
                                   expected_res_status=exc.HTTPBadRequest.code)
 
     def test_update_vip(self):
-        keys = [('name', 'new_name'),
-                ('subnet_id', self._ext_subnet['subnet']['id']),
-                ('tenant_id', self._tenant_id),
-                ('protocol', 'HTTP'),
-                ('protocol_port', 80),
-                ('admin_state_up', False)]
+        keys = {'name': 'new_name',
+                'subnet_id': self._ext_subnet['subnet']['id'],
+                'tenant_id': self._tenant_id,
+                'protocol': 'HTTP',
+                'protocol_port': 80,
+                'admin_state_up': False}
         with self.pool() as pool:
             with self.vip(pool=pool, subnet=self._ext_subnet) as vip:
                 req = self.new_update_request('vips',
@@ -281,8 +277,7 @@ class LoadbalancerTestCase(test_db_loadbalancer.LoadBalancerTestMixin,
                                               vip['vip']['id'])
                 res = self.deserialize(
                     self.fmt, req.get_response(self.ext_api))
-                for k, v in keys:
-                    self.assertEqual(v, res['vip'][k])
+                self.assertDictSupersetOf(keys, res['vip'])
 
     def test_update_vip_same_subnet_as_pool_with_hm(self):
         # Updating the pool Id to a pool with the same subnet as the VIP
