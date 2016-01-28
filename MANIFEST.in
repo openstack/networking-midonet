@@ -1,5 +1,17 @@
 include README.rst
+include AUTHORS
+include CONTRIBUTING.rst
 include LICENSE
+include TESTING.rst
+include requirements.txt
+include test-requirements.txt
+include etc/policy.json
+include midonet/neutron/db/migration/alembic.ini
+include midonet/neutron/db/migration/alembic_migration/README
+include midonet/neutron/db/migration/alembic_migration/script.py.mako
+
+recursive-include midonet/neutron/db/migration/alembic_migration/versions *
+recursive-include doc/source *
 
 exclude .gitignore
 exclude .gitreview
@@ -7,6 +19,8 @@ exclude .coveragerc
 exclude .testr.conf
 exclude run_tests.sh
 exclude tox.ini
+exclude doc/source/specs
+exclude babel.cfg
 
 recursive-exclude etc *
 recursive-exclude specs *
@@ -14,5 +28,6 @@ recursive-exclude tools *
 recursive-exclude devstack *
 recursive-exclude midonet/neutron/tests *
 recursive-exclude packaging *
+recursive-exclude rally-jobs *
 
 global-exclude *.pyc
