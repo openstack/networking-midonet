@@ -19,6 +19,7 @@ Contents:
    contributing
    devref/index
    specs/index
+   dashboards/index
 
 Indices and tables
 ==================
