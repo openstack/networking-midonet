@@ -28,10 +28,7 @@ def is_midonet_network(context):
     elif isinstance(context, ctx.PortContext):
         net = context.network.current
     elif isinstance(context, ctx.SubnetContext):
-        # REVISIT(joe): implement this filtering using upstream neutron info
-        # after the subnet context has the network information
-        net = context._plugin.get_network(context._plugin_context,
-                                          context.current['network_id'])
+        net = context.network.current
     else:
         raise ValueError("Invalid Mechanism driver context passed in.")
 
