@@ -94,12 +94,15 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
                                     'router2', True)
         self._router_id2 = router2['router']['id']
 
-    def _create_l2_gateway(self, name=L2_GW_NAME, device_id="", device_id2=""):
+    def _create_l2_gateway(self, name=L2_GW_NAME, device_id="", device_id2="",
+                           seg_id=None):
         data = {'l2_gateway': {'devices': [{'device_id': device_id}],
                                'tenant_id': str(uuid.uuid4()),
                                'name': name}}
         if device_id2:
             data['l2_gateway']['devices'].append({'device_id': device_id2})
+        if seg_id:
+            data['l2_gateway']['devices'][0]['segmentation_id'] = seg_id
         l2_gw_req = self.new_create_request('l2-gateways',
                                             data, self.fmt)
         return l2_gw_req.get_response(self.ext_api)
@@ -115,19 +118,20 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
         return l2_gw_conn_req.get_response(self.ext_api)
 
     @contextlib.contextmanager
-    def l2_gateway(self, name=L2_GW_NAME, device_id=""):
-        l2_gw = self._make_l2_gateway(name, device_id)
+    def l2_gateway(self, name=L2_GW_NAME, device_id="", segmentation_id=''):
+        l2_gw = self._make_l2_gateway(name, device_id, segmentation_id)
         yield l2_gw
 
     @contextlib.contextmanager
     def l2_gateway_connection(self, l2_gateway_id="", network_id="",
                               segmentation_id=FAKE_SEG_ID):
-        l2_gw_con = self._make_l2_gateway_connection(l2_gateway_id, network_id,
+        l2_gw_con = self._make_l2_gateway_connection(l2_gateway_id,
+                                                     network_id,
                                                      segmentation_id)
         yield l2_gw_con
 
-    def _make_l2_gateway(self, name, device_id):
-        res = self._create_l2_gateway(name, device_id)
+    def _make_l2_gateway(self, name, device_id, segmentation_id):
+        res = self._create_l2_gateway(name, device_id, seg_id=segmentation_id)
         if res.status_int >= webob.exc.HTTPBadRequest.code:
             raise webob.exc.HTTPClientError(code=res.status_int)
         return self.deserialize(self.fmt, res)
@@ -151,6 +155,15 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
                 self.assertEqual(device_id,
                     l2_gw['l2_gateway']['devices'][0]['device_id'])
 
+    def test_create_midonet_l2gateway_with_invalid_seg_id(self):
+        with self.gateway_device_type_router_vtep(
+                resource_id=self._router_id) as gw_dev:
+            res = self._create_l2_gateway(
+                    device_id=gw_dev['gateway_device']['id'],
+                    seg_id=INVALID_VXLAN_ID)
+            self.deserialize(self.fmt, res)
+            self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
+
     def test_create_midonet_l2gateway_with_gateway_device_not_found(self):
         res = self._create_l2_gateway(device_id='a')
         self.deserialize(self.fmt, res)
@@ -161,12 +174,38 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
         self.deserialize(self.fmt, res)
         self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
 
+    def test_create_midonet_l2gateway_with_segmentation_id(self):
+        with self.gateway_device_type_router_vtep(
+                resource_id=self._router_id) as gw_dev:
+            name = L2_GW_NAME
+            device_id = gw_dev['gateway_device']['id']
+            with self.l2_gateway(name=L2_GW_NAME,
+                    device_id=gw_dev['gateway_device']['id'],
+                    segmentation_id=FAKE_SEG_ID) as l2_gw:
+                self.assertEqual(name, l2_gw['l2_gateway']['name'])
+                self.assertEqual(device_id,
+                    l2_gw['l2_gateway']['devices'][0]['device_id'])
+                self.assertEqual(FAKE_SEG_ID,
+                    l2_gw['l2_gateway']['devices'][0]['segmentation_id'])
+
     def test_delete_midonet_l2gateway(self):
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
             with self.l2_gateway(
                     name=L2_GW_NAME,
                     device_id=gw_dev['gateway_device']['id']) as l2_gw:
+                req = self.new_delete_request('l2-gateways',
+                                              l2_gw['l2_gateway']['id'])
+                res = req.get_response(self.ext_api)
+                self.assertEqual(webob.exc.HTTPNoContent.code, res.status_int)
+
+    def test_delete_midonet_l2gateway_with_seg_id(self):
+        with self.gateway_device_type_router_vtep(
+                resource_id=self._router_id) as gw_dev:
+            with self.l2_gateway(
+                    name=L2_GW_NAME,
+                    device_id=gw_dev['gateway_device']['id'],
+                    segmentation_id=FAKE_SEG_ID) as l2_gw:
                 req = self.new_delete_request('l2-gateways',
                                               l2_gw['l2_gateway']['id'])
                 res = req.get_response(self.ext_api)
@@ -203,6 +242,20 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
                     self.assertEqual(FAKE_SEG_ID,
                         l2_gw_con['l2_gateway_connection']['segmentation_id'])
 
+    def test_create_midonet_l2gateway_and_l2gateway_con_without_seg_id(self):
+        with self.gateway_device_type_router_vtep(
+                resource_id=self._router_id) as gw_dev:
+            with self.l2_gateway(
+                    name=L2_GW_NAME,
+                    device_id=gw_dev['gateway_device']['id']) as l2_gw:
+                res = self._create_l2_gateway_connection(
+                    l2_gateway_id=l2_gw['l2_gateway']['id'],
+                    network_id=self._network_id,
+                    segmentation_id='')
+                self.deserialize(self.fmt, res)
+                self.assertEqual(webob.exc.HTTPBadRequest.code,
+                                 res.status_int)
+
     def test_create_midonet_l2gateway_connection_with_not_found_network(self):
         with self.gateway_device_type_router_vtep(
             resource_id=self._router_id) as gw_dev:
@@ -235,6 +288,39 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
                                                  segmentation_id=FAKE_SEG_ID)
         self.deserialize(self.fmt, res)
         self.assertEqual(webob.exc.HTTPNotFound.code, res.status_int)
+
+    def test_create_midonet_l2gateway_con_seg_id_with_l2gw_seg_id(self):
+        with self.gateway_device_type_router_vtep(
+                resource_id=self._router_id) as gw_dev:
+            with self.l2_gateway(
+                    name=L2_GW_NAME,
+                    device_id=gw_dev['gateway_device']['id'],
+                    segmentation_id=FAKE_SEG_ID) as l2_gw:
+                res = self._create_l2_gateway_connection(
+                    l2_gateway_id=l2_gw['l2_gateway']['id'],
+                    network_id=self._network_id,
+                    segmentation_id=str(FAKE_SEG_ID))
+                self.deserialize(self.fmt, res)
+                self.assertEqual(webob.exc.HTTPBadRequest.code,
+                                 res.status_int)
+
+    def test_create_midonet_l2gateway_connection_with_l2gw_seg_id(self):
+        with self.gateway_device_type_router_vtep(
+                resource_id=self._router_id) as gw_dev:
+            with self.l2_gateway(
+                    name=L2_GW_NAME,
+                    device_id=gw_dev['gateway_device']['id'],
+                    segmentation_id=FAKE_SEG_ID) as l2_gw:
+                with self.l2_gateway_connection(
+                        l2_gateway_id=l2_gw['l2_gateway']['id'],
+                        network_id=self._network_id,
+                        segmentation_id='') as l2_gw_con:
+                    self.assertEqual(self._network_id,
+                        l2_gw_con['l2_gateway_connection']['network_id'])
+                    self.assertEqual(l2_gw['l2_gateway']['id'],
+                        l2_gw_con['l2_gateway_connection']['l2_gateway_id'])
+                    self.assertEqual('',
+                        l2_gw_con['l2_gateway_connection']['segmentation_id'])
 
     def test_create_midonet_l2gateway_conn_error_delete_neutron_resouce(self):
         self.client_mock.create_l2_gateway_connection.side_effect = Exception(
@@ -283,6 +369,24 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
                 with self.l2_gateway_connection(
                         l2_gateway_id=l2_gw['l2_gateway']['id'],
                         network_id=self._network_id) as l2_gw_con:
+                    req = self.new_delete_request(
+                        'l2-gateway-connections',
+                        l2_gw_con['l2_gateway_connection']['id'])
+                    res = req.get_response(self.ext_api)
+                    self.assertEqual(webob.exc.HTTPNoContent.code,
+                                     res.status_int)
+
+    def test_delete_midonet_l2gateway_connection_without_seg_id(self):
+        with self.gateway_device_type_router_vtep(
+                resource_id=self._router_id) as gw_dev:
+            with self.l2_gateway(
+                    name=L2_GW_NAME,
+                    device_id=gw_dev['gateway_device']['id'],
+                    segmentation_id=FAKE_SEG_ID) as l2_gw:
+                with self.l2_gateway_connection(
+                        l2_gateway_id=l2_gw['l2_gateway']['id'],
+                        network_id=self._network_id,
+                        segmentation_id='') as l2_gw_con:
                     req = self.new_delete_request(
                         'l2-gateway-connections',
                         l2_gw_con['l2_gateway_connection']['id'])
