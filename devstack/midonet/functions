@@ -45,11 +45,6 @@ function neutron_plugin_setup_interface_driver {
     iniset $conf_file DEFAULT interface_driver midonet
 }
 
-function has_neutron_plugin_security_group {
-    # 0 means True here
-    return 0
-}
-
 function neutron_plugin_check_adv_test_requirements {
     # 0 means True here
     return 1
