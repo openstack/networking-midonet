@@ -83,6 +83,11 @@ r="$r|(?:.*test_port_security_macspoofing_port.*)"
 # https://midonet.atlassian.net/browse/MNA-1118
 r="$r|(?:.*test_firewall_admin_disable.*)"
 
+# Skip non-networking api tests to save testing time
+r="$r|(?:tempest\.api\.compute\..*)"
+r="$r|(?:tempest\.api\.identity\..*)"
+r="$r|(?:tempest\.api\.image\..*)"
+
 # End list of exclusions.
 r="$r)"
 
