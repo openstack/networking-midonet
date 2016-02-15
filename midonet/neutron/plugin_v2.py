@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron.common import utils as c_utils
 from midonet.neutron.db import agent_membership_db as am_db
 from midonet.neutron.db import port_binding_db as pb_db
 from midonet.neutron.db import provider_network_db as pnet_db
@@ -338,6 +339,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             # update the port DB
             original_port = super(MidonetPluginV2, self).get_port(context, id)
             p = super(MidonetPluginV2, self).update_port(context, id, port)
+            c_utils.check_update_port(original_port, p)
 
             has_sg = self._check_update_has_security_groups(port)
             delete_sg = self._check_update_deletes_security_groups(port)

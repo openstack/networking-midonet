@@ -104,4 +104,7 @@ class TestMidonetSubnetsML2(MidonetPluginML2TestCase,
 
 class TestMidonetPortsML2(MidonetPluginML2TestCase,
                           test_plugin.TestPortsV2):
-    pass
+
+    def test_update_dhcp_port_with_exceeding_fixed_ips(self):
+        # MidoNet doesn't support updating dhcp port's fixed-ips.
+        pass

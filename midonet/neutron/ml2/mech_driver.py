@@ -18,6 +18,7 @@ from neutron.common import constants
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as const
+from midonet.neutron.common import utils as c_utils
 from midonet.neutron.ml2 import sg_callback
 from midonet.neutron.ml2 import util as m_util
 
@@ -146,6 +147,7 @@ class MidonetMechanismDriver(api.MechanismDriver):
     @log_helpers.log_method_call
     def update_port_precommit(self, context):
         port = context.current
+        c_utils.check_update_port(context.original, port)
         self.client.update_port_precommit(context, port['id'], port)
 
     @m_util.filter_midonet_network

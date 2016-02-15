@@ -28,6 +28,7 @@ from neutron.extensions import extra_dhcp_opt as edo_ext
 from neutron.extensions import securitygroup as ext_sg
 from neutron import i18n
 
+from midonet.neutron.common import utils as c_utils
 from midonet.neutron import plugin
 
 
@@ -254,7 +255,9 @@ class MidonetMixin(plugin.MidonetMixinBase,
         with context.session.begin(subtransactions=True):
 
             # update the port DB
+            original_port = self.get_port(context, id)
             p = super(MidonetMixin, self).update_port(context, id, port)
+            c_utils.check_update_port(original_port, p)
 
             has_sg = self._check_update_has_security_groups(port)
             delete_sg = self._check_update_deletes_security_groups(port)

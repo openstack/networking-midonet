@@ -98,7 +98,10 @@ class TestMidonetSubnetsV2(MidonetPluginV2TestCase,
 
 class TestMidonetPortsV2(MidonetPluginV2TestCase,
                          test_plugin.TestPortsV2):
-    pass
+
+    def test_update_dhcp_port_with_exceeding_fixed_ips(self):
+        # MidoNet doesn't support updating dhcp port's fixed-ips.
+        pass
 
 
 class TestMidonetExtGwMode(test_gw_mode.ExtGwModeIntTestCase,
@@ -115,6 +118,39 @@ class TestMidonetExtraDHCPOpts(test_dhcpopts.TestExtraDhcpOpt,
 
 class TestMidonetL3NatDBIntTest(test_l3.L3NatDBIntTestCase,
                                 MidonetPluginV2TestCase):
+
+    def test_router_remove_ipv6_subnet_from_interface(self):
+        # MidoNet doesn't support IPv6.
+        # This specific case examines _add_interface_by_subnet,
+        # which ends up with updating the existing router interface port's
+        # fixed-ips.
+        pass
+
+    def test_router_add_interface_multiple_ipv6_subnets_same_net(self):
+        # MidoNet doesn't support IPv6.
+        # This specific case examines _add_interface_by_subnet,
+        # which ends up with updating the existing router interface port's
+        # fixed-ips.
+        pass
+
+    def test_router_update_gateway_add_multiple_prefixes_ipv6(self):
+        # MidoNet doesn't support IPv6.
+        # This specific case examines updating a router's ext_ips,
+        # which ends up with updating its gateway port's fixed-ips.
+        pass
+
+    def test_router_update_gateway_upon_subnet_create_ipv6(self):
+        # MidoNet doesn't support IPv6.
+        # Even for IPv4, with the reference implementation, create_subnet
+        # can ends up with adding an IP to the router's gateway port.
+        # However, it can't happen for us because we reject a gateway port
+        # without IP addresses.  ("No IPs assigned to the gateway port")
+        pass
+
+    def test_router_update_gateway_with_different_external_subnet(self):
+        # This specific case examines updating a router's ext_ips,
+        # which ends up with updating its gateway port's fixed-ips.
+        pass
 
     def test_router_add_gateway_no_subnet(self):
         # Midonet does not support the case where a gateway is set
