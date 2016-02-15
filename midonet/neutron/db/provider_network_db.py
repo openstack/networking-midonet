@@ -12,13 +12,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron._i18n import _LW
 from midonet.neutron.common import constants as m_const
 from neutron.api.v2 import attributes
 from neutron.common import exceptions as n_exc
 from neutron.db import model_base
 from neutron.db import models_v2
 from neutron.extensions import providernet as pnet
-from neutron import i18n
 from neutron.plugins.common import constants as p_const
 from oslo_log import log as logging
 import sqlalchemy as sa
@@ -26,7 +26,6 @@ from sqlalchemy import orm
 
 
 LOG = logging.getLogger(__name__)
-_LW = i18n._LW
 
 
 _MIDONET_TYPES = [

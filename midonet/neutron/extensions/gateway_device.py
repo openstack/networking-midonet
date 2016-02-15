@@ -21,7 +21,6 @@ from neutron.api.v2 import attributes as attr
 from neutron.api.v2 import base
 from neutron.api.v2 import resource_helper
 from neutron.common import exceptions as nexception
-from neutron import i18n
 from neutron import manager
 from oslo_log import log as logging
 import six
@@ -100,8 +99,6 @@ GATEWAY_DEVICE_PREFIX = '/gw'
 PLURAL_IES = 'ies'
 
 LOG = logging.getLogger(__name__)
-_LE = i18n._LE
-_LW = i18n._LW
 
 # Attribute Map
 RESOURCE_ATTRIBUTE_MAP = {

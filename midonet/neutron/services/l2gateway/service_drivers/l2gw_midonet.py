@@ -16,6 +16,7 @@
 import abc
 import six
 
+from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
 from midonet.neutron.services.l2gateway.common import l2gw_midonet_validators
 
@@ -23,13 +24,11 @@ from networking_l2gw.services.l2gateway.common import constants
 from networking_l2gw.services.l2gateway import exceptions as l2gw_exc
 from networking_l2gw.services.l2gateway import service_drivers
 
-from neutron import i18n
 from oslo_config import cfg
 from oslo_log import log as logging
 from oslo_utils import excutils
 
 LOG = logging.getLogger(__name__)
-_LE = i18n._LE
 
 
 @six.add_metaclass(abc.ABCMeta)

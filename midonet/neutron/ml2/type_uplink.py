@@ -16,10 +16,11 @@
 from oslo_log import log
 import six
 
-from midonet.neutron.common import constants as const
 from neutron.common import exceptions as exc
-from neutron.i18n import _LI
 from neutron.plugins.ml2 import driver_api as api
+
+from midonet.neutron._i18n import _LI
+from midonet.neutron.common import constants as const
 
 LOG = log.getLogger(__name__)
 

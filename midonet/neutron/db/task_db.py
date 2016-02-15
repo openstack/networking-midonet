@@ -13,9 +13,10 @@
 #    under the License.
 
 import datetime
+
 import midonet.neutron.db.data_state_db as ds_db
+
 from neutron.db import model_base
-from neutron import i18n
 from oslo_log import log as logging
 from oslo_serialization import jsonutils
 import sqlalchemy as sa
@@ -51,7 +52,6 @@ OP_FLUSH = 'FLUSH'
 TASK_STATE_TABLE = 'midonet_task_state'
 
 LOG = logging.getLogger(__name__)
-_LI = i18n._LI
 
 
 class Task(model_base.BASEV2):

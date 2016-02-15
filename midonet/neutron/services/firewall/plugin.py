@@ -13,10 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
 
 from neutron.api import extensions as neutron_extensions
-from neutron import i18n
 from neutron.plugins.common import constants as const
 from neutron_fwaas.db.firewall import firewall_db
 from neutron_fwaas import extensions
@@ -28,8 +28,6 @@ from oslo_log import log as logging
 from oslo_utils import excutils
 
 LOG = logging.getLogger(__name__)
-_LE = i18n._LE
-_LW = i18n._LW
 
 
 class _MidonetFirewallDriver(object):

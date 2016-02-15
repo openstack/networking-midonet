@@ -16,13 +16,12 @@
 import abc
 import six
 
-from neutron import i18n
+from midonet.neutron._i18n import _LE
 
 from oslo_log import log as logging
 from oslo_utils import excutils
 from oslo_utils import importutils
 
-_LE = i18n._LE
 LOG = logging.getLogger(__name__)
 
 
