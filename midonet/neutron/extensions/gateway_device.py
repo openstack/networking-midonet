@@ -50,7 +50,7 @@ class RouterVtepTypeInvalid(nexception.InvalidInput):
 
 class DuplicateRemoteMacEntry(nexception.InUse):
     message = _("Request contains duplicate remote mac address entry: "
-                "mac_address %(mac_address)s vtep_address %(vtep_address)s.")
+                "mac_address %(mac_address)s.")
 
 
 class GatewayDeviceParamDuplicate(nexception.InUse):

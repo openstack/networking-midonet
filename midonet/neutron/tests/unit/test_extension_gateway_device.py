@@ -184,6 +184,19 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             with self.remote_mac_entry(gw_dev['gateway_device']['id']) as rme:
                 self.assertDictSupersetOf(expected, rme['remote_mac_entry'])
 
+    def test_create_remote_mac_with_same_vtep_address(self):
+        with self.gateway_device_type_router_vtep(
+            resource_id=self._router_id) as gw_dev:
+            with self.remote_mac_entry(gw_dev['gateway_device']['id']):
+                with self.remote_mac_entry(gw_dev['gateway_device']['id'],
+                                           mac_address=FAKE_MAC_ADDRESS2):
+                    req = self.new_list_request('gw/gateway_devices/'
+                                            + gw_dev['gateway_device']['id']
+                                            + '/remote_mac_entries')
+                    res = self.deserialize(
+                        self.fmt, req.get_response(self.ext_api))
+                    self.assertEqual(len(res['remote_mac_entries']), 2)
+
     def test_create_remote_mac_with_duplicate_mac_address(self):
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
@@ -191,17 +204,6 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                 res = self._create_remote_mac_entry(
                     gw_dev['gateway_device']['id'],
                     vtep_address=FAKE_VTEP_ADDRESS2)
-                self.deserialize(self.fmt, res)
-                self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
-
-    def test_create_remote_mac_with_duplicate_vtep_address(self):
-        with self.gateway_device_type_router_vtep(
-                resource_id=self._router_id) as gw_dev:
-            with self.remote_mac_entry(gw_dev['gateway_device']['id']):
-                res = self._create_remote_mac_entry(
-                    gw_dev['gateway_device']['id'],
-                    mac_address=FAKE_MAC_ADDRESS2,
-                    vtep_address=FAKE_VTEP_ADDRESS)
                 self.deserialize(self.fmt, res)
                 self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
 

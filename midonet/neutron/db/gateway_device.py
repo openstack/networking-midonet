@@ -107,8 +107,7 @@ class GatewayRemoteMacTable(model_base.BASEV2):
                           nullable=False)
     mac_address = sa.Column(sa.String(length=32), nullable=False,
                             unique=True)
-    vtep_address = sa.Column(sa.String(length=64), nullable=False,
-                             unique=True)
+    vtep_address = sa.Column(sa.String(length=64), nullable=False)
     segmentation_id = sa.Column(sa.Integer())
     gateway_device = orm.relationship(
         GatewayDevice,
@@ -361,8 +360,7 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
                 context.session.add(gw_rmt_db)
         except db_exc.DBDuplicateEntry:
             raise gateway_device.DuplicateRemoteMacEntry(
-                mac_address=rme['mac_address'],
-                vtep_address=rme['vtep_address'])
+                mac_address=rme['mac_address'])
 
         return self._make_remote_mac_dict(gw_rmt_db)
 

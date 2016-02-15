@@ -74,7 +74,7 @@ def upgrade():
                     sa.Column('mac_address', sa.String(length=32),
                               nullable=False, unique=True),
                     sa.Column('vtep_address', sa.String(length=64),
-                              nullable=False, unique=True),
+                              nullable=False),
                     sa.Column('segmentation_id', sa.Integer(),
                               nullable=True),
                     sa.ForeignKeyConstraint(['device_id'],
