@@ -13,7 +13,7 @@
 import oslo_i18n
 
 
-DOMAIN = 'networking-midonet'
+DOMAIN = 'midonet'
 
 _translators = oslo_i18n.TranslatorFactory(domain=DOMAIN)
 
