@@ -21,7 +21,6 @@ from midonet.neutron.client import base as c_base
 from midonet.neutron.services.l2gateway.common import l2gw_midonet_validators
 
 from networking_l2gw.services.l2gateway.common import constants
-from networking_l2gw.services.l2gateway import exceptions as l2gw_exc
 from networking_l2gw.services.l2gateway import service_drivers
 
 from oslo_config import cfg
@@ -53,9 +52,8 @@ class MidonetL2gwDriver(service_drivers.L2gwDriver):
 
     def _validate_gw_connection(self, context, gw_connection):
         seg_id = gw_connection.get(constants.SEG_ID)
-        if seg_id is None:
-            raise l2gw_exc.L2GatewaySegmentationRequired()
-        l2gw_midonet_validators.is_valid_vxlan_id(seg_id)
+        if seg_id:
+            l2gw_midonet_validators.is_valid_vxlan_id(seg_id)
 
         network_id = gw_connection.get(constants.NETWORK_ID)
         self.service_plugin._get_network(context, network_id)
@@ -77,7 +75,10 @@ class MidonetL2gwDriver(service_drivers.L2gwDriver):
 
         self._validate_gw_connection(context, gw_connection)
         gw_conn_dict = self._make_gateway_conn_dict(context, gw_connection)
-
+        if not gw_conn_dict[constants.SEG_ID]:
+            seg_id = self.service_plugin._get_l2_gateway_seg_id(
+                    context, gw_conn_dict['l2_gateway_id'])
+            gw_conn_dict[constants.SEG_ID] = seg_id
         try:
             self.client.create_l2_gateway_connection(context,
                                                      gw_conn_dict)
