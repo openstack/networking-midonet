@@ -175,10 +175,15 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
                 owner = port['device_owner']
                 # REVISIT(yamamoto): Empty owner is allowed for tempest and
                 # unit tests.
+                # NOTE(yamamoto): VIP is allowed for non MidoNet LB providers
                 if (owner and
-                   not owner.startswith(n_const.DEVICE_OWNER_COMPUTE_PREFIX)):
-                    msg = _('Cannot associate floating IP to non-compute port')
-                    raise n_exc.BadRequest(resource='floatingip', msg=msg)
+                   not owner.startswith(n_const.DEVICE_OWNER_COMPUTE_PREFIX)
+                   and owner != n_const.DEVICE_OWNER_LOADBALANCER):
+                    raise n_exc.UnsupportedPortDeviceOwner(
+                        op='floatingip association',
+                        port_id=port_id,
+                        device_owner=owner)
+
             self.client.update_floatingip_precommit(context, id, fip)
 
             # Update status based on association
