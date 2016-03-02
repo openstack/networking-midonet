@@ -77,6 +77,8 @@ For details, please refer to MidoNet documentation::
     https://docs.midonet.org
 
 
+.. _interface-driver:
+
 Interface driver
 ~~~~~~~~~~~~~~~~
 
@@ -91,18 +93,60 @@ driver.::
 LBaaS
 -----
 
-Starting in Kilo, MidoNet plugin implements LBaaS v1 following the advanced
-service driver model.  To configure MidoNet as the LBaaS driver, set the
-following entries in the Neutron configuration file
-``/etc/neutron/neutron.conf``::
+To enable LBaaS, enable the service plugin in ``/etc/neutron/neutron.conf``::
 
     [DEFAULT]
     service_plugins = lbaas
 
-    [service_providers]
-    service_provider=LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default
+In addition to that, configure service providers as described in
+the following sections.
 
-NOTE: This plugin does not use Neutron LBaaS agent.
+
+MidoNet native provider
+~~~~~~~~~~~~~~~~~~~~~~~
+
+Starting in Kilo, MidoNet implements LBaaS v1 following the advanced
+service driver model.  To configure MidoNet as the LBaaS provider, set the
+following entries in the Neutron configuration file
+``/etc/neutron/neutron.conf``::
+
+    [service_providers]
+    service_provider = LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default
+
+NOTE: This provider does not use Neutron LBaaS agent.
+
+
+.. _lbaas-haproxy-provider:
+
+Haproxy provider
+~~~~~~~~~~~~~~~~
+
+With the latest development version MidoNet, you can use "haproxy"
+LBaaS provider (and possibly other agent-based providers) with
+the following configuration in ``/etc/neutron/neutron.conf``::
+
+    [service_providers]
+    service_provider = LOADBALANCER:Haproxy:neutron_lbaas.services.loadbalancer.drivers.haproxy.plugin_driver.HaproxyOnHostPluginDriver:default
+
+NOTE: This provider requires Neutron LBaaS agent.
+The agent configuration, typically
+``/etc/neutron/services/loadbalancer/haproxy/lbaas_agent.ini``,
+needs to be configured as documented in :ref:`Interface driver <interface-driver>`.
+
+
+Multiple providers
+~~~~~~~~~~~~~~~~~~
+
+You can configure multiple providers as the following::
+
+    [service_providers]
+    service_provider = LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default
+    service_provider = LOADBALANCER:Haproxy:neutron_lbaas.services.loadbalancer.drivers.haproxy.plugin_driver.HaproxyOnHostPluginDriver
+
+NOTE: With this example, you need to run Neutron LBaaS agent for
+Haproxy provider.  See :ref:`Haproxy provider <lbaas-haproxy-provider>`
+for its configuration.
+Having the agent running doesn't affect MidoNet provider.
 
 
 FWaaS
