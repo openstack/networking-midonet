@@ -20,7 +20,7 @@ from neutron.agent.linux import ip_lib
 from neutron.agent.linux import utils
 from neutron.common import constants as n_const
 
-from midonet.neutron._i18n import _LE
+from midonet.neutron._i18n import _LE, _LW
 
 LOG = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ LOG = logging.getLogger(__name__)
 class MidonetInterfaceDriver(n_interface.LinuxInterfaceDriver):
 
     def plug_new(self, network_id, port_id, device_name, mac_address,
-                 bridge=None, namespace=None, prefix=None):
+                 bridge=None, namespace=None, prefix=None, mtu=None):
         """This method is called by the Dhcp agent or by the L3 agent
         when a new network is created
         """
@@ -41,6 +41,13 @@ class MidonetInterfaceDriver(n_interface.LinuxInterfaceDriver):
                                        namespace2=namespace)
 
         ns_dev.link.set_address(mac_address)
+
+        mtu = self.conf.network_device_mtu or mtu
+        if mtu:
+            ns_dev.link.set_mtu(mtu)
+            root_dev.link.set_mtu(mtu)
+        else:
+            LOG.warning(_LW("No MTU configured for port %s"), port_id)
 
         # Add an interface created by ovs to the namespace.
         namespace_obj = ip.ensure_namespace(namespace)
