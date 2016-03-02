@@ -54,10 +54,7 @@ class TestMidonetInterfaceDriver(n_test.TestBase):
         expected = [mock.call(), mock.call(),
                     mock.call().add_veth(self.device_name,
                                          self.device_name,
-                                         namespace2=self.namespace),
-                    mock.call().ensure_namespace(self.namespace),
-                    mock.call().ensure_namespace().add_device_to_namespace(
-                        mock.ANY)]
+                                         namespace2=self.namespace)]
 
         ns_dev.assert_has_calls(
             [mock.call.link.set_address(self.mac_address)])
