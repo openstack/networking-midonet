@@ -30,6 +30,10 @@ LBAAS_TABLES = {
     'lbaas_listeners',
     'lbaas_sni',
 
+    # bug 1552063
+    'lbaas_l7policies',
+    'lbaas_l7rules',
+
     # NOTE(yamamoto): We don't import these models
     'nsxv_edge_monitor_mappings',
     'nsxv_edge_pool_mappings',
