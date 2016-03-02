@@ -75,8 +75,8 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
             for device in l2gw['devices']:
                 device['device_id'] = device['device_name']
                 if device['interfaces']:
-                    device[constants.SEG_ID] = \
-                            device['interfaces'][0][constants.SEG_ID][0]
+                    interface = device['interfaces'][0]
+                    device[constants.SEG_ID] = interface[constants.SEG_ID][0]
                 del device['device_name']
                 del device['id']
                 del device['interfaces']
