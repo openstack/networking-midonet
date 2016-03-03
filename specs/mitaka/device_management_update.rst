@@ -78,7 +78,7 @@ REST API
 +-------------------+----------+------+---------+---------------------------------+
 |tunnel_ips         |string    |CRU   |No       |IP addresses on which gateway    |
 |                   |(list of  |      |         |device originates or terminates  |
-|                   | ip addrs)|      |         |tunnels.                         |
+|                   |ip addrs) |      |         |tunnels.                         |
 +-------------------+----------+------+---------+---------------------------------+
 |remote_mac_entries |list of   |CR    |No       |Mapping of MAC addresses to the  |
 |                   |entries   |      |         |tunnel IP addresses of the       |
@@ -111,60 +111,62 @@ Remote MAC Table entries are managed as sub-resource of the gateway_device.
 REST API Impact
 ---------------
 
-RESOURCE_ATTRIBUTE_MAP = {
-    'gateway_devices': {
-        'id': {'allow_post': False, 'allow_put': False,
-               'validate': {'type:uuid': None},
-               'is_visible': True, 'primary_key': True},
-        'name': {'allow_post': True, 'allow_put': True,
-                 'is_visible': True, 'default': '',
-                 'validate': {'type:string': None}},
-        'tenant_id': {'allow_post': True, 'allow_put': False,
-                      'required_by_policy': True,
-                      'is_visible': True},
-        'management_ip': {'allow_post': True, 'allow_put': False,
-                 'is_visible': True, 'default': ''},
-        'management_port': {'allow_post': True, 'allow_put': False,
-                 'is_visible': True, 'default': ''}'
-        'management_protocol': {'allow_post': True, 'allow_put': False,
-                 'is_visible': True, 'default': ''}'
-        'type': {'allow_post': True, 'allow_put': False,
-                 'is_visible': True, 'default': 'hw_vtep'},
-        'resource_id': {'allow_post': True, 'allow_put': False,
-                 'is_visible': True, 'default': None}'
-        'tunnel_ips': {'allow_post': True, 'allow_put': True,
-                 'is_visible': True, 'default': ''},
-        ‘remote_mac_entries’: {'allow_post': False, 'allow_put': False, 'is_visible': True},
-    },
-}
+Proposed attributes::
+
+        RESOURCE_ATTRIBUTE_MAP = {
+            'gateway_devices': {
+                'id': {'allow_post': False, 'allow_put': False,
+                       'validate': {'type:uuid': None},
+                       'is_visible': True, 'primary_key': True},
+                'name': {'allow_post': True, 'allow_put': True,
+                         'is_visible': True, 'default': '',
+                         'validate': {'type:string': None}},
+                'tenant_id': {'allow_post': True, 'allow_put': False,
+                              'required_by_policy': True,
+                              'is_visible': True},
+                'management_ip': {'allow_post': True, 'allow_put': False,
+                         'is_visible': True, 'default': ''},
+                'management_port': {'allow_post': True, 'allow_put': False,
+                         'is_visible': True, 'default': ''}'
+                'management_protocol': {'allow_post': True, 'allow_put': False,
+                         'is_visible': True, 'default': ''}'
+                'type': {'allow_post': True, 'allow_put': False,
+                         'is_visible': True, 'default': 'hw_vtep'},
+                'resource_id': {'allow_post': True, 'allow_put': False,
+                         'is_visible': True, 'default': None}'
+                'tunnel_ips': {'allow_post': True, 'allow_put': True,
+                         'is_visible': True, 'default': ''},
+                'remote_mac_entries': {'allow_post': False, 'allow_put': False, 'is_visible': True},
+            },
+        }
 
 
-SUB_RESOURCE_ATTRIBUTE_MAP = {
-    'remote_mac_entries': {
-        'parent': {'collection_name': 'gateway_devices',
-                   'member_name': 'gateway_device'},
-    'parameters': {
-        'id': {
-            'allow_post': False, 'allow_put': False,
-            'validate': {'type:uuid': None},
-            'is_visible': True}},
-        'tenant_id': {'allow_post': True, 'allow_put': False,
-                      'required_by_policy': True,
-                      'is_visible': True},
-        'vtep_address': {
-            'allow_post': True, 'allow_put': False,
-            'is_visible': True, 'default': None,
-            'validate': {'type:ip_address': None}},
-        'mac_address': {
-            'allow_post': True, 'allow_put': False,
-            'is_visible': True,
-            'validate': {'type:mac_address':None}},
-        'segmentation_id': {
-            'allow_post': True, 'allow_put': False,
-            'is_visible': True,
-            'validate': {'type:non_negative': None}},
-    }
-}
+        SUB_RESOURCE_ATTRIBUTE_MAP = {
+            'remote_mac_entries': {
+                'parent': {'collection_name': 'gateway_devices',
+                           'member_name': 'gateway_device'},
+            'parameters': {
+                'id': {
+                    'allow_post': False, 'allow_put': False,
+                    'validate': {'type:uuid': None},
+                    'is_visible': True}},
+                'tenant_id': {'allow_post': True, 'allow_put': False,
+                              'required_by_policy': True,
+                              'is_visible': True},
+                'vtep_address': {
+                    'allow_post': True, 'allow_put': False,
+                    'is_visible': True, 'default': None,
+                    'validate': {'type:ip_address': None}},
+                'mac_address': {
+                    'allow_post': True, 'allow_put': False,
+                    'is_visible': True,
+                    'validate': {'type:mac_address':None}},
+                'segmentation_id': {
+                    'allow_post': True, 'allow_put': False,
+                    'is_visible': True,
+                    'validate': {'type:non_negative': None}},
+            }
+        }
 
 
 Sample request/response:
