@@ -77,6 +77,17 @@ For details, please refer to MidoNet documentation::
     https://docs.midonet.org
 
 
+Interface driver
+~~~~~~~~~~~~~~~~
+
+Neutron agents use `interface driver` to connect themselves into the datapath.
+In case of MidoNet, they should be configured with the MidoNet interface
+driver.::
+
+    [DEFAULT]
+    interface_driver = midonet
+
+
 LBaaS
 -----
 
