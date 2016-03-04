@@ -16,6 +16,7 @@
 from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
+from midonet.neutron.common import constants as m_const
 from midonet.neutron.db import l3_db_midonet
 from midonet.neutron import extensions
 
@@ -90,7 +91,23 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
                                                                   router)
             self.client.update_router_precommit(context, id, r)
 
-        self.client.update_router_postcommit(id, r)
+        try:
+            self.client.update_router_postcommit(id, r)
+            if r['status'] != m_const.ROUTER_STATUS_ACTIVE:
+                data = {'router': {'status': m_const.ROUTER_STATUS_ACTIVE}}
+                r = super(MidonetL3ServicePlugin,
+                        self).update_router(context, id, data)
+        except Exception as ex:
+            with excutils.save_and_reraise_exception():
+                LOG.error(_LE("Failed to update a router %(r_id)s in MidoNet: "
+                              "%(err)s"), {"r_id": id, "err": ex})
+                try:
+                    data = {'router': {'status': m_const.ROUTER_STATUS_ERROR}}
+                    super(MidonetL3ServicePlugin,
+                        self).update_router(context, id, data)
+                except Exception:
+                    LOG.exception(_LE("Failed to update a router "
+                                      "status %s"), id)
         return r
 
     @log_helpers.log_method_call

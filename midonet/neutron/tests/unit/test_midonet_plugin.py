@@ -214,3 +214,24 @@ class TestMidonetL3NatDBIntTest(test_l3.L3NatDBIntTestCase,
                                        req.get_response(self.ext_api))
                 self.assertEqual(n_const.FLOATINGIP_STATUS_ERROR,
                         res['floatingip']['status'])
+
+    def test_update_router_error_change_resource_status_to_error(self):
+        self.client_mock.update_router_postcommit.side_effect = (
+            Exception("Fake Error"))
+        with self.subnet(cidr='11.0.0.0/24') as pub_sub:
+            pub_net = pub_sub['subnet']['network_id']
+            self._set_net_external(pub_net)
+            with self.router() as r:
+                data = {'router':
+                        {'external_gateway_info': {'network_id': pub_net}}}
+                req = self.new_update_request('routers',
+                                              data,
+                                              r['router']['id'])
+                res = req.get_response(self.ext_api)
+                self.assertEqual(exc.HTTPInternalServerError.code,
+                                 res.status_int)
+                req = self.new_show_request(
+                        'routers', r['router']['id'])
+                res = self.deserialize(self.fmt,
+                                       req.get_response(self.ext_api))
+                self.assertEqual('ERROR', res['router']['status'])

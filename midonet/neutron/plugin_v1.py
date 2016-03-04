@@ -28,6 +28,7 @@ from neutron.extensions import extra_dhcp_opt as edo_ext
 from neutron.extensions import securitygroup as ext_sg
 
 from midonet.neutron._i18n import _LE, _LW
+from midonet.neutron.common import constants
 from midonet.neutron.common import utils as c_utils
 from midonet.neutron import plugin
 
@@ -318,7 +319,23 @@ class MidonetMixin(plugin.MidonetMixinBase,
             r = super(MidonetMixin, self).update_router(context, id, router)
             self.client.update_router_precommit(context, id, r)
 
-        self.client.update_router_postcommit(id, r)
+        try:
+            self.client.update_router_postcommit(id, r)
+            if r['status'] != constants.ROUTER_STATUS_ACTIVE:
+                data = {'router': {'status': constants.ROUTER_STATUS_ACTIVE}}
+                r = super(MidonetMixin,
+                        self).update_router(context, id, data)
+        except Exception as ex:
+            with excutils.save_and_reraise_exception():
+                LOG.error(_LE("Failed to update a router %(r_id)s in MidoNet: "
+                              "%(err)s"), {"r_id": id, "err": ex})
+                try:
+                    data = {'router':
+                        {'status': constants.ROUTER_STATUS_ERROR}}
+                    super(MidonetMixin, self).update_router(context, id, data)
+                except Exception:
+                    LOG.exception(_LE("Failed to update a router "
+                                      "status %s"), id)
 
         LOG.debug("MidonetMixin.update_router exiting: router=%r", r)
         return r

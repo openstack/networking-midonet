@@ -28,3 +28,8 @@ GATEWAY_DEVICE = "GATEWAY_DEVICE"
 # for Midonet L2 Gateway
 MAX_VXLAN_VNI = 16777215
 MIDONET_L2GW_PROVIDER = "midonet"
+
+# (Kengo) We define constants until
+# upstream will deal with router status.
+ROUTER_STATUS_ACTIVE = "ACTIVE"
+ROUTER_STATUS_ERROR = "ERROR"
