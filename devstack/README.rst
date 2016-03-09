@@ -122,8 +122,12 @@ VPNaaS
 ------
 
 Starting v5.1, MidoNet implements Neutron VPNaaS extension API.
-This devstack plugin sets Midonet as the VPNaaS driver when the q-vpn service is
-enabled in ``local.conf``.
+To configure MidoNet as the VPNaaS driver when running devstack, make sure the
+following is defined in ``local.conf``::
+
+    enable_plugin neutron-vpnaas https://github.com/openstack/neutron-vpnaas
+    enable_service neutron-vpnaas
+    NEUTRON_VPNAAS_SERVICE_PROVIDER="VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default"
 
 NOTE: Currently, this devstack plugin doesn't install ipsec package "libreswan".
 Please install it manually.

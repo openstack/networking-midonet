@@ -55,7 +55,7 @@ fi
 if is_service_enabled q-lbaas; then
     NETWORK_API_EXTENSIONS+=,lbaas
 fi
-if is_service_enabled q-vpn; then
+if is_service_enabled neutron-vpnaas; then
     NETWORK_API_EXTENSIONS+=,vpnaas
 fi
 
