@@ -49,10 +49,6 @@ class MidonetInterfaceDriver(n_interface.LinuxInterfaceDriver):
         else:
             LOG.warning(_LW("No MTU configured for port %s"), port_id)
 
-        # Add an interface created by ovs to the namespace.
-        namespace_obj = ip.ensure_namespace(namespace)
-        namespace_obj.add_device_to_namespace(ns_dev)
-
         ns_dev.link.set_up()
         root_dev.link.set_up()
 
