@@ -39,7 +39,7 @@ class MidonetInterfaceDriver(n_interface.LinuxInterfaceDriver):
         # Create ns_dev in a namespace if one is configured.
         root_dev, ns_dev = ip.add_veth(tap_name, device_name,
                                        namespace2=namespace)
-
+        root_dev.disable_ipv6()
         ns_dev.link.set_address(mac_address)
 
         mtu = self.conf.network_device_mtu or mtu

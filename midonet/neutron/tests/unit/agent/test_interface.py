@@ -62,7 +62,8 @@ class TestMidonetInterfaceDriver(n_test.TestBase):
         ns_dev.assert_has_calls(
             [mock.call.link.set_address(self.mac_address)])
 
-        root_dev.assert_has_calls([mock.call.link.set_up()])
+        root_dev.assert_has_calls(
+            [mock.call.disable_ipv6(), mock.call.link.set_up()])
         ns_dev.assert_has_calls([mock.call.link.set_up()])
         self.ip.assert_has_calls(expected, True)
 
