@@ -1,9 +1,12 @@
+{% set rps_value = 0 %}
+{% set iterations_count = 0 %}
+{% set max_secs_per_iteration = 0 %}
 ---
   NeutronNetworks.create_and_list_networks:
     -
       runner:
         type: "constant"
-        times: 40
+        times: {{iterations_count or 40}}
         concurrency: 20
       context:
         users:
@@ -22,7 +25,7 @@
         subnets_per_network: 2
       runner:
         type: "constant"
-        times: 40
+        times: {{iterations_count or 40}}
         concurrency: 20
       context:
         users:
@@ -46,7 +49,7 @@
         router_create_args:
       runner:
         type: "constant"
-        times: 40
+        times: {{iterations_count or 40}}
         concurrency: 20
       context:
         users:
@@ -69,7 +72,7 @@
         ports_per_network: 2
       runner:
         type: "constant"
-        times: 40
+        times: {{iterations_count or 40}}
         concurrency: 20
       context:
         users:
@@ -94,7 +97,7 @@
             name: "_updated"
       runner:
         type: "constant"
-        times: 40
+        times: {{iterations_count or 40}}
         concurrency: 20
       context:
         users:
@@ -119,7 +122,7 @@
             name: "_subnet_updated"
       runner:
         type: "constant"
-        times: 40
+        times: {{iterations_count or 40}}
         concurrency: 20
       context:
         users:
@@ -146,7 +149,7 @@
             name: "_router_updated"
       runner:
         type: "constant"
-        times: 40
+        times: {{iterations_count or 40}}
         concurrency: 20
       context:
         users:
@@ -174,7 +177,7 @@
             name: "_port_updated"
       runner:
         type: "constant"
-        times: 40
+        times: {{iterations_count or 40}}
         concurrency: 20
       context:
         users:
@@ -194,7 +197,7 @@
         network_create_args: {}
       runner:
         type: "constant"
-        times: 40
+        times: {{iterations_count or 40}}
         concurrency: 20
       context:
         users:
@@ -217,7 +220,7 @@
         subnets_per_network: 2
       runner:
         type: "constant"
-        times: 40
+        times: {{iterations_count or 40}}
         concurrency: 20
       context:
         users:
@@ -241,7 +244,7 @@
         router_create_args: {}
       runner:
         type: "constant"
-        times: 40
+        times: {{iterations_count or 40}}
         concurrency: 20
       context:
         users:
@@ -264,7 +267,7 @@
         ports_per_network: 5
       runner:
         type: "constant"
-        times: 40
+        times: {{iterations_count or 40}}
         concurrency: 20
       context:
         users:
@@ -284,7 +287,7 @@
         max_quota: 1024
       runner:
         type: "constant"
-        times: 40
+        times: {{iterations_count or 40}}
         concurrency: 20
       context:
         users:
@@ -294,3 +297,128 @@
         failure_rate:
           max: 0
 
+  NetworkPlugin.create_networks:
+    -
+      args:
+        network_create_args: {}
+      runner:
+        type: "rps"
+        times: {{iterations_count or 100}}
+        rps: {{rps_value or 1}}
+      context:
+        users:
+          tenants: 2
+          users_per_tenant: 2
+        quotas:
+          neutron:
+            network: -1
+      sla:
+        max_seconds_per_iteration: {{max_secs_per_iteration or 5}}
+        failure_rate:
+          max: 0
+
+  NetworkPlugin.create_ports:
+    -
+      args:
+        network_create_args: {}
+        port_create_args: {}
+        ports_per_network: 2
+      runner:
+        type: "rps"
+        times: {{iterations_count or 100}}
+        rps: {{rps_value or 1}}
+      context:
+        network:
+          "start_cidr": "1.0.0.0/16"
+        users:
+          tenants: 2
+          users_per_tenant: 2
+        quotas:
+          neutron:
+            network: -1
+            port: -1
+      sla:
+        max_seconds_per_iteration: {{max_secs_per_iteration or 5}}
+        failure_rate:
+          max: 0
+
+  NetworkPlugin.create_routers:
+    -
+      args:
+        network_create_args: {}
+        router_create_args: {}
+        routers_per_subnet: 2
+        router_create_args: {}
+        port_create_args: {}
+      runner:
+        type: "rps"
+        times: {{iterations_count or 100}}
+        rps: {{rps_value or 1}}
+      context:
+        network:
+           "start_cidr": "1.0.0.0/8"
+        users:
+          tenants: 2
+          users_per_tenant: 2
+        quotas:
+          neutron:
+             network: -1
+             subnet: -1
+             router: -1
+             port: -1
+      sla:
+        max_seconds_per_iteration: {{max_secs_per_iteration or 5}}
+        failure_rate:
+          max: 0
+
+  NetworkPlugin.create_subnets:
+    -
+      args:
+        network_create_args: {}
+        subnet_create_args: {}
+        subnet_cidr_start: "1.0.0.0/24"
+        subnets_per_network: 2
+      runner:
+        type: "rps"
+        times: {{iterations_count or 100}}
+        rps: {{rps_value or 1}}
+      context:
+        network: {}
+        users:
+          tenants: 2
+          users_per_tenant: 2
+        quotas:
+          neutron:
+            network: -1
+            subnet: -1
+      sla:
+        max_seconds_per_iteration: {{max_secs_per_iteration or 5}}
+        failure_rate:
+          max: 0
+
+  NetworkPlugin.create_subnets_routers_interfaces:
+    -
+      args:
+        network_create_args: {}
+        subnet_create_args: {}
+        subnet_cidr_start: "1.0.0.0/24"
+        subnets_per_network: 2
+        router_create_args: {}
+      runner:
+        type: "rps"
+        times: {{iterations_count or 100}}
+        rps: {{rps_value or 1}}
+      context:
+        network: {}
+        users:
+          tenants: 2
+          users_per_tenant: 2
+        quotas:
+          neutron:
+             network: -1
+             subnet: -1
+             router: -1
+      sla:
+        max_seconds_per_iteration: {{max_secs_per_iteration or 60}}
+        failure_rate:
+          max: 0
