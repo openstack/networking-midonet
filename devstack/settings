@@ -47,7 +47,7 @@ SQLALCHEMY_DATABASE_DRIVER=${SQLALCHEMY_DATABASE_DRIVER:-mysqlconnector}
 
 # Tempest options
 IPV6_ENABLED=False
-NETWORK_API_EXTENSIONS=external-net,router,security-group,agent,dhcp_agent_scheduler,binding,quotas
+NETWORK_API_EXTENSIONS=external-net,router,security-group,agent,dhcp_agent_scheduler,binding,quotas,subnet_allocation
 
 # Don't let mido.sh configure the logging
 CONFIGURE_LOGGING=False
