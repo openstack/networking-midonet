@@ -14,7 +14,7 @@
 
 #
 # This script is executed in the OpenStack CI job that runs DevStack + tempest.
-# You can find the CI job configuration here:
+# It is also used by the rally job. You can find the CI job configuration here:
 #
 # http://git.openstack.org/cgit/openstack-infra/project-config/tree/jenkins/jobs/networking-midonet.yaml
 #
@@ -34,7 +34,10 @@ s+=",key"
 s+=",n-api,n-cond,n-cpu,n-crt,n-obj,n-sch"
 s+=",g-api,g-reg"
 s+=",q-svc,quantum"
-s+=",tempest"
+if [ -z "${RALLY_SCENARIO}" ] ; then
+    # Only include tempest if this is not a rally job.
+    s+=",tempest"
+fi
 s+=",dstat"
 if [ "${_ZOOM}" = "True" ]; then
     # Use midonet metadata proxy
