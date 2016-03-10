@@ -206,18 +206,18 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
                'tenant_id': gw_dev_db['tenant_id'],
                'remote_mac_entries': []}
         if gw_dev_db['type'] == gateway_device.HW_VTEP_TYPE:
-            res['management_ip'] = gw_dev_db.hw_vtep[0]['management_ip']
-            res['management_port'] = gw_dev_db.hw_vtep[0]['management_port']
-            res['management_protocol'] = \
-                gw_dev_db.hw_vtep[0]['management_protocol']
+            hw_vtep = gw_dev_db.hw_vtep[0]
+            res['management_ip'] = hw_vtep['management_ip']
+            res['management_port'] = hw_vtep['management_port']
+            res['management_protocol'] = hw_vtep['management_protocol']
             res['resource_id'] = ""
         if gw_dev_db['type'] == gateway_device.ROUTER_DEVICE_TYPE:
             res['management_ip'] = None
             res['management_port'] = None
             res['management_protocol'] = None
             res['resource_id'] = gw_dev_db.overlay_router[0]['resource_id']
-        res['tunnel_ips'] = \
-            list(map(lambda n: n['tunnel_ip'], gw_dev_db.tunnel_ip_list))
+        res['tunnel_ips'] = list(map(lambda n: n['tunnel_ip'],
+                gw_dev_db.tunnel_ip_list))
         for item in gw_dev_db.mac_table_list:
             entry = {'id': item['id'],
                      'mac_address': item['mac_address'],
