@@ -38,6 +38,16 @@ class FirewallTestCase(tfp.TestFirewallPluginBase,
                 status = res['firewall']['status']
                 self.assertEqual(n_const.ACTIVE, status)
 
+    def test_create_sets_status_to_inactive(self):
+        with self.firewall(router_ids=[]) as firewall:
+            # Verify that the firewall is INACTIVE
+            fw_id = firewall['firewall']['id']
+            req = self.new_show_request('firewalls', fw_id)
+            res = self.deserialize(self.fmt,
+                                   req.get_response(self.ext_api))
+            status = res['firewall']['status']
+            self.assertEqual(n_const.INACTIVE, status)
+
     def test_create_firewall_error_deletes_firewall(self):
         self.client_mock.create_firewall.side_effect = Exception("Fake Error")
         with self.router() as router:
@@ -70,6 +80,24 @@ class FirewallTestCase(tfp.TestFirewallPluginBase,
                                        req.get_response(self.ext_api))
                 status = res['firewall']['status']
                 self.assertEqual(n_const.ACTIVE, status)
+
+    def test_update_sets_status_to_inactive(self):
+        with self.router() as router:
+            router_ids = [router['router']['id']]
+            with self.firewall(router_ids=router_ids) as firewall:
+
+                fw_id = firewall['firewall']['id']
+                data = {'firewall': {'router_ids': []}}
+                req = self.new_update_request('firewalls', data, fw_id)
+                res = self.deserialize(self.fmt,
+                                       req.get_response(self.ext_api))
+
+                # Verify that the firewall is INACTIVE
+                req = self.new_show_request('firewalls', fw_id)
+                res = self.deserialize(self.fmt,
+                                       req.get_response(self.ext_api))
+                status = res['firewall']['status']
+                self.assertEqual(n_const.INACTIVE, status)
 
     def test_update_firewall_error_sets_status_to_error(self):
         self.client_mock.update_firewall.side_effect = Exception("Fake Error")

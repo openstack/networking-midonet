@@ -64,8 +64,7 @@ class _MidonetFirewallDriver(object):
                     LOG.exception(_LE("Failed to delete firewall %s"),
                                   firewall['id'])
 
-        self.callbacks.set_firewall_status(context, firewall['id'],
-                                           const.ACTIVE)
+        self._set_firewall_status_noerror(context, firewall)
 
     @log_helpers.log_method_call
     def update_firewall(self, context, firewall):
@@ -84,8 +83,14 @@ class _MidonetFirewallDriver(object):
                     LOG.exception(_LE("Failed to update firewall status %s"),
                                   firewall['id'])
 
-        self.callbacks.set_firewall_status(context, firewall['id'],
-                                           const.ACTIVE)
+        self._set_firewall_status_noerror(context, firewall)
+
+    def _set_firewall_status_noerror(self, context, firewall):
+        if firewall['add-router-ids']:
+            status = const.ACTIVE
+        else:
+            status = const.INACTIVE
+        self.callbacks.set_firewall_status(context, firewall['id'], status)
 
     @log_helpers.log_method_call
     def delete_firewall(self, context, firewall):
