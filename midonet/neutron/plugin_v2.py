@@ -105,6 +105,11 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                     LOG.exception(_LE("Failed to delete network %s"),
                                   net['id'])
 
+        # NOTE(kevinbenton): this extra lookup is necessary to get the
+        # latest db model for the extension functions
+        net_model = self._get_network(context, net['id'])
+        self._apply_dict_extend_functions('networks', net, net_model)
+
         LOG.debug("MidonetPluginV2.create_network exiting: net=%r", net)
         return net
 
@@ -300,6 +305,11 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                 except Exception:
                     LOG.exception(_LE("Failed to delete port %s"),
                                   new_port['id'])
+
+        # NOTE(kevinbenton): this extra lookup is necessary to get the
+        # latest db model for the extension functions
+        port_model = self._get_port(context, new_port['id'])
+        self._apply_dict_extend_functions('ports', new_port, port_model)
 
         LOG.debug("MidonetPluginV2.create_port exiting: port=%r", new_port)
         return new_port
