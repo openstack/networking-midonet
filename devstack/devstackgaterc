@@ -59,8 +59,9 @@ else
 fi
 
 # Enable LBaaS
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas"
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_LBAAS_SERVICE_PROVIDERV1=\"LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default\""
-s+=",q-lbaas"
+s+=",q-lbaasv1"
 
 export OVERRIDE_ENABLED_SERVICES="$s"
 
