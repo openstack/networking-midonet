@@ -53,6 +53,11 @@ if [ "${_ZOOM}" = "True" ]; then
 
     # Enable FWaaS
     s+=",q-fwaas"
+
+    # Enable VPNaaS
+    s+=",neutron-vpnaas"
+    export DEVSTACK_LOCAL_CONIG+=$'\n'"enable_plugin neutron-vpnaas https://github.com/openstack/neutron-vpnaas"
+    export DEVSTACK_LOCAL_CONIG+=$'\n'"NEUTRON_VPNAAS_SERVICE_PROVIDER=\"VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default\""
 else
     # Use neutron metadata proxy
     s+=",q-dhcp,q-meta"
