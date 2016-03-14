@@ -18,10 +18,12 @@
 import functools
 import mock
 import testtools
+from webob import exc
 
 from midonet.neutron.client import base as cli_base
 from midonet.neutron.common import config  # noqa
 
+from neutron.common import constants as n_const
 from neutron import context
 from neutron import manager
 from neutron.plugins.common import constants as p_const
@@ -191,3 +193,24 @@ class TestMidonetL3NatDBIntTest(test_l3.L3NatDBIntTestCase,
                 l3_plugin.add_router_interface(ctx, router_id, interface_info)
             port2 = plugin.get_port(ctx, port_id)
             self.assertEqual(port_id, port2['id'])
+
+    def test_update_floatingip_error_change_resource_status_to_error(self):
+        self.client_mock.update_floatingip_postcommit.side_effect = (
+            Exception("Fake Error"))
+        with self.port() as p:
+            private_sub = {'subnet': {'id':
+                    p['port']['fixed_ips'][0]['subnet_id']}}
+            with self.floatingip_no_assoc(private_sub) as fip:
+                data = {'floatingip': {'port_id': p['port']['id']}}
+                req = self.new_update_request('floatingips',
+                                              data,
+                                              fip['floatingip']['id'])
+                res = req.get_response(self.ext_api)
+                self.assertEqual(exc.HTTPInternalServerError.code,
+                                 res.status_int)
+                req = self.new_show_request(
+                        'floatingips', fip['floatingip']['id'])
+                res = self.deserialize(self.fmt,
+                                       req.get_response(self.ext_api))
+                self.assertEqual(n_const.FLOATINGIP_STATUS_ERROR,
+                        res['floatingip']['status'])

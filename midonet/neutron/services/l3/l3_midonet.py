@@ -193,5 +193,17 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
                 fip['status'] = n_const.FLOATINGIP_STATUS_ACTIVE
             self.update_floatingip_status(context, id, fip['status'])
 
-        self.client.update_floatingip_postcommit(id, fip)
+        try:
+            self.client.update_floatingip_postcommit(id, fip)
+        except Exception as ex:
+            with excutils.save_and_reraise_exception():
+                LOG.error(_LE("Failed to update a floating ip "
+                              "%(fip_id)s in MidoNet: "
+                              "%(err)s"), {"fip_id": id, "err": ex})
+                try:
+                    self.update_floatingip_status(
+                            context, id, n_const.FLOATINGIP_STATUS_ERROR)
+                except Exception:
+                    LOG.exception(_LE("Failed to update floating ip "
+                                      "status %s"), id)
         return fip
