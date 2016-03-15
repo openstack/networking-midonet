@@ -282,7 +282,20 @@ class MidonetMixin(plugin.MidonetMixinBase,
 
             self.client.update_port_precommit(context, id, p)
 
-        self.client.update_port_postcommit(id, p)
+        try:
+            self.client.update_port_postcommit(id, p)
+            if p['status'] != n_const.PORT_STATUS_ACTIVE:
+                data = {'port': {'status': n_const.PORT_STATUS_ACTIVE}}
+                p = super(MidonetMixin, self).update_port(context, id, data)
+        except Exception as ex:
+            with excutils.save_and_reraise_exception():
+                LOG.error(_LE("Failed to update a port %(port_id)s in "
+                              "MidoNet: %(err)s"), {"port_id": id, "err": ex})
+                try:
+                    data = {'port': {'status': n_const.PORT_STATUS_ERROR}}
+                    super(MidonetMixin, self).update_port(context, id, data)
+                except Exception:
+                    LOG.exception(_LE("Failed to update port status %s"), id)
 
         LOG.debug("MidonetMixin.update_port exiting: p=%r", p)
         return p
