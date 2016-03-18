@@ -23,6 +23,14 @@ BRANCH_NAME=master
 
 set -e
 
+CONSTRAINTS_FILE=$1
+shift
+
+install_cmd="pip install"
+if [ $CONSTRAINTS_FILE != "unconstrained" ]; then
+    install_cmd="$install_cmd -c$CONSTRAINTS_FILE"
+fi
+
 if [ $neutron_installed -eq 0 ]; then
     echo "ALREADY INSTALLED" > /tmp/tox_install-${PROJ}.txt
     echo "${PROJ} already installed; using existing package"
@@ -36,12 +44,12 @@ elif [ -x "$ZUUL_CLONER" ]; then
         git://git.openstack.org \
         openstack/${PROJ}
     cd openstack/${PROJ}
-    pip install -e .
+    $install_cmd -e .
     cd "$cwd"
 else
     echo "PIP HARDCODE" > /tmp/tox_install-${PROJ}.txt
-    pip install -U -egit+https://git.openstack.org/openstack/${PROJ}@${BRANCH_NAME}#egg=${PROJ}
+    $install_cmd -U -egit+https://git.openstack.org/openstack/${PROJ}@${BRANCH_NAME}#egg=${PROJ}
 fi
 
-pip install -U $*
+$install_cmd -U $*
 exit $?
