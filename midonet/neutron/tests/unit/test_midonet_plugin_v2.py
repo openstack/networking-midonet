@@ -62,6 +62,8 @@ load_tests = testscenarios.load_tests_apply_scenarios
 
 
 PLUGIN_NAME = 'midonet.neutron.plugin_v2.MidonetPluginV2'
+FAKE_CIDR = '10.0.0.0/24'
+FAKE_IP = '10.0.0.240'
 
 
 class MidonetPluginConf(object):
@@ -130,6 +132,25 @@ class TestMidonetPortsV2(MidonetPluginV2TestCase,
     def test_update_dhcp_port_with_exceeding_fixed_ips(self):
         # MidoNet doesn't support updating dhcp port's fixed-ips.
         pass
+
+    def test_update_port_error_change_resource_status_to_error(self):
+        self.client_mock.update_port_postcommit.side_effect = (
+            Exception("Fake Error"))
+        with self.subnet(cidr=FAKE_CIDR) as sub:
+            with self.port(subnet=sub) as port:
+                data = {'port': {'fixed_ips':
+                        [{'ip_address': FAKE_IP,
+                          'subnet_id': sub['subnet']['id']}]}}
+                req = self.new_update_request(
+                        'ports', data, port['port']['id'])
+                res = req.get_response(self.api)
+                self.assertEqual(exc.HTTPInternalServerError.code,
+                        res.status_int)
+                req = self.new_show_request('ports', port['port']['id'])
+                res = self.deserialize(self.fmt,
+                        req.get_response(self.api))
+                self.assertEqual(n_const.PORT_STATUS_ERROR,
+                        res['port']['status'])
 
 
 class TestMidonetPortBinding(MidonetPluginV2TestCase,
