@@ -55,11 +55,15 @@ if [[ "$1" == "stack" ]]; then
 
         if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
             if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
-                $MIDONET_DIR/tools/devmido/create_fake_uplink_l2.sh \
-                    $EXT_NET_ID $FLOATING_RANGE $PUBLIC_NETWORK_GATEWAY
-                local ROUTER_GW_IP
-                ROUTER_GW_IP=`neutron port-list -c fixed_ips -c device_owner | grep router_gateway | awk -F'ip_address'  '{ print $2 }' | cut -f3 -d\" | tr '\n' ' '`
-                sudo ip route replace ${FIXED_RANGE} via ${ROUTER_GW_IP}
+                if [ "$MIDONET_USE_UPLINK" == "True" ]; then
+                    . $ABSOLUTE_PATH/uplink/create_uplink.sh
+                else
+                    $MIDONET_DIR/tools/devmido/create_fake_uplink_l2.sh \
+                        $EXT_NET_ID $FLOATING_RANGE $PUBLIC_NETWORK_GATEWAY
+                    local ROUTER_GW_IP
+                    ROUTER_GW_IP=`neutron port-list -c fixed_ips -c device_owner | grep router_gateway | awk -F'ip_address'  '{ print $2 }' | cut -f3 -d\" | tr '\n' ' '`
+                    sudo ip route replace ${FIXED_RANGE} via ${ROUTER_GW_IP}
+                fi
             else
                 $MIDONET_DIR/tools/devmido/create_fake_uplink.sh \
                     $FLOATING_RANGE
@@ -130,7 +134,11 @@ elif [[ "$1" == "unstack" ]]; then
 
     if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
         if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
-            $MIDONET_DIR/tools/devmido/delete_fake_uplink_l2.sh
+            if [ "$MIDONET_USE_UPLINK" == "True" ]; then
+                . $ABSOLUTE_PATH/uplink/delete_uplink.sh
+            else
+                $MIDONET_DIR/tools/devmido/delete_fake_uplink_l2.sh
+            fi
         else
             $MIDONET_DIR/tools/devmido/delete_fake_uplink.sh
         fi

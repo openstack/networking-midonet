@@ -8,6 +8,9 @@ MIDONET_DIR=${MIDONET_DIR:-$DEST/midonet}
 # This flag indicates to the MidoNet agent to use ZOOM (MN v2)
 MIDONET_USE_ZOOM=${MIDONET_USE_ZOOM:-True}
 
+# Use uplink network for "fake" uplink
+MIDONET_USE_UPLINK=${MIDONET_USE_UPLINK:-True}
+
 # MidoNet service endpoint configuration
 MIDONET_SERVICE_API_PORT=${MIDONET_SERVICE_API_PORT:-8181}
 MIDONET_SERVICE_PROTOCOL=${MIDONET_SERVICE_PROTOCOL:-$SERVICE_PROTOCOL}
