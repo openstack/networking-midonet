@@ -235,8 +235,6 @@ class MidonetLoadbalancerDriver(abstract_driver.LoadBalancerAbstractDriver,
 
         self.client.update_health_monitor(context, old_health_monitor['id'],
                                           health_monitor)
-        self.plugin.update_status(context, ldb.HealthMonitor,
-                                  old_health_monitor["id"], constants.ACTIVE)
 
         LOG.debug("MidonetLoadbalancerDriver.update_pool_health_monitor "
                   "exiting: health_monitor=%(health_monitor)r",
