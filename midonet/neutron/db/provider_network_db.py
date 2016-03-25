@@ -54,13 +54,11 @@ class MidonetProviderNetworkMixin(object):
             network_id=network_id).first()
         if net_binding:
             return net_binding.network_type
-        return None
+        return m_const.TYPE_MIDONET
 
     def _extend_provider_network_dict(self, context, network):
         id = network['id']
-        net_type = self._get_net_type(context.session, id)
-        if net_type:
-            network[pnet.NETWORK_TYPE] = net_type
+        network[pnet.NETWORK_TYPE] = self._get_net_type(context.session, id)
 
     def _process_provider_create(self, network):
 
