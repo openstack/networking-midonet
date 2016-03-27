@@ -3,8 +3,6 @@
 # This configuration file is intended to be used for CI and local develeopment
 # where you may only want networking related services to be running.
 
-NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default"
-
 # Load the devstack plugin for ml2
 Q_PLUGIN=ml2
 Q_AGENT=none  # dummy value to avoid pulling functions from openvswitch_agent
@@ -14,6 +12,10 @@ Q_ML2_TENANT_NETWORK_TYPE=midonet
 ML2_L3_PLUGIN=midonet_l3
 
 enable_plugin networking-midonet http://github.com/openstack/networking-midonet.git
+
+# Load the devstack plugin for neutron-lbaas
+NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default"
+enable_plugin neutron-lbaas https://github.com/openstack/neutron-lbaas
 
 # Set all the passwords
 DATABASE_PASSWORD=midonet
@@ -28,7 +30,7 @@ ENABLED_SERVICES=rabbit,mysql,key
 ENABLED_SERVICES+=,n-api,n-crt,n-obj,n-cpu,n-cond,n-sch
 ENABLED_SERVICES+=,g-api,g-reg
 ENABLED_SERVICES+=,q-svc,q-dhcp,q-meta,neutron
-ENABLED_SERVICES+=,q-lbaas,q-fwaas
+ENABLED_SERVICES+=,q-lbaasv1,q-fwaas
 ENABLED_SERVICES+=,tempest
 ENABLED_SERVICES+=,horizon
 ENABLED_SERVICES+=,n-novnc,n-cauth
