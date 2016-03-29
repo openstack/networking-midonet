@@ -236,6 +236,10 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         # REVISIT(yamamoto): this nested transaction is a workaround
         # for bug #1490917.
         with db_api.autonested_transaction(context.session):
+            # Set status along admin_state_up if the parameter is specified.
+            if port['port'].get('admin_state_up') is not None:
+                if not port['port']['admin_state_up']:
+                    port['port']['status'] = n_const.PORT_STATUS_DOWN
             # Create a Neutron port
             new_port = super(MidonetPluginV2, self).create_port(context, port)
 
@@ -377,11 +381,18 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
 
             self.client.update_port_precommit(context, id, p)
 
+        # Set status along admin_state_up to update.
+        if p['admin_state_up']:
+            update_status = n_const.PORT_STATUS_ACTIVE
+        else:
+            update_status = n_const.PORT_STATUS_DOWN
+
         try:
             self.client.update_port_postcommit(id, p)
-            if p['status'] != n_const.PORT_STATUS_ACTIVE:
-                data = {'port': {'status': n_const.PORT_STATUS_ACTIVE}}
-                p = super(MidonetPluginV2, self).update_port(context, id, data)
+            data = {'port': {'status': update_status}}
+            super(MidonetPluginV2, self).update_port(context, id, data)
+            # prevent binding:profile information from lacking
+            p['status'] = data['port']['status']
         except Exception as ex:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Failed to update a port %(port_id)s in "
