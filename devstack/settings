@@ -10,6 +10,9 @@ MIDONET_USE_ZOOM=${MIDONET_USE_ZOOM:-True}
 
 # Use uplink network for "fake" uplink
 MIDONET_USE_UPLINK=${MIDONET_USE_UPLINK:-True}
+# Configure NAT for public network.
+# You need to configure PUBLIC_INTERFACE properly.
+MIDONET_USE_UPLINK_NAT=${MIDONET_USE_UPLINK_NAT:-False}
 
 # MidoNet service endpoint configuration
 MIDONET_SERVICE_API_PORT=${MIDONET_SERVICE_API_PORT:-8181}

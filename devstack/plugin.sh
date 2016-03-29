@@ -57,6 +57,9 @@ if [[ "$1" == "stack" ]]; then
             if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
                 if [ "$MIDONET_USE_UPLINK" == "True" ]; then
                     . $ABSOLUTE_PATH/uplink/create_uplink.sh
+                    if [ "$MIDONET_USE_UPLINK_NAT" == "True" ]; then
+                        . $ABSOLUTE_PATH/uplink/create_nat.sh
+                    fi
                 else
                     $MIDONET_DIR/tools/devmido/create_fake_uplink_l2.sh \
                         $EXT_NET_ID $FLOATING_RANGE $PUBLIC_NETWORK_GATEWAY
@@ -135,6 +138,9 @@ elif [[ "$1" == "unstack" ]]; then
     if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
         if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
             if [ "$MIDONET_USE_UPLINK" == "True" ]; then
+                if [ "$MIDONET_USE_UPLINK_NAT" == "True" ]; then
+                    . $ABSOLUTE_PATH/uplink/delete_nat.sh
+                fi
                 . $ABSOLUTE_PATH/uplink/delete_uplink.sh
             else
                 $MIDONET_DIR/tools/devmido/delete_fake_uplink_l2.sh
