@@ -571,7 +571,8 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
         # We map well-known types to the default value
         # REVISIT(yamamoto): Clean this up once horizon is fixed
         with self.provider_net(net_type=p_const.TYPE_LOCAL) as net:
-            self.assertNotIn(pnet.NETWORK_TYPE, net['network'])
+            self.assertEqual(m_const.TYPE_MIDONET,
+                             net['network'][pnet.NETWORK_TYPE])
 
     def test_create_provider_net_with_flat(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
@@ -600,7 +601,8 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
 
     def test_create_provider_net_with_midonet(self):
         with self.provider_net(net_type=m_const.TYPE_MIDONET) as net:
-            self.assertNotIn(pnet.NETWORK_TYPE, net['network'])
+            self.assertEqual(m_const.TYPE_MIDONET,
+                             net['network'][pnet.NETWORK_TYPE])
 
     def test_create_provider_net_without_type(self):
         args = {'network': {'tenant_id': 'admin'}}
@@ -608,7 +610,8 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
         res = req.get_response(self.api)
         self.assertEqual(201, res.status_int)
         net_res = self.deserialize(self.fmt, res)
-        self.assertNotIn(pnet.NETWORK_TYPE, net_res['network'])
+        self.assertEqual(m_const.TYPE_MIDONET,
+                         net_res['network'][pnet.NETWORK_TYPE])
 
     def test_update_provider_net_unsupported(self):
         # Update including the network type is not supported
