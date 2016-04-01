@@ -15,6 +15,8 @@
 
 from neutron.common import exceptions as nexception
 
+from midonet.neutron._i18n import _
+
 
 class MidonetL2GatewayUnavailable(nexception.ServiceUnavailable):
     message = _("Midonet L2 Gateway Service is unavailable "

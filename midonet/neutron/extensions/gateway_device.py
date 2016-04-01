@@ -15,6 +15,7 @@
 
 import abc
 
+from midonet.neutron._i18n import _
 from midonet.neutron.common import constants
 from neutron.api import extensions
 from neutron.api.v2 import attributes as attr

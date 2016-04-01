@@ -12,7 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron._i18n import _LW
+from midonet.neutron._i18n import _, _LW
 from midonet.neutron.common import constants as m_const
 from neutron.api.v2 import attributes
 from neutron.common import exceptions as n_exc

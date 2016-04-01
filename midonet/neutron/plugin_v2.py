@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron._i18n import _LE, _LW
+from midonet.neutron._i18n import _, _LE, _LW
 from midonet.neutron.common import utils as c_utils
 from midonet.neutron.db import agent_membership_db as am_db
 from midonet.neutron.db import port_binding_db as pb_db

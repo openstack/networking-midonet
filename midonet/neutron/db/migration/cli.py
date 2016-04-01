@@ -15,6 +15,7 @@
 import os
 
 from alembic import config as alembic_config
+from midonet.neutron._i18n import _
 import midonet.neutron.db.data_state_db as ds_db
 import midonet.neutron.db.data_version_db as dv_db
 from midonet.neutron.db import task_db

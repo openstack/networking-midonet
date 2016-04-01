@@ -27,7 +27,7 @@ from neutron.db import l3_gwmode_db
 from neutron.extensions import extra_dhcp_opt as edo_ext
 from neutron.extensions import securitygroup as ext_sg
 
-from midonet.neutron._i18n import _LE, _LW
+from midonet.neutron._i18n import _, _LE, _LW
 from midonet.neutron.common import constants
 from midonet.neutron.common import utils as c_utils
 from midonet.neutron import plugin

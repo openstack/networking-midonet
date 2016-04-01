@@ -15,6 +15,7 @@
 
 from neutron.common import constants
 
+from midonet.neutron._i18n import _
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as const

@@ -15,6 +15,8 @@
 
 import neutron.common.exceptions as exc
 
+from midonet.neutron._i18n import _
+
 
 class ClusterConnectionError(exc.ServiceUnavailable):
     message = _("Error connecting to cluster")
