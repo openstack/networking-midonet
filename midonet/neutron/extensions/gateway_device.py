@@ -68,7 +68,7 @@ class GatewayDeviceInUse(nexception.InUse):
 
     def __init__(self, **kwargs):
         if 'reason' not in kwargs:
-            kwargs['reason'] = "router still has ports"
+            kwargs['reason'] = "is in use by l2 gateway"
         super(GatewayDeviceInUse, self).__init__(**kwargs)
 
 

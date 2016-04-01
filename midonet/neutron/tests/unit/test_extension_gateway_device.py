@@ -439,14 +439,6 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             res = req.get_response(self.ext_api)
             self.assertEqual(webob.exc.HTTPNoContent.code, res.status_int)
 
-    def test_delete_gateway_device_in_use(self):
-        with self.gateway_device_type_router_vtep(
-                resource_id=self._router_id_in_use) as gw_dev:
-            req = self.new_delete_request('gw/gateway_devices',
-                                          gw_dev['gateway_device']['id'])
-            res = req.get_response(self.ext_api)
-            self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
-
     def test_delete_router_in_use(self):
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id):

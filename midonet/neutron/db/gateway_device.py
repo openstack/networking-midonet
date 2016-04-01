@@ -121,25 +121,15 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
 
     __native_bulk_support = False
 
-    def _check_for_router(self, context, gw_dev_id):
-        l3plugin = manager.NeutronManager.get_service_plugins().get(
-            service_constants.L3_ROUTER_NAT)
-
-        try:
-            gw_dev = self.get_gateway_device(context, gw_dev_id)
-            l3plugin._ensure_router_not_in_use(context, gw_dev['resource_id'])
-        except l3.RouterInUse:
-            raise gateway_device.GatewayDeviceInUse(id=gw_dev['id'])
-
     def _ensure_gateway_device_not_in_use(self, context, gw_dev_id):
-        """Ensure that resource is not in use.
-           Checking logic is different from gateway device type
-           router: there are any interfaces or not.
-           hw_vtep: NOP
-        """
+        """Ensure that gateway_device is not in use."""
+
+        l2gw_plugin = manager.NeutronManager.get_service_plugins().get(
+            'L2GW')
+        if l2gw_plugin:
+            if l2gw_plugin._get_l2gw_devices_by_device_id(context, gw_dev_id):
+                raise gateway_device.GatewayDeviceInUse(id=gw_dev_id)
         gw_dev = self._get_gateway_device(context, gw_dev_id)
-        if gw_dev['type'] == gateway_device.ROUTER_DEVICE_TYPE:
-            self._check_for_router(context, gw_dev_id)
 
         return gw_dev
 
