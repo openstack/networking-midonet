@@ -179,3 +179,15 @@ add the following entries in the Neutron configuration file
     service_provider=VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default
 
 NOTE: This plugin does not use Neutron VPNaaS agent.
+
+
+Magnum
+------
+
+The latest development version of MidoNet (which will be 5.2)
+can be used for Magnum deployment with the following workaround.
+
+Currently MidoNet native loadbalancer doesn't meet the expectation
+of Magnum in some ways.  You can workaround it by using "haproxy" provider
+instead.  See :ref:`Haproxy provider <lbaas-haproxy-provider>` for
+how to configure it.
