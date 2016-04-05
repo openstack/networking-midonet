@@ -67,6 +67,7 @@ class MidonetL2GatewayPlugin(l2gw_plugin.L2GatewayPlugin,
         # Gateway Device Management Service must be enabled
         # when Midonet L2 Gateway is used.
         self._check_and_get_gw_dev_service()
+        self.validate_l2_gateway_for_create(context, l2_gateway)
 
         return l2gw_db.MidonetL2GatewayMixin.create_l2_gateway(
             self, context, l2_gateway)
@@ -74,6 +75,8 @@ class MidonetL2GatewayPlugin(l2gw_plugin.L2GatewayPlugin,
     @log_helpers.log_method_call
     def create_l2_gateway_connection(self, context, l2_gateway_connection):
 
+        self.validate_l2_gateway_connection_for_create(
+            context, l2_gateway_connection)
         l2_gw_conn = (l2gw_db.MidonetL2GatewayMixin.
             create_l2_gateway_connection(self, context, l2_gateway_connection))
 
