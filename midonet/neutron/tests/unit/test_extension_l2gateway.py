@@ -422,3 +422,15 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
                     res = self.deserialize(
                         self.fmt, req.get_response(self.ext_api))
                     self.assertEqual(1, len(res['l2_gateway_connections']))
+
+    def test_delete_gateway_device_in_use_by_l2gateway(self):
+        with self.gateway_device_type_router_vtep(
+                resource_id=self._router_id) as gw_dev:
+            with self.l2_gateway(
+                    name=L2_GW_NAME,
+                    device_id=gw_dev['gateway_device']['id']):
+                req = self.new_delete_request('gw/gateway_devices',
+                                              gw_dev['gateway_device']['id'])
+                res = req.get_response(self.ext_api)
+                self.assertEqual(webob.exc.HTTPConflict.code,
+                                 res.status_int)

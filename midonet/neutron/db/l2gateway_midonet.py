@@ -17,6 +17,7 @@ from midonet.neutron.common import constants as midonet_const
 from midonet.neutron.services.l2gateway.common import l2gw_midonet_validators
 from midonet.neutron.services.l2gateway import exceptions
 from networking_l2gw.db.l2gateway import l2gateway_db
+from networking_l2gw.db.l2gateway import l2gateway_models as models
 from networking_l2gw.services.l2gateway.common import constants
 from networking_l2gw.services.l2gateway import exceptions as l2gw_exc
 from neutron.api import extensions as neutron_extensions
@@ -47,6 +48,10 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
         if interfaces:
             seg_id = interfaces[0][constants.SEG_ID]
         return seg_id
+
+    def _get_l2gw_devices_by_device_id(self, context, device_id):
+        return context.session.query(models.L2GatewayDevice).filter_by(
+            device_name=device_id).all()
 
     def create_l2_gateway(self, context, l2_gateway):
         # HACK: set the device_name to device_id so that the networking-l2gw
