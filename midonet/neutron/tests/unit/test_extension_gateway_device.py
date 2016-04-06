@@ -19,6 +19,7 @@ import webob.exc
 
 from midonet.neutron import extensions as midoextensions
 from midonet.neutron.extensions import gateway_device
+from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
 from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 from neutron.tests.unit.api import test_extensions as test_ex
 from neutron.tests.unit.extensions import test_l3
@@ -27,6 +28,7 @@ FAKE_MANAGEMENT_IP = '10.0.0.3'
 FAKE_MANAGEMENT_PORT = 5672
 TYPE_HW_VTEP = 'hw_vtep'
 TYPE_ROUTER_VTEP = 'router_vtep'
+TYPE_NETWORK_VLAN = 'network_vlan'
 OVSDB = 'ovsdb'
 FAKE_MAC_ADDRESS = 'aa:aa:aa:aa:aa:aa'
 FAKE_MAC_ADDRESS2 = 'bb:bb:bb:bb:bb:bb'
@@ -79,6 +81,14 @@ class GatewayDeviceTestCaseMixin(object):
                                                        tunnel_ips or [])
         yield gw_dev
 
+    @contextlib.contextmanager
+    def gateway_device_type_network_vlan(self, name=TYPE_NETWORK_VLAN,
+                                         type=TYPE_NETWORK_VLAN,
+                                         resource_id=""):
+        gw_dev = self._make_gateway_device_network_vlan(name, type,
+                                                        resource_id)
+        yield gw_dev
+
     def _make_gateway_device_hw_vtep(self, name, type, management_ip,
                                      management_port,
                                      management_protocol, tunnel_ips):
@@ -95,6 +105,14 @@ class GatewayDeviceTestCaseMixin(object):
         res = self._create_gateway_device_router_vtep(name, type,
                                                       resource_id,
                                                       tunnel_ips)
+        if res.status_int >= webob.exc.HTTPBadRequest.code:
+            raise webob.exc.HTTPClientError(code=res.status_int)
+        return self.deserialize(self.fmt, res)
+
+    def _make_gateway_device_network_vlan(self, name, type,
+                                          resource_id):
+        res = self._create_gateway_device_network_vlan(name, type,
+                                                       resource_id)
         if res.status_int >= webob.exc.HTTPBadRequest.code:
             raise webob.exc.HTTPClientError(code=res.status_int)
         return self.deserialize(self.fmt, res)
@@ -129,6 +147,17 @@ class GatewayDeviceTestCaseMixin(object):
                                              data, self.fmt)
         return gw_dev_req.get_response(self.ext_api)
 
+    def _create_gateway_device_network_vlan(self, name=TYPE_NETWORK_VLAN,
+                                            type=TYPE_NETWORK_VLAN,
+                                            resource_id=""):
+        data = {'gateway_device': {'name': name,
+                                   'tenant_id': FAKE_TENANT_ID,
+                                   'type': type,
+                                   'resource_id': resource_id}}
+        gw_dev_req = self.new_create_request('gw/gateway_devices',
+                                             data, self.fmt)
+        return gw_dev_req.get_response(self.ext_api)
+
 
 class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                             GatewayDeviceTestCaseMixin,
@@ -159,6 +188,11 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
         self._router_interface_action('add', self._router_id_in_use,
                                       self._subnet_id, None)
 
+        # for network_vlan gateway device setting
+        res = self._create_network(self.fmt, 'gateway_network_vlan',
+                                   True)
+        self._network_id = self.deserialize(self.fmt, res)['network']['id']
+
     def _create_remote_mac_entry(self, gw_dev_id,
                                  mac_address=FAKE_MAC_ADDRESS,
                                  vtep_address=FAKE_VTEP_ADDRESS,
@@ -183,6 +217,13 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             resource_id=self._router_id) as gw_dev:
             with self.remote_mac_entry(gw_dev['gateway_device']['id']) as rme:
                 self.assertDictSupersetOf(expected, rme['remote_mac_entry'])
+
+    def test_create_remote_mac_on_network_vlan(self):
+        with self.gateway_device_type_network_vlan(
+                    resource_id=self._network_id) as gw_dev:
+            res = self._create_remote_mac_entry(gw_dev['gateway_device']['id'])
+            self.deserialize(self.fmt, res)
+            self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
 
     def test_create_remote_mac_with_same_vtep_address(self):
         with self.gateway_device_type_router_vtep(
@@ -268,6 +309,14 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
         self.client_mock.create_gateway_device_postcommit.side_effect = (
             Exception("Fake Error"))
         self._create_gateway_device_router_vtep()
+        req = self.new_list_request('gw/gateway_devices')
+        res = self.deserialize(self.fmt, req.get_response(self.ext_api))
+        self.assertFalse(res['gateway_devices'])
+
+    def test_create_gateway_device_error_delete_neutron_network(self):
+        self.client_mock.create_gateway_device_postcommit.side_effect = (
+            Exception("Fake Error"))
+        self._create_gateway_device_network_vlan()
         req = self.new_list_request('gw/gateway_devices')
         res = self.deserialize(self.fmt, req.get_response(self.ext_api))
         self.assertFalse(res['gateway_devices'])
@@ -381,8 +430,22 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                 resource_id=self._router_id) as gw_dev:
             self.assertDictSupersetOf(expected, gw_dev['gateway_device'])
 
+    def test_create_gateway_device_network_vlan(self):
+        expected = {'name': TYPE_NETWORK_VLAN,
+                    'type': TYPE_NETWORK_VLAN,
+                    'resource_id': self._network_id,
+                    'tenant_id': FAKE_TENANT_ID}
+        with self.gateway_device_type_network_vlan(
+                resource_id=self._network_id) as gw_dev:
+            self.assertDictSupersetOf(expected, gw_dev['gateway_device'])
+
     def test_create_gateway_device_router_vtep_not_found(self):
         res = self._create_gateway_device_router_vtep(resource_id='a')
+        self.deserialize(self.fmt, res)
+        self.assertEqual(webob.exc.HTTPNotFound.code, res.status_int)
+
+    def test_create_gateway_device_network_vlan_not_found(self):
+        res = self._create_gateway_device_network_vlan(resource_id='a')
         self.deserialize(self.fmt, res)
         self.assertEqual(webob.exc.HTTPNotFound.code, res.status_int)
 
@@ -414,6 +477,14 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             self.deserialize(self.fmt, res)
             self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
 
+    def test_create_gateway_device_network_with_duplicate_network(self):
+        with self.gateway_device_type_network_vlan(
+                resource_id=self._network_id) as gw_dev:
+            res = self._create_gateway_device_network_vlan(
+                resource_id=gw_dev['gateway_device']['resource_id'])
+            self.deserialize(self.fmt, res)
+            self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
+
     def test_create_gateway_device_hw_vtep_without_management_ip(self):
         res = self._create_gateway_device_hw_vtep(
             management_port=FAKE_MANAGEMENT_PORT)
@@ -431,6 +502,11 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
         self.deserialize(self.fmt, res)
         self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
 
+    def test_create_gateway_device_vlan_network_without_resource_id(self):
+        res = self._create_gateway_device_network_vlan()
+        self.deserialize(self.fmt, res)
+        self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
+
     def test_delete_gateway_device(self):
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
@@ -445,6 +521,14 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             req = self.new_delete_request('routers',
                                           self._router_id)
             res = req.get_response(self.ext_api)
+            self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
+
+    def test_delete_network_in_use(self):
+        with self.gateway_device_type_network_vlan(
+                resource_id=self._network_id):
+            req = self.new_delete_request('networks',
+                                          self._network_id)
+            res = req.get_response(self.api)
             self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
 
     def test_update_gateway_device(self):
@@ -495,6 +579,18 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
             self.assertDictSupersetOf(expected, res['gateway_device'])
 
+    def test_show_gateway_device_network_vlan(self):
+        expected = {'name': TYPE_NETWORK_VLAN,
+                    'type': TYPE_NETWORK_VLAN,
+                    'resource_id': self._network_id,
+                    'tenant_id': FAKE_TENANT_ID}
+        with self.gateway_device_type_network_vlan(
+                resource_id=self._network_id) as gw_dev:
+            req = self.new_show_request('gw/gateway_devices',
+                                        gw_dev['gateway_device']['id'])
+            res = self.deserialize(self.fmt, req.get_response(self.ext_api))
+            self.assertDictSupersetOf(expected, res['gateway_device'])
+
     def test_list_gateway_devices(self):
         with self.gateway_device_type_router_vtep(resource_id=self._router_id):
             with self.gateway_device_type_hw_vtep():
@@ -502,3 +598,40 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                 res = self.deserialize(
                     self.fmt, req.get_response(self.ext_api))
                 self.assertEqual(2, len(res['gateway_devices']))
+
+
+class GatewayDeviceTestCaseWithML2(GatewayDeviceTestCaseMixin,
+                                   test_mn_ml2.MidonetPluginML2TestCase):
+
+    def setUp(self, plugin=None, service_plugins=None, ext_mgr=None):
+
+        service_plugins = {
+            'gateway_device_plugin_name': DB_GATEWAY_DEVICE_PLUGIN_KLASS}
+
+        gw_dev_mgr = GatewayDeviceTestExtensionManager()
+        super(GatewayDeviceTestCaseWithML2,
+            self).setUp(service_plugins=service_plugins,
+                        ext_mgr=gw_dev_mgr)
+        self.ext_api = test_ex.setup_extensions_middleware(gw_dev_mgr)
+
+        network = self._make_network(self.fmt, 'net1', True)
+        self._subnet = self._make_subnet(self.fmt, network, "10.0.0.1",
+                                         '10.0.0.0/24')
+        self._subnet_id = self._subnet['subnet']['id']
+
+        self._network_id = self._make_network(self.fmt,
+                                              'gateway_network_vlan', True)[
+                                              'network']['id']
+
+    def test_delete_network_in_use(self):
+        with self.gateway_device_type_network_vlan(
+                resource_id=self._network_id):
+            req = self.new_delete_request('networks',
+                                          self._network_id)
+            res = req.get_response(self.api)
+            # ML2 plugin on upstream code will return 500 error regardless of
+            # ML2 driver exception class
+            self.assertLessEqual(webob.exc.HTTPConflict.code, res.status_int)
+            req = self.new_show_request('networks', self._network_id)
+            res = req.get_response(self.api)
+            self.assertEqual(webob.exc.HTTPOk.code, res.status_int)

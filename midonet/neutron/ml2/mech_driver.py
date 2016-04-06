@@ -78,6 +78,8 @@ class MidonetMechanismDriver(api.MechanismDriver):
     @log_helpers.log_method_call
     def delete_network_precommit(self, context):
         network_id = context.current['id']
+        c_utils.check_delete_network_precommit(context._plugin_context,
+                                               network_id)
         self.client.delete_network_precommit(context, network_id)
 
     @m_util.filter_midonet_network

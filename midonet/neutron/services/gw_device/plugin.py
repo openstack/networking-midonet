@@ -19,6 +19,7 @@ from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as midonet_const
 from midonet.neutron.db import gateway_device as gateway_device_db
 from midonet.neutron import extensions
+from midonet.neutron.extensions import gateway_device
 
 from neutron.api import extensions as neutron_extensions
 from oslo_config import cfg
@@ -115,7 +116,12 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
     def create_gateway_device_remote_mac_entry(self, context,
                                                remote_mac_entry,
                                                gateway_device_id):
-        self._get_gateway_device(context, gateway_device_id)
+        gw_device = self._get_gateway_device(context, gateway_device_id)
+
+        if gw_device.type == gateway_device.NETWORK_VLAN_TYPE:
+            raise gateway_device.OperationRemoteMacEntryNotSupported(
+                    type=gateway_device.NETWORK_VLAN_TYPE)
+
         with context.session.begin(subtransactions=True):
             rme = super(MidonetGwDeviceServicePlugin,
                         self).create_gateway_device_remote_mac_entry(

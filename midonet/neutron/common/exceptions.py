@@ -32,3 +32,7 @@ class InvalidMidonetDataState(exc.NeutronException):
     i.e. missing some table that should always be present
     """
     pass
+
+
+class MidonetNetworkInUse(exc.InUse):
+    message = _("Network %(network_id)s %(reason)s")

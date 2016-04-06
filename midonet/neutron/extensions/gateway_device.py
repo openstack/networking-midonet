@@ -49,6 +49,11 @@ class RouterVtepTypeInvalid(nexception.InvalidInput):
                 "resource_id")
 
 
+class NetworkVlanTypeInvalid(nexception.InvalidInput):
+    message = _("Gateway device %(type)s must be specified with "
+                "resource_id")
+
+
 class DuplicateRemoteMacEntry(nexception.InUse):
     message = _("Request contains duplicate remote mac address entry: "
                 "mac_address %(mac_address)s.")
@@ -73,7 +78,7 @@ class GatewayDeviceInUse(nexception.InUse):
 
 
 class DeviceInUseByGatewayDevice(nexception.InUse):
-    message = _("device %(resource_id)s %(reason)s")
+    message = _("device %(resource_id)s (%(resource_type)s) %(reason)s")
 
     def __init__(self, **kwargs):
         if 'reason' not in kwargs:
@@ -86,12 +91,19 @@ class TunnelIPsExhausted(nexception.BadRequest):
                 "The number of tunnel ips exceeds the maximum 1.")
 
 
+class OperationRemoteMacEntryNotSupported(nexception.Conflict):
+    message = _("Unable to operate remote_mac_entry for gateway device "
+                "%(type)s type.")
+
+
 GATEWAY_DEVICE = 'gateway_device'
 GATEWAY_DEVICES = '%ss' % GATEWAY_DEVICE
 
 HW_VTEP_TYPE = 'hw_vtep'
 ROUTER_DEVICE_TYPE = 'router_vtep'
-gateway_device_valid_types = [HW_VTEP_TYPE, ROUTER_DEVICE_TYPE]
+NETWORK_VLAN_TYPE = 'network_vlan'
+gateway_device_valid_types = [HW_VTEP_TYPE, ROUTER_DEVICE_TYPE,
+                              NETWORK_VLAN_TYPE]
 
 OVSDB = 'ovsdb'
 gateway_device_valid_protocols = [OVSDB]

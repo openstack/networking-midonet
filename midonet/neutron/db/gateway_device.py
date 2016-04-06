@@ -14,10 +14,11 @@
 #    under the License.
 
 from midonet.neutron.common import constants as midonet_const
-from midonet.neutron.extensions import gateway_device
+from midonet.neutron.extensions import gateway_device as gw_device_ext
 from neutron.callbacks import events
 from neutron.callbacks import registry
 from neutron.callbacks import resources
+from neutron.common import exceptions as n_exc
 from neutron.db import common_db_mixin
 from neutron.db import model_base
 from neutron.extensions import l3
@@ -27,12 +28,14 @@ from oslo_db import exception as db_exc
 from oslo_utils import uuidutils
 
 import sqlalchemy as sa
+from sqlalchemy.ext import declarative
 from sqlalchemy import orm
 from sqlalchemy.orm import exc
 
 GATEWAY_DEVICES = 'midonet_gateway_devices'
 GATEWAY_HW_VTEP_DEVICES = 'midonet_gateway_hw_vtep_devices'
 GATEWAY_OVERLAY_ROUTER_DEVICES = 'midonet_gateway_overlay_router_devices'
+GATEWAY_NETWORK_VLAN_DEVICES = 'midonet_gateway_network_vlan_devices'
 GATEWAY_TUNNEL_IPS = 'midonet_gateway_tunnel_ips'
 GATEWAY_REMOTE_MAC_TABLES = 'midonet_gateway_remote_mac_tables'
 
@@ -66,21 +69,57 @@ class GatewayHwVtepDevice(model_base.BASEV2):
         primaryjoin="GatewayDevice.id==GatewayHwVtepDevice.device_id")
 
 
-class GatewayOverlayRouterDevice(model_base.BASEV2):
+class GatewayVirtualDevice(object):
+    """Represents a virtual gateway device."""
+    device_id = sa.Column(sa.String(36), nullable=False, primary_key=True)
+
+    @declarative.declared_attr
+    def __table_args__(cls):
+        return (
+            sa.ForeignKeyConstraint(['device_id'],
+                                    ['midonet_gateway_devices.id'],
+                                    ondelete="CASCADE"),
+            model_base.BASEV2.__table_args__,
+        )
+
+
+def get_type_model_map():
+    return {table.resource_type: table
+            for table in GatewayVirtualDevice.__subclasses__()}
+
+
+def _resource_id_column(foreign_key):
+    return sa.Column(sa.String(36),
+                     sa.ForeignKey(foreign_key),
+                     nullable=False)
+
+
+def _gateway_device_relation(class_name, ref_key):
+    relation = "GatewayDevice.id==" + class_name + ".device_id"
+    return orm.relationship(
+                GatewayDevice,
+                backref=orm.backref(ref_key, cascade='delete', lazy='joined'),
+                primaryjoin=relation)
+
+
+class GatewayOverlayRouterDevice(GatewayVirtualDevice, model_base.BASEV2):
     """Represents a gateway overlay router device."""
 
     __tablename__ = GATEWAY_OVERLAY_ROUTER_DEVICES
-    device_id = sa.Column(sa.String(36),
-                          sa.ForeignKey('midonet_gateway_devices.id',
-                          ondelete="CASCADE"),
-                          nullable=False, primary_key=True)
-    resource_id = sa.Column(sa.String(length=36),
-                            sa.ForeignKey('routers.id'),
-                            nullable=False)
-    gateway_device = orm.relationship(
-        GatewayDevice,
-        backref=orm.backref('overlay_router', cascade='delete', lazy='joined'),
-        primaryjoin="GatewayDevice.id==GatewayOverlayRouterDevice.device_id")
+    resource_id = _resource_id_column('routers.id')
+    gateway_device = _gateway_device_relation('GatewayOverlayRouterDevice',
+                                              'overlay_router')
+    resource_type = gw_device_ext.ROUTER_DEVICE_TYPE
+
+
+class GatewayVlanNetworkDevice(GatewayVirtualDevice, model_base.BASEV2):
+    """Represents a gateway vlan network device."""
+
+    __tablename__ = GATEWAY_NETWORK_VLAN_DEVICES
+    resource_id = _resource_id_column('networks.id')
+    gateway_device = _gateway_device_relation('GatewayVlanNetworkDevice',
+                                              'vlan_network')
+    resource_type = gw_device_ext.NETWORK_VLAN_TYPE
 
 
 class GatewayTunnelIp(model_base.BASEV2):
@@ -117,7 +156,7 @@ class GatewayRemoteMacTable(model_base.BASEV2):
         primaryjoin="GatewayDevice.id==GatewayRemoteMacTable.device_id")
 
 
-class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
+class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
                       common_db_mixin.CommonDbMixin):
     """Mixin class to add gateway device."""
 
@@ -130,7 +169,7 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
             'L2GW')
         if l2gw_plugin:
             if l2gw_plugin._get_l2gw_devices_by_device_id(context, gw_dev_id):
-                raise gateway_device.GatewayDeviceInUse(id=gw_dev_id)
+                raise gw_device_ext.GatewayDeviceInUse(id=gw_dev_id)
         gw_dev = self._get_gateway_device(context, gw_dev_id)
 
         return gw_dev
@@ -141,15 +180,17 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
             gw_dev_db = query.filter(GatewayDevice.id == id).one()
 
         except exc.NoResultFound:
-            raise gateway_device.GatewayDeviceNotFound(id=id)
+            raise gw_device_ext.GatewayDeviceNotFound(id=id)
 
         return gw_dev_db
 
-    def _get_gateway_device_from_router(self, context, router_id):
+    def _get_gateway_device_from_resource(self, context, resource_type,
+                                          resource_id):
         try:
-            query = self._model_query(context, GatewayOverlayRouterDevice)
+            device_model = get_type_model_map()[resource_type]
+            query = self._model_query(context, device_model)
             gw_dev_db = query.filter(
-                GatewayOverlayRouterDevice.resource_id == router_id).one()
+                device_model.resource_id == resource_id).one()
 
         except exc.NoResultFound:
             pass
@@ -175,7 +216,7 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
             rmt_db = query.filter(GatewayRemoteMacTable.id == id).one()
 
         except exc.NoResultFound:
-            raise gateway_device.RemoteMacEntryNotFound(id=id)
+            raise gw_device_ext.RemoteMacEntryNotFound(id=id)
 
         return rmt_db
 
@@ -196,14 +237,23 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
                'name': gw_dev_db['name'],
                'type': gw_dev_db['type'],
                'tenant_id': gw_dev_db['tenant_id'],
+               'tunnel_ips': [],
                'remote_mac_entries': []}
-        if gw_dev_db['type'] == gateway_device.HW_VTEP_TYPE:
+        if gw_dev_db['type'] == gw_device_ext.NETWORK_VLAN_TYPE:
+            res['management_ip'] = None
+            res['management_port'] = None
+            res['management_protocol'] = None
+            res['resource_id'] = gw_dev_db.vlan_network[0]['resource_id']
+            # tunnel_ips and remote_mac_entries are not set
+            return self._fields(res, fields)
+
+        if gw_dev_db['type'] == gw_device_ext.HW_VTEP_TYPE:
             hw_vtep = gw_dev_db.hw_vtep[0]
             res['management_ip'] = hw_vtep['management_ip']
             res['management_port'] = hw_vtep['management_port']
             res['management_protocol'] = hw_vtep['management_protocol']
             res['resource_id'] = ""
-        if gw_dev_db['type'] == gateway_device.ROUTER_DEVICE_TYPE:
+        if gw_dev_db['type'] == gw_device_ext.ROUTER_DEVICE_TYPE:
             res['management_ip'] = None
             res['management_port'] = None
             res['management_protocol'] = None
@@ -264,17 +314,19 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
         return gw_dev_db
 
     def _validate_gateway_device(self, context, gw_dev):
-        if gw_dev['type'] == gateway_device.HW_VTEP_TYPE:
+        if gw_dev['type'] == gw_device_ext.HW_VTEP_TYPE:
             self._validate_hw_vtep(gw_dev, context)
-        if gw_dev['type'] == gateway_device.ROUTER_DEVICE_TYPE:
+        if gw_dev['type'] == gw_device_ext.ROUTER_DEVICE_TYPE:
             self._validate_router_vtep(gw_dev, context)
+        if gw_dev['type'] == gw_device_ext.NETWORK_VLAN_TYPE:
+            self._validate_vlan_network(gw_dev, context)
 
     def _validate_hw_vtep(self, gw_dev, context):
         if not gw_dev['management_ip'] or not gw_dev['management_port']:
-            raise gateway_device.HwVtepTypeInvalid(type=gw_dev['type'])
+            raise gw_device_ext.HwVtepTypeInvalid(type=gw_dev['type'])
         if self._get_hw_vtep_from_management_ip(
             context, gw_dev['management_ip']):
-            raise gateway_device.GatewayDeviceParamDuplicate(
+            raise gw_device_ext.GatewayDeviceParamDuplicate(
                 param_name='management_ip',
                 param_value=gw_dev['management_ip'])
 
@@ -286,50 +338,74 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
         try:
             l3plugin.get_router(context, router_id)
         except l3.RouterNotFound:
-            raise gateway_device.ResourceNotFound(resource_id=router_id)
+            raise gw_device_ext.ResourceNotFound(resource_id=router_id)
 
-        if self._get_gateway_device_from_router(context, router_id):
-            raise gateway_device.DeviceInUseByGatewayDevice(
-                resource_id=router_id)
+        if self._get_gateway_device_from_resource(
+               context, gw_device_ext.ROUTER_DEVICE_TYPE, router_id):
+            raise gw_device_ext.DeviceInUseByGatewayDevice(
+                resource_id=router_id, resource_type='router')
 
     def _validate_router_vtep(self, gw_dev, context):
         if not gw_dev['resource_id']:
-            raise gateway_device.RouterVtepTypeInvalid(type=gw_dev['type'])
+            raise gw_device_ext.RouterVtepTypeInvalid(type=gw_dev['type'])
         self._validate_resource_router_vtep(context,
                                             gw_dev['resource_id'])
 
+    def _validate_resource_vlan_network(self, context, network_id):
+        # Check specified netowrk existance
+        core_plugin = manager.NeutronManager.get_plugin()
+
+        try:
+            core_plugin.get_network(context, network_id)
+        except n_exc.NetworkNotFound:
+            raise gw_device_ext.ResourceNotFound(resource_id=network_id)
+
+        if self._get_gateway_device_from_resource(
+               context, gw_device_ext.NETWORK_VLAN_TYPE, network_id):
+            raise gw_device_ext.DeviceInUseByGatewayDevice(
+                resource_id=network_id, resource_type='network')
+
+    def _validate_vlan_network(self, gw_dev, context):
+        if not gw_dev['resource_id']:
+            raise gw_device_ext.NetworkVlanTypeInvalid(type=gw_dev['type'])
+        self._validate_resource_vlan_network(context,
+                                             gw_dev['resource_id'])
+
     def _validate_tunnel_ips(self, tunnel_ips):
         if len(tunnel_ips) > 1:
-            raise gateway_device.TunnelIPsExhausted()
+            raise gw_device_ext.TunnelIPsExhausted()
 
     def create_gateway_device(self, context, gw_device):
         """Create a gateway device"""
         gw_dev = gw_device['gateway_device']
         tenant_id = gw_dev['tenant_id']
         self._validate_gateway_device(context, gw_dev)
-        self._validate_tunnel_ips(gw_dev.get('tunnel_ips') or [])
+        if gw_dev['type'] != gw_device_ext.NETWORK_VLAN_TYPE:
+            self._validate_tunnel_ips(gw_dev.get('tunnel_ips') or [])
 
         with context.session.begin(subtransactions=True):
             gw_dev_db = GatewayDevice(id=uuidutils.generate_uuid(),
                 name=gw_dev['name'],
-                type=(gw_dev['type'] or gateway_device.HW_VTEP_TYPE),
+                type=(gw_dev['type'] or gw_device_ext.HW_VTEP_TYPE),
                 tenant_id=tenant_id)
             context.session.add(gw_dev_db)
-            if gw_dev_db['type'] == gateway_device.HW_VTEP_TYPE:
+            if gw_dev_db['type'] == gw_device_ext.HW_VTEP_TYPE:
                 gw_hw_vtep_db = GatewayHwVtepDevice(
                     device_id=gw_dev_db['id'],
                     management_ip=gw_dev['management_ip'],
                     management_port=gw_dev['management_port'],
                     management_protocol=(
-                        gw_dev['management_protocol'] or gateway_device.OVSDB))
+                        gw_dev['management_protocol'] or gw_device_ext.OVSDB))
                 context.session.add(gw_hw_vtep_db)
 
-            if gw_dev_db['type'] == gateway_device.ROUTER_DEVICE_TYPE:
-                gw_router_db = GatewayOverlayRouterDevice(
+            device_model = get_type_model_map().get(gw_dev_db['type'])
+            if device_model:
+                gw_vlan_db = device_model(
                     device_id=gw_dev_db['id'],
                     resource_id=gw_dev['resource_id'])
-                context.session.add(gw_router_db)
+                context.session.add(gw_vlan_db)
 
+            # In network vlan type gateway device, tunnel_ips should be None
             if gw_dev.get('tunnel_ips'):
                 self._tunnel_ip_db_add(context,
                                        gw_dev_db['id'], gw_dev['tunnel_ips'])
@@ -351,7 +427,7 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
                     vtep_address=rme['vtep_address'])
                 context.session.add(gw_rmt_db)
         except db_exc.DBDuplicateEntry:
-            raise gateway_device.DuplicateRemoteMacEntry(
+            raise gw_device_ext.DuplicateRemoteMacEntry(
                 mac_address=rme['mac_address'])
 
         return self._make_remote_mac_dict(gw_rmt_db)
@@ -406,23 +482,44 @@ class GwDeviceDbMixin(gateway_device.GwDevicePluginBase,
 
     def update_gateway_device(self, context, id, gw_device):
         gw_dev = gw_device['gateway_device']
+        gw_dev_db = self._get_gateway_device(context, id)
+        if gw_dev_db.type == gw_device_ext.NETWORK_VLAN_TYPE:
+            del gw_device['gateway_device']['tunnel_ips']
         self._validate_tunnel_ips(gw_dev.get('tunnel_ips') or [])
         gw_dev_db = self._update_gateway_device_db(context, id, gw_dev)
         return self._make_gateway_device_dict(gw_dev_db)
 
 
 def gateway_device_callback(resource, event, trigger, **kwargs):
-    router_id = kwargs['router_id']
+    if resource == resources.ROUTER:
+        resource_id = kwargs['router_id']
+        gw_dev_type = gw_device_ext.ROUTER_DEVICE_TYPE
+        resource_type = 'router'
+    elif resource == midonet_const.MIDONET_NETWORK:
+        resource_id = kwargs['network_id']
+        gw_dev_type = gw_device_ext.NETWORK_VLAN_TYPE
+        resource_type = 'network'
+    else:
+        return
     gw_dev_plugin = manager.NeutronManager.get_service_plugins().get(
         midonet_const.GATEWAY_DEVICE)
     if gw_dev_plugin:
         context = kwargs.get('context')
-        if gw_dev_plugin._get_gateway_device_from_router(context,
-                                                         router_id):
-            raise gateway_device.DeviceInUseByGatewayDevice(
-                resource_id=router_id)
+        if gw_dev_plugin._get_gateway_device_from_resource(context,
+                                                           gw_dev_type,
+                                                           resource_id):
+            raise gw_device_ext.DeviceInUseByGatewayDevice(
+                resource_id=resource_id, resource_type=resource_type)
 
 
 def subscribe():
     registry.subscribe(
         gateway_device_callback, resources.ROUTER, events.BEFORE_DELETE)
+
+    # We can only add PRECOMMIT_DELETE events in MidoNet ML2 mechanism driver
+    # while we can add both BEFORE_DELETE and PRECOMMIT_DELETE in MidoNet
+    # plugin. To keep the ML2 and plugin behavior the same, use
+    # PRECOMMIT_DELETE event for both ML2 and plugin.
+    registry.subscribe(
+        gateway_device_callback, midonet_const.MIDONET_NETWORK,
+        events.PRECOMMIT_DELETE)
