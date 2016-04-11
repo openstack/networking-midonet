@@ -152,6 +152,36 @@ class TestMidonetPortsV2(MidonetPluginV2TestCase,
                 self.assertEqual(n_const.PORT_STATUS_ERROR,
                         res['port']['status'])
 
+    def test_create_port_with_admin_state_up_false(self):
+        with self.subnet(cidr=FAKE_CIDR) as sub:
+            with self.port(subnet=sub,
+                    admin_state_up=False) as port:
+                req = self.new_show_request('ports', port['port']['id'])
+                res = self.deserialize(self.fmt,
+                        req.get_response(self.api))
+                self.assertEqual(n_const.PORT_STATUS_DOWN,
+                        res['port']['status'])
+
+    def test_update_port_admin_state_up_to_false_and_true(self):
+        with self.subnet(cidr=FAKE_CIDR) as sub:
+            with self.port(subnet=sub) as port:
+                data = {'port': {'admin_state_up': False}}
+                req = self.new_update_request(
+                        'ports', data, port['port']['id'])
+                res = req.get_response(self.api)
+                res = self.deserialize(self.fmt,
+                        req.get_response(self.api))
+                self.assertEqual(n_const.PORT_STATUS_DOWN,
+                                 res['port']['status'])
+                data = {'port': {'admin_state_up': True}}
+                req = self.new_update_request(
+                        'ports', data, port['port']['id'])
+                res = req.get_response(self.api)
+                res = self.deserialize(self.fmt,
+                        req.get_response(self.api))
+                self.assertEqual(n_const.PORT_STATUS_ACTIVE,
+                                 res['port']['status'])
+
 
 class TestMidonetPortBinding(MidonetPluginV2TestCase,
                              test_bindings.PortBindingsTestCase):
