@@ -63,3 +63,12 @@ function l2gw_configure_midonet {
     inicomment $L2GW_PLUGIN_CONF_FILE service_providers service_provider
     iniadd $L2GW_PLUGIN_CONF_FILE service_providers service_provider $L2GW_SERVICE_PROVIDER
 }
+
+function configure_midonet_cli {
+    local MIDONETRC_FILE="${HOME}/.midonetrc"
+
+    iniset $MIDONETRC_FILE cli api_url $MIDONET_API_URL
+    iniset $MIDONETRC_FILE cli username admin
+    iniset $MIDONETRC_FILE cli password $ADMIN_PASSWORD
+    iniset $MIDONETRC_FILE cli project_id admin
+}
