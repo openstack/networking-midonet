@@ -50,7 +50,7 @@ Plugin
 There are two versions of MidoNet plugin.  Set MIDONET_PLUGIN local.conf
 variable to the plugin that you want to load.
 
-MidoNet plugin v1, which is compatible with MidoNet v2015.03 and v2015.06::
+MidoNet plugin v1, which is compatible with MidoNet v2015.06::
 
     MIDONET_PLUGIN=midonet
 
