@@ -110,6 +110,10 @@ r="$r(tempest\.(api|scenario)|neutron_fwaas).*$"
 
 export DEVSTACK_GATE_TEMPEST_REGEX="$r"
 export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS=1
+# NOTE(yamamoto): Tempest "all-plugin" uses OS_TEST_TIMEOUT=1200 by default.
+# As we exclude slow tests by the above regex, 500, which is the default
+# for "full", should be enough.
+export TEMPEST_OS_TEST_TIMEOUT=500
 
 # Explicitly set LOGDIR to align with the SCREEN_LOGDIR setting
 # from devstack-gate.  Otherwise, devstack infers it from LOGFILE,
