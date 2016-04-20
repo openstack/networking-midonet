@@ -46,6 +46,9 @@ class MidonetL2GatewayPlugin(l2gw_plugin.L2GatewayPlugin,
         # the MidoNet implementation of L2GW.
         l2gw_validators.validate_gwdevice_list = (l2gw_midonet_validators.
                                                   validate_gwdevice_list)
+        l2gw_validators.validate_network_mapping_list = (
+                l2gw_midonet_validators.
+                validate_network_mapping_list_without_seg_id_validation)
         neutron_extensions.append_api_extensions_path(l2gateway_ext.__path__)
         super(MidonetL2GatewayPlugin, self).__init__()
 

@@ -16,6 +16,7 @@
 from midonet.neutron._i18n import _
 from midonet.neutron.common import constants
 from midonet.neutron.extensions import gateway_device
+from networking_l2gw.services.l2gateway.common import constants as l2gw_const
 from networking_l2gw.services.l2gateway.common import l2gw_validators
 from neutron.api.v2 import attributes
 from neutron.common import exceptions
@@ -55,6 +56,38 @@ def validate_gwdevice_list(data, valid_values=None):
     except TypeError:
         return (_("%s: provided data are not iterable") %
                 validate_gwdevice_list.__name__)
+
+
+def validate_network_mapping_list_without_seg_id_validation(network_mapping,
+                                                            check_vlan):
+    """Validate network mapping list in connection."""
+    if network_mapping.get('segmentation_id'):
+        if check_vlan:
+            raise exceptions.InvalidInput(
+                error_message=_("default segmentation_id should not be"
+                                " provided when segmentation_id is assigned"
+                                " during l2gateway creation"))
+        # This method doen't check segmentation id range.
+
+    if not network_mapping.get('segmentation_id'):
+        if check_vlan is False:
+            raise exceptions.InvalidInput(
+                error_message=_("Segmentation id must be specified in create "
+                                "l2gateway connections"))
+    network_id = network_mapping.get(l2gw_const.NETWORK_ID)
+    if not network_id:
+        raise exceptions.InvalidInput(
+            error_message=_("A valid network identifier must be specified "
+                            "when connecting a network to a network "
+                            "gateway. Unable to complete operation"))
+    connection_attrs = set(network_mapping.keys())
+    if not connection_attrs.issubset(l2gw_validators.
+                                     ALLOWED_CONNECTION_ATTRIBUTES):
+        raise exceptions.InvalidInput(
+            error_message=(_("Invalid keys found among the ones provided "
+                             "in request : %(connection_attrs)s."),
+                           connection_attrs))
+    return network_id
 
 
 def is_valid_segmentaion_id(gw_type, seg_id):

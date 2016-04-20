@@ -39,6 +39,35 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
         # applicable in MidoNet.
         pass
 
+    def validate_l2_gateway_connection_for_create(self, context,
+                                                  l2_gateway_connection):
+        # HACK: Override this since segmentation id validation is not
+        # applicable in Midonet. After deactivating segmentation id validation
+        # of l2gw_validators.validate_network_mapping_list in plugin side,
+        # validate it in this method.
+        super(MidonetL2GatewayMixin,
+              self).validate_l2_gateway_connection_for_create(
+                      context, l2_gateway_connection)
+
+        # Validate l2 gateway existence before getting gateway device type
+        gw_connection = l2_gateway_connection[self.connection_resource]
+        l2gw = self.get_l2_gateway(context, gw_connection['l2_gateway_id'])
+        if not l2gw:
+            raise l2gw_exc.L2GatewayNotFound(
+                gateway_id=gw_connection['l2_gateway_id'])
+        if self._get_l2_gateway_connection_by_l2gw_id(
+                context, gw_connection['l2_gateway_id']):
+            raise exceptions.MidonetL2GatewayConnectionExists(
+                    l2_gateway_id=gw_connection['l2_gateway_id'])
+
+        # Validate segmentation id range according to gateway device type
+        gw_connection = l2_gateway_connection[
+                           constants.CONNECTION_RESOURCE_NAME]
+        seg_id = gw_connection.get(constants.SEG_ID)
+        if seg_id:
+            gw_type = self.get_gateway_device_type_from_l2gw(context, l2gw)
+            l2gw_midonet_validators.is_valid_segmentaion_id(gw_type, seg_id)
+
     def _get_l2_gateway_seg_id(self, context, l2_gw_id):
         seg_id = None
         l2_gw_dev = self.get_l2gateway_devices_by_gateway_id(
@@ -96,14 +125,9 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
 
     def create_l2_gateway_connection(self, context, l2_gateway_connection):
         gw_connection = l2_gateway_connection[self.connection_resource]
-        l2gw = self.get_l2_gateway(context, gw_connection['l2_gateway_id'])
-        if not l2gw:
-            raise l2gw_exc.L2GatewayNotFound(
-                gateway_id=gw_connection['l2_gateway_id'])
-        if self._get_l2_gateway_connection_by_l2gw_id(
-                context, gw_connection['l2_gateway_id']):
-            raise exceptions.MidonetL2GatewayConnectionExists(
-                    l2_gateway_id=gw_connection['l2_gateway_id'])
+
+        # Validate only network existence since l2_gateway existence is
+        # validated in validate_l2_gateway_connection_for_create method.
         if not self._core_plugin.get_network(context,
                 gw_connection['network_id']):
             raise neutron_extensions.NetworkNotFound(
