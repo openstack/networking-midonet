@@ -328,3 +328,30 @@ class MidonetClientBase(object):
 
     def delete_l2_gateway_connection(self, context, l2_gw_conn_id):
         pass
+
+    # BGP extensions
+
+    def update_bgp_speaker_precommit(self, context,
+                                     bgp_speaker_id, bgp_speaker):
+        pass
+
+    def update_bgp_speaker_postcommit(self, bgp_speaker_id, bgp_speaker):
+        pass
+
+    def create_bgp_peer_precommit(self, context, bgp_peer):
+        pass
+
+    def create_bgp_peer_postcommit(self, bgp_peer):
+        pass
+
+    def update_bgp_peer_precommit(self, context, bgp_peer_id, bgp_peer):
+        pass
+
+    def update_bgp_peer_postcommit(self, bgp_peer_id, bgp_peer):
+        pass
+
+    def delete_bgp_peer_precommit(self, context, bgp_peer_id):
+        pass
+
+    def delete_bgp_peer_postcommit(self, bgp_peer_id):
+        pass

@@ -1,0 +1,122 @@
+# Copyright (C) 2016 Midokura SARL
+# All Rights Reserved.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#        http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
+from neutron.callbacks import events
+from neutron.callbacks import registry
+from neutron.callbacks import resources
+from neutron.db import bgp_db as bdb
+from neutron.db import model_base
+from neutron.extensions import bgp as bgp_ext
+from neutron.extensions import l3
+from neutron import manager
+from oslo_db import exception as db_exc
+from oslo_log import helpers as log_helpers
+from oslo_log import log as logging
+import sqlalchemy as sa
+from sqlalchemy.orm import exc
+
+LOG = logging.getLogger(__name__)
+
+
+class BgpSpeakerRouterAssociation(model_base.BASEV2):
+
+    """Tracks Bgp Speaker Router Association"""
+
+    __tablename__ = 'bgp_speaker_router_associations'
+
+    bgp_speaker_id = sa.Column(sa.String(36),
+        sa.ForeignKey('bgp_speakers.id', ondelete="CASCADE"),
+        nullable=False, primary_key=True)
+    router_id = sa.Column(sa.String(36),
+        sa.ForeignKey('routers.id', ondelete="CASCADE"),
+        nullable=False, unique=True)
+
+
+class BgpSpeakerRouterInsertionDbMixin(object):
+
+    """Access methods for the bgp_speaker_router_associations table."""
+
+    @log_helpers.log_method_call
+    def set_router_for_bgp_speaker(self, context, bgp_sp_id, r_id):
+        """Sets the routers associated with the bgp speaker."""
+        try:
+            with context.session.begin(subtransactions=True):
+                bgp_router_db = BgpSpeakerRouterAssociation(
+                        bgp_speaker_id=bgp_sp_id,
+                        router_id=r_id)
+                context.session.add(bgp_router_db)
+        except db_exc.DBDuplicateEntry:
+            raise l3.RouterInUse(
+                    router_id=r_id,
+                    reason='is already associated with bgp speaker')
+        except db_exc.DBReferenceError:
+            raise l3.RouterNotFound(router_id=r_id)
+
+    @log_helpers.log_method_call
+    def get_router_associated_with_bgp_speaker(self, context, bgp_sp_id):
+        """Gets router associated with a bgp speaker."""
+        r_id = None
+        try:
+            query = self._model_query(context,
+                                      BgpSpeakerRouterAssociation)
+            bsra = query.filter(
+                BgpSpeakerRouterAssociation.bgp_speaker_id == bgp_sp_id).one()
+            r_id = bsra['router_id']
+
+        except exc.NoResultFound:
+            LOG.debug("the bgp speaker %s is not attached to any router",
+                      bgp_sp_id)
+        return r_id
+
+    @log_helpers.log_method_call
+    def get_bgp_speaker_associated_with_router(self, context, router_id):
+        """Gets router associated with a bgp speaker."""
+        bgp_sp_id = None
+        try:
+            query = self._model_query(context,
+                                      BgpSpeakerRouterAssociation)
+            bsra = query.filter(
+                BgpSpeakerRouterAssociation.router_id == router_id).one()
+            bgp_sp_id = bsra['bgp_speaker_id']
+
+        except exc.NoResultFound:
+            LOG.debug("the router %s is not attached to any bgp speaker",
+                      bgp_sp_id)
+        return bgp_sp_id
+
+    def _get_bgp_speakers_by_bgp_peer_binding(self, context, bgp_peer_id):
+        with context.session.begin(subtransactions=True):
+            query = context.session.query(bdb.BgpSpeaker)
+            query = query.filter(
+                bdb.BgpSpeakerPeerBinding.bgp_speaker_id == bdb.BgpSpeaker.id,
+                bdb.BgpSpeakerPeerBinding.bgp_peer_id == bgp_peer_id)
+            return query.all()
+
+
+def bgp_speaker_callback(resource, event, trigger, **kwargs):
+    router_id = kwargs['router_id']
+    bgp_plugin = manager.NeutronManager.get_service_plugins().get(
+        bgp_ext.BGP_EXT_ALIAS)
+    if bgp_plugin:
+        context = kwargs.get('context')
+        if bgp_plugin.get_bgp_speaker_associated_with_router(context,
+                                                             router_id):
+            raise l3.RouterInUse(router_id=router_id,
+                    reason='is associated with bgp speaker')
+
+
+def subscribe():
+    registry.subscribe(
+        bgp_speaker_callback, resources.ROUTER, events.BEFORE_DELETE)

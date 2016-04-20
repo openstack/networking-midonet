@@ -177,3 +177,15 @@ class MidonetApiClient(base.MidonetClientBase):
 
     def delete_l2_gateway_connection(self, context, l2_gw_conn_id):
         self.api_cli.delete_l2gw_conn(l2_gw_conn_id)
+
+    def update_bgp_speaker_postcommit(self, bgp_speaker_id, bgp_speaker):
+        self.api_cli.update_bgp_speaker(bgp_speaker_id, bgp_speaker)
+
+    def create_bgp_peer_postcommit(self, bgp_peer):
+        self.api_cli.create_bgp_peer(bgp_peer)
+
+    def update_bgp_peer_postcommit(self, bgp_peer_id, bgp_peer):
+        self.api_cli.update_bgp_peer(bgp_peer_id, bgp_peer)
+
+    def delete_bgp_peer_postcommit(self, bgp_peer_id):
+        self.api_cli.delete_bgp_peer(bgp_peer_id)

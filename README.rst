@@ -232,3 +232,17 @@ Currently MidoNet native loadbalancer doesn't meet the expectation
 of Magnum in some ways.  You can workaround it by using "haproxy" provider
 instead.  See :ref:`Haproxy provider <lbaas-haproxy-provider>` for
 how to configure it.
+
+
+BGP dynamic routing service
+---------------------------
+
+Starting v5.2, MidoNet implements Neutron BGP dynamic routing service extension API.
+The implementation differs slightly from upstream.
+In MidoNet, router treated as bgp-speaker must be specified.
+
+To configure it, add the following service plugin to the `service_plugins` list
+in the DEFAULT section of `/etc/neutron/neutron.conf`::
+
+    [DEFAULT]
+    service_plugins = midonet.neutron.services.bgp.plugin.MidonetBgpPlugin

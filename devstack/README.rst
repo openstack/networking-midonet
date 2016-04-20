@@ -158,3 +158,19 @@ when running devstack, make sure the following is defined in ``local.conf``::
     Q_PLUGIN_EXTRA_CONF_PATH=/etc/neutron
     Q_PLUGIN_EXTRA_CONF_FILES=(l2gw_plugin.ini)
     L2GW_PLUGIN="midonet.neutron.services.l2gateway.plugin.MidonetL2GatewayPlugin"
+
+
+BGP dynamic routing service
+---------------------------
+
+Starting v5.2, MidoNet implements Neutron BGP dynamic routing service extension API.
+The implementation differs slightly from upstream.
+In MidoNet, router treated as bgp-speaker must be specified.
+
+To configure MidoNet including BGP dynamic routing service
+when running devstack, make sure the following is defined in ``local.conf``::
+
+    Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.bgp.plugin.MidonetBgpPlugin
+
+Note: Please specify stable/mitaka branch in neutron because
+BGP dynamic routing service does not work with neutron master branch.
