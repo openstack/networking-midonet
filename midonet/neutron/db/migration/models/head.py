@@ -15,9 +15,13 @@
 from neutron.db.migration.models import head
 
 import midonet.neutron.db.agent_membership_db  # noqa
+# FIXME(yamamoto): Fix this after branching stable/mitaka
+# import midonet.neutron.db.bgp_speaker_router_insertion_db  # noqa
 import midonet.neutron.db.data_state_db  # noqa
 import midonet.neutron.db.data_version_db  # noqa
+import midonet.neutron.db.gateway_device  # noqa
 import midonet.neutron.db.loadbalancer_db  # noqa
+import midonet.neutron.db.logging_resource_db  # noqa
 import midonet.neutron.db.port_binding_db  # noqa
 import midonet.neutron.db.provider_network_db  # noqa
 import midonet.neutron.db.task_db  # noqa

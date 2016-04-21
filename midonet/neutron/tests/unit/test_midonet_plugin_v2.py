@@ -22,16 +22,9 @@ import testscenarios
 import testtools
 from webob import exc
 
-from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as m_const
-from midonet.neutron.db import agent_membership_db  # noqa
 from midonet.neutron.db import data_state_db
 from midonet.neutron.db import data_version_db as dv_db
-from midonet.neutron.db import gateway_device  # noqa
-from midonet.neutron.db import logging_resource_db  # noqa
-from midonet.neutron.db import port_binding_db  # noqa
-from midonet.neutron.db import provider_network_db  # noqa
-from midonet.neutron.db import task_db  # noqa
 from midonet.neutron.tests.unit import test_midonet_plugin as test_mn_plugin
 from networking_l2gw.db.l2gateway import l2gateway_models  # noqa
 from neutron.common import constants as n_const
