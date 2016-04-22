@@ -74,7 +74,9 @@ class GatewayOverlayRouterDevice(model_base.BASEV2):
                           sa.ForeignKey('midonet_gateway_devices.id',
                           ondelete="CASCADE"),
                           nullable=False, primary_key=True)
-    resource_id = sa.Column(sa.String(length=36), nullable=False)
+    resource_id = sa.Column(sa.String(length=36),
+                            sa.ForeignKey('routers.id'),
+                            nullable=False)
     gateway_device = orm.relationship(
         GatewayDevice,
         backref=orm.backref('overlay_router', cascade='delete', lazy='joined'),
