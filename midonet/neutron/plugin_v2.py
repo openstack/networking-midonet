@@ -168,6 +168,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.delete_network called: id=%r", id)
 
         with context.session.begin(subtransactions=True):
+            c_utils.check_delete_network_precommit(context, id)
             self._process_l3_delete(context, id)
             try:
                 super(MidonetPluginV2, self).delete_network(context, id)

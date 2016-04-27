@@ -33,3 +33,6 @@ MIDONET_L2GW_PROVIDER = "midonet"
 # upstream will deal with router status.
 ROUTER_STATUS_ACTIVE = "ACTIVE"
 ROUTER_STATUS_ERROR = "ERROR"
+
+# for resource name on callback method
+MIDONET_NETWORK = "midonet_network"
