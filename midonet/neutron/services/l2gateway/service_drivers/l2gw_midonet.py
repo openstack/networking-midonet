@@ -52,8 +52,10 @@ class MidonetL2gwDriver(service_drivers.L2gwDriver):
 
     def _validate_gw_connection(self, context, gw_connection):
         seg_id = gw_connection.get(constants.SEG_ID)
+        gw_type = self.service_plugin.get_gateway_device_type_from_l2gw(
+                context, gw_connection['l2_gateway'])
         if seg_id:
-            l2gw_midonet_validators.is_valid_vxlan_id(seg_id)
+            l2gw_midonet_validators.is_valid_segmentaion_id(gw_type, seg_id)
 
         network_id = gw_connection.get(constants.NETWORK_ID)
         self.service_plugin._get_network(context, network_id)
@@ -73,8 +75,8 @@ class MidonetL2gwDriver(service_drivers.L2gwDriver):
         gw_connection = l2_gateway_connection.get(
             self.service_plugin.connection_resource)
 
-        self._validate_gw_connection(context, gw_connection)
         gw_conn_dict = self._make_gateway_conn_dict(context, gw_connection)
+        self._validate_gw_connection(context, gw_conn_dict)
         if not gw_conn_dict[constants.SEG_ID]:
             seg_id = self.service_plugin._get_l2_gateway_seg_id(
                     context, gw_conn_dict['l2_gateway_id'])

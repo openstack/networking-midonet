@@ -53,6 +53,13 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
         return context.session.query(models.L2GatewayDevice).filter_by(
             device_name=device_id).all()
 
+    def get_gateway_device_type_from_l2gw(self, context, l2gw):
+        gw_id = (l2gw['devices'][0].get('device_id')) or (
+                     l2gw['devices'][0].get('device_name'))
+        gw_db = manager.NeutronManager.get_service_plugins().get(
+            midonet_const.GATEWAY_DEVICE).get_gateway_device(context, gw_id)
+        return gw_db['type']
+
     def create_l2_gateway(self, context, l2_gateway):
         # HACK: set the device_name to device_id so that the networking-l2gw
         # DB class does not throw an error.
@@ -60,11 +67,11 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
 
         gw_plugin = self._check_and_get_gw_dev_service()
         for device in gw['devices']:
-            gw_plugin.get_gateway_device(context, device['device_id'])
+            gw = gw_plugin.get_gateway_device(context, device['device_id'])
             device['device_name'] = device['device_id']
             if device.get(constants.SEG_ID):
-                l2gw_midonet_validators.is_valid_vxlan_id(
-                        device[constants.SEG_ID])
+                l2gw_midonet_validators.is_valid_segmentaion_id(
+                        gw['type'], device[constants.SEG_ID])
                 device['interfaces'].append(
                     {constants.SEG_ID: [str(device[constants.SEG_ID])]})
         return super(MidonetL2GatewayMixin, self).create_l2_gateway(

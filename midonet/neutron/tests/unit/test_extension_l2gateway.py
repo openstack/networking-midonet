@@ -32,6 +32,8 @@ from neutron.tests.unit.extensions import test_l3
 L2_GW_NAME = 'l2_gw1'
 L2_GW_NAME2 = 'l2_gw2'
 FAKE_SEG_ID = '1000'
+FAKE_SEG_ID_VXLAN = '7000'
+INVALID_VLAN_ID = 4095
 INVALID_VXLAN_ID = 16777216
 MN_PLUGIN_KLASS = ('midonet.neutron.services.l2gateway.plugin.'
                    'MidonetL2GatewayPlugin')
@@ -94,6 +96,11 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
                                     'router2', True)
         self._router_id2 = router2['router']['id']
 
+        # for network_vlan gateway device setting
+        res = self._create_network(self.fmt, 'gateway_network_vlan', True)
+        self._vlan_network_id = self.deserialize(self.fmt, res)['network'][
+                                                           'id']
+
     def _create_l2_gateway(self, name=L2_GW_NAME, device_id="", device_id2="",
                            seg_id=None):
         data = {'l2_gateway': {'devices': [{'device_id': device_id}],
@@ -155,12 +162,32 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
                 self.assertEqual(device_id,
                     l2_gw['l2_gateway']['devices'][0]['device_id'])
 
+    def test_create_midonet_l2gateway_vlan(self):
+        with self.gateway_device_type_network_vlan(
+                resource_id=self._vlan_network_id) as gw_dev:
+            name = L2_GW_NAME
+            device_id = gw_dev['gateway_device']['id']
+            with self.l2_gateway(name=L2_GW_NAME,
+                    device_id=gw_dev['gateway_device']['id']) as l2_gw:
+                self.assertEqual(name, l2_gw['l2_gateway']['name'])
+                self.assertEqual(device_id,
+                    l2_gw['l2_gateway']['devices'][0]['device_id'])
+
     def test_create_midonet_l2gateway_with_invalid_seg_id(self):
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
             res = self._create_l2_gateway(
                     device_id=gw_dev['gateway_device']['id'],
                     seg_id=INVALID_VXLAN_ID)
+            self.deserialize(self.fmt, res)
+            self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
+
+    def test_create_midonet_l2gateway_vlan_with_invalid_seg_id(self):
+        with self.gateway_device_type_network_vlan(
+                resource_id=self._vlan_network_id) as gw_dev:
+            res = self._create_l2_gateway(
+                    device_id=gw_dev['gateway_device']['id'],
+                    seg_id=INVALID_VLAN_ID)
             self.deserialize(self.fmt, res)
             self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
 
@@ -181,6 +208,20 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
             device_id = gw_dev['gateway_device']['id']
             with self.l2_gateway(name=L2_GW_NAME,
                     device_id=gw_dev['gateway_device']['id'],
+                    segmentation_id=FAKE_SEG_ID_VXLAN) as l2_gw:
+                self.assertEqual(name, l2_gw['l2_gateway']['name'])
+                self.assertEqual(device_id,
+                    l2_gw['l2_gateway']['devices'][0]['device_id'])
+                self.assertEqual(FAKE_SEG_ID_VXLAN,
+                    l2_gw['l2_gateway']['devices'][0]['segmentation_id'])
+
+    def test_create_midonet_l2gateway_vlan_with_segmentation_id(self):
+        with self.gateway_device_type_network_vlan(
+                resource_id=self._vlan_network_id) as gw_dev:
+            name = L2_GW_NAME
+            device_id = gw_dev['gateway_device']['id']
+            with self.l2_gateway(name=L2_GW_NAME,
+                    device_id=gw_dev['gateway_device']['id'],
                     segmentation_id=FAKE_SEG_ID) as l2_gw:
                 self.assertEqual(name, l2_gw['l2_gateway']['name'])
                 self.assertEqual(device_id,
@@ -191,6 +232,17 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
     def test_delete_midonet_l2gateway(self):
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
+            with self.l2_gateway(
+                    name=L2_GW_NAME,
+                    device_id=gw_dev['gateway_device']['id']) as l2_gw:
+                req = self.new_delete_request('l2-gateways',
+                                              l2_gw['l2_gateway']['id'])
+                res = req.get_response(self.ext_api)
+                self.assertEqual(webob.exc.HTTPNoContent.code, res.status_int)
+
+    def test_delete_midonet_l2gateway_vlan(self):
+        with self.gateway_device_type_network_vlan(
+                resource_id=self._vlan_network_id) as gw_dev:
             with self.l2_gateway(
                     name=L2_GW_NAME,
                     device_id=gw_dev['gateway_device']['id']) as l2_gw:
@@ -229,6 +281,22 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
     def test_create_midonet_l2gateway_connection(self):
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
+            with self.l2_gateway(
+                    name=L2_GW_NAME,
+                    device_id=gw_dev['gateway_device']['id']) as l2_gw:
+                with self.l2_gateway_connection(
+                        l2_gateway_id=l2_gw['l2_gateway']['id'],
+                        network_id=self._network_id) as l2_gw_con:
+                    self.assertEqual(self._network_id,
+                        l2_gw_con['l2_gateway_connection']['network_id'])
+                    self.assertEqual(l2_gw['l2_gateway']['id'],
+                        l2_gw_con['l2_gateway_connection']['l2_gateway_id'])
+                    self.assertEqual(FAKE_SEG_ID,
+                        l2_gw_con['l2_gateway_connection']['segmentation_id'])
+
+    def test_create_midonet_l2gateway_vlan_connection(self):
+        with self.gateway_device_type_network_vlan(
+                resource_id=self._vlan_network_id) as gw_dev:
             with self.l2_gateway(
                     name=L2_GW_NAME,
                     device_id=gw_dev['gateway_device']['id']) as l2_gw:
@@ -282,6 +350,20 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
                 self.assertEqual(webob.exc.HTTPBadRequest.code,
                                  res.status_int)
 
+    def test_create_midonet_l2gateway_vlan_conn_with_invalid_seg_id(self):
+        with self.gateway_device_type_network_vlan(
+                resource_id=self._vlan_network_id) as gw_dev:
+            with self.l2_gateway(
+                    name=L2_GW_NAME,
+                    device_id=gw_dev['gateway_device']['id']) as l2_gw:
+                res = self._create_l2_gateway_connection(
+                    l2_gateway_id=l2_gw['l2_gateway']['id'],
+                    network_id=self._network_id,
+                    segmentation_id=str(INVALID_VLAN_ID))
+                self.deserialize(self.fmt, res)
+                self.assertEqual(webob.exc.HTTPBadRequest.code,
+                                 res.status_int)
+
     def test_create_midonet_l2gateway_connection_with_invalid_l2_gateway(self):
         res = self._create_l2_gateway_connection(l2_gateway_id='a',
                                                  network_id=self._network_id,
@@ -307,6 +389,24 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
     def test_create_midonet_l2gateway_connection_with_l2gw_seg_id(self):
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
+            with self.l2_gateway(
+                    name=L2_GW_NAME,
+                    device_id=gw_dev['gateway_device']['id'],
+                    segmentation_id=FAKE_SEG_ID_VXLAN) as l2_gw:
+                with self.l2_gateway_connection(
+                        l2_gateway_id=l2_gw['l2_gateway']['id'],
+                        network_id=self._network_id,
+                        segmentation_id='') as l2_gw_con:
+                    self.assertEqual(self._network_id,
+                        l2_gw_con['l2_gateway_connection']['network_id'])
+                    self.assertEqual(l2_gw['l2_gateway']['id'],
+                        l2_gw_con['l2_gateway_connection']['l2_gateway_id'])
+                    self.assertEqual('',
+                        l2_gw_con['l2_gateway_connection']['segmentation_id'])
+
+    def test_create_midonet_l2gateway_vlan_connection_with_l2gw_seg_id(self):
+        with self.gateway_device_type_network_vlan(
+                resource_id=self._vlan_network_id) as gw_dev:
             with self.l2_gateway(
                     name=L2_GW_NAME,
                     device_id=gw_dev['gateway_device']['id'],
@@ -363,6 +463,22 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
     def test_delete_midonet_l2gateway_connection(self):
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
+            with self.l2_gateway(
+                    name=L2_GW_NAME,
+                    device_id=gw_dev['gateway_device']['id']) as l2_gw:
+                with self.l2_gateway_connection(
+                        l2_gateway_id=l2_gw['l2_gateway']['id'],
+                        network_id=self._network_id) as l2_gw_con:
+                    req = self.new_delete_request(
+                        'l2-gateway-connections',
+                        l2_gw_con['l2_gateway_connection']['id'])
+                    res = req.get_response(self.ext_api)
+                    self.assertEqual(webob.exc.HTTPNoContent.code,
+                                     res.status_int)
+
+    def test_delete_midonet_l2gateway_vlan_connection(self):
+        with self.gateway_device_type_network_vlan(
+                resource_id=self._vlan_network_id) as gw_dev:
             with self.l2_gateway(
                     name=L2_GW_NAME,
                     device_id=gw_dev['gateway_device']['id']) as l2_gw:
