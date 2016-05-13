@@ -6,9 +6,8 @@ This is the official Midonet Neutron plugin.
 
 The current set of supported versions of MidoNet are:
 
-- v2015.03
 - v2015.06
-- v5.0
+- v5.x
 
 NOTE: MidoNet recently changed its versioning scheme.
 v5.0 is what used to be called v2015.09.
@@ -34,7 +33,7 @@ Core plugin and L3 service plugin
 The following entry in ``neutron.conf`` enables MidoNet as the Neutron plugin.
 There are two plugins to choose from.
 
-Plugin v1, which is compatible with MidoNet v2015.03 and v2015.06::
+Plugin v1, which is compatible with MidoNet v2015.06::
 
     [DEFAULT]
     core_plugin = midonet
@@ -67,7 +66,7 @@ They are compatible with MidoNet v5.0 and beyond::
 Interaction with Neutron agents
 -------------------------------
 
-For v2015.03 and v2015.06, OpenStack deployment with MidoNet works with
+For v2015.06, OpenStack deployment with MidoNet works with
 Neutron DHCP and Metadata agents.
 
 For MidoNet v5.0 and later, no Neutron agents are necessary.
