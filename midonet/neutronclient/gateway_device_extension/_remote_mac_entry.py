@@ -14,8 +14,9 @@
 #    under the License.
 
 from neutronclient.common import extension
-from neutronclient.i18n import _
 from neutronclient.neutron import v2_0 as gw_deviceV20
+
+from midonet.neutron._i18n import _
 
 
 def _get_gateway_device_id(client, gw_device_id_or_name):
