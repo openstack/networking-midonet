@@ -13,13 +13,14 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib import constants as n_const
+from neutron_lib import exceptions as n_exc
+
 from midonet.neutron.common import constants as midonet_const
 from midonet.neutron.common import exceptions as midonet_exc
 from neutron.callbacks import events
 from neutron.callbacks import exceptions as callback_exc
 from neutron.callbacks import registry
-from neutron.common import constants as n_const
-from neutron.common import exceptions as n_exc
 from oslo_utils import excutils
 
 

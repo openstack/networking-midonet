@@ -13,6 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib import constants as n_const
+from neutron_lib import exceptions as n_exc
+
 from neutron.common import constants
 
 from midonet.neutron._i18n import _
@@ -23,8 +26,6 @@ from midonet.neutron.common import utils as c_utils
 from midonet.neutron.ml2 import sg_callback
 from midonet.neutron.ml2 import util as m_util
 
-from neutron.common import constants as n_const
-from neutron.common import exceptions as n_exc
 from neutron.extensions import portbindings
 from neutron.plugins.ml2 import driver_api as api
 from oslo_config import cfg

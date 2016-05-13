@@ -15,9 +15,10 @@
 
 import abc
 
+from neutron_lib import exceptions as nexception
+
 from neutron.api import extensions
 from neutron.api.v2 import base
-from neutron.common import exceptions as nexception
 from neutron import manager
 
 from midonet.neutron._i18n import _

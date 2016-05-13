@@ -12,10 +12,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib.api import validators
+from neutron_lib import exceptions as n_exc
+
 from midonet.neutron._i18n import _, _LW
 from midonet.neutron.common import constants as m_const
-from neutron.api.v2 import attributes
-from neutron.common import exceptions as n_exc
 from neutron.db import model_base
 from neutron.db import models_v2
 from neutron.extensions import providernet as pnet
@@ -63,7 +64,7 @@ class MidonetProviderNetworkMixin(object):
     def _process_provider_create(self, network):
 
         net_type = network.get(pnet.NETWORK_TYPE)
-        if not attributes.is_attr_set(net_type):
+        if not validators.is_attr_set(net_type):
             return None
 
         if net_type in _MIDONET_TYPES:
@@ -100,7 +101,7 @@ class MidonetProviderNetworkMixin(object):
         if not filters:
             return True
 
-        if attributes.is_attr_set(network.get(pnet.NETWORK_TYPE)):
+        if validators.is_attr_set(network.get(pnet.NETWORK_TYPE)):
             return self._match_attrs(network, filters)
         else:
             return True

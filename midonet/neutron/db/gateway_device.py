@@ -14,11 +14,13 @@
 #    under the License.
 
 import debtcollector
+from neutron_lib.api import validators
+from neutron_lib import exceptions as n_exc
+
 from neutron.api.v2 import attributes
 from neutron.callbacks import events
 from neutron.callbacks import registry
 from neutron.callbacks import resources
-from neutron.common import exceptions as n_exc
 from neutron.db import common_db_mixin
 from neutron.db import model_base
 from neutron.extensions import l3
@@ -515,7 +517,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
         gw_dev_db = self._get_gateway_device(context, id)
         if gw_dev_db.type == gw_device_ext.NETWORK_VLAN_TYPE:
             del gw_device['gateway_device']['tunnel_ips']
-        elif attributes.is_attr_set(gw_dev.get('tunnel_ips')):
+        elif validators.is_attr_set(gw_dev.get('tunnel_ips')):
             self._validate_tunnel_ips(gw_dev.get('tunnel_ips'),
                                       gw_dev_db.type)
         gw_dev_db = self._update_gateway_device_db(context, id, gw_dev)
