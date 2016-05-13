@@ -69,3 +69,6 @@ src/
 # Package generated directories
 RPMS/
 DEBS/
+
+# Files created by releasenotes build
+releasenotes/build

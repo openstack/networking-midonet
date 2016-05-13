@@ -25,6 +25,7 @@ exclude babel.cfg
 recursive-exclude specs *
 recursive-exclude tools *
 recursive-exclude devstack *
+recursive-exclude releasenotes *
 recursive-exclude midonet/neutron/tests *
 recursive-exclude rally-jobs *
 
