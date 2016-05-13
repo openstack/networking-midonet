@@ -286,12 +286,13 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
                     device_id=gw_dev['gateway_device']['id']) as l2_gw:
                 with self.l2_gateway_connection(
                         l2_gateway_id=l2_gw['l2_gateway']['id'],
-                        network_id=self._network_id) as l2_gw_con:
+                        network_id=self._network_id,
+                        segmentation_id=str(FAKE_SEG_ID_VXLAN)) as l2_gw_con:
                     self.assertEqual(self._network_id,
                         l2_gw_con['l2_gateway_connection']['network_id'])
                     self.assertEqual(l2_gw['l2_gateway']['id'],
                         l2_gw_con['l2_gateway_connection']['l2_gateway_id'])
-                    self.assertEqual(FAKE_SEG_ID,
+                    self.assertEqual(FAKE_SEG_ID_VXLAN,
                         l2_gw_con['l2_gateway_connection']['segmentation_id'])
 
     def test_create_midonet_l2gateway_vlan_connection(self):
