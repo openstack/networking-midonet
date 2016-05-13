@@ -125,6 +125,33 @@ class CLITestV20GatewayDeviceJSON(test_cli20.CLIExtTestV20Base):
         self._create_gateway_device(name, args,
                                     position_names, position_values)
 
+    def test_create_gateway_device_for_network_vlan_with_mandatory_params(
+                                                                        self):
+        name = 'network_vlan-mandatory'
+        gw_type = 'network_vlan'
+        resource_id = 'my_network_id'
+        args = ['--type', gw_type, '--resource-id', resource_id]
+        position_names = ['type', 'resource_id']
+        position_values = [gw_type, resource_id]
+        self._create_gateway_device(name, args,
+                                    position_names, position_values)
+
+    def test_create_gateway_device_for_network_vlan_with_optional_params(self):
+        name = 'network_vlan-optional'
+        tenant_id = 'my_tenant'
+        gw_type = 'network_vlan'
+        resource_id = 'my_network_id'
+        args = ['--tenant-id', tenant_id,
+                '--type', gw_type,
+                '--resource-id', resource_id,
+                '--name', name]
+        position_names = ['type', 'resource_id',
+                          'tenant_id', 'name']
+        position_values = [gw_type, resource_id,
+                           tenant_id, name]
+        self._create_gateway_device(name, args,
+                                    position_names, position_values)
+
     def test_update_gateway_device_with_name(self):
         args = ['myid', '--name', 'name_updated']
         values = {'name': 'name_updated'}

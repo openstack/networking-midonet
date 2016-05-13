@@ -71,15 +71,16 @@ class GatewayDeviceCreate(extension.ClientExtensionCreate, GatewayDevice):
                    'defaults to ovsdb. Otherwise to none.'))
         parser.add_argument(
             '--type',
-            metavar='<hw_vtep | router_vtep>',
-            choices=['hw_vtep', 'router_vtep'],
-            help=_('Type of the device: hw_vtep or router_vtep. '
+            metavar='<hw_vtep | router_vtep | network_vlan>',
+            choices=['hw_vtep', 'router_vtep', 'network_vlan'],
+            help=_('Type of the device: hw_vtep, router_vtep or network_vlan. '
                    'Defaults to hw_vtep'))
         parser.add_argument(
             '--resource-id',
             dest='resource_id',
             help=_('Resource UUID or None (for type router_vtep will '
-                   'be router UUID)'))
+                   'be router UUID and for type network_vlan will be network '
+                   'UUID)'))
         add_name_and_tunnel_ips_to_arguments(parser)
 
         return parser
