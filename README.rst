@@ -180,6 +180,39 @@ add the following entries in the Neutron configuration file
 NOTE: This plugin does not use Neutron VPNaaS agent.
 
 
+Gateway Device Service
+----------------------
+
+Starting v5.1, MidoNet implements Gateway Device Service vendor extension API.
+
+To configure it, add the following service plugin to the `service_plugins` list
+in the DEFAULT section of `neutron.conf`::
+
+    midonet.neutron.services.gw_device.plugin.MidonetGwDeviceServicePlugin
+
+
+L2 Gateway Service
+------------------
+
+Starting v5.1, MidoNet implements Neutron L2 Gateway Service extension API.
+The implementation differs slightly from upstream.
+Please check the following spec to see the differences:
+    http://docs.openstack.org/developer/networking-midonet/specs/mitaka/border_gw.html
+
+MidoNet plugin implements L2 Gateway Service as a service driver.
+To configure it, add the following entry in the Neutron configuration file
+`/etc/neutron/neutron.conf`::
+
+    [DEFAULT]
+    service_plugins = midonet.neutron.services.l2gateway.plugin.MidonetL2GatewayPlugin
+
+In addition, configure the service provider in the 'service_providers' section of
+L2 Gateway plugin configuration file `/etc/neutron/l2gw_plugin.ini`::
+
+    [service_providers]
+    service_provider = L2GW:Midonet:midonet.neutron.services.l2gateway.service_drivers.l2gw_midonet.MidonetL2gwDriver:default
+
+
 Magnum
 ------
 
