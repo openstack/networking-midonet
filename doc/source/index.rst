@@ -14,9 +14,10 @@ Contents:
    readme
    installation
    devstack
-   upgrade
    usage
    contributing
+   history
+   upgrade
    devref/index
    specs/index
    dashboards/index
