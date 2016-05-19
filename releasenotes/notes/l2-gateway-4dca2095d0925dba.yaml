@@ -1,0 +1,4 @@
+---
+features:
+  - L2 Gateway support has been added.
+    See `L2 Gateway Service <http://docs.openstack.org/developer/networking-midonet/readme.html#l2-gateway-service>`_ for details.
