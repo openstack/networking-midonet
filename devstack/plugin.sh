@@ -25,6 +25,8 @@ if [[ "$1" == "stack" ]]; then
 
         source $ABSOLUTE_PATH/functions
         source $ABSOLUTE_PATH/$Q_PLUGIN/functions
+        source $ABSOLUTE_PATH/l3
+        source $ABSOLUTE_PATH/tempest
 
         # Clone and build midonet service
         if [[ "$OFFLINE" != "True" ]]; then
@@ -78,6 +80,14 @@ if [[ "$1" == "stack" ]]; then
         # all relevant bracnches.
         echo agent.loggers.root: DEBUG|mn-conf set
 
+        # Tweak tempest config.
+        # NOTE(yamamoto): This needs to be after tempest's extra phase.
+        # Currently it's ok as devstack runs extra.d before plugins,
+        # but it's fragile.  Probabaly this should be moved to post-extra
+        # phase.
+        if is_service_enabled tempest; then
+            configure_tempest_midonet
+        fi
     elif [[ "$2" == "post-config" ]]; then
 
         configure_neutron_midonet
