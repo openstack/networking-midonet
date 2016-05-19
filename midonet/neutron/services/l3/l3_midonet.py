@@ -19,8 +19,12 @@ from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as m_const
 from midonet.neutron.db import l3_db_midonet
 from midonet.neutron import extensions
+from midonet.neutron.extensions import routerinterfacefip
 
 from neutron.api import extensions as neutron_extensions
+from neutron.callbacks import events
+from neutron.callbacks import registry
+from neutron.callbacks import resources
 from neutron.common import constants as n_const
 from neutron.common import exceptions as n_exc
 from neutron.db import common_db_mixin
@@ -48,11 +52,13 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
     Implements L3 Router service plugin for Midonet.
     """
 
-    supported_extension_aliases = ["router", "extraroute", "ext-gw-mode"]
+    supported_extension_aliases = ["router", "extraroute", "ext-gw-mode",
+                                   "router-interface-fip"]
 
     def __init__(self):
         super(MidonetL3ServicePlugin, self).__init__()
         l3_db.subscribe()
+        self.__subscribe()
 
         # Instantiate MidoNet API client
         self.client = c_base.load_client(cfg.CONF.MIDONET)
@@ -255,3 +261,18 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
                     LOG.exception(_LE("Failed to update floating ip "
                                       "status %s"), id)
         return fip
+
+    def _check_router_interface_used_as_gw_for_fip(self, resource,
+                                                   event, trigger, **kwargs):
+        context = kwargs['context']
+        router_id = kwargs['router_id']
+        subnet_id = kwargs['subnet_id']
+        if self._subnet_has_fip(context, router_id, subnet_id):
+            raise routerinterfacefip.RouterInterfaceInUseAsGatewayByFloatingIP(
+                router_id=router_id, subnet_id=subnet_id)
+
+    def __subscribe(self):
+        registry.subscribe(
+            self._check_router_interface_used_as_gw_for_fip,
+            resources.ROUTER_INTERFACE,
+            events.BEFORE_DELETE)
