@@ -158,6 +158,7 @@ when running devstack, make sure the following is defined in ``local.conf``::
     Q_PLUGIN_EXTRA_CONF_PATH=/etc/neutron
     Q_PLUGIN_EXTRA_CONF_FILES=(l2gw_plugin.ini)
     L2GW_PLUGIN="midonet.neutron.services.l2gateway.plugin.MidonetL2GatewayPlugin"
+    NETWORKING_L2GW_SERVICE_DRIVER="L2GW:Midonet:midonet.neutron.services.l2gateway.service_drivers.l2gw_midonet.MidonetL2gwDriver:default"
 
 
 BGP dynamic routing service
