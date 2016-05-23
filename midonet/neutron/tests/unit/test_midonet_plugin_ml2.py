@@ -15,6 +15,8 @@
 
 import functools
 import mock
+import testscenarios
+from webob import exc
 
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.db import agent_membership_db  # noqa
@@ -22,10 +24,17 @@ from midonet.neutron.db import port_binding_db  # noqa
 from midonet.neutron.db import provider_network_db  # noqa
 from midonet.neutron.db import task_db  # noqa
 from midonet.neutron.tests.unit import test_midonet_plugin as test_mn_plugin
+
+from neutron.extensions import external_net
+from neutron.extensions import providernet as pnet
+from neutron.tests.unit.api import test_extensions
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_plugin
+from neutron.tests.unit.extensions import test_l3
 from neutron.tests.unit.extensions import test_securitygroup as test_sg
 
 from oslo_config import cfg
+
+load_tests = testscenarios.load_tests_apply_scenarios
 
 PLUGIN_NAME = 'neutron.plugins.ml2.plugin.Ml2Plugin'
 
@@ -44,13 +53,13 @@ class MidonetPluginConf(object):
         cfg.CONF.set_override('client', test_mn_plugin.TEST_MN_CLIENT,
                               group='MIDONET')
         cfg.CONF.set_override('type_drivers',
-                              ['midonet'],
+                              ['midonet', 'uplink', 'local'],
                               group='ml2')
         cfg.CONF.set_override('mechanism_drivers',
-                              ['midonet'],
+                              ['midonet', 'openvswitch'],
                               group='ml2')
         cfg.CONF.set_override('tenant_network_types',
-                              ['midonet'],
+                              ['midonet', 'uplink', 'local'],
                               group='ml2')
         if parent_setup:
             parent_setup()
@@ -108,3 +117,72 @@ class TestMidonetPortsML2(MidonetPluginML2TestCase,
     def test_update_dhcp_port_with_exceeding_fixed_ips(self):
         # MidoNet doesn't support updating dhcp port's fixed-ips.
         pass
+
+
+class TestMidonetRouterML2(MidonetPluginML2TestCase,
+                           test_l3.L3NatTestCaseMixin):
+    scenarios = [
+        ('midonet',
+         dict(network_type='midonet',
+              expected_code=exc.HTTPOk.code,
+              expected_code_for_create=exc.HTTPCreated.code)),
+        ('uplink',
+         dict(network_type='uplink',
+              expected_code=exc.HTTPOk.code,
+              expected_code_for_create=exc.HTTPCreated.code)),
+        ('local',
+         dict(network_type='local',
+              expected_code=exc.HTTPBadRequest.code,
+              expected_code_for_create=exc.HTTPBadRequest.code)),
+    ]
+
+    def setUp(self):
+        ext_mgr = test_l3.L3TestExtensionManager()
+        super(TestMidonetRouterML2, self).setUp(ext_mgr=ext_mgr)
+        self.ext_api = test_extensions.setup_extensions_middleware(ext_mgr)
+
+    def test_router_gateway_incompatible_network_for_create(self):
+        if self.network_type == 'uplink':
+            self.skipTest('This test case is not appropriate for uplink')
+        net_param = {
+            pnet.NETWORK_TYPE: self.network_type,
+            external_net.EXTERNAL: True,
+            'arg_list': (pnet.NETWORK_TYPE, external_net.EXTERNAL),
+        }
+        with self.network(**net_param) as net, \
+                self.subnet(network=net):
+            gw_info = {
+                'network_id': net['network']['id'],
+            }
+            res = self._create_router(self.fmt, tenant_id=None,
+                                      arg_list=('external_gateway_info',),
+                                      external_gateway_info=gw_info)
+            self.assertEqual(self.expected_code_for_create, res.status_int)
+
+    def test_router_gateway_incompatible_network_for_update(self):
+        if self.network_type == 'uplink':
+            self.skipTest('This test case is not appropriate for uplink')
+        net_param = {
+            pnet.NETWORK_TYPE: self.network_type,
+            external_net.EXTERNAL: True,
+            'arg_list': (pnet.NETWORK_TYPE, external_net.EXTERNAL),
+        }
+        with self.network(**net_param) as net, \
+                self.subnet(network=net), \
+                self.router() as r:
+            self._add_external_gateway_to_router(
+                router_id=r['router']['id'],
+                network_id=net['network']['id'],
+                expected_code=self.expected_code)
+
+    def test_router_interface_incompatible_network(self):
+        net_param = {
+            pnet.NETWORK_TYPE: self.network_type,
+            'arg_list': (pnet.NETWORK_TYPE,),
+        }
+        with self.network(**net_param) as net, \
+                self.subnet(network=net) as subnet, \
+                self.router() as r:
+            self._router_interface_action(
+                'add', r['router']['id'], subnet['subnet']['id'], None,
+                expected_code=self.expected_code)

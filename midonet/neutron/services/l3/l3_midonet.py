@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron._i18n import _LE
+from midonet.neutron._i18n import _LE, _LW
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as m_const
@@ -28,6 +28,9 @@ from neutron.db import extraroute_db
 from neutron.db import l3_db
 # Import l3_dvr_db to get the config options required for FWaaS
 from neutron.db import l3_dvr_db  # noqa
+from neutron.extensions import l3
+from neutron.extensions import multiprovidernet as mpnet
+from neutron.extensions import providernet as pnet
 from neutron.plugins.common import constants
 from oslo_config import cfg
 from oslo_log import helpers as log_helpers
@@ -65,11 +68,37 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         """Returns string description of the plugin."""
         return ("Midonet L3 Router Service Plugin")
 
+    @staticmethod
+    def _segments(network):
+        if pnet.NETWORK_TYPE in network:
+            yield {
+                pnet.NETWORK_TYPE: network[pnet.NETWORK_TYPE],
+            }
+        segments = network.get(mpnet.SEGMENTS)
+        if segments:
+            for seg in segments:
+                yield seg
+
+    def _validate_network_type(self, context, network_id):
+        our_types = [m_const.TYPE_MIDONET, m_const.TYPE_UPLINK]
+        network = self._core_plugin.get_network(context, network_id)
+        for seg in self._segments(network):
+            if seg[pnet.NETWORK_TYPE] in our_types:
+                return
+        LOG.warning(_LW("Incompatible network %s"), network)
+        raise n_exc.BadRequest(resource='router', msg='Incompatible network')
+
+    def _validate_router_gw_network(self, context, r):
+        ext_gw_info = r.get(l3.EXTERNAL_GW_INFO)
+        if ext_gw_info:
+            self._validate_network_type(context, ext_gw_info['network_id'])
+
     @log_helpers.log_method_call
     def create_router(self, context, router):
         with context.session.begin(subtransactions=True):
             r = super(MidonetL3ServicePlugin, self).create_router(context,
                                                                   router)
+            self._validate_router_gw_network(context, r)
             self.client.create_router_precommit(context, r)
 
         try:
@@ -89,6 +118,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         with context.session.begin(subtransactions=True):
             r = super(MidonetL3ServicePlugin, self).update_router(context, id,
                                                                   router)
+            self._validate_router_gw_network(context, r)
             self.client.update_router_precommit(context, id, r)
 
         try:
@@ -126,6 +156,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         with context.session.begin(subtransactions=True):
             info = super(MidonetL3ServicePlugin, self).add_router_interface(
                 context, router_id, interface_info)
+            self._validate_network_type(context, info['network_id'])
             self.client.add_router_interface_precommit(context, router_id,
                                                        info)
 
