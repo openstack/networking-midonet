@@ -26,6 +26,13 @@ command::
 
     $ sudo python setup.py install
 
+The plugin requires python-midonetclient package, which is usually available
+along with other midonet packages.  It's recommended to use the same version
+of python-midonetclient and midonet-cluster.  Alternatively, you can install
+python-midonetclient from source::
+
+    $ sudo pip install -e 'git://github.com/midonet/midonet.git@master#egg=midonetclient&subdirectory=python-midonetclient'
+
 
 Core plugin and L3 service plugin
 ---------------------------------
