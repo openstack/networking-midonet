@@ -51,6 +51,8 @@ if [[ "$1" == "stack" ]]; then
 
         # Build midonet client
         pip_install --editable $MIDONET_DIR/python-midonetclient
+        # Configure midonet-cli
+        configure_midonet_cli
 
     elif [[ "$2" == "extra" ]]; then
 
@@ -87,9 +89,22 @@ if [[ "$1" == "stack" ]]; then
         fi
         create_nova_conf_midonet
 
+        get_or_create_role midonet-admin
+        get_or_add_user_project_role \
+            midonet-admin "$Q_ADMIN_USERNAME" "$SERVICE_PROJECT_NAME"
+        get_or_add_user_project_role midonet-admin admin admin
+        create_service_user "midonet"
+
         export SERVICE_HOST=${MIDONET_SERVICE_HOST:?Error \$MIDONET_SERVICE_HOST is not set}
         export API_PORT=$MIDONET_SERVICE_API_PORT
         export API_TIMEOUT=${MIDONET_API_TIMEOUT}
+
+        export MIDONET_USE_KEYSTONE
+        export KEYSTONE_AUTH_PROTOCOL
+        export KEYSTONE_AUTH_HOST
+        export KEYSTONE_AUTH_PORT
+        export SERVICE_PROJECT_NAME
+        export SERVICE_PASSWORD
 
         export TIMESTAMP_FORMAT
         export LOGFILE
