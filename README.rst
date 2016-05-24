@@ -37,7 +37,7 @@ python-midonetclient from source::
 Core plugin and L3 service plugin
 ---------------------------------
 
-The following entry in ``neutron.conf`` enables MidoNet as the Neutron plugin.
+The following entry in ``/etc/neutron/neutron.conf`` enables MidoNet as the Neutron plugin.
 There are two plugins to choose from.
 
 Plugin v1, which is compatible with MidoNet v2015.06::
@@ -161,9 +161,10 @@ FWaaS
 Starting v5.0, MidoNet implements Neutron FWaaS extention API.
 
 To configure it, add the following service plugin to the `service_plugins` list
-in the DEFAULT section of `neutron.conf`::
+in the DEFAULT section of ``/etc/neutron/neutron.conf``::
 
-    midonet_firewall
+    [DEFAULT]
+    service_plugins = midonet_firewall
 
 NOTE: No need to configure `Firewall Driver` at all.  It's irrelevant
 because this plugin does not use Neutron L3 agent.
@@ -193,9 +194,10 @@ Gateway Device Service
 Starting v5.1, MidoNet implements Gateway Device Service vendor extension API.
 
 To configure it, add the following service plugin to the `service_plugins` list
-in the DEFAULT section of `neutron.conf`::
+in the DEFAULT section of `/etc/neutron/neutron.conf`::
 
-    midonet.neutron.services.gw_device.plugin.MidonetGwDeviceServicePlugin
+    [DEFAULT]
+    service_plugins = midonet.neutron.services.gw_device.plugin.MidonetGwDeviceServicePlugin
 
 
 L2 Gateway Service
@@ -207,8 +209,8 @@ Please check the following spec to see the differences:
     http://docs.openstack.org/developer/networking-midonet/specs/mitaka/border_gw.html
 
 MidoNet plugin implements L2 Gateway Service as a service driver.
-To configure it, add the following entry in the Neutron configuration file
-`/etc/neutron/neutron.conf`::
+To configure it, add the following service plugin to the `service_plugins` list
+in the DEFAULT section of `/etc/neutron/neutron.conf`::
 
     [DEFAULT]
     service_plugins = midonet.neutron.services.l2gateway.plugin.MidonetL2GatewayPlugin
