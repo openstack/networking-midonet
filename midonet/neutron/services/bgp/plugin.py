@@ -21,6 +21,7 @@ from oslo_utils import excutils
 
 from neutron.api import extensions as neutron_extensions
 from neutron.extensions import bgp
+from neutron import manager
 
 from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
@@ -67,11 +68,12 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
             bgp_sp = super(MidonetBgpPlugin,
                            self).create_bgp_speaker(context, bgp_speaker)
             router_id = bgp_speaker['bgp_speaker'][m_const.LOGICAL_ROUTER]
-            # If the router is already associated with bgp-speaker,
-            # RouterInUse will be raised.
-            self.set_router_for_bgp_speaker(
-                    context, bgp_sp['id'], router_id)
-            bgp_sp[m_const.LOGICAL_ROUTER] = router_id
+            if router_id:
+                # If the router is already associated with bgp-speaker,
+                # RouterInUse will be raised.
+                self.set_router_for_bgp_speaker(
+                        context, bgp_sp['id'], router_id)
+                bgp_sp[m_const.LOGICAL_ROUTER] = router_id
 
         return bgp_sp
 
@@ -119,6 +121,10 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
                     context, bgp_peer_info['bgp_peer_id']):
                 raise bsri.MidonetBgpPeerInUse(
                         id=bgp_peer_info['bgp_peer_id'])
+            if not self.get_router_associated_with_bgp_speaker(
+                    context, bgp_speaker_id):
+                # External network must be associated with the bgp speaker.
+                raise bsri.ExternalNetworkUnbound()
             info = super(MidonetBgpPlugin, self).add_bgp_peer(
                 context, bgp_speaker_id, bgp_peer_info)
             # get peer info for MidoNet
@@ -199,8 +205,34 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
 
     @log_helpers.log_method_call
     def add_gateway_network(self, context, bgp_speaker_id, network_info):
-        raise NotImplementedError()
+        with context.session.begin(subtransactions=True):
+            # TODO(kengo): This validation is temporary workaround
+            # until upstream adds a validation for
+            # existing combination of bgp speaker and gateway network.
+            if self.get_router_associated_with_bgp_speaker(
+                    context, bgp_speaker_id):
+                raise bsri.BgpSpeakerInUse(
+                    id=bgp_speaker_id,
+                    reason='is already associated with router.')
+            core_plugin = manager.NeutronManager.get_plugin()
+            if not core_plugin._network_is_external(
+                    context, network_info['network_id']):
+                raise bsri.NetworkTypeInvalid()
+            info = super(MidonetBgpPlugin, self).add_gateway_network(
+                    context, bgp_speaker_id, network_info)
+            self.set_router_for_bgp_speaker_by_network(
+                    context, bgp_speaker_id, network_info['network_id'])
+
+        return info
 
     @log_helpers.log_method_call
     def remove_gateway_network(self, context, bgp_speaker_id, network_info):
-        raise NotImplementedError()
+        with context.session.begin(subtransactions=True):
+            if self.get_bgp_peers_by_bgp_speaker(context, bgp_speaker_id):
+                raise bsri.BgpSpeakerInUse(id=bgp_speaker_id)
+            info = super(MidonetBgpPlugin, self).remove_gateway_network(
+                    context, bgp_speaker_id, network_info)
+            self.delete_bgp_speaker_router_insertion(
+                    context, bgp_speaker_id)
+
+        return info

@@ -239,8 +239,17 @@ BGP dynamic routing service
 ---------------------------
 
 Starting v5.2, MidoNet implements Neutron BGP dynamic routing service extension API.
-The implementation differs slightly from upstream.
-In MidoNet, router treated as bgp-speaker must be specified.
+The implementation differs from upstream as follows:
+
+- Router that is treated as bgp-speaker can be specified explicitly.
+- Bgp-peer can relate to only one bgp-speaker.
+- Binding network to bgp-speaker must be done before associating peers.
+- Removing network from bgp-speaker must be done after all peers are
+  disassociated from the bgp-speaker.
+- Only one network can be associated with a bgp-speaker.
+- Advertise_floating_ip_host_routes and advertise_tenant_networks are ignored.
+- Attached network to the router and destination network in extra routes on the
+  router are showed as advertised routes.
 
 To configure it, add the following service plugin to the `service_plugins` list
 in the DEFAULT section of `/etc/neutron/neutron.conf`::

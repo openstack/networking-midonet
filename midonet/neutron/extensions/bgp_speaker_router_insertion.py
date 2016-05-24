@@ -28,10 +28,41 @@ class MidonetBgpPeerInUse(nexception.InUse):
         super(MidonetBgpPeerInUse, self).__init__(**kwargs)
 
 
+class NetworkTypeInvalid(nexception.InvalidInput):
+    message = _("Only external network can be specified.")
+
+
+class ExternalNetworkUnbound(nexception.BadRequest):
+    message = _("Unable to complete operation for bgp speaker. "
+                "External network must be associated with bgp speaker when "
+                "logical_router is not specified in bgp speaker creation.")
+
+
+class BgpSpeakerInUse(nexception.InUse):
+    message = _("Bgp speaker %(id)s %(reason)s")
+
+    def __init__(self, **kwargs):
+        if 'reason' not in kwargs:
+            kwargs['reason'] = "is still associated with bgp peers"
+        super(BgpSpeakerInUse, self).__init__(**kwargs)
+
+
+class NoSubnetInNetwork(nexception.InvalidInput):
+    message = _("No subnets in the network: %(network_id)s.")
+
+
+class NoGatewayIpOnSubnet(nexception.InvalidInput):
+    message = _("No gateway ips on the subnet: %(subnet_id)s.")
+
+
+class NoGatewayIpPortOnSubnet(nexception.InvalidInput):
+    message = _("No ports have gateway ip on the subnet: %(subnet_id)s.")
+
+
 EXTENDED_ATTRIBUTES_2_0 = {
     'bgp-speakers': {
         m_const.LOGICAL_ROUTER: {'allow_post': True, 'allow_put': False,
-                                 'validate': {'type:uuid': None},
+                                 'validate': {'type:uuid_or_none': None},
                                  'is_visible': True, 'default': None},
     }
 }

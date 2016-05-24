@@ -40,6 +40,8 @@ AUTH_TYPE_NONE = "none"
 FAKE_AUTH_PASSWORD = "testtest"
 ADD_BGP_PEER_ACTION = "add_bgp_peer"
 REMOVE_BGP_PEER_ACTION = "remove_bgp_peer"
+ADD_NETWORK_ACTION = "add_gateway_network"
+REMOVE_NETWORK_ACTION = "remove_gateway_network"
 ADD_INTERFACE_ACTION = "add_router_interface"
 REMOVE_INTERFACE_ACTION = "remove_router_interface"
 
@@ -105,6 +107,19 @@ class BgpTestCase(test_l3.L3NatTestCaseMixin,
                                       None)
         self._router_interface_action('add', self._router_id2, None,
                                       self._port_id)
+
+        # for non-router use case
+        ext_net = self._make_network(self.fmt, 'ext_net2', True)
+        self._set_net_external(ext_net['network']['id'])
+        self._ext_net_id = ext_net['network']['id']
+        self._ext_subnet = self._make_subnet(self.fmt, ext_net, "100.65.0.1",
+                                            '100.65.0.0/24')
+        self._ext_subnet_id = self._ext_subnet['subnet']['id']
+        edge_router = self._make_router(self.fmt, str(uuid.uuid4()),
+                                        'edge_router', True)
+        self._edge_router_id = edge_router['router']['id']
+        self._router_interface_action('add', self._edge_router_id,
+                                      self._ext_subnet_id, None)
 
     @contextlib.contextmanager
     def bgp_speaker(self, name=FAKE_SPEAKER_NAME,
@@ -232,9 +247,11 @@ class BgpTestCase(test_l3.L3NatTestCaseMixin,
         self.assertEqual(webob.exc.HTTPNotFound.code, res.status_int)
 
     def test_create_bgp_speaker_without_router(self):
-        res = self._create_bgp_speaker()
-        self.deserialize(self.fmt, res)
-        self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
+        expected = {'name': FAKE_SPEAKER_NAME,
+                    'local_as': FAKE_LOCAL_AS,
+                    'ip_version': 4}
+        with self.bgp_speaker() as bgp_speaker:
+            self.assertDictSupersetOf(expected, bgp_speaker['bgp_speaker'])
 
     def test_delete_bgp_speaker_error_delete_neutron_resource(self):
         self.client_mock.update_bgp_speaker_postcommit.side_effect = (
@@ -371,6 +388,15 @@ class BgpTestCase(test_l3.L3NatTestCaseMixin,
             res = req.get_response(self.ext_api)
             self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
 
+    def test_add_bgp_peer_to_bgp_speaker_without_router(self):
+        with self.bgp_speaker() as bgp_speaker, self.bgp_peer() as bgp_peer:
+            data = {"bgp_peer_id": bgp_peer['bgp_peer']['id']}
+            req = self.new_action_request('bgp-speakers', data,
+                                          bgp_speaker['bgp_speaker']['id'],
+                                          ADD_BGP_PEER_ACTION)
+            res = req.get_response(self.ext_api)
+            self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
+
     def test_remove_bgp_peer_from_speaker_with_router(self):
         with self.bgp_speaker(router_id=self._router_id) as bgp_speaker, \
                 self.bgp_peer() as bgp_peer:
@@ -464,6 +490,110 @@ class BgpTestCase(test_l3.L3NatTestCaseMixin,
             res = self.deserialize(self.fmt,
                                    req.get_response(self.ext_api))
             self.assertEqual(2, len(res['bgp_speaker']['peers']))
+
+    def test_add_gateway_network_to_bgp_speaker_without_router(self):
+        with self.bgp_speaker() as bgp_speaker:
+            data = {'network_id': self._ext_net_id}
+            req = self.new_action_request('bgp-speakers', data,
+                                          bgp_speaker['bgp_speaker']['id'],
+                                          ADD_NETWORK_ACTION)
+            res = req.get_response(self.ext_api)
+            self.assertEqual(webob.exc.HTTPOk.code, res.status_int)
+            req = self.new_show_request('bgp-speakers',
+                                        bgp_speaker['bgp_speaker']['id'])
+            res = self.deserialize(self.fmt,
+                                   req.get_response(self.ext_api))
+            self.assertEqual(self._edge_router_id,
+                             res['bgp_speaker']['logical_router'])
+            self.assertEqual(1, len(res['bgp_speaker']['networks']))
+
+    def test_add_gateway_network_to_bgp_speaker_with_router(self):
+        with self.bgp_speaker(router_id=self._router_id) as bgp_speaker:
+            data = {'network_id': self._ext_net_id}
+            req = self.new_action_request('bgp-speakers', data,
+                                          bgp_speaker['bgp_speaker']['id'],
+                                          ADD_NETWORK_ACTION)
+            res = req.get_response(self.ext_api)
+            self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
+
+    def test_add_private_network_to_bgp_speaker_without_router(self):
+        with self.bgp_speaker() as bgp_speaker, self.network() as net:
+            data = {'network_id': net['network']['id']}
+            req = self.new_action_request('bgp-speakers', data,
+                                          bgp_speaker['bgp_speaker']['id'],
+                                          ADD_NETWORK_ACTION)
+            res = req.get_response(self.ext_api)
+            self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
+
+    def test_add_gateway_network_without_subnets(self):
+        with self.bgp_speaker() as bgp_speaker, self.network() as ext_net:
+            self._set_net_external(ext_net['network']['id'])
+            data = {'network_id': ext_net['network']['id']}
+            req = self.new_action_request('bgp-speakers', data,
+                                          bgp_speaker['bgp_speaker']['id'],
+                                          ADD_NETWORK_ACTION)
+            res = req.get_response(self.ext_api)
+            self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
+
+    def test_add_gateway_network_with_no_gateway_ip_subnet(self):
+        with self.bgp_speaker() as bgp_speaker, self.network() as ext_net:
+            self._set_net_external(ext_net['network']['id'])
+            self._make_subnet(self.fmt, ext_net, None, '100.64.0.0/24')
+            data = {'network_id': ext_net['network']['id']}
+            req = self.new_action_request('bgp-speakers', data,
+                                          bgp_speaker['bgp_speaker']['id'],
+                                          ADD_NETWORK_ACTION)
+            res = req.get_response(self.ext_api)
+            self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
+
+    def test_add_gateway_network_with_no_gateway_ip_port(self):
+        with self.bgp_speaker() as bgp_speaker, self.network() as ext_net:
+            self._set_net_external(ext_net['network']['id'])
+            self._make_subnet(self.fmt, ext_net, '100.64.0.1', '100.64.0.0/24')
+            data = {'network_id': ext_net['network']['id']}
+            req = self.new_action_request('bgp-speakers', data,
+                                          bgp_speaker['bgp_speaker']['id'],
+                                          ADD_NETWORK_ACTION)
+            res = req.get_response(self.ext_api)
+            self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
+
+    def test_remove_gateway_network_from_bgp_speaker_with_peers(self):
+        with self.bgp_speaker() as bgp_speaker, self.bgp_peer() as bgp_peer:
+            data = {'network_id': self._ext_net_id}
+            req = self.new_action_request('bgp-speakers', data,
+                                          bgp_speaker['bgp_speaker']['id'],
+                                          ADD_NETWORK_ACTION)
+            req.get_response(self.ext_api)
+            data = {"bgp_peer_id": bgp_peer['bgp_peer']['id']}
+            req = self.new_action_request('bgp-speakers', data,
+                                          bgp_speaker['bgp_speaker']['id'],
+                                          ADD_BGP_PEER_ACTION)
+            req.get_response(self.ext_api)
+            data = {'network_id': self._ext_net_id}
+            req = self.new_action_request('bgp-speakers', data,
+                                          bgp_speaker['bgp_speaker']['id'],
+                                          REMOVE_NETWORK_ACTION)
+            res = req.get_response(self.ext_api)
+            self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
+
+    def test_remove_gateway_network_from_bgp_speaker(self):
+        with self.bgp_speaker() as bgp_speaker, self.bgp_peer():
+            data = {'network_id': self._ext_net_id}
+            req = self.new_action_request('bgp-speakers', data,
+                                          bgp_speaker['bgp_speaker']['id'],
+                                          ADD_NETWORK_ACTION)
+            req.get_response(self.ext_api)
+            data = {'network_id': self._ext_net_id}
+            req = self.new_action_request('bgp-speakers', data,
+                                          bgp_speaker['bgp_speaker']['id'],
+                                          REMOVE_NETWORK_ACTION)
+            req.get_response(self.ext_api)
+            req = self.new_show_request('bgp-speakers',
+                                        bgp_speaker['bgp_speaker']['id'])
+            res = self.deserialize(self.fmt,
+                                   req.get_response(self.ext_api))
+            self.assertFalse(res['bgp_speaker']['logical_router'])
+            self.assertFalse(res['bgp_speaker']['networks'])
 
     def test_get_advertised_routes_with_single_peer(self):
         with self.bgp_speaker(router_id=self._router_id) as bgp_speaker, \

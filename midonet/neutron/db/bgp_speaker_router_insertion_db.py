@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron.extensions import bgp_speaker_router_insertion as bsri
 from neutron.callbacks import events
 from neutron.callbacks import registry
 from neutron.callbacks import resources
@@ -96,6 +97,33 @@ class BgpSpeakerRouterInsertionDbMixin(object):
                       bgp_sp_id)
         return bgp_sp_id
 
+    @log_helpers.log_method_call
+    def set_router_for_bgp_speaker_by_network(self, context,
+                                              bgp_sp_id, net_id):
+        """This method selects one router to be a bgp speaker.
+        To pare down routers, only first subnet in specified external
+        network is used for selection.
+        REVISIT(Kengo): There may be a case where there are two subnets
+        and a router is associated with the second subnet. The case is
+        a restriction for user and should be improved later.
+        """
+        core_plugin = manager.NeutronManager.get_plugin()
+        subnets = core_plugin.get_subnets_by_network(context, net_id)
+        if not subnets:
+            raise bsri.NoSubnetInNetwork(network_id=net_id)
+        if not subnets[0]['gateway_ip']:
+            raise bsri.NoGatewayIpOnSubnet(subnet_id=subnets[0]['id'])
+        filters = {'fixed_ips': {'ip_address': [subnets[0]['gateway_ip']],
+                                 'subnet_id': [subnets[0]['id']]}}
+        ports = core_plugin.get_ports(context, filters=filters)
+        if not ports:
+            raise bsri.NoGatewayIpPortOnSubnet(subnet_id=subnets[0]['id'])
+        router_id = ports[0]['device_id']
+        # If the router is already associated with bgp-speaker,
+        # RouterInUse will be raised.
+        self.set_router_for_bgp_speaker(
+                context, bgp_sp_id, router_id)
+
     def _get_bgp_speakers_by_bgp_peer_binding(self, context, bgp_peer_id):
         with context.session.begin(subtransactions=True):
             query = context.session.query(bdb.BgpSpeaker)
@@ -103,6 +131,13 @@ class BgpSpeakerRouterInsertionDbMixin(object):
                 bdb.BgpSpeakerPeerBinding.bgp_speaker_id == bdb.BgpSpeaker.id,
                 bdb.BgpSpeakerPeerBinding.bgp_peer_id == bgp_peer_id)
             return query.all()
+
+    def delete_bgp_speaker_router_insertion(self, context, bsp_id):
+        with context.session.begin(subtransactions=True):
+            query = self._model_query(
+                    context, BgpSpeakerRouterAssociation)
+            query.filter(
+                BgpSpeakerRouterAssociation.bgp_speaker_id == bsp_id).delete()
 
 
 def bgp_speaker_callback(resource, event, trigger, **kwargs):
