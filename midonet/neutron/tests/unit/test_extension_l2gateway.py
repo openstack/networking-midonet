@@ -269,7 +269,8 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
             with self.l2_gateway(name=L2_GW_NAME,
                                  device_id=gw_dev1['gateway_device']['id']):
                 with self.gateway_device_type_router_vtep(
-                        resource_id=self._router_id2) as gw_dev2:
+                        resource_id=self._router_id2,
+                        tunnel_ips=[test_gw.FAKE_TUNNEL_IP2]) as gw_dev2:
                     with self.l2_gateway(
                             name=L2_GW_NAME,
                             device_id=gw_dev2['gateway_device']['id']):
