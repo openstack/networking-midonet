@@ -95,3 +95,8 @@ Q_SERVICE_PLUGIN_CLASSES=midonet_l3
 
 # If you want to use Logging Resource Service, uncomment the following lines.
 # Q_SERVICE_PLUGIN_CLASSES+=,midonet_logging_resource
+
+# If you want to use Tap as a Service, uncomment the following lines.
+# enable_plugin tap-as-a-service https://github.com/openstack/tap-as-a-service
+# enable_service taas
+# TAAS_SERVICE_DRIVER="TAAS:Midonet:midonet.neutron.services.taas.service_drivers.taas_midonet.MidonetTaasDriver:default"

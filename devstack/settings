@@ -79,6 +79,9 @@ fi
 if is_service_enabled neutron-vpnaas; then
     NETWORK_API_EXTENSIONS+=,vpnaas
 fi
+if is_service_enabled taas; then
+    NETWORK_API_EXTENSIONS+=,taas
+fi
 
 # Don't let mido.sh configure the logging
 CONFIGURE_LOGGING=False
