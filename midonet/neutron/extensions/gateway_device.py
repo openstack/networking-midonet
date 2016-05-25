@@ -91,6 +91,11 @@ class TunnelIPsExhausted(nexception.BadRequest):
                 "The number of tunnel ips exceeds the maximum 1.")
 
 
+class TunnelIPsRequired(nexception.BadRequest):
+    message = _("Unable to complete operation for Gateway Device. "
+                "The tunnel ips are required for %(gw_type)s type.")
+
+
 class OperationRemoteMacEntryNotSupported(nexception.Conflict):
     message = _("Unable to operate remote_mac_entry for gateway device "
                 "%(type)s type.")

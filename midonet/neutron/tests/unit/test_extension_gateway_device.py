@@ -66,19 +66,23 @@ class GatewayDeviceTestCaseMixin(object):
                                     management_port=FAKE_MANAGEMENT_PORT,
                                     management_protocol=OVSDB,
                                     tunnel_ips=None):
+        if tunnel_ips is None:
+            tunnel_ips = [FAKE_TUNNEL_IP]
         gw_dev = self._make_gateway_device_hw_vtep(name, type, management_ip,
                                                    management_port,
                                                    management_protocol,
-                                                   tunnel_ips or [])
+                                                   tunnel_ips)
         yield gw_dev
 
     @contextlib.contextmanager
     def gateway_device_type_router_vtep(self, name=TYPE_ROUTER_VTEP,
                                         type=TYPE_ROUTER_VTEP,
                                         resource_id="", tunnel_ips=None):
+        if tunnel_ips is None:
+            tunnel_ips = [FAKE_TUNNEL_IP]
         gw_dev = self._make_gateway_device_router_vtep(name, type,
                                                        resource_id,
-                                                       tunnel_ips or [])
+                                                       tunnel_ips)
         yield gw_dev
 
     @contextlib.contextmanager
@@ -456,11 +460,30 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
         self.deserialize(self.fmt, res)
         self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
 
+    def test_create_gateway_device_without_tunnel_ips(self):
+        res = self._create_gateway_device_router_vtep(
+            resource_id=self._router_id,
+            tunnel_ips=[])
+        self.deserialize(self.fmt, res)
+        self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
+
     def test_update_gateway_device_with_multiple_tunnel_ips(self):
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
             data = {'gateway_device':
                 {'tunnel_ips': [FAKE_TUNNEL_IP, FAKE_TUNNEL_IP2]}}
+            gw_dev_req = self.new_update_request(
+                'gw/gateway_devices',
+                data,
+                gw_dev['gateway_device']['id'])
+            res = gw_dev_req.get_response(self.ext_api)
+            self.deserialize(self.fmt, res)
+            self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
+
+    def test_update_gateway_device_without_tunnel_ips(self):
+        with self.gateway_device_type_router_vtep(
+                resource_id=self._router_id) as gw_dev:
+            data = {'gateway_device': {'tunnel_ips': []}}
             gw_dev_req = self.new_update_request(
                 'gw/gateway_devices',
                 data,
@@ -593,7 +616,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
 
     def test_list_gateway_devices(self):
         with self.gateway_device_type_router_vtep(resource_id=self._router_id):
-            with self.gateway_device_type_hw_vtep():
+            with self.gateway_device_type_hw_vtep(
+                    tunnel_ips=[FAKE_TUNNEL_IP2]):
                 req = self.new_list_request('gw/gateway_devices')
                 res = self.deserialize(
                     self.fmt, req.get_response(self.ext_api))

@@ -15,6 +15,7 @@
 
 from midonet.neutron.common import constants as midonet_const
 from midonet.neutron.extensions import gateway_device as gw_device_ext
+from neutron.api.v2 import attributes
 from neutron.callbacks import events
 from neutron.callbacks import registry
 from neutron.callbacks import resources
@@ -371,9 +372,11 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
         self._validate_resource_vlan_network(context,
                                              gw_dev['resource_id'])
 
-    def _validate_tunnel_ips(self, tunnel_ips):
+    def _validate_tunnel_ips(self, tunnel_ips, gw_type):
         if len(tunnel_ips) > 1:
             raise gw_device_ext.TunnelIPsExhausted()
+        if len(tunnel_ips) == 0:
+            raise gw_device_ext.TunnelIPsRequired(gw_type=gw_type)
 
     def create_gateway_device(self, context, gw_device):
         """Create a gateway device"""
@@ -381,7 +384,8 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
         tenant_id = gw_dev['tenant_id']
         self._validate_gateway_device(context, gw_dev)
         if gw_dev['type'] != gw_device_ext.NETWORK_VLAN_TYPE:
-            self._validate_tunnel_ips(gw_dev.get('tunnel_ips') or [])
+            self._validate_tunnel_ips(gw_dev.get('tunnel_ips') or [],
+                                      gw_dev['type'])
 
         with context.session.begin(subtransactions=True):
             gw_dev_db = GatewayDevice(id=uuidutils.generate_uuid(),
@@ -485,7 +489,9 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
         gw_dev_db = self._get_gateway_device(context, id)
         if gw_dev_db.type == gw_device_ext.NETWORK_VLAN_TYPE:
             del gw_device['gateway_device']['tunnel_ips']
-        self._validate_tunnel_ips(gw_dev.get('tunnel_ips') or [])
+        elif attributes.is_attr_set(gw_dev.get('tunnel_ips')):
+            self._validate_tunnel_ips(gw_dev.get('tunnel_ips'),
+                                      gw_dev_db.type)
         gw_dev_db = self._update_gateway_device_db(context, id, gw_dev)
         return self._make_gateway_device_dict(gw_dev_db)
 
