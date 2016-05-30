@@ -1,0 +1,161 @@
+#! /usr/bin/env bash
+
+# Copyright (c) 2016 Midokura SARL
+# All Rights Reserved.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
+# NOTE(yamamoto): This script is intended to consume the same set of
+# environment variables as devmido/mido.sh so that it can be used as
+# a drop-in replacement.
+
+set -x
+set -e
+
+## defaults
+
+# IP address/hostname to use for the services
+SERVICE_HOST=${SERVICE_HOST:-127.0.0.1}
+
+# ZK Hosts (comma delimited)
+ZOOKEEPER_HOSTS=${ZOOKEEPER_HOSTS:-127.0.0.1:2181}
+
+# MidoNet API port and URI
+API_PORT=${API_PORT:-8181}
+API_URI=http://$SERVICE_HOST:$API_PORT/midonet-api
+
+# Time (in sec) to wait for the API to start
+API_TIMEOUT=${API_TIMEOUT:-120}
+
+# DB connection string for the tasks importer
+ENABLE_TASKS_IMPORTER=${ENABLE_TASKS_IMPORTER:-False}
+MIDO_DB_USER=${MIDO_DB_USER:-root}
+MIDO_DB_PASSWORD=${MIDO_DB_PASSWORD:-$MIDO_PASSWORD}
+TASKS_DB_CONN=${TASKS_DB_CONN:-jdbc:mysql://localhost:3306/neutron?user=$MIDO_DB_USER&password=$MIDO_DB_PASSWORD}
+TASKS_DB_DRIVER_CLASS=${TASKS_DB_DRIVER_CLASS:-org.mariadb.jdbc.Driver}
+
+# Cluster Topology API
+TOPOLOGY_API_PORT=${TOPOLOGY_API_PORT:-8088}
+
+# Auth variables. They are exported so that you could source this file and
+# run midonet-cli using these credentials
+export MIDO_API_URL=$API_URI
+export MIDO_USER=${MIDO_USER:-admin}
+export MIDO_PROJECT_ID=${MIDO_PROJECT_ID:-admin}
+export MIDO_PASSWORD=${MIDO_PASSWORD:-midonet}
+
+## Stop services
+
+for x in midolman midonet-cluster zookeeper cassandra; do
+    sudo service $x stop || :
+done
+
+## Zookeeper
+
+sudo rm -rf /var/lib/zookeeper/*
+sudo service zookeeper restart
+
+## Cassandra
+
+sudo chown cassandra:cassandra /var/lib/cassandra
+sudo rm -rf /var/lib/cassandra/data/system/LocationInfo
+CASSANDRA_FILE='/etc/cassandra/cassandra.yaml'
+sudo sed -i -e "s/^cluster_name:.*$/cluster_name: \'midonet\'/g" $CASSANDRA_FILE
+CASSANDRA_ENV_FILE='/etc/cassandra/cassandra-env.sh'
+sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1128M/' $CASSANDRA_ENV_FILE
+sudo sed -i 's/\(HEAP_NEWSIZE=\).*$/\164M/' $CASSANDRA_ENV_FILE
+# Cassandra seems to need at least 228k stack working with Java 7.
+# Related bug: https://issues.apache.org/jira/browse/CASSANDRA-5895
+sudo sed -i -e "s/-Xss180k/-Xss228k/g" $CASSANDRA_ENV_FILE
+sudo rm -rf /var/lib/cassandra/*
+sudo service cassandra restart
+
+## MidoNet
+
+# Wrapper for mn-conf command
+# Uses globals ``ZOOKEEPER_HOSTS``
+function configure_mn {
+    local value="$2"
+
+    # quote with "" only when necessary.  we don't always quote because
+    # mn-conf complains for quoted booleans.  eg. "false"
+    if [[ "${value}" =~ ":" || "${value}" = "" ]]; then
+        value="\"${value}\""
+    fi
+
+    # In some commands, mn-conf creates a local file, which requires root
+    # access.  For simplicity, always call mn-conf with root for now.
+    echo $1 : "${value}" | MIDO_ZOOKEEPER_HOSTS="$ZOOKEEPER_HOSTS" sudo mn-conf set
+}
+
+# Prints line number and "message" then exits
+# die $LINENO "message"
+# REVISIT(yamamoto): this shouldn't be here
+function die {
+    local exitcode=$?
+    set +o xtrace
+    local line=$1; shift
+    if [ $exitcode == 0 ]; then
+        exitcode=1
+    fi
+    err $line "$*"
+    # Give buffers a second to flush
+    sleep 1
+    exit $exitcode
+}
+
+# midonet-cluster
+
+configure_mn "cluster.loggers.root" "DEBUG"
+configure_mn "cluster.rest_api.http_port" $API_PORT
+configure_mn "cluster.topology_api.enabled" "true"
+configure_mn "cluster.topology_api.port" $TOPOLOGY_API_PORT
+
+if [[ "$ENABLE_TASKS_IMPORTER" = "True" ]]; then
+    configure_mn "cluster.neutron_importer.enabled" "true"
+    configure_mn "cluster.neutron_importer.connection_string" "\"$TASKS_DB_CONN\""
+    configure_mn "cluster.neutron_importer.jdbc_driver_class" "\"$TASKS_DB_DRIVER_CLASS\""
+fi
+
+MIDOENT_CLUSTER_ENV_FILE='/etc/midonet-cluster/midonet-cluster-env.sh'
+sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1128M/' $MIDOENT_CLUSTER_ENV_FILE
+sudo sed -i 's/\(HEAP_NEWSIZE=\).*$/\164M/' $MIDOENT_CLUSTER_ENV_FILE
+
+sudo service midonet-cluster restart
+
+if ! timeout $API_TIMEOUT sh -c "while ! wget -q -O- $API_URI; do sleep 1; done"; then
+    die $LINENO "API server didn't start in $API_TIMEOUT seconds"
+fi
+
+# midolman
+
+if [[ "$USE_METADATA" = "True" ]]; then
+    configure_mn "agent.openstack.metadata.enabled" "true"
+    configure_mn "agent.openstack.metadata.nova_metadata_url" \
+        "$NOVA_METADATA_URL"
+    configure_mn "agent.openstack.metadata.shared_secret" \
+        "$METADATA_SHARED_SECRET"
+fi
+
+configure_mn "agent.loggers.root" "DEBUG"
+configure_mn "agent.midolman.lock_memory" "false"
+configure_mn "cassandra.servers" "127.0.0.1"
+
+MIDOLMAN_ENV_FILE='/etc/midolman/midolman-env.sh'
+sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1256M/' $MIDOLMAN_ENV_FILE
+
+sudo service midolman restart
+
+if ! timeout 60 sh -c 'while test -z "$(midonet-cli -e host list)"; do sleep 1; done'; then
+    die $LINENO "HostService didn't register the host"
+fi

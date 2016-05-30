@@ -27,15 +27,21 @@ if [[ "$1" == "stack" ]]; then
         source $ABSOLUTE_PATH/$Q_PLUGIN/functions
         source $ABSOLUTE_PATH/l3
 
-        # Clone and build midonet service
-        if [[ "$OFFLINE" != "True" ]]; then
-            if [[ ! -d $MIDONET_DIR ]]; then
-                local orig_dir=$(pwd)
+        if [ "$MIDONET_USE_PACKAGE" = "True" ]; then
+            sudo $ABSOLUTE_PATH/midonet-pkg/configure_repo.sh \
+                $MIDNOET_DEB_URI $MIDNOET_DEB_SUITE $MIDNOET_DEB_COMPONENT
+            sudo $ABSOLUTE_PATH/midonet-pkg/install_pkgs.sh
+        else
+            # Clone and build midonet service
+            if [[ "$OFFLINE" != "True" ]]; then
+                if [[ ! -d $MIDONET_DIR ]]; then
+                    local orig_dir=$(pwd)
 
-                git clone $MIDONET_REPO $MIDONET_DIR
-                cd $MIDONET_DIR
-                git checkout $MIDONET_BRANCH
-                cd ${orig_dir}
+                    git clone $MIDONET_REPO $MIDONET_DIR
+                    cd $MIDONET_DIR
+                    git checkout $MIDONET_BRANCH
+                    cd ${orig_dir}
+                fi
             fi
         fi
 
@@ -49,8 +55,10 @@ if [[ "$1" == "stack" ]]; then
         # Ensure that we can do "tox -e genconfig" in the later phase
         safe_chown -R $STACK_USER $PLUGIN_PATH/*.egg-info
 
-        # Build midonet client
-        pip_install --editable $MIDONET_DIR/python-midonetclient
+        if [ "$MIDONET_USE_PACKAGE" != "True" ]; then
+            # Build midonet client
+            pip_install --editable $MIDONET_DIR/python-midonetclient
+        fi
         # Configure midonet-cli
         configure_midonet_cli
 
@@ -120,7 +128,15 @@ if [[ "$1" == "stack" ]]; then
         fi
 
         # Run the command
-        $MIDONET_DIR/tools/devmido/mido.sh
+        if [ "$MIDONET_USE_PACKAGE" = "True" ]; then
+            # Create symbolic links for logs so that they will be
+            # gathered on gate.
+            ln -sf /var/log/midolman/midolman.log ${LOGDIR}
+            ln -sf /var/log/midonet-cluster/midonet-cluster.log ${LOGDIR}
+            $ABSOLUTE_PATH/midonet-pkg/configure_and_start_midonet.sh
+        else
+            $MIDONET_DIR/tools/devmido/mido.sh
+        fi
 
         # Set rootwrap.d to installed mm-ctl filters
         sudo cp $ABSOLUTE_PATH/midonet_rootwrap.filters /etc/neutron/rootwrap.d/
@@ -165,5 +181,9 @@ elif [[ "$1" == "unstack" ]]; then
             $MIDONET_DIR/tools/devmido/delete_fake_uplink.sh
         fi
     fi
-    $MIDONET_DIR/tools/devmido/unmido.sh
+    if [ "$MIDONET_USE_PACKAGE" = "True" ]; then
+        $ABSOLUTE_PATH/midonet-pkg/stop_midonet.sh
+    else
+        $MIDONET_DIR/tools/devmido/unmido.sh
+    fi
 fi

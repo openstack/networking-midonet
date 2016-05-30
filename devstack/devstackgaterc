@@ -61,6 +61,10 @@ if [ "${_ZOOM}" = "True" ]; then
 else
     # Use neutron metadata proxy
     s+=",q-dhcp,q-meta"
+
+    # NOTE(yamamoto): MIDONET_USE_PACKAGE doesn't support java7,
+    # which is used by MidoNet < 5.0
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_PACKAGE=False"
 fi
 
 # Enable LBaaS

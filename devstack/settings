@@ -1,6 +1,14 @@
 #!/bin/bash
 
+# Use MidoNet binary packages rather than devmido
+# NOTE(yamamoto): This doesn't support java7, which is used by MidoNet < 5.0
+MIDONET_USE_PACKAGE=${MIDONET_USE_PACKAGE:-True}
+MIDNOET_DEB_URI=${MIDNOET_DEB_URI:-http://builds.midonet.org/current}
+MIDNOET_DEB_SUITE=${MIDNOET_DEB_SUITE:-unstable}
+MIDNOET_DEB_COMPONENT=${MIDNOET_DEB_COMPONENT:-main}
+
 # MidoNet repo
+# Ignored if MIDONET_USE_PACKAGE=True
 MIDONET_REPO=${MIDONET_REPO:-http://github.com/midonet/midonet.git}
 MIDONET_BRANCH=${MIDONET_BRANCH:-master}
 MIDONET_DIR=${MIDONET_DIR:-$DEST/midonet}
@@ -9,6 +17,7 @@ MIDONET_DIR=${MIDONET_DIR:-$DEST/midonet}
 MIDONET_USE_ZOOM=${MIDONET_USE_ZOOM:-True}
 
 # Use uplink network for "fake" uplink
+# MIDONET_USE_UPLINK=False is incompatible with MIDONET_USE_PACKAGE=True
 MIDONET_USE_UPLINK=${MIDONET_USE_UPLINK:-True}
 # Configure NAT for public network.
 # You need to configure PUBLIC_INTERFACE properly.
