@@ -93,7 +93,13 @@ The upstream 'networking-l2gw' DB tables are re-used.
 Client
 ------
 
-Currenlty adapted CLI commands are out of scope.
+Currenlty supports MidoNet l2gw creation CLI that is different from that of the upstream 'networking-l2gw'.
+
+The following command create a l2 gateway:
+
+::
+
+    neutron midonet-l2-gateway-create GATEWAY-NAME [--device device_id=DEVICE_ID,segmentaion_id=SEGMENTAION_ID]
 
 
 Other Deployer Impact
