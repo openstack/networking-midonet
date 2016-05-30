@@ -1,0 +1,4 @@
+---
+features:
+  - LBaaS v1 support is now compatible with haproxy provider.
+    See `Haproxy provider <http://docs.openstack.org/developer/networking-midonet/readme.html#haproxy-provider>`_ for details.
