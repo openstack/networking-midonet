@@ -1,0 +1,4 @@
+---
+features:
+  - Logging Resource Service has been added.
+    See `Logging Resource Service <http://docs.openstack.org/developer/networking-midonet/readme.html#logging-resource-service>`_ for details.

@@ -175,3 +175,14 @@ when running devstack, make sure the following is defined in ``local.conf``::
 
 Note: Please specify stable/mitaka branch in neutron because
 BGP dynamic routing service does not work with neutron master branch.
+
+
+Logging Resource Service
+------------------------
+
+Starting v5.2, MidoNet implements Neutron Logging Resource Service extension API.
+
+To configure MidoNet including Logging Resource Service when running devstack,
+make sure the following is defined in ``local.conf``::
+
+    Q_SERVICE_PLUGIN_CLASSES=midonet_logging_resource

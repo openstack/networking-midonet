@@ -28,6 +28,7 @@ from midonet.neutron.db import agent_membership_db  # noqa
 from midonet.neutron.db import data_state_db
 from midonet.neutron.db import data_version_db as dv_db
 from midonet.neutron.db import gateway_device  # noqa
+from midonet.neutron.db import logging_resource_db  # noqa
 from midonet.neutron.db import port_binding_db  # noqa
 from midonet.neutron.db import provider_network_db  # noqa
 from midonet.neutron.db import task_db  # noqa
