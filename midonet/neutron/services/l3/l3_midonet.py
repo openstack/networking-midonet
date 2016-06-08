@@ -61,7 +61,8 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         cfg.CONF.set_override("router_distributed", False)
         neutron_extensions.append_api_extensions_path(extensions.__path__)
 
-    def get_plugin_type(self):
+    @classmethod
+    def get_plugin_type(cls):
         return constants.L3_ROUTER_NAT
 
     def get_plugin_description(self):
