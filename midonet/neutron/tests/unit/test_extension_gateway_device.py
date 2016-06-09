@@ -39,8 +39,7 @@ FAKE_TUNNEL_IP = '10.2.0.3'
 FAKE_TUNNEL_IP2 = '10.2.0.4'
 FAKE_TENANT_ID = str(uuid.uuid4())
 
-DB_GATEWAY_DEVICE_PLUGIN_KLASS = ('midonet.neutron.services.gw_device.plugin.'
-                                  'MidonetGwDeviceServicePlugin')
+DB_GATEWAY_DEVICE_PLUGIN_KLASS = 'midonet_gwdevice'
 extensions_path = ':'.join(midoextensions.__path__)
 
 

@@ -142,7 +142,7 @@ Neutron Gateway Device Management Service extension API.
 To configure MidoNet including Gateway Device Management Service
 when running devstack, make sure the following is defined in ``local.conf``::
 
-    Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.gw_device.plugin.MidonetGwDeviceServicePlugin
+    Q_SERVICE_PLUGIN_CLASSES=midonet_gwdevice
 
 
 L2 Gateway Management Service
@@ -157,7 +157,7 @@ when running devstack, make sure the following is defined in ``local.conf``::
     enable_service l2gw-plugin
     Q_PLUGIN_EXTRA_CONF_PATH=/etc/neutron
     Q_PLUGIN_EXTRA_CONF_FILES=(l2gw_plugin.ini)
-    L2GW_PLUGIN="midonet.neutron.services.l2gateway.plugin.MidonetL2GatewayPlugin"
+    L2GW_PLUGIN="midonet_l2gw"
     NETWORKING_L2GW_SERVICE_DRIVER="L2GW:Midonet:midonet.neutron.services.l2gateway.service_drivers.l2gw_midonet.MidonetL2gwDriver:default"
 
 
@@ -171,7 +171,7 @@ In MidoNet, router treated as bgp-speaker must be specified.
 To configure MidoNet including BGP dynamic routing service
 when running devstack, make sure the following is defined in ``local.conf``::
 
-    Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.bgp.plugin.MidonetBgpPlugin
+    Q_SERVICE_PLUGIN_CLASSES=midonet_bgp
 
 Note: Please specify stable/mitaka branch in neutron because
 BGP dynamic routing service does not work with neutron master branch.

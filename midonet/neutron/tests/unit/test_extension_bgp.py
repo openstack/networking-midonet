@@ -45,8 +45,7 @@ REMOVE_NETWORK_ACTION = "remove_gateway_network"
 ADD_INTERFACE_ACTION = "add_router_interface"
 REMOVE_INTERFACE_ACTION = "remove_router_interface"
 
-BGP_PLUGIN_KLASS = ('midonet.neutron.services.bgp.plugin.'
-                    'MidonetBgpPlugin')
+BGP_PLUGIN_KLASS = 'midonet_bgp'
 extensions_path = ':'.join(midoextensions.__path__)
 
 

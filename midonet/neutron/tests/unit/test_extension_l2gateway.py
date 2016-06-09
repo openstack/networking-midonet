@@ -35,8 +35,7 @@ FAKE_SEG_ID = '1000'
 FAKE_SEG_ID_VXLAN = '7000'
 INVALID_VLAN_ID = 4095
 INVALID_VXLAN_ID = 16777216
-MN_PLUGIN_KLASS = ('midonet.neutron.services.l2gateway.plugin.'
-                   'MidonetL2GatewayPlugin')
+MN_PLUGIN_KLASS = 'midonet_l2gw'
 MN_DRIVER_KLASS = ('midonet.neutron.services.l2gateway.service_drivers.'
                    'l2gw_midonet.MidonetL2gwDriver')
 
