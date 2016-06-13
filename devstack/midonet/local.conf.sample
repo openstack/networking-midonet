@@ -89,5 +89,9 @@ Q_SERVICE_PLUGIN_CLASSES=midonet_l3
 # enable_service neutron-vpnaas
 # NEUTRON_VPNAAS_SERVICE_PROVIDER="VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default"
 
+# If you want to use BGP dynamic routing service,
+# uncomment the following lines.
+# Q_SERVICE_PLUGIN_CLASSES+=,midonet_bgp
+
 # If you want to use Logging Resource Service, uncomment the following lines.
 # Q_SERVICE_PLUGIN_CLASSES+=,midonet_logging_resource
