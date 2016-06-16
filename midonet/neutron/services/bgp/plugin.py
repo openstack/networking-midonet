@@ -22,6 +22,7 @@ from oslo_utils import excutils
 from neutron.api import extensions as neutron_extensions
 from neutron.extensions import bgp
 from neutron import manager
+from neutron_lib import exceptions as nexception
 
 from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
@@ -115,6 +116,12 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
 
     @log_helpers.log_method_call
     def add_bgp_peer(self, context, bgp_speaker_id, bgp_peer_info):
+        # TODO(kengo): This is temporary workaround until upstream raise
+        # an error when dictionary without 'bgp_peer_id' key is specified.
+        if not self._get_id_for(bgp_peer_info, 'bgp_peer_id'):
+            raise nexception.BadRequest(
+                    resource=bgp.BGP_SPEAKER_RESOURCE_NAME,
+                    msg="bgp_peer_id must be specified")
         with context.session.begin(subtransactions=True):
             # In MidoNet, bgp-peer can be related to only one bgp-speaker.
             if self._get_bgp_speakers_by_bgp_peer_binding(

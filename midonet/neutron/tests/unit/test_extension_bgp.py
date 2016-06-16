@@ -397,6 +397,14 @@ class BgpTestCase(test_l3.L3NatTestCaseMixin,
             res = req.get_response(self.ext_api)
             self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
 
+    def test_add_bgp_peer_without_bgp_peer_id_parameter(self):
+        with self.bgp_speaker() as bgp_speaker, self.bgp_peer():
+            req = self.new_action_request('bgp-speakers', {},
+                                          bgp_speaker['bgp_speaker']['id'],
+                                          ADD_BGP_PEER_ACTION)
+            res = req.get_response(self.ext_api)
+            self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
+
     def test_remove_bgp_peer_from_speaker_with_router(self):
         with self.bgp_speaker(router_id=self._router_id) as bgp_speaker, \
                 self.bgp_peer() as bgp_peer:
