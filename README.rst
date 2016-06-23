@@ -197,7 +197,7 @@ To configure it, add the following service plugin to the `service_plugins` list
 in the DEFAULT section of `/etc/neutron/neutron.conf`::
 
     [DEFAULT]
-    service_plugins = midonet.neutron.services.gw_device.plugin.MidonetGwDeviceServicePlugin
+    service_plugins = midonet_gwdevice
 
 
 L2 Gateway Service
@@ -214,7 +214,7 @@ To configure it, add the following service plugin to the `service_plugins` list
 in the DEFAULT section of `/etc/neutron/neutron.conf`::
 
     [DEFAULT]
-    service_plugins = midonet.neutron.services.l2gateway.plugin.MidonetL2GatewayPlugin
+    service_plugins = midonet_l2gw
 
 In addition, configure the service provider in the 'service_providers' section of
 L2 Gateway plugin configuration file `/etc/neutron/l2gw_plugin.ini`::
@@ -255,4 +255,4 @@ To configure it, add the following service plugin to the `service_plugins` list
 in the DEFAULT section of `/etc/neutron/neutron.conf`::
 
     [DEFAULT]
-    service_plugins = midonet.neutron.services.bgp.plugin.MidonetBgpPlugin
+    service_plugins = midonet_bgp

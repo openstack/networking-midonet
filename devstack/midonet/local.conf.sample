@@ -40,7 +40,7 @@ Q_SERVICE_PLUGIN_CLASSES=midonet_l3
 
 # If you want to use Gateway Device Management Service,
 # uncomment the following lines.
-# Q_SERVICE_PLUGIN_CLASSES+=,midonet.neutron.services.gw_device.plugin.MidonetGwDeviceServicePlugin
+# Q_SERVICE_PLUGIN_CLASSES+=,midonet_gwdevice
 
 # The following section contains environment variable settings that would
 # further minimalize the environment.  For example, in some cases you may just
@@ -79,7 +79,7 @@ Q_SERVICE_PLUGIN_CLASSES=midonet_l3
 # enable_service l2gw-plugin
 # Q_PLUGIN_EXTRA_CONF_PATH=/etc/neutron
 # Q_PLUGIN_EXTRA_CONF_FILES=(l2gw_plugin.ini)
-# L2GW_PLUGIN="midonet.neutron.services.l2gateway.plugin.MidonetL2GatewayPlugin"
+# L2GW_PLUGIN="midonet_l2gw"
 # NETWORKING_L2GW_SERVICE_DRIVER="L2GW:Midonet:midonet.neutron.services.l2gateway.service_drivers.l2gw_midonet.MidonetL2gwDriver:default"
 
 # If you want to use VPNaaS, uncomment the following lines and manually install
