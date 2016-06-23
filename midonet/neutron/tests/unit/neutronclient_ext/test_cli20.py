@@ -54,6 +54,37 @@ class CLIExtTestV20Base(test_cli20.CLITestV20Base):
         load_ext_mock.return_value = [resource]
         return load_ext_mock
 
+    def _test_update_ext_resource(self, resource, cmd, myid, args,
+                                  extrafields,
+                                  cmd_resource=None, parent_id=None):
+        self.mox.StubOutWithMock(cmd, "get_client")
+        self.mox.StubOutWithMock(self.client.httpclient, "request")
+        cmd.get_client().MultipleTimes().AndReturn(self.client)
+        if not cmd_resource:
+            cmd_resource = resource
+
+        body = {resource: extrafields}
+        path = getattr(self.client, cmd_resource + "_path")
+        if parent_id:
+            path = path % parent_id
+        path = path % myid
+        mox_body = MyComparator(body, self.client)
+
+        self.client.httpclient.request(
+            test_cli20.MyUrlComparator(
+                test_cli20.end_url(path, format=self.format), self.client),
+            'PUT',
+            body=mox_body,
+            headers=mox.ContainsKeyValue(
+                'X-Auth-Token', TOKEN)).AndReturn((MyResp(204), None))
+        self.mox.ReplayAll()
+        cmd_parser = cmd.get_parser("update_" + cmd_resource)
+        shell.run_command(cmd, cmd_parser, args)
+        self.mox.VerifyAll()
+        self.mox.UnsetStubs()
+        _str = self.fake_stdout.make_string()
+        self.assertIn(myid, _str)
+
     def _test_show_ext_resource(self, resource, cmd, myid, args, fields=(),
                                 cmd_resource=None, parent_id=None):
         self.mox.StubOutWithMock(cmd, "get_client")
