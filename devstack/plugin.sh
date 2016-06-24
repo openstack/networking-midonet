@@ -25,7 +25,6 @@ if [[ "$1" == "stack" ]]; then
 
         source $ABSOLUTE_PATH/functions
         source $ABSOLUTE_PATH/$Q_PLUGIN/functions
-        source $ABSOLUTE_PATH/l3
 
         if [ "$MIDONET_USE_PACKAGE" = "True" ]; then
             sudo $ABSOLUTE_PATH/midonet-pkg/configure_repo.sh \
