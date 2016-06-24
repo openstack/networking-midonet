@@ -24,6 +24,7 @@ VIF_TYPE_MIDONET = 'midonet'
 
 # Neutron well-known service type constants:
 GATEWAY_DEVICE = "GATEWAY_DEVICE"
+LOGGING_RESOURCE = "LOGGING_RESOURCE"
 
 # for Midonet L2 Gateway
 MAX_VXLAN_VNI = 16777215

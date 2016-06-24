@@ -256,3 +256,21 @@ in the DEFAULT section of `/etc/neutron/neutron.conf`::
 
     [DEFAULT]
     service_plugins = midonet_bgp
+
+
+Logging Resource Service
+------------------------
+
+Starting v5.2, MidoNet implements Neutron Logging Resource Service extension API.
+
+To configure it, add the following service plugin to the `service_plugins` list
+in the DEFAULT section of `/etc/neutron/neutron.conf`::
+
+    [DEFAULT]
+    service_plugins = midonet_logging_resource
+
+Firewall log is managed by Quota.
+Default value of firewall log is 10 that is same number as firewall.
+Basically, both Quota value for firewall and firewall log should be aligned.
+To tune it, change value of `quota_firewall_log` in the quotas section of
+`/etc/neutron/neutron.conf`::

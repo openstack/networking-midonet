@@ -355,3 +355,38 @@ class MidonetClientBase(object):
 
     def delete_bgp_peer_postcommit(self, bgp_peer_id):
         pass
+
+    # Logging Resource extensions
+
+    def update_logging_resource_precommit(
+            self, context, logging_resource_id, logging_resource):
+        pass
+
+    def update_logging_resource_postcommit(self, logging_resource_id,
+                                           logging_resource):
+        pass
+
+    def delete_logging_resource_precommit(self, context, logging_resource_id):
+        pass
+
+    def delete_logging_resource_postcommit(self, logging_resource_id):
+        pass
+
+    def create_firewall_log_precommit(self, context, firewall_log):
+        pass
+
+    def create_firewall_log_postcommit(self, firewall_log):
+        pass
+
+    def update_firewall_log_precommit(self, context,
+                                      firewall_log_id, firewall_log):
+        pass
+
+    def update_firewall_log_postcommit(self, firewall_log_id, firewall_log):
+        pass
+
+    def delete_firewall_log_precommit(self, context, firewall_log_id):
+        pass
+
+    def delete_firewall_log_postcommit(self, firewall_log_id):
+        pass

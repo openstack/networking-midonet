@@ -189,3 +189,20 @@ class MidonetApiClient(base.MidonetClientBase):
 
     def delete_bgp_peer_postcommit(self, bgp_peer_id):
         self.api_cli.delete_bgp_peer(bgp_peer_id)
+
+    def update_logging_resource_postcommit(
+                self, logging_resource_id, logging_resource):
+        self.api_cli.update_logging_resource(
+                logging_resource_id, logging_resource)
+
+    def delete_logging_resource_postcommit(self, logging_resource_id):
+        self.api_cli.delete_logging_resource(logging_resource_id)
+
+    def create_firewall_log_postcommit(self, firewall_log):
+        self.api_cli.create_firewall_log(firewall_log)
+
+    def update_firewall_log_postcommit(self, firewall_log_id, firewall_log):
+        self.api_cli.update_firewall_log(firewall_log_id, firewall_log)
+
+    def delete_firewall_log_postcommit(self, firewall_log_id):
+        self.api_cli.delete_firewall_log(firewall_log_id)
