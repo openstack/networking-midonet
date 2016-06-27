@@ -19,6 +19,9 @@ from neutron.db.migration import cli as migration
 from neutron.tests.common import base
 from neutron.tests.functional.db import test_migrations
 
+# NOTE(yamamoto): midonet_firewall_logs has a FK to firewalls.id
+import neutron_fwaas.db.firewall.firewall_db  # noqa
+
 from midonet.neutron.db.migration.models import head
 
 # List of *aaS tables to exclude
@@ -26,26 +29,39 @@ from midonet.neutron.db.migration.models import head
 # similarly to Neutron's external.TABLES.
 
 LBAAS_TABLES = {
-    # bug 1522706
-    'lbaas_listeners',
-    'lbaas_sni',
-
-    # bug 1552063
-    'lbaas_l7policies',
-    'lbaas_l7rules',
-
     # NOTE(yamamoto): We don't import these models
     'nsxv_edge_monitor_mappings',
     'nsxv_edge_pool_mappings',
     'nsxv_edge_vip_mappings',
+
+    # LBaaS v2 tables
+    'lbaas_healthmonitors',
+    'lbaas_l7policies',
+    'lbaas_l7rules',
+    'lbaas_listeners',
+    'lbaas_loadbalancer_statistics',
+    'lbaas_loadbalanceragentbindings',
+    'lbaas_loadbalancers',
+    'lbaas_members',
+    'lbaas_pools',
+    'lbaas_sessionpersistences',
+    'lbaas_sni',
 }
 
 FWAAS_TABLES = {
     # NOTE(yamamoto): We don't import these models
     'cisco_firewall_associations',
+    'firewall_router_associations',
+}
+
+VPNAAS_TABLES = {
+    # NOTE(yamamoto): We don't import these models
+    'vpn_endpoint_groups',
+    'vpn_endpoints',
 }
 
 L2GW_TABLES = {
+    # NOTE(yamamoto): We don't import these models
     'l2gw_alembic_version',
     'physical_locators',
     'physical_switches',
@@ -64,7 +80,9 @@ L2GW_TABLES = {
 # EXTERNAL_TABLES should contain all names of tables that are not related to
 # current repo.
 EXTERNAL_TABLES = (set(external.TABLES) | LBAAS_TABLES | FWAAS_TABLES |
-                   L2GW_TABLES)
+                   VPNAAS_TABLES | L2GW_TABLES)
+# FIXME(yamamoto): Fix this after branching stable/mitaka
+EXTERNAL_TABLES |= {'bgp_speaker_router_associations'}
 VERSION_TABLE = 'alembic_version_midonet'
 
 
