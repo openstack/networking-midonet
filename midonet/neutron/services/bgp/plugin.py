@@ -19,8 +19,10 @@ from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 from oslo_utils import excutils
 
+from neutron_dynamic_routing import extensions as bgp_extensions
+from neutron_dynamic_routing.extensions import bgp
+
 from neutron.api import extensions as neutron_extensions
-from neutron.extensions import bgp
 from neutron import manager
 from neutron_lib import exceptions as nexception
 
@@ -49,6 +51,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
 
     def __init__(self):
         neutron_extensions.append_api_extensions_path(extensions.__path__)
+        neutron_extensions.append_api_extensions_path(bgp_extensions.__path__)
 
         # Instantiate MidoNet API client.
         self.client = c_base.load_client(cfg.CONF.MIDONET)

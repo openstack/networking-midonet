@@ -173,9 +173,6 @@ when running devstack, make sure the following is defined in ``local.conf``::
 
     Q_SERVICE_PLUGIN_CLASSES=midonet_bgp
 
-Note: Please specify stable/mitaka branch in neutron because
-BGP dynamic routing service does not work with neutron master branch.
-
 
 Logging Resource Service
 ------------------------

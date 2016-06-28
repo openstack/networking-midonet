@@ -13,36 +13,24 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonet.neutron.db import bgp_speaker_router_insertion_model as model
 from midonet.neutron.extensions import bgp_speaker_router_insertion as bsri
+
+from neutron_dynamic_routing.db import bgp_db as bdb
+from neutron_dynamic_routing.extensions import bgp as bgp_ext
+
 from neutron.callbacks import events
 from neutron.callbacks import registry
 from neutron.callbacks import resources
-from neutron.db import bgp_db as bdb
-from neutron.db import model_base
-from neutron.extensions import bgp as bgp_ext
 from neutron.extensions import l3
 from neutron import manager
 from oslo_db import exception as db_exc
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
-import sqlalchemy as sa
 from sqlalchemy.orm import exc
 
+
 LOG = logging.getLogger(__name__)
-
-
-class BgpSpeakerRouterAssociation(model_base.BASEV2):
-
-    """Tracks Bgp Speaker Router Association"""
-
-    __tablename__ = 'bgp_speaker_router_associations'
-
-    bgp_speaker_id = sa.Column(sa.String(36),
-        sa.ForeignKey('bgp_speakers.id', ondelete="CASCADE"),
-        nullable=False, primary_key=True)
-    router_id = sa.Column(sa.String(36),
-        sa.ForeignKey('routers.id', ondelete="CASCADE"),
-        nullable=False, unique=True)
 
 
 class BgpSpeakerRouterInsertionDbMixin(object):
@@ -54,7 +42,7 @@ class BgpSpeakerRouterInsertionDbMixin(object):
         """Sets the routers associated with the bgp speaker."""
         try:
             with context.session.begin(subtransactions=True):
-                bgp_router_db = BgpSpeakerRouterAssociation(
+                bgp_router_db = model.BgpSpeakerRouterAssociation(
                         bgp_speaker_id=bgp_sp_id,
                         router_id=r_id)
                 context.session.add(bgp_router_db)
@@ -71,9 +59,10 @@ class BgpSpeakerRouterInsertionDbMixin(object):
         r_id = None
         try:
             query = self._model_query(context,
-                                      BgpSpeakerRouterAssociation)
+                                      model.BgpSpeakerRouterAssociation)
             bsra = query.filter(
-                BgpSpeakerRouterAssociation.bgp_speaker_id == bgp_sp_id).one()
+                model.BgpSpeakerRouterAssociation.bgp_speaker_id ==
+                bgp_sp_id).one()
             r_id = bsra['router_id']
 
         except exc.NoResultFound:
@@ -87,9 +76,9 @@ class BgpSpeakerRouterInsertionDbMixin(object):
         bgp_sp_id = None
         try:
             query = self._model_query(context,
-                                      BgpSpeakerRouterAssociation)
+                                      model.BgpSpeakerRouterAssociation)
             bsra = query.filter(
-                BgpSpeakerRouterAssociation.router_id == router_id).one()
+                model.BgpSpeakerRouterAssociation.router_id == router_id).one()
             bgp_sp_id = bsra['bgp_speaker_id']
 
         except exc.NoResultFound:
@@ -135,9 +124,10 @@ class BgpSpeakerRouterInsertionDbMixin(object):
     def delete_bgp_speaker_router_insertion(self, context, bsp_id):
         with context.session.begin(subtransactions=True):
             query = self._model_query(
-                    context, BgpSpeakerRouterAssociation)
+                    context, model.BgpSpeakerRouterAssociation)
             query.filter(
-                BgpSpeakerRouterAssociation.bgp_speaker_id == bsp_id).delete()
+                model.BgpSpeakerRouterAssociation.bgp_speaker_id ==
+                bsp_id).delete()
 
 
 def bgp_speaker_callback(resource, event, trigger, **kwargs):
