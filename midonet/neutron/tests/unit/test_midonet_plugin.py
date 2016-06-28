@@ -21,7 +21,9 @@ import testtools
 from webob import exc
 
 from midonet.neutron.client import base as cli_base
+# Import all data models
 from midonet.neutron.common import config  # noqa
+from midonet.neutron.db.migration.models import head  # noqa
 
 from neutron.common import constants as n_const
 from neutron import context

@@ -18,11 +18,6 @@ import mock
 import testscenarios
 from webob import exc
 
-from midonet.neutron.common import config  # noqa
-from midonet.neutron.db import agent_membership_db  # noqa
-from midonet.neutron.db import port_binding_db  # noqa
-from midonet.neutron.db import provider_network_db  # noqa
-from midonet.neutron.db import task_db  # noqa
 from midonet.neutron.tests.unit import test_midonet_plugin as test_mn_plugin
 
 from neutron.extensions import external_net
