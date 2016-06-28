@@ -367,7 +367,7 @@
              router: -1
              port: -1
       sla:
-        max_seconds_per_iteration: {{max_secs_per_iteration or 5}}
+        max_seconds_per_iteration: {{max_secs_per_iteration or 10}}
         failure_rate:
           max: 0
 
