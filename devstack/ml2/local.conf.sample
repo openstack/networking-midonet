@@ -34,6 +34,8 @@ ENABLED_SERVICES+=,q-lbaasv1,q-fwaas
 ENABLED_SERVICES+=,tempest
 ENABLED_SERVICES+=,horizon
 ENABLED_SERVICES+=,n-novnc,n-cauth
+enable_plugin neutron-fwaas https://github.com/openstack/neutron-fwaas
+FWAAS_PLUGIN=midonet_firewall
 
 NOVA_VNC_ENABLED=True
 
