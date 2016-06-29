@@ -187,7 +187,7 @@ class LoggingResourceTestCase(test_l3.L3NatTestCaseMixin,
                 self.fmt, req.get_response(self.ext_api))
             self.assertEqual(2, len(res['logging_resources']))
 
-    def test_update_logging_resource(self):
+    def test_update_logging_resource_without_firewall_log(self):
         expected = {'name': NEW_LOG_RES_NAME,
                     'description': NEW_LOG_RES_DESC,
                     'enabled': ENABLED_TRUE}
@@ -200,6 +200,25 @@ class LoggingResourceTestCase(test_l3.L3NatTestCaseMixin,
                                           log_res['logging_resource']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
             self.assertDictSupersetOf(expected, res['logging_resource'])
+            self.client_mock.update_logging_resource_postcommit. \
+                assert_not_called()
+
+    def test_update_logging_resource_with_firewall_log(self):
+        expected = {'name': NEW_LOG_RES_NAME,
+                    'description': NEW_LOG_RES_DESC,
+                    'enabled': ENABLED_TRUE}
+        with self.logging_resource() as log_res, \
+                self.firewall_log(log_res['logging_resource']['id'],
+                                  firewall_id=self._fw_id1):
+            data = {'logging_resource': {'name': NEW_LOG_RES_NAME,
+                                         'description': NEW_LOG_RES_DESC,
+                                         'enabled': ENABLED_TRUE}}
+            req = self.new_update_request('logging/logging_resources',
+                                          data,
+                                          log_res['logging_resource']['id'])
+            res = self.deserialize(self.fmt, req.get_response(self.ext_api))
+            self.assertDictSupersetOf(expected, res['logging_resource'])
+            self.client_mock.update_logging_resource_postcommit.assert_called()
 
     def test_update_logging_resource_error_rollback_neutron_resource(self):
         self.client_mock.update_logging_resource_postcommit.side_effect = (

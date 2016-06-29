@@ -201,17 +201,10 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
         query = self._model_query(context, FirewallLog)
         return query.filter(FirewallLog.tenant_id == tenant_id).all()
 
-    def _get_fw_log_from_logging_resource_and_fw(self, context,
-                                                 log_res_id, fw_id):
+    def _logging_resource_has_logs(self, context, log_res_id):
         query = self._model_query(context, FirewallLog)
-        try:
-            fw_log_db = query.filter(
-                FirewallLog.logging_resource_id == log_res_id,
-                FirewallLog.firewall_id == fw_id).one()
-        except exc.NoResultFound:
-            pass
-        else:
-            return fw_log_db
+        return bool(query.filter(
+                FirewallLog.logging_resource_id == log_res_id).all())
 
     def _get_firewall_log(self, context, id):
         try:

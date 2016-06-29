@@ -56,11 +56,16 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
                 context, id, fields=['name', 'description', 'enabled'])
         backup_body = {'logging_resource': backup}
         with context.session.begin(subtransactions=True):
+            has_logs = self._logging_resource_has_logs(context, id)
             log_res = super(
                 MidonetLoggingResourcePlugin,
                 self).update_logging_resource(context, id, logging_resource)
-            self.client.update_logging_resource_precommit(context, id, log_res)
+            if has_logs:
+                self.client.update_logging_resource_precommit(
+                        context, id, log_res)
 
+        if not has_logs:
+            return log_res
         try:
             self.client.update_logging_resource_postcommit(id, log_res)
         except Exception as ex:
