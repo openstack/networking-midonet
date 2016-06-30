@@ -21,7 +21,7 @@ import midonet.neutron.db.data_state_db  # noqa
 import midonet.neutron.db.data_version_db  # noqa
 import midonet.neutron.db.gateway_device  # noqa
 import midonet.neutron.db.loadbalancer_db  # noqa
-import midonet.neutron.db.logging_resource_db  # noqa
+import midonet.neutron.db.logging_resource_model  # noqa
 import midonet.neutron.db.port_binding_db  # noqa
 import midonet.neutron.db.provider_network_db  # noqa
 import midonet.neutron.db.task_db  # noqa
