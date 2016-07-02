@@ -218,7 +218,8 @@ class LoggingResourceTestCase(test_l3.L3NatTestCaseMixin,
                                           log_res['logging_resource']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
             self.assertDictSupersetOf(expected, res['logging_resource'])
-            self.client_mock.update_logging_resource_postcommit.assert_called()
+            self.assertTrue(
+                self.client_mock.update_logging_resource_postcommit.called)
 
     def test_update_logging_resource_error_rollback_neutron_resource(self):
         self.client_mock.update_logging_resource_postcommit.side_effect = (
