@@ -273,4 +273,23 @@ Firewall log is managed by Quota.
 Default value of firewall log is 10 that is same number as firewall.
 Basically, both Quota value for firewall and firewall log should be aligned.
 To tune it, change value of `quota_firewall_log` in the quotas section of
+`/etc/neutron/neutron.conf`.
+
+
+Tap-as-a-Service
+----------------
+
+Starting v5.2, MidoNet implements Tap-as-a-Service extension API.
+
+MidoNet plugin implements TaaS as a service driver.  To configure it,
+add the following entries in the Neutron configuration file
 `/etc/neutron/neutron.conf`::
+
+    [DEFAULT]
+    service_plugins = taas
+
+In addition, configure the service provider in the 'service_providers' section of
+TaaS plugin configuration file `/etc/neutron/taas_plugin.ini`::
+
+    [service_providers]
+    service_provider = TAAS:Midonet:midonet.neutron.services.taas.service_drivers.taas_midonet.MidonetTaasDriver:default

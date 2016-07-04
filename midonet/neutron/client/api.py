@@ -206,3 +206,15 @@ class MidonetApiClient(base.MidonetClientBase):
 
     def delete_firewall_log_postcommit(self, firewall_log_id):
         self.api_cli.delete_firewall_log(firewall_log_id)
+
+    def create_tap_flow(self, context, tap_flow):
+        self.api_cli.create_tap_flow(tap_flow)
+
+    def delete_tap_flow(self, context, tap_flow_id):
+        self.api_cli.delete_tap_flow(tap_flow_id)
+
+    def create_tap_service(self, context, tap_service):
+        self.api_cli.create_tap_service(tap_service)
+
+    def delete_tap_service(self, context, tap_service_id):
+        self.api_cli.delete_tap_service(tap_service_id)

@@ -390,3 +390,17 @@ class MidonetClientBase(object):
 
     def delete_firewall_log_postcommit(self, firewall_log_id):
         pass
+
+    # Tap as a service
+
+    def create_tap_flow(self, context, tap_flow):
+        pass
+
+    def delete_tap_flow(self, context, tap_flow_id):
+        pass
+
+    def create_tap_service(self, context, tap_service):
+        pass
+
+    def delete_tap_service(self, context, tap_service_id):
+        pass
