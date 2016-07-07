@@ -20,7 +20,7 @@ testresources>=0.2.4 # Apache-2.0/BSD
 
 # Needed to run DB commands in virtualenvs
 PyMySQL>=0.6.2 # MIT License
-psycopg2>=2.5  # LGPL/ZPL
+psycopg2>=2.5 # LGPL/ZPL
 
 # releasenotes
 reno>=1.8.0 # Apache2
