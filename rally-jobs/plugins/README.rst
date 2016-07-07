@@ -21,3 +21,9 @@ defaults.::
     {% set times_scalability = 0 %}
     {% set sla_scalability = 0 %}
 
+MidoNet Rally Plugin
+====================
+
+This plugin allows to create MidoNet resources using the MidoNet REST
+API directly so that the benchmarks can be compared with the resources created
+using Neutron.
