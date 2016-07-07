@@ -126,6 +126,19 @@ if [[ "$ENABLE_TASKS_IMPORTER" = "True" ]]; then
     configure_mn "cluster.neutron_importer.connection_string" "\"$TASKS_DB_CONN\""
     configure_mn "cluster.neutron_importer.jdbc_driver_class" "\"$TASKS_DB_DRIVER_CLASS\""
 fi
+if [ "$MIDONET_USE_KEYSTONE" = "True" ]; then
+    configure_mn "cluster.auth.keystone.admin_token" ""
+    configure_mn "cluster.auth.keystone.protocol" "$KEYSTONE_AUTH_PROTOCOL"
+    configure_mn "cluster.auth.keystone.host" "$KEYSTONE_AUTH_HOST"
+    configure_mn "cluster.auth.keystone.port" "$KEYSTONE_AUTH_PORT"
+    configure_mn "cluster.auth.keystone.domain_name" "default"
+    configure_mn "cluster.auth.keystone.tenant_name" "$SERVICE_PROJECT_NAME"
+    configure_mn "cluster.auth.keystone.user_name" "midonet"
+    configure_mn "cluster.auth.keystone.user_password" "$SERVICE_PASSWORD"
+    configure_mn "cluster.auth.keystone.version" "3"
+    configure_mn "cluster.auth.admin_role" "midonet-admin"
+    configure_mn "cluster.auth.provider_class" "org.midonet.cluster.auth.keystone.KeystoneService"
+fi
 
 MIDOENT_CLUSTER_ENV_FILE='/etc/midonet-cluster/midonet-cluster-env.sh'
 sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1128M/' $MIDOENT_CLUSTER_ENV_FILE
@@ -133,7 +146,7 @@ sudo sed -i 's/\(HEAP_NEWSIZE=\).*$/\164M/' $MIDOENT_CLUSTER_ENV_FILE
 
 sudo service midonet-cluster restart
 
-if ! timeout $API_TIMEOUT sh -c "while ! wget -q -O- $API_URI; do sleep 1; done"; then
+if ! timeout $API_TIMEOUT sh -c 'while ! midonet-cli -e host list; do sleep 1; done'; then
     die $LINENO "API server didn't start in $API_TIMEOUT seconds"
 fi
 
