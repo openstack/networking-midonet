@@ -115,7 +115,7 @@ if [[ "$1" == "stack" ]]; then
         export USE_SCREEN
         export SCREEN_LOGDIR
         export LOGDIR
-        export MIDO_PASSWORD=$SERVICE_PASSWORD
+        export MIDO_PASSWORD=$ADMIN_PASSWORD
         export MIDO_DB_USER=$DATABASE_USER
         export MIDO_DB_PASSWORD=$DATABASE_PASSWORD
         export CONFIGURE_LOGGING
