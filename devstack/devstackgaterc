@@ -126,3 +126,6 @@ export TEMPEST_OS_TEST_TIMEOUT=500
 # from devstack-gate.  Otherwise, devstack infers it from LOGFILE,
 # which is not appropriate for our gate jobs.
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"LOGDIR=$BASE/new/screen-logs"
+
+# Use fernet tokens
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"KEYSTONE_TOKEN_FORMAT=fernet"
