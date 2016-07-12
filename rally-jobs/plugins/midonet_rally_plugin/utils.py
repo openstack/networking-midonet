@@ -40,8 +40,8 @@ class RequestScenario(scenario.Scenario):
             parser.read(os.path.join(os.path.expanduser('~stack'),
                                      '.midonetrc'))
             return parser
-        except Exception as e:
-            raise e
+        except Exception:
+            raise
 
     @staticmethod
     def _get_token():
