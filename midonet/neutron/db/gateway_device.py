@@ -13,8 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron.common import constants as midonet_const
-from midonet.neutron.extensions import gateway_device as gw_device_ext
+import debtcollector
 from neutron.api.v2 import attributes
 from neutron.callbacks import events
 from neutron.callbacks import registry
@@ -27,11 +26,13 @@ from neutron import manager
 from neutron.plugins.common import constants as service_constants
 from oslo_db import exception as db_exc
 from oslo_utils import uuidutils
-
 import sqlalchemy as sa
 from sqlalchemy.ext import declarative
 from sqlalchemy import orm
 from sqlalchemy.orm import exc
+
+from midonet.neutron.common import constants as midonet_const
+from midonet.neutron.extensions import gateway_device as gw_device_ext
 
 GATEWAY_DEVICES = 'midonet_gateway_devices'
 GATEWAY_HW_VTEP_DEVICES = 'midonet_gateway_hw_vtep_devices'
@@ -41,14 +42,39 @@ GATEWAY_TUNNEL_IPS = 'midonet_gateway_tunnel_ips'
 GATEWAY_REMOTE_MAC_TABLES = 'midonet_gateway_remote_mac_tables'
 
 
-class GatewayDevice(model_base.BASEV2):
+class HasProjectNoIndex(object):
+    """Project mixin, add to subclasses that have a user."""
+    # NOTE(dasm): Temporary solution!
+    # Remove when I87a8ef342ccea004731ba0192b23a8e79bc382dc is merged.
+
+    # NOTE(jkoelker) project_id is just a free form string ;(
+    project_id = sa.Column(sa.String(attributes.TENANT_ID_MAX_LEN))
+
+    def __init__(self, *args, **kwargs):
+        # NOTE(dasm): debtcollector requires init in class
+        super(HasProjectNoIndex, self).__init__(*args, **kwargs)
+
+    def get_tenant_id(self):
+        return self.project_id
+
+    def set_tenant_id(self, value):
+        self.project_id = value
+
+    @declarative.declared_attr
+    @debtcollector.moves.moved_property('project_id')
+    def tenant_id(cls):
+        return orm.synonym(
+            'project_id',
+            descriptor=property(cls.get_tenant_id, cls.set_tenant_id))
+
+
+class GatewayDevice(model_base.BASEV2, HasProjectNoIndex):
     """Represents a gateway device."""
 
     __tablename__ = GATEWAY_DEVICES
     id = sa.Column(sa.String(36), primary_key=True)
     name = sa.Column(sa.String(255))
     type = sa.Column(sa.String(length=255), nullable=False)
-    tenant_id = sa.Column(sa.String(length=255))
 
 
 class GatewayHwVtepDevice(model_base.BASEV2):
