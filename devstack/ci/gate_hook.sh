@@ -16,14 +16,21 @@
 
 job=$1
 
-GATE_DEST=$BASE/new
-GATE_HOOKS=$GATE_DEST/networking-midonet/devstack/ci/hooks
-DEVSTACK_PATH=$GATE_DEST/devstack
-LOCAL_CONF=$DEVSTACK_PATH/local.conf
-
 # Inject config from hook into local.conf
 function load_conf_hook {
     local hook="$1"
+    local new="$2"
+    local GATE_DEST=$BASE/$new
+    local GATE_HOOKS=$GATE_DEST/networking-midonet/devstack/ci/hooks
+    local DEVSTACK_PATH=$GATE_DEST/devstack
+    local LOCAL_CONF=$DEVSTACK_PATH/local.conf
+
+    if [ "$new" = "old" -a ! -f $GATE_HOOKS/$hook ]; then
+        # REVISIT(yamamoto): Revisit once
+        # https://review.openstack.org/#/c/406749/ is merged
+        echo "Skipping $GATE_HOOKS/$hook for old branch"
+        return
+    fi
     cat $GATE_HOOKS/$hook >> $LOCAL_CONF
 }
 
@@ -41,6 +48,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=False
+        _ADV_SVC=True
         ;;
     v2-full)
         # Note the actual url here is somewhat irrelevant because it
@@ -55,6 +63,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=False
+        _ADV_SVC=True
         ;;
     ml2)
         # Note the actual url here is somewhat irrelevant because it
@@ -68,6 +77,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_TENANT_NETWORK_TYPE=midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=True
+        _ADV_SVC=True
         ;;
     ml2-full)
         # Note the actual url here is somewhat irrelevant because it
@@ -81,6 +91,24 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_TENANT_NETWORK_TYPE=midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=True
+        _ADV_SVC=True
+        ;;
+    grenade)
+        # Note the actual url here is somewhat irrelevant because it
+        # caches in nodepool, however make it a valid url for
+        # documentation purposes.
+        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_PLUGIN=ml2"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_MECHANISM_DRIVERS=midonet"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_TYPE_DRIVERS=midonet,uplink"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_TENANT_NETWORK_TYPE=midonet"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_ZOOM=True"
+        _ZOOM=True
+        _ML2=True
+        _ADV_SVC=False
+        load_conf_hook quotas old
         ;;
     rally|rally-v2)
         # Note the actual url here is somewhat irrelevant because it
@@ -96,6 +124,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=False
+        _ADV_SVC=True
         ;;
     rally-ml2)
         # Note the actual url here is somewhat irrelevant because it
@@ -110,6 +139,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_TENANT_NETWORK_TYPE=midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=True
+        _ADV_SVC=True
 esac
 
 # We are only interested on Neutron, so very few services are needed
@@ -139,27 +169,28 @@ sudo iptables -I openstack-INPUT 1 -i metadata -j ACCEPT
 # Tweak the chain for midonet vpp downlink for fip64.
 sudo iptables -I openstack-INPUT 1 -i tun-dl-+ -j ACCEPT
 
-# Enable FWaaS
-s+=",q-fwaas"
-export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-fwaas https://github.com/openstack/neutron-fwaas"
-export DEVSTACK_LOCAL_CONFIG+=$'\n'"FWAAS_PLUGIN=midonet_firewall"
+if [ "${_ADV_SVC}" = "True" ]; then
+    # Enable FWaaS
+    s+=",q-fwaas"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-fwaas https://github.com/openstack/neutron-fwaas"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"FWAAS_PLUGIN=midonet_firewall"
 
-# Enable VPNaaS
-s+=",neutron-vpnaas"
-export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-vpnaas https://github.com/openstack/neutron-vpnaas"
-export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_VPNAAS_SERVICE_PROVIDER=\"VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default\""
+    # Enable VPNaaS
+    s+=",neutron-vpnaas"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-vpnaas https://github.com/openstack/neutron-vpnaas"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_VPNAAS_SERVICE_PROVIDER=\"VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default\""
 
-# Enable QoS
-export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron https://github.com/openstack/neutron"
-s+=",q-qos"
-s+=",-q-trunk"  # bug 1643451
-load_conf_hook qos
+    # Enable QoS
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron https://github.com/openstack/neutron"
+    s+=",q-qos"
+    s+=",-q-trunk"  # bug 1643451
+    load_conf_hook qos new
 
-# Enable LBaaSv2
-export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas"
-export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service q-lbaasv2"
-export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_LBAAS_SERVICE_PROVIDERV2=\"LOADBALANCERV2:Midonet:midonet.neutron.services.loadbalancer.v2_driver.MidonetLoadBalancerDriver:default\""
-
+    # Enable LBaaSv2
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service q-lbaasv2"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_LBAAS_SERVICE_PROVIDERV2=\"LOADBALANCERV2:Midonet:midonet.neutron.services.loadbalancer.v2_driver.MidonetLoadBalancerDriver:default\""
+fi
 
 export OVERRIDE_ENABLED_SERVICES="$s"
 
@@ -220,6 +251,6 @@ export DEVSTACK_LOCAL_CONFIG+=$'\n'"LOGDIR=$BASE/new/screen-logs"
 # Use fernet tokens
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"KEYSTONE_TOKEN_FORMAT=fernet"
 
-load_conf_hook quotas
+load_conf_hook quotas new
 
 $BASE/new/devstack-gate/devstack-vm-gate.sh
