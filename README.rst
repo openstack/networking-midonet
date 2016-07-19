@@ -127,9 +127,9 @@ NOTE: This provider does not use Neutron LBaaS agent.
 Haproxy provider
 ~~~~~~~~~~~~~~~~
 
-With the latest development version MidoNet, you can use "haproxy"
-LBaaS provider (and possibly other agent-based providers) with
-the following configuration in ``/etc/neutron/neutron.conf``::
+With MidoNet v5.2, you can use "haproxy" LBaaS provider (and possibly
+other agent-based providers) with the following configuration in
+``/etc/neutron/neutron.conf``::
 
     [service_providers]
     service_provider = LOADBALANCER:Haproxy:neutron_lbaas.services.loadbalancer.drivers.haproxy.plugin_driver.HaproxyOnHostPluginDriver:default
@@ -226,8 +226,8 @@ L2 Gateway plugin configuration file `/etc/neutron/l2gw_plugin.ini`::
 Magnum
 ------
 
-The latest development version of MidoNet (which will be 5.2)
-can be used for Magnum deployment with the following workaround.
+Starting v5.2, MidoNet can be used for Magnum deployment with the
+following workaround.
 
 Currently MidoNet native loadbalancer doesn't meet the expectation
 of Magnum in some ways.  You can workaround it by using "haproxy" provider
