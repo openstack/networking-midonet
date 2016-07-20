@@ -53,3 +53,7 @@ function configure_neutron_midonet {
 function configure_qos_midonet {
     :
 }
+
+function install_neutron_midonet {
+    :
+}

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# lib/neutron vs lib/neutron-legacy compat
+Q_META_DATA_IP=${Q_META_DATA_IP:-$SERVICE_HOST}
+
 # Use MidoNet binary packages rather than devmido
 # NOTE(yamamoto): This doesn't support java7, which is used by MidoNet < 5.0
 MIDONET_USE_PACKAGE=${MIDONET_USE_PACKAGE:-True}

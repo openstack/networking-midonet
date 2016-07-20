@@ -19,6 +19,12 @@
 
 ABSOLUTE_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
 
+# lib/neutron vs lib/neutron-legacy compat
+Q_PLUGIN_CONF_FILE=${Q_PLUGIN_CONF_FILE:-$NEUTRON_PLUGIN_CONF}
+Q_ADMIN_USERNAME=${Q_ADMIN_USERNAME:-neutron}
+Q_DHCP_CONF_FILE=${Q_DHCP_CONF_FILE:-$NEUTRON_DHCP_CONF}
+Q_META_DATA_IP=${Q_META_DATA_IP:-$SERVICE_HOST}
+
 if [[ "$1" == "stack" ]]; then
 
     if [[ "$2" == "pre-install" ]]; then
@@ -60,6 +66,8 @@ if [[ "$1" == "stack" ]]; then
         fi
         # Configure midonet-cli
         configure_midonet_cli
+
+        install_neutron_midonet
 
     elif [[ "$2" == "extra" ]]; then
 
