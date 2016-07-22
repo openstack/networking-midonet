@@ -1,3 +1,6 @@
+# We don't support "flat" network type.
+Q_USE_PROVIDERNET_FOR_PUBLIC=${Q_USE_PROVIDERNET_FOR_PUBLIC:-False}
+
 function has_neutron_plugin_security_group {
     # 0 means True here
     return 0
