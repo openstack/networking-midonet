@@ -29,6 +29,7 @@ def check_update_port(orig, new):
     # it's assumed by many of unit tests and tempest.
     if (new['fixed_ips'] != orig['fixed_ips'] and
         not (device_owner.startswith(n_const.DEVICE_OWNER_COMPUTE_PREFIX) or
+             device_owner.startswith(n_const.DEVICE_OWNER_ROUTER_INTF) or
              device_owner == '')):
         raise n_exc.UnsupportedPortDeviceOwner(op='fixed_ips update',
                                                port_id=new['id'],
