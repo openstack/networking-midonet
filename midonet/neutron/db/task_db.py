@@ -13,14 +13,15 @@
 #    under the License.
 
 import datetime
-
-import midonet.neutron.db.data_state_db as ds_db
+import uuid
 
 from neutron.db import model_base
 from oslo_log import log as logging
 from oslo_serialization import jsonutils
 import sqlalchemy as sa
-import uuid
+
+import midonet.neutron.db.data_state_db as ds_db
+from midonet.neutron.db import gateway_device
 
 CONF_ID = '00000000-0000-0000-0000-000000000001'
 
@@ -54,12 +55,11 @@ TASK_STATE_TABLE = 'midonet_task_state'
 LOG = logging.getLogger(__name__)
 
 
-class Task(model_base.BASEV2):
+class Task(model_base.BASEV2, gateway_device.HasProjectNoIndex):
     __tablename__ = 'midonet_tasks'
 
     id = sa.Column(sa.Integer(), primary_key=True)
     type = sa.Column(sa.String(length=36))
-    tenant_id = sa.Column(sa.String(255))
     data_type = sa.Column(sa.String(length=36))
     data = sa.Column(sa.Text())
     resource_id = sa.Column(sa.String(36))
