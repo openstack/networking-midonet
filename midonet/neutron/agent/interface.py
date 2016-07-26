@@ -42,7 +42,6 @@ class MidonetInterfaceDriver(n_interface.LinuxInterfaceDriver):
         root_dev.disable_ipv6()
         ns_dev.link.set_address(mac_address)
 
-        mtu = self.conf.network_device_mtu or mtu
         if mtu:
             ns_dev.link.set_mtu(mtu)
             root_dev.link.set_mtu(mtu)
