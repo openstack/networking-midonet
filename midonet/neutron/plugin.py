@@ -13,12 +13,15 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib import constants as n_const
+
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as const
 from midonet.neutron import extensions
 
 from neutron.api import extensions as neutron_extensions
+from neutron.api.rpc.agentnotifiers import dhcp_rpc_agent_api
 from neutron.api.rpc.handlers import dhcp_rpc
 from neutron.api.rpc.handlers import metadata_rpc
 from neutron.common import rpc as n_rpc
@@ -62,6 +65,9 @@ class MidonetMixinBase(db_base_plugin_v2.NeutronDbPluginV2,
                 'security-group' in self.supported_extension_aliases}}
         self.network_scheduler = importutils.import_object(
             cfg.CONF.network_scheduler_driver
+        )
+        self.agent_notifiers[n_const.AGENT_TYPE_DHCP] = (
+            dhcp_rpc_agent_api.DhcpAgentNotifyAPI()
         )
 
     def setup_rpc(self):
