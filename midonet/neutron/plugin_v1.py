@@ -605,12 +605,6 @@ class MidonetMixin(plugin.MidonetMixinBase,
         LOG.debug("MidonetMixin.delete_security_group_rule exiting: id=%r",
                   id)
 
-    # bug 1605894
-    def _validate_router_port_info(self, context, router, port_id):
-        with db_api.autonested_transaction(context.session):
-            return super(MidonetMixin, self)._validate_router_port_info(
-                context, router, port_id)
-
 
 class MidonetPluginV2(MidonetMixin):
 
