@@ -59,7 +59,8 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
 
         super(MidonetBgpPlugin, self).__init__()
 
-    def get_plugin_type(self):
+    @classmethod
+    def get_plugin_type(cls):
         return bgp.BGP_EXT_ALIAS
 
     def get_plugin_description(self):

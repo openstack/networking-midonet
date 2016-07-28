@@ -47,7 +47,8 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
         neutron_extensions.append_api_extensions_path(extensions.__path__)
         gateway_device_db.subscribe()
 
-    def get_plugin_type(self):
+    @classmethod
+    def get_plugin_type(cls):
         return midonet_const.GATEWAY_DEVICE
 
     def get_plugin_description(self):
