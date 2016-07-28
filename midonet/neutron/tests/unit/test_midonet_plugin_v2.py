@@ -444,6 +444,12 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
                                        req.get_response(self.ext_api))
                 self.assertEqual('ERROR', res['router']['status'])
 
+    def test_floatingip_via_router_interface_returns_404(self):
+        self.skipTest('Not appropriate with router-interface-fip extension.')
+
+    def test_floatingip_via_router_interface_returns_201(self):
+        self._test_floatingip_via_router_interface(exc.HTTPCreated.code)
+
 
 class TestMidonetDataState(testlib_api.SqlTestCase):
 
