@@ -3,26 +3,6 @@
 # Common functions for devstack
 # -----------------------------
 
-# Override this function in devstack/lib/neutron_plugins/services/firewall so
-# that it does not try to always set the default firewall plugin to the
-# services list.  Instead, set it to the midonet FWaaS plugin.
-MIDONET_FWAAS_PLUGIN=midonet_firewall
-function neutron_fwaas_configure_common {
-    _neutron_service_plugin_class_add $MIDONET_FWAAS_PLUGIN
-}
-
-# Override this function so that FWaaS agent is explicitly disabled in
-# the agent configuration file.
-function neutron_fwaas_configure_driver {
-    # Uses oslo config generator to generate FWaaS sample configuration files
-    (cd $NEUTRON_FWAAS_DIR && exec ./tools/generate_config_file_samples.sh)
-
-    FWAAS_DRIVER_CONF_FILENAME=/etc/neutron/fwaas_driver.ini
-    cp $NEUTRON_FWAAS_DIR/etc/fwaas_driver.ini.sample $FWAAS_DRIVER_CONF_FILENAME
-
-    iniset_multiline $FWAAS_DRIVER_CONF_FILENAME fwaas enabled False
-}
-
 function create_nova_conf_midonet {
     if [[ "${MIDONET_USE_METADATA}" == "True" ]]; then
         iniset $NOVA_CONF neutron service_metadata_proxy "True"

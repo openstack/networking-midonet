@@ -108,6 +108,18 @@ There are three ways in which the Neutron plugin could access MidoNet:
     MIDONET_USE_ZOOM=True
 
 
+FWaaS
+-----
+
+Starting v5.0, MidoNet implements Neutron FWaaS extension API.
+To configure it with devstack, make sure the following is defined
+in ``local.conf``::
+
+    enable_plugin neutron-fwaas https://github.com/openstack/neutron-fwaas
+    enable_service q-fwaas
+    FWAAS_PLUGIN=midonet_firewall
+
+
 LBaaS
 -----
 

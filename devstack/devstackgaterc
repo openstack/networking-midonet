@@ -53,6 +53,8 @@ if [ "${_ZOOM}" = "True" ]; then
 
     # Enable FWaaS
     s+=",q-fwaas"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-fwaas https://github.com/openstack/neutron-fwaas"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"FWAAS_PLUGIN=midonet_firewall"
 
     # Enable VPNaaS
     s+=",neutron-vpnaas"
