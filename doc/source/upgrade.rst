@@ -15,7 +15,7 @@ From Liberty to Mitaka
 
   Before::
 
-      interface_driver = neutron.agent.linux.interface:MidonetInterfaceDriver
+      interface_driver = neutron.agent.linux.interface.MidonetInterfaceDriver
 
   After::
 
