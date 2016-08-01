@@ -50,6 +50,3 @@ else
     echo "PIP HARDCODE" > /tmp/tox_install-${PROJ}.txt
     $install_cmd -U -egit+https://git.openstack.org/openstack/${PROJ}@${BRANCH_NAME}#egg=${PROJ}
 fi
-
-$install_cmd -U $*
-exit $?
