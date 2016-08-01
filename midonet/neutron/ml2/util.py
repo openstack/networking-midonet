@@ -15,9 +15,11 @@
 
 import functools
 
-from midonet.neutron.common import constants as const
 from neutron.extensions import providernet
 from neutron.plugins.ml2 import driver_context as ctx
+
+from midonet.neutron._i18n import _
+from midonet.neutron.common import constants as const
 
 
 def is_midonet_network(context):
@@ -30,7 +32,7 @@ def is_midonet_network(context):
     elif isinstance(context, ctx.SubnetContext):
         net = context.network.current
     else:
-        raise ValueError("Invalid Mechanism driver context passed in.")
+        raise ValueError(_("Invalid Mechanism driver context passed in."))
 
     return net.get(providernet.NETWORK_TYPE) in const.MIDONET_NET_TYPES
 
