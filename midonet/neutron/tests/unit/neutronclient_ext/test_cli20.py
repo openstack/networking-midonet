@@ -44,7 +44,6 @@ class CLIExtTestV20Base(test_cli20.CLITestV20Base):
     def _setup_mock_patch(self, name):
         patcher = mock.patch(name)
         thing = patcher.start()
-        self.addCleanup(patcher.stop)
         return thing
 
     def _mock_load_extensions(self, resource):
