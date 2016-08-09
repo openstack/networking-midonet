@@ -55,6 +55,9 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
     supported_extension_aliases = ["router", "extraroute", "ext-gw-mode",
                                    "router-interface-fip"]
 
+    __native_pagination_support = True
+    __native_sorting_support = True
+
     def __init__(self):
         super(MidonetL3ServicePlugin, self).__init__()
         l3_db.subscribe()

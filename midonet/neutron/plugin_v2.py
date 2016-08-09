@@ -68,6 +68,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
     ]
 
     __native_bulk_support = True
+    __native_pagination_support = True
+    __native_sorting_support = True
 
     def __init__(self):
         super(MidonetPluginV2, self).__init__()
