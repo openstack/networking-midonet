@@ -26,6 +26,13 @@ else
     _ZOOM=False
 fi
 
+if echo "${DEVSTACK_LOCAL_CONFIG}" | fgrep "Q_PLUGIN=ml2" > /dev/null;
+then
+    _ML2=True
+else
+    _ML2=False
+fi
+
 # We are only interested on Neutron, so very few services are needed
 # to deploy devstack and run the tests
 s=""
@@ -92,6 +99,11 @@ if [ "${_ZOOM}" = "True" ]; then
     r="$r|(?:tempest\.api\.network\.admin\.test_agent_management\.AgentManagementTestJSON.*)"
     r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\..*)"
     r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_agent_management\.AgentManagementTestJSON\.*)"
+fi
+
+if [ "${_ML2}" = "True" ]; then
+    # bug 1507453 1608796
+    r="$r|(?:^neutron\.tests\.tempest\.api\.test_routers\.RoutersTest\.test_router_interface_status)"
 fi
 
 # bug 1513312
