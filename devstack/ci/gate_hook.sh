@@ -177,7 +177,7 @@ r="$r|(?:tempest\.api\.image\..*)"
 # End list of exclusions.
 r="$r)"
 
-r="$r^(tempest\.(api|scenario)|neutron_fwaas|neutron_vpnaas|neutron)\..*$"
+r="$r^(tempest\.(api|scenario)|neutron_fwaas|neutron_vpnaas|neutron|midonet)\..*$"
 
 export DEVSTACK_GATE_TEMPEST_REGEX="$r"
 export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS=1
