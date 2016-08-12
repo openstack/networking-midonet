@@ -18,13 +18,11 @@ from sqlalchemy import orm
 
 from neutron.db import model_base
 
-from midonet.neutron.db import gateway_device
-
 LOGGING_RESOURCES = 'midonet_logging_resources'
 FIREWALL_LOGS = 'midonet_firewall_logs'
 
 
-class LoggingResource(model_base.BASEV2, gateway_device.HasProjectNoIndex):
+class LoggingResource(model_base.BASEV2, model_base.HasProjectNoIndex):
     """Represents a logging resource."""
 
     __tablename__ = LOGGING_RESOURCES
@@ -34,7 +32,7 @@ class LoggingResource(model_base.BASEV2, gateway_device.HasProjectNoIndex):
     enabled = sa.Column(sa.Boolean, nullable=False)
 
 
-class FirewallLog(model_base.BASEV2, gateway_device.HasProjectNoIndex):
+class FirewallLog(model_base.BASEV2, model_base.HasProjectNoIndex):
     """Represents a firewall log."""
 
     __tablename__ = FIREWALL_LOGS

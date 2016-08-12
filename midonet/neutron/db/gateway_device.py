@@ -13,11 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import debtcollector
 from neutron_lib.api import validators
 from neutron_lib import exceptions as n_exc
 
-from neutron.api.v2 import attributes
 from neutron.callbacks import events
 from neutron.callbacks import registry
 from neutron.callbacks import resources
@@ -44,33 +42,7 @@ GATEWAY_TUNNEL_IPS = 'midonet_gateway_tunnel_ips'
 GATEWAY_REMOTE_MAC_TABLES = 'midonet_gateway_remote_mac_tables'
 
 
-class HasProjectNoIndex(object):
-    """Project mixin, add to subclasses that have a user."""
-    # NOTE(dasm): Temporary solution!
-    # Remove when I87a8ef342ccea004731ba0192b23a8e79bc382dc is merged.
-
-    # NOTE(jkoelker) project_id is just a free form string ;(
-    project_id = sa.Column(sa.String(attributes.TENANT_ID_MAX_LEN))
-
-    def __init__(self, *args, **kwargs):
-        # NOTE(dasm): debtcollector requires init in class
-        super(HasProjectNoIndex, self).__init__(*args, **kwargs)
-
-    def get_tenant_id(self):
-        return self.project_id
-
-    def set_tenant_id(self, value):
-        self.project_id = value
-
-    @declarative.declared_attr
-    @debtcollector.moves.moved_property('project_id')
-    def tenant_id(cls):
-        return orm.synonym(
-            'project_id',
-            descriptor=property(cls.get_tenant_id, cls.set_tenant_id))
-
-
-class GatewayDevice(model_base.BASEV2, HasProjectNoIndex):
+class GatewayDevice(model_base.BASEV2, model_base.HasProjectNoIndex):
     """Represents a gateway device."""
 
     __tablename__ = GATEWAY_DEVICES
