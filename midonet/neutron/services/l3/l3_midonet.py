@@ -106,6 +106,9 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
     @log_helpers.log_method_call
     def create_router(self, context, router):
         with context.session.begin(subtransactions=True):
+            # REVISIT(yamamoto): This should not call create_port inside
+            # of a transaction.
+            setattr(context, 'GUARD_TRANSACTION', False)
             r = super(MidonetL3ServicePlugin, self).create_router(context,
                                                                   router)
             self._validate_router_gw_network(context, r)
@@ -126,6 +129,10 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
     @log_helpers.log_method_call
     def update_router(self, context, id, router):
         with context.session.begin(subtransactions=True):
+            # REVISIT(yamamoto): Updating external_gateway_info causes
+            # create_port/delete_port.  This should not call them inside of
+            # a transaction.
+            setattr(context, 'GUARD_TRANSACTION', False)
             r = super(MidonetL3ServicePlugin, self).update_router(context, id,
                                                                   router)
             self._validate_router_gw_network(context, r)
@@ -155,6 +162,9 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         self._check_router_not_in_use(context, id)
 
         with context.session.begin(subtransactions=True):
+            # REVISIT(yamamoto): This should not call delete_port inside
+            # of a transaction.
+            setattr(context, 'GUARD_TRANSACTION', False)
             super(MidonetL3ServicePlugin, self).delete_router(context, id)
             self.client.delete_router_precommit(context, id)
 
@@ -164,6 +174,9 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
     def add_router_interface(self, context, router_id, interface_info):
         by_port = bool(interface_info.get('port_id'))
         with context.session.begin(subtransactions=True):
+            # REVISIT(yamamoto): This should not call create_port/update_port
+            # inside of a transaction.
+            setattr(context, 'GUARD_TRANSACTION', False)
             info = super(MidonetL3ServicePlugin, self).add_router_interface(
                 context, router_id, interface_info)
             self._validate_network_type(context, info['network_id'])
@@ -186,6 +199,9 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
     @log_helpers.log_method_call
     def remove_router_interface(self, context, router_id, interface_info):
         with context.session.begin(subtransactions=True):
+            # REVISIT(yamamoto): This should not call delete_port inside
+            # of a transaction.
+            setattr(context, 'GUARD_TRANSACTION', False)
             info = super(MidonetL3ServicePlugin, self).remove_router_interface(
                 context, router_id, interface_info)
             self.client.remove_router_interface_precommit(context, router_id,
@@ -217,6 +233,9 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
     @log_helpers.log_method_call
     def delete_floatingip(self, context, id):
         with context.session.begin(subtransactions=True):
+            # REVISIT(yamamoto): This should not call delete_port inside
+            # of a transaction.
+            setattr(context, 'GUARD_TRANSACTION', False)
             super(MidonetL3ServicePlugin, self).delete_floatingip(context, id)
             self.client.delete_floatingip_precommit(context, id)
 
