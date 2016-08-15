@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import neutron.common.exceptions as exc
+import neutron_lib.exceptions as exc
 
 from midonet.neutron._i18n import _
 

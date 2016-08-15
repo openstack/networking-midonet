@@ -13,13 +13,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from neutron_lib.api import validators
+from neutron_lib import exceptions
+
 from midonet.neutron._i18n import _
 from midonet.neutron.common import constants
 from midonet.neutron.extensions import gateway_device
 from networking_l2gw.services.l2gateway.common import constants as l2gw_const
 from networking_l2gw.services.l2gateway.common import l2gw_validators
-from neutron.api.v2 import attributes
-from neutron.common import exceptions
 
 
 def validate_gwdevice_list(data, valid_values=None):
@@ -37,7 +38,7 @@ def validate_gwdevice_list(data, valid_values=None):
 
     try:
         for device in data:
-            err_msg = attributes._validate_dict(device, None)
+            err_msg = validators.validate_dict(device, None)
             if err_msg:
                 return err_msg
 

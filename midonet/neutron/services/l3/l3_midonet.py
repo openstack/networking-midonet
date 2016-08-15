@@ -13,6 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib import constants as n_const
+from neutron_lib import exceptions as n_exc
+
 from midonet.neutron._i18n import _LE, _LW
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
@@ -25,8 +28,6 @@ from neutron.api import extensions as neutron_extensions
 from neutron.callbacks import events
 from neutron.callbacks import registry
 from neutron.callbacks import resources
-from neutron.common import constants as n_const
-from neutron.common import exceptions as n_exc
 from neutron.db import common_db_mixin
 from neutron.db import extraroute_db
 from neutron.db import l3_db

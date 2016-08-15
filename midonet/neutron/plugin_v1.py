@@ -14,13 +14,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib import constants as n_const
+from neutron_lib import exceptions as n_exc
 from oslo_config import cfg
 from oslo_db import exception as oslo_db_exc
 from oslo_log import log as logging
 from oslo_utils import excutils
 
-from neutron.common import constants as n_const
-from neutron.common import exceptions as n_exc
 from neutron.db import api as db_api
 from neutron.db import l3_db
 from neutron.db import l3_gwmode_db

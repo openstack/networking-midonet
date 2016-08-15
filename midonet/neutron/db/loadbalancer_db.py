@@ -13,8 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from neutron.common import constants as n_const
-from neutron.common import exceptions as n_exc
+from neutron_lib import constants as n_const
+from neutron_lib import exceptions as n_exc
+
 from neutron.db import l3_db
 from neutron.db import models_v2
 from neutron import manager

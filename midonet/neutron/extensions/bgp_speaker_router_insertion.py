@@ -13,10 +13,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib import exceptions as nexception
+
+from neutron.api import extensions
+
 from midonet.neutron._i18n import _
 from midonet.neutron.common import constants as m_const
-from neutron.api import extensions
-from neutron.common import exceptions as nexception
 
 
 class MidonetBgpPeerInUse(nexception.InUse):

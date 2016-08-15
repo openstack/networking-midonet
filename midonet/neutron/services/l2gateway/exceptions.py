@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from neutron.common import exceptions as nexception
+from neutron_lib import exceptions as nexception
 
 from midonet.neutron._i18n import _
 

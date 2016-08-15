@@ -13,10 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib import exceptions as exc
 from oslo_log import log
 import six
 
-from neutron.common import exceptions as exc
 from neutron.plugins.ml2 import driver_api as api
 
 from midonet.neutron._i18n import _, _LI

@@ -12,8 +12,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from neutron.api.v2 import attributes
-from neutron.common import exceptions as n_exc
+from neutron_lib.api import validators
+from neutron_lib import exceptions as n_exc
+
 from neutron.db import model_base
 from neutron.db import portbindings_db
 from neutron.extensions import portbindings
@@ -56,7 +57,7 @@ class MidonetPortBindingMixin(object):
         profile = None
         if portbindings.PROFILE in port_data:
             profile = port_data.get(portbindings.PROFILE) or {}
-        profile_set = attributes.is_attr_set(profile)
+        profile_set = validators.is_attr_set(profile)
 
         if_name = profile.get('interface_name') if profile_set else None
         if profile_set and profile:
