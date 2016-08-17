@@ -17,11 +17,12 @@ import netaddr
 from oslo_utils import excutils
 from sqlalchemy import orm
 
+from neutron_lib import constants as n_const
+
 from neutron.callbacks import events
 from neutron.callbacks import exceptions
 from neutron.callbacks import registry
 from neutron.callbacks import resources
-from neutron.common import constants as n_const
 from neutron.db import l3_db
 from neutron.db import l3_gwmode_db
 from neutron.db import models_v2

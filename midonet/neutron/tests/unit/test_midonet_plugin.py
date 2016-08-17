@@ -20,12 +20,13 @@ import mock
 import testtools
 from webob import exc
 
+from neutron_lib import constants as n_const
+
 from midonet.neutron.client import base as cli_base
 # Import all data models
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.db.migration.models import head  # noqa
 
-from neutron.common import constants as n_const
 from neutron import context
 from neutron import manager
 from neutron.plugins.common import constants as p_const
