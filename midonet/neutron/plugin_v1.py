@@ -181,8 +181,7 @@ class MidonetMixin(plugin.MidonetMixinBase,
         port_data = port['port']
         # REVISIT(yamamoto): this nested transaction is a workaround
         # for bug #1490917.
-        with db_api.exc_to_retry(oslo_db_exc.DBDuplicateEntry),\
-                db_api.autonested_transaction(context.session):
+        with db_api.autonested_transaction(context.session):
             # Set status along admin_state_up if the parameter is specified.
             if port['port'].get('admin_state_up') is not None:
                 if not port['port']['admin_state_up']:
@@ -266,9 +265,7 @@ class MidonetMixin(plugin.MidonetMixinBase,
         LOG.debug("MidonetMixin.update_port called: id=%(id)s port=%(port)r",
                   {'id': id, 'port': port})
 
-        with db_api.exc_to_retry(oslo_db_exc.DBDuplicateEntry),\
-                context.session.begin(subtransactions=True):
-
+        with context.session.begin(subtransactions=True):
             # update the port DB
             original_port = self.get_port(context, id)
             p = super(MidonetMixin, self).update_port(context, id, port)
