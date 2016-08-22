@@ -52,6 +52,12 @@ FWAAS_TABLES = {
     # NOTE(yamamoto): We don't import these models
     'cisco_firewall_associations',
     'firewall_router_associations',
+    # NOTE(yamamoto): We don't support FWaaS v2
+    'firewall_rules_v2',
+    'firewall_groups_v2',
+    'firewall_group_port_associations_v2',
+    'firewall_policy_rule_associations_v2',
+    'firewall_policies_v2',
 }
 
 VPNAAS_TABLES = {
