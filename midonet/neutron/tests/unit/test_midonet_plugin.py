@@ -174,6 +174,11 @@ class TestMidonetExtraDHCPOpts(test_dhcpopts.TestExtraDhcpOpt,
 class TestMidonetL3NatDBIntTest(test_l3.L3NatDBIntTestCase,
                                 MidonetPluginV2TestCase):
 
+    def test_router_update_gateway_upon_subnet_create_max_ips_ipv6(self):
+        # MidoNet doesn't support IPv6.
+        # MidoNet doesn't support fixed_ips updates on a router gateway port.
+        pass
+
     def test_router_remove_ipv6_subnet_from_interface(self):
         # MidoNet doesn't support IPv6.
         # This specific case examines _add_interface_by_subnet,
