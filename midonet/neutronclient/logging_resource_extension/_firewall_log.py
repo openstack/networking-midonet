@@ -14,8 +14,9 @@
 #    under the License.
 
 from neutronclient.common import extension
-from neutronclient.i18n import _
 from neutronclient.neutron import v2_0 as loggingV20
+
+from midonet.neutron._i18n import _
 
 
 def add_common_paramaters_to_arguments(parser):
