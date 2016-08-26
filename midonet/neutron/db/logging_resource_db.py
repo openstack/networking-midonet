@@ -13,10 +13,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-
+from midonet.neutron.db import logging_resource_model as model
 from midonet.neutron.extensions import logging_resource as log_res_ext
 from neutron.db import common_db_mixin
-from neutron.db import model_base
 from neutron_fwaas.extensions import firewall as fw_ext
 
 from oslo_db import exception as db_exc
@@ -24,48 +23,9 @@ from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 from oslo_utils import uuidutils
 
-import sqlalchemy as sa
-from sqlalchemy import orm
 from sqlalchemy.orm import exc
 
-LOGGING_RESOURCES = 'midonet_logging_resources'
-FIREWALL_LOGS = 'midonet_firewall_logs'
-
 LOG = logging.getLogger(__name__)
-
-
-class LoggingResource(model_base.BASEV2):
-    """Represents a logging resource."""
-
-    __tablename__ = LOGGING_RESOURCES
-    id = sa.Column(sa.String(36), primary_key=True)
-    name = sa.Column(sa.String(255))
-    description = sa.Column(sa.String(1024))
-    tenant_id = sa.Column(sa.String(length=255))
-    enabled = sa.Column(sa.Boolean, nullable=False)
-
-
-class FirewallLog(model_base.BASEV2):
-    """Represents a firewall log."""
-
-    __tablename__ = FIREWALL_LOGS
-
-    id = sa.Column(sa.String(36), primary_key=True)
-    logging_resource_id = sa.Column(sa.String(36),
-                          sa.ForeignKey('midonet_logging_resources.id',
-                          ondelete="CASCADE"),
-                          nullable=False)
-    tenant_id = sa.Column(sa.String(length=255))
-    description = sa.Column(sa.String(1024))
-    fw_event = sa.Column(sa.String(length=255), nullable=False)
-    firewall_id = sa.Column(sa.String(36),
-                  sa.ForeignKey('firewalls.id',
-                  ondelete="CASCADE"),
-                  nullable=False)
-    logging_resource = orm.relationship(
-        LoggingResource,
-        backref=orm.backref('firewall_logs', cascade='delete', lazy='joined'),
-        primaryjoin="LoggingResource.id==FirewallLog.logging_resource_id")
 
 
 class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
@@ -79,7 +39,7 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
         """Create a logging_resource"""
         log_res = logging_resource['logging_resource']
         with context.session.begin(subtransactions=True):
-            log_res_db = LoggingResource(id=uuidutils.generate_uuid(),
+            log_res_db = model.LoggingResource(id=uuidutils.generate_uuid(),
                 name=log_res['name'],
                 description=log_res['description'],
                 tenant_id=log_res['tenant_id'],
@@ -101,7 +61,7 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
                                           limit, marker)
 
         return self._get_collection(context,
-                                    LoggingResource,
+                                    model.LoggingResource,
                                     self._make_logging_resource_dict,
                                     filters=filters, fields=fields,
                                     sorts=sorts,
@@ -136,7 +96,7 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
         f_log = firewall_log['firewall_log']
         try:
             with context.session.begin(subtransactions=True):
-                f_log_db = FirewallLog(
+                f_log_db = model.FirewallLog(
                     id=uuidutils.generate_uuid(),
                     logging_resource_id=logging_resource_id,
                     tenant_id=f_log['tenant_id'],
@@ -163,7 +123,7 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
         marker_obj = self._get_marker_obj(context, 'firewall_log', limit,
                                           marker)
         return self._get_collection(context,
-                                    FirewallLog,
+                                    model.FirewallLog,
                                     self._make_firewall_log_dict,
                                     filters=filters, fields=fields,
                                     sorts=sorts,
@@ -189,8 +149,8 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
 
     def _get_logging_resource(self, context, id):
         try:
-            query = self._model_query(context, LoggingResource)
-            log_res_db = query.filter(LoggingResource.id == id).one()
+            query = self._model_query(context, model.LoggingResource)
+            log_res_db = query.filter(model.LoggingResource.id == id).one()
 
         except exc.NoResultFound:
             raise log_res_ext.LoggingResourceNotFound(id=id)
@@ -198,18 +158,18 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
         return log_res_db
 
     def _get_fw_logs_from_tenant(self, context, tenant_id):
-        query = self._model_query(context, FirewallLog)
-        return query.filter(FirewallLog.tenant_id == tenant_id).all()
+        query = self._model_query(context, model.FirewallLog)
+        return query.filter(model.FirewallLog.tenant_id == tenant_id).all()
 
     def _logging_resource_has_logs(self, context, log_res_id):
-        query = self._model_query(context, FirewallLog)
+        query = self._model_query(context, model.FirewallLog)
         return bool(query.filter(
-                FirewallLog.logging_resource_id == log_res_id).all())
+                model.FirewallLog.logging_resource_id == log_res_id).all())
 
     def _get_firewall_log(self, context, id):
         try:
-            query = self._model_query(context, FirewallLog)
-            f_log_db = query.filter(FirewallLog.id == id).one()
+            query = self._model_query(context, model.FirewallLog)
+            f_log_db = query.filter(model.FirewallLog.id == id).one()
 
         except exc.NoResultFound:
             raise log_res_ext.FirewallLogNotFound(id=id)
