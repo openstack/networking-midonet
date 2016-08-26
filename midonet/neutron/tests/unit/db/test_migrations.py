@@ -83,10 +83,16 @@ L2GW_TABLES = {
     'pending_ucast_macs_remotes'
 }
 
+TAAS_TABLES = {
+    'tap_services',
+    'tap_flows',
+    'tap_id_associations',
+}
+
 # EXTERNAL_TABLES should contain all names of tables that are not related to
 # current repo.
 EXTERNAL_TABLES = (set(external.TABLES) | LBAAS_TABLES | FWAAS_TABLES |
-                   VPNAAS_TABLES | L2GW_TABLES)
+                   VPNAAS_TABLES | L2GW_TABLES | TAAS_TABLES)
 # FIXME(yamamoto): Fix this after branching stable/mitaka
 EXTERNAL_TABLES |= {'bgp_speaker_router_associations'}
 VERSION_TABLE = 'alembic_version_midonet'
