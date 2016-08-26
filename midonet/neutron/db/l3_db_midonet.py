@@ -22,7 +22,6 @@ from neutron.callbacks import exceptions
 from neutron.callbacks import registry
 from neutron.callbacks import resources
 from neutron.common import constants as n_const
-from neutron.db import api as db_api
 from neutron.db import l3_db
 from neutron.db import l3_gwmode_db
 from neutron.db import models_v2
@@ -43,12 +42,6 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
                 if len(e.errors) == 1:
                     raise e.errors[0].error
                 raise l3.RouterInUse(router_id=router_id, reason=e)
-
-    # bug 1605894
-    def _validate_router_port_info(self, context, router, port_id):
-        with db_api.autonested_transaction(context.session):
-            return super(MidonetL3DBMixin, self)._validate_router_port_info(
-                context, router, port_id)
 
     # REVISIT(yamamoto): This method is a copy of the base class method,
     # with 'router_id' notification argument added.
