@@ -22,7 +22,6 @@ from oslo_log import log as logging
 from oslo_utils import excutils
 
 from neutron.db import api as db_api
-from neutron.db import l3_db
 from neutron.db import l3_gwmode_db
 from neutron.extensions import extra_dhcp_opt as edo_ext
 from neutron.extensions import securitygroup as ext_sg
@@ -622,10 +621,6 @@ class MidonetPluginV2(MidonetMixin):
     __native_bulk_support = True
     __native_pagination_support = True
     __native_sorting_support = True
-
-    def __init__(self):
-        super(MidonetPluginV2, self).__init__()
-        l3_db.subscribe()
 
 
 def list_opts():
