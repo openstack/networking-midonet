@@ -2,7 +2,7 @@
 
 job=$1
 
-case $job in;
+case $job in
     v1)
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
