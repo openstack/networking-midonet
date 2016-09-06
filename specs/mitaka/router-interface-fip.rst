@@ -178,8 +178,6 @@ PREROUTING/POSTROUTING processing::
         [if default SNAT is enabled on the router]
         outport == the gateway port -> default snat, ACCEPT
 
-        ----- ordering barrier
-
         // for non-float -> float traffic  (cf. bug 1428887)
         // "dst-rewritten" condition here means float dnat was applied in
         // prerouting.  in case of iptables based implementations,
