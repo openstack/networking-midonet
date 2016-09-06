@@ -13,9 +13,9 @@
 #    under the License.
 
 from neutron_lib.api import validators
+from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
 
-from neutron.db import model_base
 from neutron.db import portbindings_db
 from neutron.extensions import portbindings
 import sqlalchemy as sa

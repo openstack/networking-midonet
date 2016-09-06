@@ -14,7 +14,7 @@
 #    under the License.
 
 from midonet.neutron.extensions import agent_membership as ext_am
-from neutron.db import model_base
+from neutron_lib.db import model_base
 import sqlalchemy as sa
 from sqlalchemy.orm import exc
 

@@ -14,7 +14,7 @@
 #    under the License.
 
 import datetime
-from neutron.db import model_base
+from neutron_lib.db import model_base
 import sqlalchemy as sa
 
 
