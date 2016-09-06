@@ -145,7 +145,11 @@ PREROUTING/POSTROUTING processing::
 
         // rev-snat for the default snat
         [if default SNAT is enabled on the router]
-        rev-snat, ACCEPT
+        (dst) matches (gw port ip) -> rev-snat, ACCEPT
+
+        // rev-snat for MidoNet-specific "same subnet" rules
+        [per RIF]
+        (inport, dst) matches (rif, rif ip) -> rev-snat, ACCEPT
 
     POSTROUTING
 
@@ -156,10 +160,14 @@ PREROUTING/POSTROUTING processing::
         // configured.
         [per FIP]
         (outport, src) matches (fip port, fip) -> float snat, ACCEPT
+
         ----- ordering barrier
+
         [per FIP]
         (src) matches (fip) -> float snat, ACCEPT  // gateway port
+
         ----- ordering barrier
+
         [per FIP]
         (src) matches (fip) -> float snat, ACCEPT  // non gateway port
 
@@ -187,6 +195,11 @@ PREROUTING/POSTROUTING processing::
         // "--ctstate DNAT" might be used.
         [if default SNAT is enabled on the router]
         dst-rewritten -> default snat, ACCEPT
+
+        // MidoNet-specific "same subnet" rules
+        [per RIF]
+        (inport == outport == rif) && dst != 169.254.169.254
+            -> snat to rif ip, ACCEPT
 
         // non-float -> non-float in tenant traffic would come here
 
