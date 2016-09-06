@@ -140,10 +140,12 @@ PREROUTING/POSTROUTING processing::
     PREROUTING
 
         // floating ip dnat
-        FIP: (dst) matches (fip) -> float dnat, ACCEPT
+        [per FIP]
+        (dst) matches (fip) -> float dnat, ACCEPT
 
         // rev-snat for the default snat
-        SNAT: rev-snat, ACCEPT
+        [if default SNAT is enabled on the router]
+        rev-snat, ACCEPT
 
     POSTROUTING
 
