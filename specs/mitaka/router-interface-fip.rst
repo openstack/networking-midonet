@@ -172,6 +172,7 @@ PREROUTING/POSTROUTING processing::
         // in POSTROUTING.
         [per FIP port]
         (inport) matches (fip port) -> ACCEPT
+        [if default SNAT is enabled on the router]
         inport == the gateway port -> ACCEPT
 
         ----- ordering barrier
