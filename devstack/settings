@@ -70,6 +70,7 @@ NETWORK_API_EXTENSIONS+=,standard-attr-description
 NETWORK_API_EXTENSIONS+=,router-interface-fip
 NETWORK_API_EXTENSIONS+=,pagination
 NETWORK_API_EXTENSIONS+=,sorting
+NETWORK_API_EXTENSIONS+=,project-id
 if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
     NETWORK_API_EXTENSIONS+=,allowed-address-pairs,extraroute,port-security
     if is_service_enabled q-fwaas; then
