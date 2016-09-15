@@ -57,7 +57,7 @@ service plugins::
 ML2 mechanism and type drivers
 ------------------------------
 
-Experimental ML2 mechanism driver and type drivers are available.
+ML2 mechanism driver and type drivers are available.
 They are compatible with MidoNet v5.0 and beyond::
 
     [DEFAULT]
