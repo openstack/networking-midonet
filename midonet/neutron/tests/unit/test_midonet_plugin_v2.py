@@ -176,6 +176,28 @@ class TestMidonetPortsV2(MidonetPluginV2TestCase,
                 self.assertEqual(n_const.PORT_STATUS_ACTIVE,
                                  res['port']['status'])
 
+    def test_update_router_interface_port_with_new_fixed_ips(self):
+        updated_ip_address = '10.0.0.241'
+        with self.subnet(cidr=FAKE_CIDR) as sub:
+            with self.port(
+                    subnet=sub,
+                    device_owner=n_const.DEVICE_OWNER_ROUTER_INTF
+            ) as port:
+                data = {'port': {'fixed_ips': [
+                    {'subnet_id': sub['subnet']['id'],
+                     'ip_address': updated_ip_address}
+                ]}}
+                req = self.new_update_request(
+                        'ports', data, port['port']['id'])
+                res = req.get_response(self.api)
+                self.assertEqual(200, res.status_int)
+
+                req = self.new_show_request('ports', port['port']['id'])
+                res = self.deserialize(self.fmt,
+                        req.get_response(self.api))
+                self.assertEqual(updated_ip_address,
+                        res['port']['fixed_ips'][0]['ip_address'])
+
 
 class TestMidonetPortBinding(MidonetPluginV2TestCase,
                              test_bindings.PortBindingsTestCase):
