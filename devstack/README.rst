@@ -38,7 +38,7 @@ Note that with these configurations, only the following services are started::
     keystone
     nova
     glance
-    neutron (with DHCP and metadata agents)
+    neutron
     lbaas
     tempest
     horizon
