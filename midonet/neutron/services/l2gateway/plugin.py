@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib.api import validators
+
 from midonet.neutron._i18n import _LE
 from midonet.neutron.common import constants as mido_const
 from midonet.neutron.db import l2gateway_midonet as l2gw_db
@@ -44,8 +46,15 @@ class MidonetL2GatewayPlugin(l2gw_plugin.L2GatewayPlugin,
     def __init__(self):
         # Dynamically change the validators so that they are applicable to
         # the MidoNet implementation of L2GW.
+        # REVISIT(yamamoto): These validator modifications should not
+        # have been here in the first place.  We should either put them
+        # in upstream or remove them.
         l2gw_validators.validate_gwdevice_list = (l2gw_midonet_validators.
                                                   validate_gwdevice_list)
+        val_type = validators._to_validation_type('l2gwdevice_list')
+        validators.validators.pop(val_type, None)
+        validators.add_validator(val_type,
+            l2gw_midonet_validators.validate_gwdevice_list)
         l2gw_validators.validate_network_mapping_list = (
                 l2gw_midonet_validators.
                 validate_network_mapping_list_without_seg_id_validation)
