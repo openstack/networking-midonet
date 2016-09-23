@@ -21,3 +21,12 @@ Mitaka specs
    :maxdepth: 1
 
    mitaka/*
+
+Ocata specs
+============
+
+.. toctree::
+   :glob:
+   :maxdepth: 1
+
+   ocata/*
