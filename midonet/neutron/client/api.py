@@ -218,3 +218,18 @@ class MidonetApiClient(base.MidonetClientBase):
 
     def delete_tap_service(self, context, tap_service_id):
         self.api_cli.delete_tap_service(tap_service_id)
+
+    # QoS
+    def create_qos_policy(self, context, policy):
+        policy_dict = policy.to_dict()
+        self.api_cli.create_qos_policy(policy_dict)
+
+    def update_qos_policy(self, context, policy):
+        policy_dict = policy.to_dict()
+        id_ = policy_dict['id']
+        self.api_cli.update_qos_policy(id_, policy_dict)
+
+    def delete_qos_policy(self, context, policy):
+        policy_dict = policy.to_dict()
+        id_ = policy_dict['id']
+        self.api_cli.delete_qos_policy(id_)

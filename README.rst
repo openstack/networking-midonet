@@ -295,6 +295,37 @@ TaaS plugin configuration file `/etc/neutron/taas_plugin.ini`::
     service_provider = TAAS:Midonet:midonet.neutron.services.taas.service_drivers.taas_midonet.MidonetTaasDriver:default
 
 
+QoS
+---
+
+With the latest development version of MidoNet,
+ML2 plugin with MidoNet mechansim driver supports Neutron QoS extension.
+
+Note: MidoNet monolithic plugins (either v1 or v2) do not support QoS
+core resource extension.
+
+QoS service plugin
+~~~~~~~~~~~~~~~~~~
+
+QoS service plugin can be configured in the Neutron server configuration
+file `/etc/neutron/neutron.conf`::
+
+    [DEFAULT]
+    service_plugins = qos
+
+    [qos]
+    notification_drivers = midonet
+
+QoS core resource extension
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+QoS core resource extension for ML2 plugin can be configured in the
+Neutron server configuration file `/etc/neutron/neutron.conf`::
+
+    [ml2]
+    extension_drivers = qos
+
+
 Horizon
 -------
 

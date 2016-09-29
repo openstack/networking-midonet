@@ -86,6 +86,9 @@ fi
 if is_service_enabled taas; then
     NETWORK_API_EXTENSIONS+=,taas
 fi
+if is_service_enabled q-qos; then
+    NETWORK_API_EXTENSIONS+=,qos
+fi
 
 # Don't let mido.sh configure the logging
 CONFIGURE_LOGGING=False

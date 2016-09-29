@@ -17,6 +17,7 @@ from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 
 from neutron.common import constants
+from neutron.services.qos import qos_consts
 
 from midonet.neutron._i18n import _
 from midonet.neutron.client import base as c_base
@@ -38,6 +39,8 @@ LOG = logging.getLogger(__name__)
 class MidonetMechanismDriver(api.MechanismDriver):
 
     """ML2 Mechanism Driver for Midonet."""
+
+    supported_qos_rule_types = [qos_consts.RULE_TYPE_BANDWIDTH_LIMIT]
 
     def __init__(self):
         self.vif_type = const.VIF_TYPE_MIDONET
