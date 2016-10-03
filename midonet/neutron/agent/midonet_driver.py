@@ -16,9 +16,6 @@
 #    under the License.
 
 from neutron.agent.linux import dhcp
-from oslo_log import log as logging
-
-LOG = logging.getLogger(__name__)
 
 
 class DhcpNoOpDriver(dhcp.DhcpLocalProcess):

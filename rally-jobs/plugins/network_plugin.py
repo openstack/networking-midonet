@@ -15,14 +15,11 @@
 #
 # Modifications Copyright 2016: Midokura
 
-from rally.common import logging
 from rally import consts
 from rally.plugins.openstack import scenario
 from rally.plugins.openstack.scenarios.neutron import utils
 from rally.task import atomic
 from rally.task import validation
-
-LOG = logging.getLogger(__name__)
 
 
 class NetworkPlugin(utils.NeutronScenario):

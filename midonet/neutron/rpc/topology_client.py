@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import logging
 from midonet.neutron.common import exceptions as mexc
 from midonetclient import topology  # noqa
 from midonetclient.topology import hosts
@@ -21,9 +20,6 @@ from midonetclient.topology import hosts
 
 import socket
 import uuid
-
-
-LOG = logging.getLogger(__name__)
 
 
 MIDO_AGENT_NAME = 'Midonet Agent'
