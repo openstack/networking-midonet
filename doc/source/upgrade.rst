@@ -15,11 +15,11 @@ From Liberty to Mitaka
 
   Before::
 
-      interface_driver = neutron.agent.linux.interface.MidonetInterfaceDriver
+    interface_driver = neutron.agent.linux.interface.MidonetInterfaceDriver
 
   After::
 
-      interface_driver = midonet
+    interface_driver = midonet
 
 - The following sub-commands were removed from `midonet-db-manage` command::
 
@@ -36,7 +36,7 @@ From Liberty to Mitaka
 
   For example,::
 
-      neutron-db-manage --subproject networking-midonet upgrade head
+    $ neutron-db-manage --subproject networking-midonet upgrade head
 
 - At the start of the Mitaka development cycle (immediately after "liberty"
   db milestone), our sub-project db migration chain was separated into
@@ -53,19 +53,19 @@ From Kilo to Liberty
 - v2 plugin was separated into two plugins, core plugin and L3 service plugin.
   You need to configure L3 service plugin in addition to the core plugin::
 
-      core_plugin = midonet.neutron.plugin_v2.MidonetPluginV2
-      service_plugins = midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin
+    core_plugin = midonet.neutron.plugin_v2.MidonetPluginV2
+    service_plugins = midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin
 
 - Plugin entry point for v1 plugin (the older plugin which is compatible with
   MidoNet v2015.03 and v2015.06) has been moved out of Neutron tree:
 
   Before::
 
-      core_plugin = neutron.plugins.midonet.plugin.MidonetPluginV2
+    core_plugin = neutron.plugins.midonet.plugin.MidonetPluginV2
 
   After::
 
-      core_plugin = midonet.neutron.plugin_v1.MidonetPluginV2
+    core_plugin = midonet.neutron.plugin_v1.MidonetPluginV2
 
 - `midonet-db-manage` command is now obsolete.
   While it's still provided for backward compatibility, we plan to remove
@@ -74,7 +74,7 @@ From Kilo to Liberty
 
   For example,::
 
-      neutron-db-manage --subproject networking-midonet upgrade head
+    $ neutron-db-manage --subproject networking-midonet upgrade head
 
 -----------------
 From Juno to Kilo
@@ -83,4 +83,4 @@ From Juno to Kilo
 - A separate plugin ("v2 plugin") which is compatible with MidoNet v5.0
   (previously called v2015.09) was introduced::
 
-      core_plugin = midonet.neutron.plugin_v2.MidonetPluginV2
+    core_plugin = midonet.neutron.plugin_v2.MidonetPluginV2
