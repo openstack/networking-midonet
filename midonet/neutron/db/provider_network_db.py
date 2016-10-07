@@ -13,11 +13,11 @@
 #    under the License.
 
 from neutron_lib.api import validators
+from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
 
 from midonet.neutron._i18n import _, _LW
 from midonet.neutron.common import constants as m_const
-from neutron.db import model_base
 from neutron.db import models_v2
 from neutron.extensions import providernet as pnet
 from neutron.plugins.common import constants as p_const

@@ -15,7 +15,7 @@
 import datetime
 import uuid
 
-from neutron.db import model_base
+from neutron_lib.db import model_base
 from oslo_log import log as logging
 from oslo_serialization import jsonutils
 import sqlalchemy as sa

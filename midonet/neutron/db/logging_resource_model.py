@@ -16,7 +16,7 @@
 import sqlalchemy as sa
 from sqlalchemy import orm
 
-from neutron.db import model_base
+from neutron_lib.db import model_base
 
 LOGGING_RESOURCES = 'midonet_logging_resources'
 FIREWALL_LOGS = 'midonet_firewall_logs'
