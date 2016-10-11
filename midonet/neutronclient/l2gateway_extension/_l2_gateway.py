@@ -15,16 +15,17 @@
 #
 from midonet.neutron._i18n import _
 
+from neutron_lib.utils import helpers
+
 from networking_l2gw.l2gatewayclient.l2gw_client_ext import _l2_gateway
 from neutronclient.common import extension
-from neutronclient.common import utils
 
 
 def add_known_arguments(self, parser):
     parser.add_argument(
         '--device',
         metavar='device_id=DEVICE_ID,segmentaion_id=SEGMENTAION_ID',
-        action='append', dest='devices', type=utils.str2dict,
+        action='append', dest='devices', type=helpers.str2dict,
         help=_('Device id and segmentation id of l2gateway. '
                '--device option can be repeated'))
 
