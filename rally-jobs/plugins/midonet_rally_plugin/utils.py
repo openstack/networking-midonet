@@ -18,7 +18,7 @@
 
 from __future__ import print_function
 
-from ConfigParser import SafeConfigParser
+import ConfigParser
 import os
 from oslo_serialization import jsonutils
 import requests
@@ -36,7 +36,7 @@ class RequestScenario(scenario.Scenario):
     def get_credentials():
         """Retrieves credentials to connect to neutron from 'midonetrc' file"""
         try:
-            parser = SafeConfigParser()
+            parser = ConfigParser.SafeConfigParser()
             parser.read(os.path.join(os.path.expanduser('~stack'),
                                      '.midonetrc'))
             return parser
