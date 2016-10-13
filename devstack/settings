@@ -67,18 +67,23 @@ NETWORK_API_EXTENSIONS+=,security-group,subnet_allocation
 NETWORK_API_EXTENSIONS+=,network-ip-availability,auto-allocated-topology
 NETWORK_API_EXTENSIONS+=,timestamp_core,tag,service-type,rbac-policies
 NETWORK_API_EXTENSIONS+=,standard-attr-description
+NETWORK_API_EXTENSIONS+=,standard-attr-revisions
+NETWORK_API_EXTENSIONS+=,standard-attr-timestamp
 NETWORK_API_EXTENSIONS+=,pagination
 NETWORK_API_EXTENSIONS+=,sorting
 NETWORK_API_EXTENSIONS+=,project-id
+NETWORK_API_EXTENSIONS+=,flavors
 if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
     NETWORK_API_EXTENSIONS+=,allowed-address-pairs,extraroute,port-security
     NETWORK_API_EXTENSIONS+=,router-interface-fip
+    NETWORK_API_EXTENSIONS+=,provider
     if is_service_enabled q-fwaas; then
         NETWORK_API_EXTENSIONS+=,fwaas,fwaasrouterinsertion
     fi
 fi
 if is_service_enabled neutron-vpnaas; then
     NETWORK_API_EXTENSIONS+=,vpnaas
+    NETWORK_API_EXTENSIONS+=,vpn-endpoint-groups
 fi
 if is_service_enabled taas; then
     NETWORK_API_EXTENSIONS+=,taas
