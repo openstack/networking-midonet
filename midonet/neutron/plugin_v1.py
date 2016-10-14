@@ -68,7 +68,9 @@ class MidonetMixin(plugin.MidonetMixinBase,
         self._ensure_default_security_group(context, tenant_id)
 
         with context.session.begin(subtransactions=True):
-            net = super(MidonetMixin, self).create_network(context, network)
+            net_db = self.create_network_db(context, network)
+            net = self._make_network_dict(net_db, process_extensions=False,
+                                          context=context)
             net_data['id'] = net['id']
             self._process_l3_create(context, net, net_data)
             self.client.create_network_precommit(context, net)
@@ -86,10 +88,7 @@ class MidonetMixin(plugin.MidonetMixinBase,
                     LOG.exception(_LE("Failed to delete network %s"),
                                   net['id'])
 
-        # NOTE(kevinbenton): this extra lookup is necessary to get the
-        # latest db model for the extension functions
-        net_model = self._get_network(context, net['id'])
-        self._apply_dict_extend_functions('networks', net, net_model)
+        self._apply_dict_extend_functions('networks', net, net_db)
 
         LOG.debug("MidonetMixin.create_network exiting: net=%r", net)
         return net
@@ -186,7 +185,8 @@ class MidonetMixin(plugin.MidonetMixinBase,
                 if not port['port']['admin_state_up']:
                     port['port']['status'] = n_const.PORT_STATUS_DOWN
             # Create a Neutron port
-            new_port = super(MidonetMixin, self).create_port(context, port)
+            port_db = self.create_port_db(context, port)
+            new_port = self._make_port_dict(port_db, process_extensions=False)
 
             # Do not create a gateway port if it has no IP address assigned as
             # MidoNet does not yet handle this case.
@@ -232,10 +232,7 @@ class MidonetMixin(plugin.MidonetMixinBase,
                     LOG.exception(_LE("Failed to delete port %s"),
                                   new_port['id'])
 
-        # NOTE(kevinbenton): this extra lookup is necessary to get the
-        # latest db model for the extension functions
-        port_model = self._get_port(context, new_port['id'])
-        self._apply_dict_extend_functions('ports', new_port, port_model)
+        self._apply_dict_extend_functions('ports', new_port, port_db)
 
         LOG.debug("MidonetMixin.create_port exiting: port=%r", new_port)
         return new_port
