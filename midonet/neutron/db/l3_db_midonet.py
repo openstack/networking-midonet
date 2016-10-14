@@ -145,3 +145,51 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
                         router_id=router_id,
                         network_id=old_network_id,
                         gateway_ips=gw_ips)
+
+    def find_next_hop_for_fip(self, context, floatingip_db):
+        # Find a next-hop address for a route from the floating_network_id
+        # network to the floating-ip.
+        # NOTE(tidwellr) use admin context here
+        # tenant may not own the router and that's OK on a FIP association
+        router_id = floatingip_db.router_id
+        router = self._get_router(context.elevated(), router_id)
+        gw_port = None
+        for rp in router.attached_ports:
+            if rp.port.network_id == floatingip_db.floating_network_id:
+                gw_port = rp.port
+                break
+        if not gw_port:
+            return None
+        for fixed_ip in gw_port.fixed_ips:
+            addr = netaddr.IPAddress(fixed_ip.ip_address)
+            if addr.version == n_const.IP_VERSION_4:
+                return fixed_ip.ip_address
+
+    # REVISIT(yamamoto): This method is a copy of the base class method,
+    # modified to use find_next_hop_for_fip hook.
+    def _update_fip_assoc(self, context, fip, floatingip_db, external_port):
+        previous_router_id = floatingip_db.router_id
+        port_id, internal_ip_address, router_id = (
+            self._check_and_get_fip_assoc(context, fip, floatingip_db))
+        update = {'fixed_ip_address': internal_ip_address,
+                  'fixed_port_id': port_id,
+                  'router_id': router_id,
+                  'last_known_router_id': previous_router_id}
+        if 'description' in fip:
+            update['description'] = fip['description']
+        floatingip_db.update(update)
+        next_hop = None
+        if router_id:
+            next_hop = self.find_next_hop_for_fip(context, floatingip_db)
+        args = {'fixed_ip_address': internal_ip_address,
+                'fixed_port_id': port_id,
+                'router_id': router_id,
+                'last_known_router_id': previous_router_id,
+                'floating_ip_address': floatingip_db.floating_ip_address,
+                'floating_network_id': floatingip_db.floating_network_id,
+                'next_hop': next_hop,
+                'context': context}
+        registry.notify(resources.FLOATING_IP,
+                        events.AFTER_UPDATE,
+                        self._update_fip_assoc,
+                        **args)
