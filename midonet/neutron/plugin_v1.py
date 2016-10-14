@@ -101,6 +101,10 @@ class MidonetMixin(plugin.MidonetMixinBase,
             net = super(MidonetMixin, self).update_network(
                 context, id, network)
             self._process_l3_update(context, net, network['network'])
+            # NOTE(yamamoto): Retrieve the db object to get the correct
+            # revision
+            context.session.flush()
+            net = self.get_network(context, id)
             self.client.update_network_precommit(context, id, net)
 
         self.client.update_network_postcommit(id, net)
@@ -166,6 +170,10 @@ class MidonetMixin(plugin.MidonetMixinBase,
 
         with context.session.begin(subtransactions=True):
             s = super(MidonetMixin, self).update_subnet(context, id, subnet)
+            # NOTE(yamamoto): Retrieve the db object to get the correct
+            # revision
+            context.session.flush()
+            s = self.get_subnet(context, id)
             self.client.update_subnet_precommit(context, id, s)
 
         self.client.update_subnet_postcommit(id, s)
@@ -279,7 +287,11 @@ class MidonetMixin(plugin.MidonetMixinBase,
 
             self._process_portbindings_create_and_update(context,
                                                          port['port'], p)
-
+            # NOTE(yamamoto): Retrieve the db object to get the correct
+            # revision
+            context.session.flush()
+            context.session.expire_all()
+            p = self.get_port(context, id)
             self.client.update_port_precommit(context, id, p)
 
         # Set status along admin_state_up to update.
@@ -291,9 +303,11 @@ class MidonetMixin(plugin.MidonetMixinBase,
         try:
             self.client.update_port_postcommit(id, p)
             data = {'port': {'status': update_status}}
-            super(MidonetMixin, self).update_port(context, id, data)
+            new_port = super(MidonetMixin, self).update_port(context, id, data)
             # prevent binding:profile information from lacking
-            p['status'] = data['port']['status']
+            p['status'] = new_port['status']
+            if 'revision_number' in new_port:
+                p['revision_number'] = new_port['revision_number']
         except Exception as ex:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Failed to update a port %(port_id)s in "
