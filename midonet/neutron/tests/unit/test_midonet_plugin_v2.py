@@ -223,6 +223,15 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
         with self.port_with_binding_profile() as port:
             self.assertDictSupersetOf(keys, port['port'])
 
+    def test_show_mido_portbinding(self):
+        keys = {portbindings.PROFILE: {'interface_name': 'if_name'},
+                portbindings.HOST_ID: 'host'}
+        with self.port_with_binding_profile() as port:
+            self.assertDictSupersetOf(keys, port['port'])
+            req = self.new_show_request('ports', port['port']['id'])
+            res = self.deserialize(self.fmt, req.get_response(self.api))
+            self.assertDictSupersetOf(keys, res['port'])
+
     def test_create_mido_portbinding_no_profile_specified(self):
         with self.port() as port:
             self.assertIsNone(port['port'][portbindings.PROFILE])

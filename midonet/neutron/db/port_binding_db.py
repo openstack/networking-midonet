@@ -16,7 +16,9 @@ from neutron_lib.api import validators
 from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
 
-from neutron.db import portbindings_db
+from neutron.api.v2 import attributes as attr
+from neutron.db import db_base_plugin_v2
+from neutron.db import models_v2
 from neutron.extensions import portbindings
 import sqlalchemy as sa
 from sqlalchemy import orm
@@ -31,11 +33,11 @@ class PortBindingInfo(model_base.BASEV2):
                                       ondelete="CASCADE"),
                         primary_key=True)
     interface_name = sa.Column(sa.String(length=255), nullable=False)
-    binding = orm.relationship(portbindings_db.PortBindingPort,
-                               backref=orm.backref("port_binding_info",
-                                                   lazy='joined',
-                                                   uselist=False,
-                                                   cascade='delete'))
+    port = orm.relationship(models_v2.Port,
+                            backref=orm.backref("port_binding_info",
+                                                lazy='joined',
+                                                uselist=False,
+                                                cascade='delete'))
 
 
 class MidonetPortBindingMixin(object):
@@ -86,3 +88,11 @@ class MidonetPortBindingMixin(object):
                 if_name = bind_port.interface_name if bind_port else None
 
         self._extend_mido_portbinding(port, if_name)
+
+    def _extend_port_mido_portbinding(self, port_res, port_db):
+        bind_port = port_db.port_binding_info
+        if_name = bind_port.interface_name if bind_port else None
+        self._extend_mido_portbinding(port_res, if_name)
+
+    db_base_plugin_v2.NeutronDbPluginV2.register_dict_extend_funcs(
+        attr.PORTS, ['_extend_port_mido_portbinding'])
