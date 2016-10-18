@@ -71,7 +71,7 @@ class MidonetPluginV2TestCase(test_plugin.NeutronDbPluginV2TestCase):
 
         # Set up mock for the midonet client to be made available in tests
         patcher = mock.patch(TEST_MN_CLIENT)
-        self.client_mock = mock.MagicMock()
+        self.client_mock = mock.Mock()
         patcher.start().return_value = self.client_mock
 
         # Ensure that the parent setup can be called without arguments
