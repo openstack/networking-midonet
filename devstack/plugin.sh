@@ -133,9 +133,10 @@ if [[ "$1" == "stack" ]]; then
             $MIDONET_DIR/tools/devmido/mido.sh
 
             # Set log level to DEBUG.
-            # REVISIT(yamamoto): Revisit when MNA-1025 is fixed on
-            # all relevant bracnches.
+            # REVISIT(yamamoto): Revisit when MNA-1025 and MI-1344 are
+            # fixed on all relevant bracnches.
             echo agent.loggers.root: DEBUG|mn-conf set
+            echo cluster.loggers.root: DEBUG|mn-conf set
         fi
 
         # Set rootwrap.d to installed mm-ctl filters
