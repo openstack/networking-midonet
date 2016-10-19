@@ -121,9 +121,6 @@ if [ "${_ZOOM}" = "True" ]; then
     s+=",neutron-vpnaas"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-vpnaas https://github.com/openstack/neutron-vpnaas"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_VPNAAS_SERVICE_PROVIDER=\"VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default\""
-
-    # bug 1600770
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_PACKAGE=False"
 else
     # Use neutron metadata proxy
     s+=",q-dhcp,q-meta"
