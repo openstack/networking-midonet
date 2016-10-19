@@ -189,3 +189,5 @@ class MidonetClusterClient(base.MidonetClientBase):
     def delete_health_monitor(self, context, health_monitor_id):
         task.create_task(context, task.DELETE, data_type=task.HEALTH_MONITOR,
                          resource_id=health_monitor_id)
+
+    # REVISIT(yamamoto): recent additions, including QoS

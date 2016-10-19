@@ -404,3 +404,13 @@ class MidonetClientBase(object):
 
     def delete_tap_service(self, context, tap_service_id):
         pass
+
+    # QoS
+    def create_qos_policy(self, context, policy):
+        pass
+
+    def update_qos_policy(self, context, policy):
+        pass
+
+    def delete_qos_policy(self, context, policy):
+        pass

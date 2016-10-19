@@ -195,3 +195,19 @@ To configure MidoNet including Logging Resource Service when running devstack,
 make sure the following is defined in ``local.conf``::
 
     Q_SERVICE_PLUGIN_CLASSES=midonet_logging_resource
+
+QoS
+---
+
+The following ``local.conf`` snippet would enable QoS extension with
+MidoNet driver::
+
+    enable_plugin neutron https://github.com/openstack/neutron
+    enable_service q-qos
+
+    [[post-config|$NEUTRON_CONF]]
+    [qos]
+    notification_drivers = midonet
+
+Note: Make sure you're using ML2 plugin.  MidoNet monolithic plugins
+(either v1 or v2) do not support QoS core resource extension.
