@@ -294,3 +294,6 @@ class TestMidonetL3NatDBIntTest(test_l3.L3NatDBIntTestCase,
                 res = self.deserialize(self.fmt,
                                        req.get_response(self.ext_api))
                 self.assertEqual('ERROR', res['router']['status'])
+
+    def test_floatingip_with_invalid_create_port(self):
+        self._test_floatingip_with_invalid_create_port(PLUGIN_NAME)

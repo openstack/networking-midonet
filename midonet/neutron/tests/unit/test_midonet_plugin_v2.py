@@ -478,6 +478,9 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
     def test_floatingip_via_router_interface_returns_201(self):
         self._test_floatingip_via_router_interface(exc.HTTPCreated.code)
 
+    def test_floatingip_with_invalid_create_port(self):
+        self._test_floatingip_with_invalid_create_port(PLUGIN_NAME)
+
 
 class TestMidonetDataState(testlib_api.SqlTestCase):
 
