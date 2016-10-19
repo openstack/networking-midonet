@@ -16,18 +16,25 @@
 import functools
 import mock
 import testscenarios
+import testtools
 from webob import exc
 
-from midonet.neutron.tests.unit import test_midonet_plugin as test_mn_plugin
+from oslo_config import cfg
 
+from neutron_lib import constants as n_const
+
+from neutron import context
 from neutron.extensions import external_net
 from neutron.extensions import providernet as pnet
+from neutron import manager
+from neutron.plugins.common import constants as p_const
 from neutron.tests.unit.api import test_extensions
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_plugin
+from neutron.tests.unit.extensions import test_extraroute as test_ext_route
 from neutron.tests.unit.extensions import test_l3
 from neutron.tests.unit.extensions import test_securitygroup as test_sg
 
-from oslo_config import cfg
+from midonet.neutron.tests.unit import test_midonet_plugin as test_mn_plugin
 
 load_tests = testscenarios.load_tests_apply_scenarios
 
@@ -188,3 +195,137 @@ class TestMidonetRouterML2(MidonetPluginML2TestCase,
             self._router_interface_action(
                 'add', r['router']['id'], subnet['subnet']['id'], None,
                 expected_code=self.expected_code)
+
+
+class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
+                                 MidonetPluginML2TestCase):
+
+    def test_router_update_gateway_upon_subnet_create_max_ips_ipv6(self):
+        # MidoNet doesn't support IPv6.
+        # MidoNet doesn't support fixed_ips updates on a router gateway port.
+        pass
+
+    def test_router_remove_ipv6_subnet_from_interface(self):
+        # MidoNet doesn't support IPv6.
+        # This specific case examines _add_interface_by_subnet,
+        # which ends up with updating the existing router interface port's
+        # fixed-ips.
+        pass
+
+    def test_router_add_interface_multiple_ipv6_subnets_same_net(self):
+        # MidoNet doesn't support IPv6.
+        # This specific case examines _add_interface_by_subnet,
+        # which ends up with updating the existing router interface port's
+        # fixed-ips.
+        pass
+
+    def test_router_update_gateway_add_multiple_prefixes_ipv6(self):
+        # MidoNet doesn't support IPv6.
+        # This specific case examines updating a router's ext_ips,
+        # which ends up with updating its gateway port's fixed-ips.
+        pass
+
+    def test_router_update_gateway_upon_subnet_create_ipv6(self):
+        # MidoNet doesn't support IPv6.
+        # Even for IPv4, with the reference implementation, create_subnet
+        # can ends up with adding an IP to the router's gateway port.
+        # However, it can't happen for us because we reject a gateway port
+        # without IP addresses.  ("No IPs assigned to the gateway port")
+        pass
+
+    def test_router_update_gateway_with_different_external_subnet(self):
+        # This specific case examines updating a router's ext_ips,
+        # which ends up with updating its gateway port's fixed-ips.
+        pass
+
+    def test_router_add_gateway_no_subnet(self):
+        # Midonet does not support the case where a gateway is set
+        # without a subnet, therefore we don't want to test this.
+        pass
+
+    def test_create_router_no_gateway_ip(self):
+        with self.network() as net:
+            self._set_net_external(net['network']['id'])
+            router_data = {'router': {
+                'tenant_id': 'tenant_one',
+                'external_gateway_info': {
+                    'network_id': net['network']['id']}}}
+            router_req = self.new_create_request('routers', router_data,
+                                                 self.fmt)
+            res = router_req.get_response(self.ext_api)
+            self.assertEqual(400, res.status_int)
+
+    def test_add_router_interface_by_port_failure(self):
+        class _MyException(Exception):
+            pass
+
+        with self.port() as port, self.router() as router:
+            ctx = context.get_admin_context()
+            plugin = manager.NeutronManager.get_plugin()
+            l3_plugin = manager.NeutronManager.get_service_plugins().get(
+                p_const.L3_ROUTER_NAT)
+            router_id = router['router']['id']
+            port_id = port['port']['id']
+            interface_info = {
+                'port_id': port_id,
+            }
+            with mock.patch.object(l3_plugin.client,
+                                   'add_router_interface_postcommit',
+                                   auto_spec=True,
+                                   side_effect=_MyException), \
+                testtools.ExpectedException(_MyException):
+                l3_plugin.add_router_interface(ctx, router_id, interface_info)
+            port2 = plugin.get_port(ctx, port_id)
+            self.assertEqual(port_id, port2['id'])
+
+    def test_update_floatingip_error_change_resource_status_to_error(self):
+        self.client_mock.update_floatingip_postcommit.side_effect = (
+            Exception("Fake Error"))
+        with self.port() as p:
+            private_sub = {'subnet': {'id':
+                    p['port']['fixed_ips'][0]['subnet_id']}}
+            with self.floatingip_no_assoc(private_sub) as fip:
+                data = {'floatingip': {'port_id': p['port']['id']}}
+                req = self.new_update_request('floatingips',
+                                              data,
+                                              fip['floatingip']['id'])
+                res = req.get_response(self.ext_api)
+                self.assertEqual(exc.HTTPInternalServerError.code,
+                                 res.status_int)
+                req = self.new_show_request(
+                        'floatingips', fip['floatingip']['id'])
+                res = self.deserialize(self.fmt,
+                                       req.get_response(self.ext_api))
+                self.assertEqual(n_const.FLOATINGIP_STATUS_ERROR,
+                        res['floatingip']['status'])
+
+    def test_update_router_error_change_resource_status_to_error(self):
+        self.client_mock.update_router_postcommit.side_effect = (
+            Exception("Fake Error"))
+        with self.subnet(cidr='11.0.0.0/24') as pub_sub:
+            pub_net = pub_sub['subnet']['network_id']
+            self._set_net_external(pub_net)
+            with self.router() as r:
+                data = {'router':
+                        {'external_gateway_info': {'network_id': pub_net}}}
+                req = self.new_update_request('routers',
+                                              data,
+                                              r['router']['id'])
+                res = req.get_response(self.ext_api)
+                self.assertEqual(exc.HTTPInternalServerError.code,
+                                 res.status_int)
+                req = self.new_show_request(
+                        'routers', r['router']['id'])
+                res = self.deserialize(self.fmt,
+                                       req.get_response(self.ext_api))
+                self.assertEqual('ERROR', res['router']['status'])
+
+    def test_floatingip_via_router_interface_returns_404(self):
+        self.skipTest('Not appropriate with router-interface-fip extension.')
+
+    def test_floatingip_via_router_interface_returns_201(self):
+        self._test_floatingip_via_router_interface(exc.HTTPCreated.code)
+
+    # NOTE(yamamoto): ML2 no longer uses NeutronDbPluginV2.create_port
+    def test_floatingip_with_invalid_create_port(self):
+        self._test_floatingip_with_invalid_create_port(PLUGIN_NAME)
