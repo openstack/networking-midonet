@@ -82,7 +82,7 @@ class MidonetPluginV2TestCase(test_plugin.NeutronDbPluginV2TestCase):
 
         # Set up mock for the midonet client to be made available in tests
         patcher = mock.patch(test_mn_plugin.TEST_MN_CLIENT)
-        self.client_mock = mock.MagicMock()
+        self.client_mock = mock.Mock()
         patcher.start().return_value = self.client_mock
 
         l3_plugin = {'l3_plugin_name': 'midonet_l3'}
