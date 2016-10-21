@@ -13,9 +13,14 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from oslo_log import log as logging
+
 from midonet.neutron.client import base
+from midonet.neutron.common import utils
 
 from midonetclient import client
+
+LOG = logging.getLogger(__name__)
 
 
 class MidonetApiClient(base.MidonetClientBase):
@@ -233,3 +238,48 @@ class MidonetApiClient(base.MidonetClientBase):
         policy_dict = policy.to_dict()
         id_ = policy_dict['id']
         self.api_cli.delete_qos_policy(id_)
+
+
+def _build_func(method):
+    # update takes (context, old_obj, obj, **kwargs)
+    # others take (context, obj, **kwargs)
+    def f(self, context, **kwargs):
+        obj_dict = kwargs['obj'].to_api_dict()
+        id_ = obj_dict['id']
+        try:
+            api_method = getattr(self.api_cli, method)
+        except AttributeError:
+            # REVISIT(yamamoto):
+            # not implemented.  this block can be removed once
+            # these ops are implemented in python-midonetclient.
+            LOG.debug('%(method)s is not implemented. obj = %(obj_dict)s', {
+                'method': method,
+                'obj_dict': obj_dict,
+            })
+            return
+        if op == 'create':
+            return api_method(obj_dict)
+        elif op == 'update':
+            return api_method(id_, obj_dict)
+        else:  # delete, refresh, stats
+            return api_method(id_)
+    f.__name__ = method
+    return f
+
+
+# Add LBaaS v2 methods
+for resource in [
+    'loadbalancerv2',
+    'listenerv2',
+    'poolv2',
+    'memberv2',
+    'healthmonitorv2',
+]:
+    ops = ['create', 'update', 'delete']
+    if resource == 'loadbalancerv2':
+        ops += ['refresh', 'stats']
+    for op in ops:
+        method = op + '_' + resource
+        f = _build_func(method)
+        unbound = utils.unboundmethod(f, MidonetApiClient)
+        setattr(MidonetApiClient, method, unbound)

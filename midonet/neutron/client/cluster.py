@@ -190,4 +190,4 @@ class MidonetClusterClient(base.MidonetClientBase):
         task.create_task(context, task.DELETE, data_type=task.HEALTH_MONITOR,
                          resource_id=health_monitor_id)
 
-    # REVISIT(yamamoto): recent additions, including QoS
+    # REVISIT(yamamoto): recent additions, including QoS, lbaasv2
