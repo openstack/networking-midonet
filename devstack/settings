@@ -77,9 +77,6 @@ if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
         NETWORK_API_EXTENSIONS+=,fwaas,fwaasrouterinsertion
     fi
 fi
-if is_service_enabled q-lbaas q-lbaasv1; then
-    NETWORK_API_EXTENSIONS+=,lbaas
-fi
 if is_service_enabled neutron-vpnaas; then
     NETWORK_API_EXTENSIONS+=,vpnaas
 fi

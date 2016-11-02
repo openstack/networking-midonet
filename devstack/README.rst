@@ -120,17 +120,6 @@ in ``local.conf``::
     FWAAS_PLUGIN=midonet_firewall
 
 
-LBaaS
------
-
-MidoNet plugin implements LBaaS v1 following the advanced service driver model.
-To configure MidoNet as the LBaaS driver when running devstack, make sure the
-following is defined in ``local.conf`` together with enabling q-lbaasv1 service::
-
-    enable_plugin neutron-lbaas https://github.com/openstack/neutron-lbaas
-    NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default"
-
-
 VPNaaS
 ------
 

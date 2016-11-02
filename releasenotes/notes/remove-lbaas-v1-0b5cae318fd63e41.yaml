@@ -1,0 +1,5 @@
+---
+upgrade:
+  - LBaaS v1 support has been removed.  No upgrade path is currently available.
+deprecations:
+  - LBaaS v1 support has been removed.

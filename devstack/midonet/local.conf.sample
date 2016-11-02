@@ -7,10 +7,6 @@
 Q_PLUGIN=midonet
 enable_plugin networking-midonet http://github.com/openstack/networking-midonet.git
 
-# Load the devstack plugin for neutron-lbaas
-NEUTRON_LBAAS_SERVICE_PROVIDERV1="LOADBALANCER:Midonet:midonet.neutron.services.loadbalancer.driver.MidonetLoadbalancerDriver:default"
-enable_plugin neutron-lbaas https://github.com/openstack/neutron-lbaas
-
 # Set all the passwords
 DATABASE_PASSWORD=midonet
 RABBIT_PASSWORD=midonet
@@ -18,13 +14,13 @@ SERVICE_TOKEN=midonet
 SERVICE_PASSWORD=midonet
 ADMIN_PASSWORD=midonet
 
-# Enable keystone, nova, glance and neutron (w/ lbaas)
+# Enable keystone, nova, glance and neutron
 # Also enable tempest since it's useful for CI and local dev
 ENABLED_SERVICES=rabbit,mysql,key
 ENABLED_SERVICES+=,n-api,n-crt,n-obj,n-cpu,n-cond,n-sch
 ENABLED_SERVICES+=,g-api,g-reg
 ENABLED_SERVICES+=,q-svc,q-dhcp,q-meta,neutron
-ENABLED_SERVICES+=,q-lbaasv1,q-fwaas
+ENABLED_SERVICES+=,q-fwaas
 ENABLED_SERVICES+=,tempest
 ENABLED_SERVICES+=,horizon
 ENABLED_SERVICES+=,n-novnc,n-cauth
