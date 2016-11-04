@@ -127,7 +127,11 @@ if [[ "$1" == "stack" ]]; then
             # Create symbolic links for logs so that they will be
             # gathered on gate.
             ln -sf /var/log/midolman/midolman.log ${LOGDIR}
+            ln -sf /var/log/midolman/minions.log ${LOGDIR}
+            ln -sf /var/log/midolman/minions-stderr.log ${LOGDIR}
+            ln -sf /var/log/midolman/upstart-stderr.log ${LOGDIR}
             ln -sf /var/log/midonet-cluster/midonet-cluster.log ${LOGDIR}
+            ln -sf /var/log/midonet-cluster/upstart-stderr.log ${LOGDIR}
             $ABSOLUTE_PATH/midonet-pkg/configure_and_start_midonet.sh
         else
             $MIDONET_DIR/tools/devmido/mido.sh
