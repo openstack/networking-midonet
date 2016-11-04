@@ -134,6 +134,8 @@ if [[ "$1" == "stack" ]]; then
             ln -sf /var/log/midonet-cluster/upstart-stderr.log ${LOGDIR}
             $ABSOLUTE_PATH/midonet-pkg/configure_and_start_midonet.sh
         else
+            ln -sf /var/log/midolman/minions/minions.log ${LOGDIR}
+            ln -sf /var/log/midolman/minions/minions-stderr.log ${LOGDIR}
             $MIDONET_DIR/tools/devmido/mido.sh
 
             # Set log level to DEBUG.
