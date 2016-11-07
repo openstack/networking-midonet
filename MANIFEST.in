@@ -12,6 +12,7 @@ include midonet/neutron/db/migration/alembic_migration/script.py.mako
 
 recursive-include midonet/neutron/db/migration/alembic_migration/versions *
 recursive-include doc/source *
+recursive-include api-ref/source *
 
 exclude .gitignore
 exclude .gitreview
