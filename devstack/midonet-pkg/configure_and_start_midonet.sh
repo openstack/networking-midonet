@@ -166,6 +166,8 @@ configure_mn "cassandra.servers" "127.0.0.1"
 
 MIDOLMAN_ENV_FILE='/etc/midolman/midolman-env.sh'
 sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1256M/' $MIDOLMAN_ENV_FILE
+MINIONS_ENV_FILE='/etc/midolman/minions-env.sh'
+sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1128M/' $MINIONS_ENV_FILE
 
 sudo service midolman restart
 
