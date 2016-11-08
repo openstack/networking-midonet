@@ -23,12 +23,14 @@ MIDONET_DEB_COMPONENT=$3
 
 # Configure DataStax repository
 
-cat > /etc/apt/sources.list.d/datastax.list <<EOL
+if [ "${MIDONET_USE_CASSANDRA}" = True ]; then
+    cat > /etc/apt/sources.list.d/datastax.list <<EOL
 # DataStax (Apache Cassandra)
 deb http://debian.datastax.com/community 2.2 main
 EOL
 
-curl -L https://debian.datastax.com/debian/repo_key | apt-key add -
+    curl -L https://debian.datastax.com/debian/repo_key | apt-key add -
+fi
 
 # Configure Java 8 repository
 

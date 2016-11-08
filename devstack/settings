@@ -16,6 +16,10 @@ MIDONET_DIR=${MIDONET_DIR:-$DEST/midonet}
 # This flag indicates to the MidoNet agent to use ZOOM (MN v2)
 MIDONET_USE_ZOOM=${MIDONET_USE_ZOOM:-True}
 
+# Set up cassndra (for flow state etc)
+# Ignored if MIDONET_USE_PACKAGE!=True
+MIDONET_USE_CASSANDRA=${MIDONET_USE_CASSANDRA:-False}
+
 # Use uplink network for "fake" uplink
 # MIDONET_USE_UPLINK=False is incompatible with MIDONET_USE_PACKAGE=True
 MIDONET_USE_UPLINK=${MIDONET_USE_UPLINK:-True}

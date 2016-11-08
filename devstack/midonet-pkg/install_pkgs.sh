@@ -29,9 +29,15 @@ export DEBIAN_FRONTEND
 apt-get install -y --no-install-recommends --no-install-suggests \
     openjdk-8-jre-headless
 
+if [ "${MIDONET_USE_CASSANDRA}" = True ]; then
+    CASSANDRA_PKG=dsc22
+else
+    CASSANDRA_PKG=
+fi
+
 apt-get install -y --no-install-recommends --no-install-suggests \
     zookeeperd \
-    dsc22 \
+    ${CASSANDRA_PKG} \
     midonet-tools \
     midonet-cluster \
     midolman \
