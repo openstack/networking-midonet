@@ -16,6 +16,7 @@
 #    under the License.
 
 # https://docs.midonet.org/docs/latest-en/quick-start-guide/ubuntu-1404_liberty/content/_repository_configuration.html
+# https://docs.midonet.org/docs/latest-en/quick-start-guide/ubuntu-1604_mitaka/content/_repository_configuration.html
 
 MIDONET_DEB_URI=$1
 MIDONET_DEB_SUITE=$2
@@ -34,12 +35,14 @@ fi
 
 # Configure Java 8 repository
 
-cat > /etc/apt/sources.list.d/openjdk-8.list <<EOL
+if [ "$(lsb_release -c -s)" = "trusty" ]; then
+    cat > /etc/apt/sources.list.d/openjdk-8.list <<EOL
 # OpenJDK 8
 deb http://ppa.launchpad.net/openjdk-r/ppa/ubuntu trusty main
 EOL
 
-apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0x86F44E2A
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0x86F44E2A
+fi
 
 # Configure MidoNet repositories
 
