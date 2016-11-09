@@ -16,6 +16,17 @@
 
 job=$1
 
+GATE_DEST=$BASE/new
+GATE_HOOKS=$GATE_DEST/networking-midonet/devstack/ci/hooks
+DEVSTACK_PATH=$GATE_DEST/devstack
+LOCAL_CONF=$DEVSTACK_PATH/local.conf
+
+# Inject config from hook into local.conf
+function load_conf_hook {
+    local hook="$1"
+    cat $GATE_HOOKS/$hook >> $LOCAL_CONF
+}
+
 case $job in
     v1)
         # Note the actual url here is somewhat irrelevant because it
@@ -190,5 +201,7 @@ export DEVSTACK_LOCAL_CONFIG+=$'\n'"LOGDIR=$BASE/new/screen-logs"
 
 # Use fernet tokens
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"KEYSTONE_TOKEN_FORMAT=fernet"
+
+load_conf_hook quotas
 
 $BASE/new/devstack-gate/devstack-vm-gate.sh
