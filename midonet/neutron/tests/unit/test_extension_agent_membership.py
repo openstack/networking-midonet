@@ -14,13 +14,13 @@
 #    under the License.
 
 import contextlib
-import uuid
 import webob.exc
 
 from midonet.neutron.extensions import agent_membership as ext_am
 from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 from neutron.tests.unit.api import test_extensions as test_ex
+
 from oslo_utils import uuidutils
 
 FAKE_AGENT_ID = uuidutils.generate_uuid()
@@ -48,7 +48,7 @@ class AgentMembershipTestCase(test_mn.MidonetPluginV2TestCase):
 
     def _create_agent_membership(self, agent_id, ip_address):
         data = {'agent_membership': {'id': agent_id,
-                                     'tenant_id': str(uuid.uuid4()),
+                                     'tenant_id': uuidutils.generate_uuid(),
                                      'ip_address': ip_address}}
         am_req = self.new_create_request('agent_memberships', data, self.fmt)
         return am_req.get_response(self.ext_api)

@@ -13,11 +13,11 @@
 #    under the License.
 
 import datetime
-import uuid
 
 from neutron_lib.db import model_base
 from oslo_log import log as logging
 from oslo_serialization import jsonutils
+from oslo_utils import uuidutils
 import sqlalchemy as sa
 
 import midonet.neutron.db.data_state_db as ds_db
@@ -120,7 +120,7 @@ def create_config_task(session, data):
                   data_type=CONFIG,
                   data=jsonutils.dumps(data),
                   resource_id=data['id'],
-                  transaction_id=str(uuid.uuid4()))
+                  transaction_id=uuidutils.generate_uuid())
         session.add(db)
 
 

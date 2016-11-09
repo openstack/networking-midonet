@@ -14,7 +14,6 @@
 #    under the License.
 
 import contextlib
-import uuid
 import webob.exc
 
 from midonet.neutron.common import constants as m_const
@@ -28,6 +27,8 @@ from neutron_dynamic_routing.extensions import bgp
 from neutron.tests.unit.api import test_extensions as test_ex
 from neutron.tests.unit.extensions import test_extraroute
 from neutron.tests.unit.extensions import test_l3
+
+from oslo_utils import uuidutils
 
 FAKE_SPEAKER_NAME = "bgp_spaeker_1"
 FAKE_LOCAL_AS = 65000
@@ -94,10 +95,10 @@ class BgpTestCase(test_l3.L3NatTestCaseMixin,
         port = self._make_port(self.fmt, network['network']['id'])
         self._port_id = port['port']['id']
         self._port_fixed_ip = port['port']['fixed_ips'][0]['ip_address']
-        router1 = self._make_router(self.fmt, str(uuid.uuid4()),
+        router1 = self._make_router(self.fmt, uuidutils.generate_uuid(),
                                     'router1', True)
         self._router_id = router1['router']['id']
-        router2 = self._make_router(self.fmt, str(uuid.uuid4()),
+        router2 = self._make_router(self.fmt, uuidutils.generate_uuid(),
                                     'router2', True)
         self._router_id2 = router2['router']['id']
         self._router_interface_action('add', self._router_id, self._subnet_id,
@@ -116,7 +117,7 @@ class BgpTestCase(test_l3.L3NatTestCaseMixin,
         self._ext_subnet = self._make_subnet(self.fmt, ext_net, "100.65.0.1",
                                             '100.65.0.0/24')
         self._ext_subnet_id = self._ext_subnet['subnet']['id']
-        edge_router = self._make_router(self.fmt, str(uuid.uuid4()),
+        edge_router = self._make_router(self.fmt, uuidutils.generate_uuid(),
                                         'edge_router', True)
         self._edge_router_id = edge_router['router']['id']
         self._router_interface_action('add', self._edge_router_id,
@@ -149,7 +150,7 @@ class BgpTestCase(test_l3.L3NatTestCaseMixin,
 
     def _create_bgp_speaker(self, name=FAKE_SPEAKER_NAME,
                             local_as=FAKE_LOCAL_AS, router_id=None):
-        data = {'bgp_speaker': {'tenant_id': str(uuid.uuid4()),
+        data = {'bgp_speaker': {'tenant_id': uuidutils.generate_uuid(),
                                 'name': name,
                                 'local_as': local_as,
                                 'ip_version': 4}}
@@ -162,7 +163,7 @@ class BgpTestCase(test_l3.L3NatTestCaseMixin,
     def _create_bgp_peer(self, name=FAKE_PEER_NAME, peer_ip=FAKE_PEER_IP,
                          remote_as=FAKE_REMOTE_AS,
                          auth_type=AUTH_TYPE_MD5):
-        data = {'bgp_peer': {'tenant_id': str(uuid.uuid4()),
+        data = {'bgp_peer': {'tenant_id': uuidutils.generate_uuid(),
                              'name': name,
                              'peer_ip': peer_ip,
                              'remote_as': remote_as,

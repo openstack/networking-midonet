@@ -14,7 +14,6 @@
 #    under the License.
 
 import contextlib
-import uuid
 import webob.exc
 
 from midonet.neutron import extensions as midoextensions
@@ -23,6 +22,8 @@ from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
 from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 from neutron.tests.unit.api import test_extensions as test_ex
 from neutron.tests.unit.extensions import test_l3
+
+from oslo_utils import uuidutils
 
 FAKE_MANAGEMENT_IP = '10.0.0.3'
 FAKE_MANAGEMENT_PORT = 5672
@@ -37,7 +38,7 @@ FAKE_VTEP_ADDRESS2 = '10.1.0.4'
 FAKE_SEG_ID = 1000
 FAKE_TUNNEL_IP = '10.2.0.3'
 FAKE_TUNNEL_IP2 = '10.2.0.4'
-FAKE_TENANT_ID = str(uuid.uuid4())
+FAKE_TENANT_ID = uuidutils.generate_uuid()
 
 DB_GATEWAY_DEVICE_PLUGIN_KLASS = 'midonet_gwdevice'
 extensions_path = ':'.join(midoextensions.__path__)
@@ -181,11 +182,11 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
         self._subnet = self._make_subnet(self.fmt, network, "10.0.0.1",
                                          '10.0.0.0/24')
         self._subnet_id = self._subnet['subnet']['id']
-        router1 = self._make_router(self.fmt, str(uuid.uuid4()),
+        router1 = self._make_router(self.fmt, uuidutils.generate_uuid(),
                                     'router1', True)
         self._router_id = router1['router']['id']
 
-        router2 = self._make_router(self.fmt, str(uuid.uuid4()),
+        router2 = self._make_router(self.fmt, uuidutils.generate_uuid(),
                                     'router2', True)
         self._router_id_in_use = router2['router']['id']
         self._router_interface_action('add', self._router_id_in_use,

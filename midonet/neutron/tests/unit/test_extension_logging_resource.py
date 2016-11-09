@@ -14,7 +14,6 @@
 #    under the License.
 
 import contextlib
-import uuid
 import webob.exc
 
 from midonet.neutron import extensions as midoextensions
@@ -23,6 +22,8 @@ from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 from neutron.tests.unit.api import test_extensions as test_ex
 from neutron.tests.unit.extensions import test_l3
 from neutron_fwaas.tests.unit.services.firewall import test_fwaas_plugin as tfp
+
+from oslo_utils import uuidutils
 
 
 LOGGING_PLUGIN_KLASS = 'midonet_logging_resource'
@@ -70,14 +71,14 @@ class LoggingResourceTestCase(test_l3.L3NatTestCaseMixin,
                         ext_mgr=log_res_mgr)
         self.ext_api = test_ex.setup_extensions_middleware(log_res_mgr)
 
-        router1 = self._make_router(self.fmt, str(uuid.uuid4()),
+        router1 = self._make_router(self.fmt, uuidutils.generate_uuid(),
                                     'router1', True)
         self._router_id1 = router1['router']['id']
-        router2 = self._make_router(self.fmt, str(uuid.uuid4()),
+        router2 = self._make_router(self.fmt, uuidutils.generate_uuid(),
                                     'router2', True)
         self._router_id2 = router2['router']['id']
-        self._tenant_id1 = str(uuid.uuid4())
-        self._tenant_id2 = str(uuid.uuid4())
+        self._tenant_id1 = uuidutils.generate_uuid()
+        self._tenant_id2 = uuidutils.generate_uuid()
         fw1 = self._create_firewall(self._tenant_id1)
         self._fw_id1 = fw1['firewall']['id']
         fw2 = self._create_firewall(self._tenant_id1)
