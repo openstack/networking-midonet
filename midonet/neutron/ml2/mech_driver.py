@@ -16,7 +16,6 @@
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 
-from neutron.common import constants
 from neutron.services.qos import qos_consts
 
 from midonet.neutron._i18n import _
@@ -180,7 +179,7 @@ class MidonetMechanismDriver(api.MechanismDriver):
                 context.set_binding(segment[api.ID],
                                     self.vif_type,
                                     self.vif_details,
-                                    constants.PORT_STATUS_ACTIVE)
+                                    n_const.PORT_STATUS_ACTIVE)
                 break
             else:
                 LOG.debug(('midonet mechanism driver did NOT bind '

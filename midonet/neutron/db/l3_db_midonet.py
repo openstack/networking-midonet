@@ -181,15 +181,12 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
         next_hop = None
         if router_id:
             next_hop = self.find_next_hop_for_fip(context, floatingip_db)
-        args = {'fixed_ip_address': internal_ip_address,
+        return {'fixed_ip_address': internal_ip_address,
                 'fixed_port_id': port_id,
                 'router_id': router_id,
                 'last_known_router_id': previous_router_id,
                 'floating_ip_address': floatingip_db.floating_ip_address,
                 'floating_network_id': floatingip_db.floating_network_id,
+                'floating_ip_id': floatingip_db.id,
                 'next_hop': next_hop,
                 'context': context}
-        registry.notify(resources.FLOATING_IP,
-                        events.AFTER_UPDATE,
-                        self._update_fip_assoc,
-                        **args)

@@ -23,6 +23,7 @@ from neutron.api.v2 import base
 from neutron.api.v2 import resource_helper
 from neutron import manager
 from neutron.quota import resource_registry
+from neutron_lib.api import converters
 from neutron_lib import exceptions as nexception
 from oslo_config import cfg
 import six
@@ -76,7 +77,7 @@ RESOURCE_ATTRIBUTE_MAP = {
             'default': '', 'is_visible': True},
         'enabled': {'allow_post': True, 'allow_put': True,
                     'is_visible': True, 'default': False,
-                    'convert_to': attr.convert_to_boolean},
+                    'convert_to': converters.convert_to_boolean},
         'firewall_logs': {'allow_post': False, 'allow_put': False,
                           'is_visible': True}
     }

@@ -15,10 +15,11 @@
 
 from oslo_log import log as logging
 
+from neutron_lib import constants as n_const
+
 from neutron.agent.linux import interface as n_interface
 from neutron.agent.linux import ip_lib
 from neutron.agent.linux import utils
-from neutron.common import constants as n_const
 
 from midonet.neutron._i18n import _LE, _LW
 
