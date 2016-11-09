@@ -62,7 +62,7 @@ IP_VERSION=4
 IPV6_ENABLED=False
 
 NETWORK_API_EXTENSIONS=agent,binding,dhcp_agent_scheduler,external-net
-NETWORK_API_EXTENSIONS+=,ext-gw-mode,extra_dhcp_opts,quotas,router
+NETWORK_API_EXTENSIONS+=,ext-gw-mode,extra_dhcp_opt,quotas,router
 NETWORK_API_EXTENSIONS+=,security-group,subnet_allocation
 NETWORK_API_EXTENSIONS+=,network-ip-availability,auto-allocated-topology
 NETWORK_API_EXTENSIONS+=,timestamp_core,tag,service-type,rbac-policies
