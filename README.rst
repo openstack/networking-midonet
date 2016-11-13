@@ -238,10 +238,9 @@ QoS
 ---
 
 With the latest development version of MidoNet,
-ML2 plugin with MidoNet mechansim driver supports Neutron QoS extension.
+networking-midonet supports Neutron QoS extension.
 
-Note: MidoNet monolithic plugins (either v1 or v2) do not support QoS
-core resource extension.
+Note: MidoNet v1 plugin does not support QoS core resource extension.
 
 QoS service plugin
 ~~~~~~~~~~~~~~~~~~
@@ -255,14 +254,19 @@ file `/etc/neutron/neutron.conf`::
     [qos]
     notification_drivers = midonet
 
-QoS core resource extension
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+QoS core resource extension for ML2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 QoS core resource extension for ML2 plugin can be configured in the
 Neutron server configuration file `/etc/neutron/neutron.conf`::
 
     [ml2]
     extension_drivers = qos
+
+QoS core resource extension for v2 plugin
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+No configuration is necessary.
 
 
 Horizon

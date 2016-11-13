@@ -21,9 +21,12 @@ from midonet.neutron.common import utils as c_utils
 from midonet.neutron.db import agent_membership_db as am_db
 from midonet.neutron.db import port_binding_db as pb_db
 from midonet.neutron.db import provider_network_db as pnet_db
+from midonet.neutron.midonet_v2 import managers
 from midonet.neutron import plugin
+from neutron.api.v2 import attributes
 from neutron.db import allowedaddresspairs_db as addr_pair_db
 from neutron.db import api as db_api
+from neutron.db import db_base_plugin_v2
 from neutron.db import portsecurity_db as ps_db
 from neutron.extensions import allowedaddresspairs as addr_pair
 from neutron.extensions import extra_dhcp_opt as edo_ext
@@ -32,6 +35,7 @@ from neutron.extensions import providernet as pnet
 from neutron.extensions import securitygroup as ext_sg
 from neutron import manager
 from neutron.plugins.common import constants as service_constants
+from neutron.services.qos import qos_consts
 from oslo_db import exception as oslo_db_exc
 from oslo_log import log as logging
 from oslo_utils import excutils
@@ -53,7 +57,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
     # alternative metadata proxy which doesn't require Neutron agents.
     # NOTE(yamamoto): While the order in this list doesn't matter
     # functionality-wise, it's alphabetically sorted for easier comparison.
-    supported_extension_aliases = [
+    _base_supported_extension_aliases = [
         'agent',
         'agent-membership',
         'allowed-address-pairs',
@@ -68,11 +72,26 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         'subnet_allocation',
     ]
 
+    @property
+    def supported_extension_aliases(self):
+        if not hasattr(self, '_aliases'):
+            aliases = self._base_supported_extension_aliases
+            aliases += self.extension_manager.extension_aliases()
+            self._aliases = aliases
+        return self._aliases
+
     __native_bulk_support = True
     __native_pagination_support = True
     __native_sorting_support = True
 
+    supported_qos_rule_types = [
+        qos_consts.RULE_TYPE_BANDWIDTH_LIMIT,
+        qos_consts.RULE_TYPE_DSCP_MARKING,
+    ]
+
     def __init__(self):
+        self.extension_manager = managers.ExtensionManager()
+        self.extension_manager.initialize()
         super(MidonetPluginV2, self).__init__()
         self.client.initialize()
 
@@ -88,6 +107,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             net_db = self.create_network_db(context, network)
             net = self._make_network_dict(net_db, process_extensions=False,
                                           context=context)
+            self.extension_manager.process_create_network(context, net_data,
+                                                          net)
             net_data['id'] = net['id']
             self._process_l3_create(context, net, net_data)
             self._create_provider_network(context, net_data)
@@ -153,6 +174,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         with context.session.begin(subtransactions=True):
             net = super(MidonetPluginV2, self).update_network(
                 context, id, network)
+            self.extension_manager.process_update_network(context, net_data,
+                                                          net)
             self._process_l3_update(context, net, network['network'])
             self._extend_provider_network_dict(context, net)
             if psec.PORTSECURITY in network['network']:
@@ -197,6 +220,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
 
         with context.session.begin(subtransactions=True):
             s = super(MidonetPluginV2, self).create_subnet(context, subnet)
+            self.extension_manager.process_create_subnet(context,
+                subnet['subnet'], s)
             self.client.create_subnet_precommit(context, s)
 
         try:
@@ -229,6 +254,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
 
         with context.session.begin(subtransactions=True):
             s = super(MidonetPluginV2, self).update_subnet(context, id, subnet)
+            self.extension_manager.process_update_subnet(context,
+                subnet['subnet'], s)
             # NOTE(yamamoto): Retrieve the db object to get the correct
             # revision
             context.session.flush()
@@ -254,6 +281,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             # Create a Neutron port
             port_db = self.create_port_db(context, port)
             new_port = self._make_port_dict(port_db, process_extensions=False)
+            self.extension_manager.process_create_port(context, port_data,
+                                                       new_port)
 
             # Do not create a gateway port if it has no IP address assigned as
             # MidoNet does not yet handle this case.
@@ -361,6 +390,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             original_port = super(MidonetPluginV2, self).get_port(context, id)
             p = super(MidonetPluginV2, self).update_port(context, id, port)
             c_utils.check_update_port(original_port, p)
+            self.extension_manager.process_update_port(context, port['port'],
+                                                       p)
 
             has_sg = self._check_update_has_security_groups(port)
             delete_sg = self._check_update_deletes_security_groups(port)
@@ -616,3 +647,26 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         if not agent:
             agent = super(MidonetPluginV2, self).get_agent(context, id, fields)
         return agent
+
+    def _midonet_v2_extend_network_dict(self, result, netdb):
+        session = db_api.get_session()
+        with session.begin(subtransactions=True):
+            self.extension_manager.extend_network_dict(session, netdb, result)
+
+    def _midonet_v2_extend_port_dict(self, result, portdb):
+        session = db_api.get_session()
+        with session.begin(subtransactions=True):
+            self.extension_manager.extend_port_dict(session, portdb, result)
+
+    def _midonet_v2_extend_subnet_dict(self, result, subnetdb):
+        session = db_api.get_session()
+        with session.begin(subtransactions=True):
+            self.extension_manager.extend_subnet_dict(
+                session, subnetdb, result)
+
+    db_base_plugin_v2.NeutronDbPluginV2.register_dict_extend_funcs(
+               attributes.NETWORKS, ['_midonet_v2_extend_network_dict'])
+    db_base_plugin_v2.NeutronDbPluginV2.register_dict_extend_funcs(
+               attributes.PORTS, ['_midonet_v2_extend_port_dict'])
+    db_base_plugin_v2.NeutronDbPluginV2.register_dict_extend_funcs(
+               attributes.SUBNETS, ['midonet_v2_extend_subnet_dict'])

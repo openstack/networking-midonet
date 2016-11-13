@@ -53,3 +53,7 @@ function neutron_plugin_check_adv_test_requirements {
 function configure_neutron_midonet {
     :
 }
+
+function configure_qos_midonet {
+    :
+}
