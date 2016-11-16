@@ -18,8 +18,8 @@ from midonet.neutron.client import base as c_base
 from midonet.neutron.common import constants as midonet_const
 from midonet.neutron.db import logging_resource_db as log_res_db
 
-from neutron import manager
 from neutron.plugins.common import constants as const
+from neutron_lib.plugins import directory
 
 from oslo_config import cfg
 from oslo_log import helpers as log_helpers
@@ -169,8 +169,7 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
     def _make_info_for_midonet(self, context, f_log, logging_resource_id):
         f_log_info = f_log.copy()
         # Get firewall and logging resource object for backend.
-        fw_plugin = manager.NeutronManager.get_service_plugins().get(
-            const.FIREWALL)
+        fw_plugin = directory.get_plugin(const.FIREWALL)
         f_log_info['firewall'] = fw_plugin.get_firewall(
             context, f_log_info['firewall_id'], fields=['id', 'tenant_id'])
         f_log_info['logging_resource'] = self.get_logging_resource(

@@ -23,6 +23,7 @@ import testtools
 from webob import exc
 
 from neutron_lib import constants as n_const
+from neutron_lib.plugins import directory
 
 from midonet.neutron.common import constants as m_const
 from midonet.neutron.db import data_state_db
@@ -35,7 +36,6 @@ from neutron.extensions import portbindings
 from neutron.extensions import portsecurity as psec
 from neutron.extensions import providernet as pnet
 from neutron.extensions import securitygroup as sg
-from neutron import manager
 from neutron.plugins.common import constants as p_const
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 from neutron.tests.unit.api import test_extensions
@@ -422,9 +422,8 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
 
         with self.port() as port, self.router() as router:
             ctx = context.get_admin_context()
-            plugin = manager.NeutronManager.get_plugin()
-            l3_plugin = manager.NeutronManager.get_service_plugins().get(
-                p_const.L3_ROUTER_NAT)
+            plugin = directory.get_plugin()
+            l3_plugin = directory.get_plugin(n_const.L3)
             router_id = router['router']['id']
             port_id = port['port']['id']
             interface_info = {
@@ -780,7 +779,7 @@ class TestMidonetPortSecurityKludge(MidonetPluginV2TestCase):
 
     def test_get_network(self):
         ctx = context.get_admin_context()
-        plugin = manager.NeutronManager.get_plugin()
+        plugin = directory.get_plugin()
         with self._do_mock(plugin), self.network() as net:
             pass
         net2 = plugin.get_network(ctx, net['network']['id'])
@@ -788,7 +787,7 @@ class TestMidonetPortSecurityKludge(MidonetPluginV2TestCase):
 
     def test_get_port(self):
         ctx = context.get_admin_context()
-        plugin = manager.NeutronManager.get_plugin()
+        plugin = directory.get_plugin()
         with self._do_mock(plugin), self.port() as port:
             pass
         port2 = plugin.get_port(ctx, port['port']['id'])
@@ -796,7 +795,7 @@ class TestMidonetPortSecurityKludge(MidonetPluginV2TestCase):
 
     def test_update_network(self):
         ctx = context.get_admin_context()
-        plugin = manager.NeutronManager.get_plugin()
+        plugin = directory.get_plugin()
         with self._do_mock(plugin), self.port() as port:
             pass
         net2 = plugin.update_network(ctx, port['port']['network_id'],
@@ -807,7 +806,7 @@ class TestMidonetPortSecurityKludge(MidonetPluginV2TestCase):
 
     def test_update_port(self):
         ctx = context.get_admin_context()
-        plugin = manager.NeutronManager.get_plugin()
+        plugin = directory.get_plugin()
         with self._do_mock(plugin), self.port() as port:
             pass
         port2 = plugin.update_port(ctx, port['port']['id'],

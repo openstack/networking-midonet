@@ -16,6 +16,7 @@
 import abc
 
 from neutron_lib import exceptions as nexception
+from neutron_lib.plugins import directory
 
 from midonet.neutron._i18n import _
 from midonet.neutron.common import constants
@@ -23,7 +24,6 @@ from neutron.api import extensions
 from neutron.api.v2 import attributes as attr
 from neutron.api.v2 import base
 from neutron.api.v2 import resource_helper
-from neutron import manager
 from oslo_log import log as logging
 import six
 
@@ -230,8 +230,7 @@ class Gateway_device(extensions.ExtensionDescriptor):
             plural_mappings,
             RESOURCE_ATTRIBUTE_MAP,
             constants.GATEWAY_DEVICE)
-        plugin = manager.NeutronManager.get_service_plugins()[
-            constants.GATEWAY_DEVICE]
+        plugin = directory.get_plugin(constants.GATEWAY_DEVICE)
 
         for collection_name in SUB_RESOURCE_ATTRIBUTE_MAP:
             # Special handling needed for sub-resources with 'y' ending

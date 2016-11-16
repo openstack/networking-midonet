@@ -212,6 +212,9 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
     @log_helpers.log_method_call
     def create_floatingip(self, context, floatingip):
         with context.session.begin(subtransactions=True):
+            # REVISIT(yamamoto): This should not call create_port inside
+            # of a transaction.
+            setattr(context, 'GUARD_TRANSACTION', False)
             fip = super(MidonetL3ServicePlugin, self).create_floatingip(
                 context, floatingip)
             self.client.create_floatingip_precommit(context, fip)

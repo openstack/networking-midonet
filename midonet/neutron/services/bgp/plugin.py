@@ -23,8 +23,8 @@ from neutron_dynamic_routing import extensions as bgp_extensions
 from neutron_dynamic_routing.extensions import bgp
 
 from neutron.api import extensions as neutron_extensions
-from neutron import manager
 from neutron_lib import exceptions as nexception
+from neutron_lib.plugins import directory
 
 from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
@@ -225,7 +225,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
                 raise bsri.BgpSpeakerInUse(
                     id=bgp_speaker_id,
                     reason='is already associated with router.')
-            core_plugin = manager.NeutronManager.get_plugin()
+            core_plugin = directory.get_plugin()
             if not core_plugin._network_is_external(
                     context, network_info['network_id']):
                 raise bsri.NetworkTypeInvalid()

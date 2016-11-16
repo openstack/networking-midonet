@@ -21,6 +21,7 @@ import testtools
 from webob import exc
 
 from neutron_lib import constants as n_const
+from neutron_lib.plugins import directory
 
 from midonet.neutron.client import base as cli_base
 # Import all data models
@@ -28,8 +29,6 @@ from midonet.neutron.common import config  # noqa
 from midonet.neutron.db.migration.models import head  # noqa
 
 from neutron import context
-from neutron import manager
-from neutron.plugins.common import constants as p_const
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_plugin
 from neutron.tests.unit.extensions import test_extra_dhcp_opt as test_dhcpopts
 from neutron.tests.unit.extensions import test_l3
@@ -236,9 +235,8 @@ class TestMidonetL3NatDBIntTest(test_l3.L3NatDBIntTestCase,
 
         with self.port() as port, self.router() as router:
             ctx = context.get_admin_context()
-            plugin = manager.NeutronManager.get_plugin()
-            l3_plugin = manager.NeutronManager.get_service_plugins().get(
-                p_const.L3_ROUTER_NAT)
+            plugin = directory.get_plugin()
+            l3_plugin = directory.get_plugin(n_const.L3)
             router_id = router['router']['id']
             port_id = port['port']['id']
             interface_info = {

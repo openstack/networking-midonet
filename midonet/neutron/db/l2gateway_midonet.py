@@ -21,15 +21,14 @@ from networking_l2gw.db.l2gateway import l2gateway_models as models
 from networking_l2gw.services.l2gateway.common import constants
 from networking_l2gw.services.l2gateway import exceptions as l2gw_exc
 from neutron.api import extensions as neutron_extensions
-from neutron import manager
+from neutron_lib.plugins import directory
 
 
 class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
     # Override L2GatewayMixin to customize for Midonet L2GW
 
     def _check_and_get_gw_dev_service(self):
-        gw_plugin = manager.NeutronManager.get_service_plugins().get(
-            midonet_const.GATEWAY_DEVICE)
+        gw_plugin = directory.get_plugin(midonet_const.GATEWAY_DEVICE)
         if not gw_plugin:
             raise exceptions.MidonetL2GatewayUnavailable()
         return gw_plugin
@@ -85,8 +84,8 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
     def get_gateway_device_type_from_l2gw(self, context, l2gw):
         gw_id = (l2gw['devices'][0].get('device_id')) or (
                      l2gw['devices'][0].get('device_name'))
-        gw_db = manager.NeutronManager.get_service_plugins().get(
-            midonet_const.GATEWAY_DEVICE).get_gateway_device(context, gw_id)
+        gw_db = (directory.get_plugin(midonet_const.GATEWAY_DEVICE).
+                 get_gateway_device(context, gw_id))
         return gw_db['type']
 
     def create_l2_gateway(self, context, l2_gateway):

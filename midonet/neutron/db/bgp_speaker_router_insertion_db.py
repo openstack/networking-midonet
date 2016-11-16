@@ -18,12 +18,12 @@ from midonet.neutron.extensions import bgp_speaker_router_insertion as bsri
 
 from neutron_dynamic_routing.db import bgp_db as bdb
 from neutron_dynamic_routing.extensions import bgp as bgp_ext
+from neutron_lib.plugins import directory
 
 from neutron.callbacks import events
 from neutron.callbacks import registry
 from neutron.callbacks import resources
 from neutron.extensions import l3
-from neutron import manager
 from oslo_db import exception as db_exc
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
@@ -96,7 +96,7 @@ class BgpSpeakerRouterInsertionDbMixin(object):
         and a router is associated with the second subnet. The case is
         a restriction for user and should be improved later.
         """
-        core_plugin = manager.NeutronManager.get_plugin()
+        core_plugin = directory.get_plugin()
         subnets = core_plugin.get_subnets_by_network(context, net_id)
         if not subnets:
             raise bsri.NoSubnetInNetwork(network_id=net_id)
@@ -132,8 +132,7 @@ class BgpSpeakerRouterInsertionDbMixin(object):
 
 def bgp_speaker_callback(resource, event, trigger, **kwargs):
     router_id = kwargs['router_id']
-    bgp_plugin = manager.NeutronManager.get_service_plugins().get(
-        bgp_ext.BGP_EXT_ALIAS)
+    bgp_plugin = directory.get_plugin(bgp_ext.BGP_EXT_ALIAS)
     if bgp_plugin:
         context = kwargs.get('context')
         if bgp_plugin.get_bgp_speaker_associated_with_router(context,

@@ -16,10 +16,10 @@
 import abc
 
 from neutron_lib import exceptions as nexception
+from neutron_lib.plugins import directory
 
 from neutron.api import extensions
 from neutron.api.v2 import base
-from neutron import manager
 
 from midonet.neutron._i18n import _
 
@@ -81,7 +81,7 @@ class Agent_membership(extensions.ExtensionDescriptor):
     def get_resources(cls):
         """Returns Ext Resources."""
         exts = []
-        plugin = manager.NeutronManager.get_plugin()
+        plugin = directory.get_plugin()
 
         resource_name = AGENT_MEMBERSHIP
         collection_name = AGENT_MEMBERSHIPS

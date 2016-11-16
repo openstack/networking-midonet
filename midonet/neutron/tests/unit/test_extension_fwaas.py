@@ -147,3 +147,6 @@ class FirewallTestCase(tfp.TestFirewallPluginBase,
 
     def test_update_firewall_rule_fails_when_firewall_pending(self):
         pass
+
+    def test_list_firewalls_with_filtering(self):
+        pass

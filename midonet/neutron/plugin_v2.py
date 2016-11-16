@@ -15,6 +15,7 @@
 
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
+from neutron_lib.plugins import directory
 
 from midonet.neutron._i18n import _, _LE, _LW
 from midonet.neutron.common import utils as c_utils
@@ -33,8 +34,6 @@ from neutron.extensions import extra_dhcp_opt as edo_ext
 from neutron.extensions import portsecurity as psec
 from neutron.extensions import providernet as pnet
 from neutron.extensions import securitygroup as ext_sg
-from neutron import manager
-from neutron.plugins.common import constants as service_constants
 from neutron.services.qos import qos_consts
 from oslo_db import exception as oslo_db_exc
 from oslo_log import log as logging
@@ -361,8 +360,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                   "l3_port_check=%(l3_port_check)r",
                   {'id': id, 'l3_port_check': l3_port_check})
 
-        l3plugin = manager.NeutronManager.get_service_plugins().get(
-            service_constants.L3_ROUTER_NAT)
+        l3plugin = directory.get_plugin(n_const.L3)
 
         # if needed, check to see if this is a port owned by
         # and l3-router.  If so, we should prevent deletion.
@@ -425,21 +423,22 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             p = self.get_port(context, id)
             self.client.update_port_precommit(context, id, p)
 
-        # Set status along admin_state_up to update.
-        if p['admin_state_up']:
-            update_status = n_const.PORT_STATUS_ACTIVE
-        else:
-            update_status = n_const.PORT_STATUS_DOWN
-
         try:
             self.client.update_port_postcommit(id, p)
-            data = {'port': {'status': update_status}}
-            new_port = super(MidonetPluginV2, self).update_port(
-                context, id, data)
-            # prevent binding:profile information from lacking
-            p['status'] = new_port['status']
-            if 'revision_number' in new_port:
-                p['revision_number'] = new_port['revision_number']
+            if p['status'] != n_const.PORT_STATUS_NOTAPPLICABLE:
+                # Set status along admin_state_up to update.
+                if p['admin_state_up']:
+                    update_status = n_const.PORT_STATUS_ACTIVE
+                else:
+                    update_status = n_const.PORT_STATUS_DOWN
+
+                data = {'port': {'status': update_status}}
+                new_port = super(MidonetPluginV2, self).update_port(
+                    context, id, data)
+                # prevent binding:profile information from lacking
+                p['status'] = new_port['status']
+                if 'revision_number' in new_port:
+                    p['revision_number'] = new_port['revision_number']
         except Exception as ex:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Failed to update a port %(port_id)s in "

@@ -21,10 +21,10 @@ from neutron.api import extensions
 from neutron.api.v2 import attributes as attr
 from neutron.api.v2 import base
 from neutron.api.v2 import resource_helper
-from neutron import manager
 from neutron.quota import resource_registry
 from neutron_lib.api import converters
 from neutron_lib import exceptions as nexception
+from neutron_lib.plugins import directory
 from oslo_config import cfg
 import six
 
@@ -155,8 +155,7 @@ class Logging_resource(extensions.ExtensionDescriptor):
             plural_mappings,
             RESOURCE_ATTRIBUTE_MAP,
             constants.LOGGING_RESOURCE)
-        plugin = manager.NeutronManager.get_service_plugins()[
-            constants.LOGGING_RESOURCE]
+        plugin = directory.get_plugin(constants.LOGGING_RESOURCE)
 
         for collection_name in SUB_RESOURCE_ATTRIBUTE_MAP:
             resource_name = collection_name[:-1]

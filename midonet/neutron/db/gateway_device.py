@@ -14,16 +14,16 @@
 #    under the License.
 
 from neutron_lib.api import validators
+from neutron_lib import constants
 from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
+from neutron_lib.plugins import directory
 
 from neutron.callbacks import events
 from neutron.callbacks import registry
 from neutron.callbacks import resources
 from neutron.db import common_db_mixin
 from neutron.extensions import l3
-from neutron import manager
-from neutron.plugins.common import constants as service_constants
 from oslo_db import exception as db_exc
 from oslo_utils import uuidutils
 import sqlalchemy as sa
@@ -166,8 +166,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
     def _ensure_gateway_device_not_in_use(self, context, gw_dev_id):
         """Ensure that gateway_device is not in use."""
 
-        l2gw_plugin = manager.NeutronManager.get_service_plugins().get(
-            'L2GW')
+        l2gw_plugin = directory.get_plugin('L2GW')
         if l2gw_plugin:
             if l2gw_plugin._get_l2gw_devices_by_device_id(context, gw_dev_id):
                 raise gw_device_ext.GatewayDeviceInUse(id=gw_dev_id)
@@ -333,8 +332,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
 
     def _validate_resource_router_vtep(self, context, router_id):
         # Check specified router existance
-        l3plugin = manager.NeutronManager.get_service_plugins().get(
-            service_constants.L3_ROUTER_NAT)
+        l3plugin = directory.get_plugin(constants.L3)
 
         try:
             l3plugin.get_router(context, router_id)
@@ -354,7 +352,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
 
     def _validate_resource_vlan_network(self, context, network_id):
         # Check specified netowrk existance
-        core_plugin = manager.NeutronManager.get_plugin()
+        core_plugin = directory.get_plugin()
 
         try:
             core_plugin.get_network(context, network_id)
@@ -507,8 +505,7 @@ def gateway_device_callback(resource, event, trigger, **kwargs):
         resource_type = 'network'
     else:
         return
-    gw_dev_plugin = manager.NeutronManager.get_service_plugins().get(
-        midonet_const.GATEWAY_DEVICE)
+    gw_dev_plugin = directory.get_plugin(midonet_const.GATEWAY_DEVICE)
     if gw_dev_plugin:
         context = kwargs.get('context')
         if gw_dev_plugin._get_gateway_device_from_resource(context,

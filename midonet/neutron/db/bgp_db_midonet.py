@@ -14,10 +14,10 @@
 #    under the License.
 
 from neutron_dynamic_routing.db import bgp_db
+from neutron_lib import constants
+from neutron_lib.plugins import directory
 
 from neutron.ipam import utils as ipam_utils
-from neutron import manager
-from neutron.plugins.common import constants as service_constants
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 
@@ -44,7 +44,7 @@ class MidonetBgpDbMixin(bgp_db.BgpDbMixin):
         peer_ips = [peer['peer_ip'] for peer in peers]
         LOG.debug("peer_ips %s associated with bgp_speaker %s",
                   peer_ips, bgp_speaker_id)
-        core_plugin = manager.NeutronManager.get_plugin()
+        core_plugin = directory.get_plugin()
         ports = core_plugin.get_ports(context, filters={'device_id': [rt_id]})
         for port in ports:
             subnet_id = port['fixed_ips'][0]['subnet_id']
@@ -69,8 +69,7 @@ class MidonetBgpDbMixin(bgp_db.BgpDbMixin):
           on the router.
         """
         changed_extra = []
-        l3plugin = manager.NeutronManager.get_service_plugins().get(
-            service_constants.L3_ROUTER_NAT)
+        l3plugin = directory.get_plugin(constants.L3)
         extra = l3plugin.get_router(context, rt_id,
                                     fields=['routes'])['routes']
         dest_networks = [extra_route['destination'] for extra_route in extra]
