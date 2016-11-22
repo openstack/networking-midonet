@@ -67,18 +67,20 @@ sudo service zookeeper restart
 
 ## Cassandra
 
-sudo chown cassandra:cassandra /var/lib/cassandra
-sudo rm -rf /var/lib/cassandra/data/system/LocationInfo
-CASSANDRA_FILE='/etc/cassandra/cassandra.yaml'
-sudo sed -i -e "s/^cluster_name:.*$/cluster_name: \'midonet\'/g" $CASSANDRA_FILE
-CASSANDRA_ENV_FILE='/etc/cassandra/cassandra-env.sh'
-sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1128M/' $CASSANDRA_ENV_FILE
-sudo sed -i 's/\(HEAP_NEWSIZE=\).*$/\164M/' $CASSANDRA_ENV_FILE
-# Cassandra seems to need at least 228k stack working with Java 7.
-# Related bug: https://issues.apache.org/jira/browse/CASSANDRA-5895
-sudo sed -i -e "s/-Xss180k/-Xss228k/g" $CASSANDRA_ENV_FILE
-sudo rm -rf /var/lib/cassandra/*
-sudo service cassandra restart
+if [ "${MIDONET_USE_CASSANDRA}" = True ]; then
+    sudo chown cassandra:cassandra /var/lib/cassandra
+    sudo rm -rf /var/lib/cassandra/data/system/LocationInfo
+    CASSANDRA_FILE='/etc/cassandra/cassandra.yaml'
+    sudo sed -i -e "s/^cluster_name:.*$/cluster_name: \'midonet\'/g" $CASSANDRA_FILE
+    CASSANDRA_ENV_FILE='/etc/cassandra/cassandra-env.sh'
+    sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1128M/' $CASSANDRA_ENV_FILE
+    sudo sed -i 's/\(HEAP_NEWSIZE=\).*$/\164M/' $CASSANDRA_ENV_FILE
+    # Cassandra seems to need at least 228k stack working with Java 7.
+    # Related bug: https://issues.apache.org/jira/browse/CASSANDRA-5895
+    sudo sed -i -e "s/-Xss180k/-Xss228k/g" $CASSANDRA_ENV_FILE
+    sudo rm -rf /var/lib/cassandra/*
+    sudo service cassandra restart
+fi
 
 ## MidoNet
 
