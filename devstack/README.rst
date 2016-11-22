@@ -198,5 +198,5 @@ MidoNet driver::
     [qos]
     notification_drivers = midonet
 
-Note: Make sure you're using ML2 plugin.  MidoNet monolithic plugins
-(either v1 or v2) do not support QoS core resource extension.
+Note: Make sure you're using ML2 plugin or v2 plugin.  MidoNet v1 plugin
+does not support QoS core resource extension.
