@@ -76,6 +76,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         super(MidonetPluginV2, self).__init__()
         self.client.initialize()
 
+    @db_api.retry_if_session_inactive()
     def create_network(self, context, network):
         LOG.debug('MidonetPluginV2.create_network called: network=%r', network)
 
@@ -142,6 +143,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
 
         return [self._fields(net, fields) for net in nets]
 
+    @db_api.retry_if_session_inactive()
     def update_network(self, context, id, network):
         LOG.debug("MidonetPluginV2.update_network called: id=%(id)r, "
                   "network=%(network)r", {'id': id, 'network': network})
@@ -170,6 +172,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.update_network exiting: net=%r", net)
         return net
 
+    @db_api.retry_if_session_inactive()
     def delete_network(self, context, id):
         LOG.debug("MidonetPluginV2.delete_network called: id=%r", id)
 
@@ -192,6 +195,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
 
         LOG.debug("MidonetPluginV2.delete_network exiting: id=%r", id)
 
+    @db_api.retry_if_session_inactive()
     def create_subnet(self, context, subnet):
         LOG.debug("MidonetPluginV2.create_subnet called: subnet=%r", subnet)
 
@@ -213,6 +217,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.create_subnet exiting: subnet=%r", s)
         return s
 
+    @db_api.retry_if_session_inactive()
     def delete_subnet(self, context, id):
         LOG.debug("MidonetPluginV2.delete_subnet called: id=%s", id)
 
@@ -224,6 +229,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
 
         LOG.debug("MidonetPluginV2.delete_subnet exiting")
 
+    @db_api.retry_if_session_inactive()
     def update_subnet(self, context, id, subnet):
         LOG.debug("MidonetPluginV2.update_subnet called: id=%s", id)
 
@@ -240,6 +246,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.update_subnet exiting: subnet=%r", s)
         return s
 
+    @db_api.retry_if_session_inactive()
     def create_port(self, context, port):
         LOG.debug("MidonetPluginV2.create_port called: port=%r", port)
 
@@ -327,6 +334,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.create_port exiting: port=%r", new_port)
         return new_port
 
+    @db_api.retry_if_session_inactive()
     def delete_port(self, context, id, l3_port_check=True):
         LOG.debug("MidonetPluginV2.delete_port called: id=%(id)s "
                   "l3_port_check=%(l3_port_check)r",
@@ -351,6 +359,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
 
         LOG.debug("MidonetPluginV2.delete_port exiting: id=%r", id)
 
+    @db_api.retry_if_session_inactive()
     def update_port(self, context, id, port):
         LOG.debug("MidonetPluginV2.update_port called: id=%(id)s "
                   "port=%(port)r", {'id': id, 'port': port})
@@ -422,6 +431,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.update_port exiting: p=%r", p)
         return p
 
+    @db_api.retry_if_session_inactive()
     def create_security_group(self, context, security_group, default_sg=False):
         LOG.debug("MidonetPluginV2.create_security_group called: "
                   "security_group=%(security_group)s "
@@ -455,6 +465,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.create_security_group exiting: sg=%r", sg)
         return sg
 
+    @db_api.retry_if_session_inactive()
     def delete_security_group(self, context, id):
         LOG.debug("MidonetPluginV2.delete_security_group called: id=%s", id)
 
@@ -473,6 +484,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
 
         LOG.debug("MidonetPluginV2.delete_security_group exiting: id=%r", id)
 
+    @db_api.retry_if_session_inactive()
     def create_security_group_rule(self, context, security_group_rule):
         LOG.debug("MidonetPluginV2.create_security_group_rule called: "
                   "security_group_rule=%(security_group_rule)r",
@@ -499,6 +511,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                   "rule=%r", rule)
         return rule
 
+    @db_api.retry_if_session_inactive()
     def create_security_group_rule_bulk(self, context, security_group_rules):
         LOG.debug("MidonetPluginV2.create_security_group_rule_bulk called: "
                   "security_group_rules=%(security_group_rules)r",
@@ -524,6 +537,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                   "rules=%r", rules)
         return rules
 
+    @db_api.retry_if_session_inactive()
     def delete_security_group_rule(self, context, sg_rule_id):
         LOG.debug("MidonetPluginV2.delete_security_group_rule called: "
                   "sg_rule_id=%s", sg_rule_id)
@@ -539,6 +553,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.delete_security_group_rule exiting: id=%r",
                   sg_rule_id)
 
+    @db_api.retry_if_session_inactive()
     def create_agent_membership(self, context, agent_membership):
         LOG.debug("MidonetPluginV2.create_agent_membership called: "
                   " %(agent_membership)r",
@@ -565,6 +580,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                   "%(agent_membership)r", {'agent_membership': am})
         return am
 
+    @db_api.retry_if_session_inactive()
     def get_agent_membership(self, context, id, filters=None, fields=None):
         LOG.debug("MidonetPluginV2.get_agent_membership called: id=%(id)r",
                   {'id': id})
@@ -577,6 +593,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                   {'id': id, 'agent_membership': am})
         return am
 
+    @db_api.retry_if_session_inactive()
     def get_agent_memberships(self, context, filters=None, fields=None,
                               sorts=None, limit=None, marker=None,
                               page_reverse=False):
@@ -589,6 +606,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.get_agent_memberships exiting")
         return ams
 
+    @db_api.retry_if_session_inactive()
     def delete_agent_membership(self, context, id):
         LOG.debug("MidonetPluginV2.delete_agent_membership called: %(id)r",
                   {'id': id})
