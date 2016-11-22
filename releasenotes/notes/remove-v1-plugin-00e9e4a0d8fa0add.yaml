@@ -1,0 +1,6 @@
+---
+upgrade:
+  - MidoNet v2015.03 support has been removed.
+    Please upgrade to MidoNet v5.x and ML2 plugin.
+deprecations:
+  - MidoNet v2015.03 support has been removed.

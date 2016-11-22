@@ -6,10 +6,9 @@ This is the official Midonet Neutron plugin.
 
 The current set of supported versions of MidoNet are:
 
-- v2015.06
 - v5.x
 
-NOTE: MidoNet recently changed its versioning scheme.
+NOTE: MidoNet changed its versioning scheme.
 v5.0 is what used to be called v2015.09.
 
 
@@ -34,35 +33,17 @@ python-midonetclient from source::
     $ sudo pip install -e 'git://github.com/midonet/midonet.git@master#egg=midonetclient&subdirectory=python-midonetclient'
 
 
-Core plugin and L3 service plugin
----------------------------------
-
-The following entry in ``/etc/neutron/neutron.conf`` enables MidoNet as the Neutron plugin.
-There are two plugins to choose from.
-
-Plugin v1, which is compatible with MidoNet v2015.06::
-
-    [DEFAULT]
-    core_plugin = midonet
-
-Plugin v2, which is compatible with MidoNet v5.0 and beyond.
-It works with a separate L3 plugin which you need to add to the list of
-service plugins::
-
-    [DEFAULT]
-    core_plugin = midonet_v2
-    service_plugins = midonet_l3
-
+Core plugin
+-----------
 
 ML2 mechanism and type drivers
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-ML2 mechanism driver and type drivers are available.
-They are compatible with MidoNet v5.0 and beyond::
+networking-midonet is compatible with ML2 plugin.
+ML2 mechanism driver and type drivers for MidoNet are available::
 
     [DEFAULT]
     core_plugin = ml2
-    service_plugins = midonet_l3
 
     [ml2]
     tenant_network_types = midonet
@@ -70,13 +51,34 @@ They are compatible with MidoNet v5.0 and beyond::
     mechanism_drivers = midonet
 
 
+MidoNet monolithic plugin
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This plugin is provided for compatibility reasons.
+It's recommended to use ML2 plugin with MidoNet drivers instead.
+
+The following entry in ``/etc/neutron/neutron.conf`` enables MidoNet as the Neutron plugin::
+
+    [DEFAULT]
+    core_plugin = midonet_v2
+
+
+L3 service plugin
+-----------------
+
+networking-midonet uses its own L3 service plugin::
+
+    [DEFAULT]
+    service_plugins = midonet_l3
+
+
 Interaction with Neutron agents
 -------------------------------
 
-For v2015.06, OpenStack deployment with MidoNet works with
-Neutron DHCP and Metadata agents.
+No Neutron agents are necessary for networking-midonet.
 
-For MidoNet v5.0 and later, no Neutron agents are necessary.
+You can configure networking-midonet work with Neutron DHCP and
+Metadata agents.  But it isn't recommended anymore.
 
 For details, please refer to MidoNet documentation::
 
@@ -99,7 +101,7 @@ driver.::
 FWaaS
 -----
 
-Starting v5.0, MidoNet implements Neutron FWaaS extention API.
+MidoNet implements Neutron FWaaS extention API.
 
 To configure it, add the following service plugin to the `service_plugins` list
 in the DEFAULT section of ``/etc/neutron/neutron.conf``::
@@ -239,8 +241,6 @@ QoS
 
 With the latest development version of MidoNet,
 networking-midonet supports Neutron QoS extension.
-
-Note: MidoNet v1 plugin does not support QoS core resource extension.
 
 QoS service plugin
 ~~~~~~~~~~~~~~~~~~

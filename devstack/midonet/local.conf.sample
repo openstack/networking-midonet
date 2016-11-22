@@ -29,11 +29,6 @@ FWAAS_PLUGIN=midonet_firewall
 
 NOVA_VNC_ENABLED=True
 
-# To use the v1 plugin with MN v1 arch, uncomment the following lines and
-# comment out the line to set Q_SERVICE_PLUGIN_CLASSES.
-#
-# MIDONET_PLUGIN=midonet
-# MIDONET_USE_ZOOM=False
 Q_SERVICE_PLUGIN_CLASSES=midonet_l3
 
 # If you want to use Gateway Device Management Service,
@@ -66,7 +61,6 @@ Q_SERVICE_PLUGIN_CLASSES=midonet_l3
 # If you want to use the embedded metadata proxy, uncomment these:
 #
 # MIDONET_USE_METADATA=True
-# MIDONET_USE_ZOOM=True
 # Q_METADATA_ENABLED=True
 # disable_service q-dhcp
 # disable_service q-meta

@@ -45,7 +45,6 @@ class MidonetMixinBase(db_base_plugin_v2.NeutronDbPluginV2,
                        extradhcpopt_db.ExtraDhcpOptMixin,
                        portbindings_db.PortBindingMixin,
                        securitygroups_db.SecurityGroupDbMixin):
-    """NOTE(yamamoto): This class is shared between v1 and v2 plugins."""
 
     def __init__(self):
         super(MidonetMixinBase, self).__init__()

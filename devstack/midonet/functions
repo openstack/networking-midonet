@@ -14,11 +14,7 @@ function neutron_plugin_configure_common {
     pip_install tox
     cd ${PLUGIN_PATH}; tox -e genconfig; cd -
     mkdir -p /${Q_PLUGIN_CONF_PATH}
-    if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
-        conf_file=midonet.ini.v2.sample
-    else
-        conf_file=midonet.ini.v1.sample
-    fi
+    conf_file=midonet.ini.v2.sample
     cp ${PLUGIN_PATH}/etc/midonet/${conf_file} \
        /${Q_PLUGIN_CONF_PATH}/${Q_PLUGIN_CONF_FILENAME}
 }

@@ -28,26 +28,6 @@ function load_conf_hook {
 }
 
 case $job in
-    v1)
-        # Note the actual url here is somewhat irrelevant because it
-        # caches in nodepool, however make it a valid url for
-        # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_PLUGIN=midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
-
-        # Enable MidoNet v1 architecture
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_PLUGIN=midonet.neutron.plugin_v1.MidonetPluginV2"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_ZOOM=False"
-        # NOTE(yamamoto): v2015.06 is the latest stable releases
-        # with v1 support.
-        # REVISIT(yamamoto): Consider switching to stable/v2015.06.4
-        # when available.
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_BRANCH=staging/v2015.06"
-        _ZOOM=False
-        _ML2=False
-        ;;
     v2)
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
@@ -60,8 +40,6 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_ZOOM=True"
-        _ZOOM=True
         _ML2=False
         ;;
     ml2)
@@ -75,8 +53,6 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_TYPE_DRIVERS=midonet,uplink"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_TENANT_NETWORK_TYPE=midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_ZOOM=True"
-        _ZOOM=True
         _ML2=True
         ;;
     rally)
@@ -92,8 +68,6 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_ZOOM=True"
-        _ZOOM=True
         _ML2=False
         ;;
 esac
@@ -111,35 +85,26 @@ if [ -z "${RALLY_SCENARIO}" ] ; then
     s+=",tempest"
 fi
 s+=",dstat"
-if [ "${_ZOOM}" = "True" ]; then
-    # Use midonet metadata proxy
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_METADATA=True"
+# Use midonet metadata proxy
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_METADATA=True"
 
-    # Tweak the chain for midonet metadata proxy.
-    # "metadata" interface is created by midolman for node-local use.
-    # OpenStack gate slaves have a rule which would reject packets
-    # forwarded to the metadata proxy:
-    #   https://github.com/openstack-infra/system-config/blob/master/modules/openstack_project/manifests/single_use_slave.pp
-    #   https://github.com/openstack-infra/puppet-iptables
-    sudo iptables -I openstack-INPUT 1 -i metadata -j ACCEPT
+# Tweak the chain for midonet metadata proxy.
+# "metadata" interface is created by midolman for node-local use.
+# OpenStack gate slaves have a rule which would reject packets
+# forwarded to the metadata proxy:
+#   https://github.com/openstack-infra/system-config/blob/master/modules/openstack_project/manifests/single_use_slave.pp
+#   https://github.com/openstack-infra/puppet-iptables
+sudo iptables -I openstack-INPUT 1 -i metadata -j ACCEPT
 
-    # Enable FWaaS
-    s+=",q-fwaas"
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-fwaas https://github.com/openstack/neutron-fwaas"
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"FWAAS_PLUGIN=midonet_firewall"
+# Enable FWaaS
+s+=",q-fwaas"
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-fwaas https://github.com/openstack/neutron-fwaas"
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"FWAAS_PLUGIN=midonet_firewall"
 
-    # Enable VPNaaS
-    s+=",neutron-vpnaas"
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-vpnaas https://github.com/openstack/neutron-vpnaas"
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_VPNAAS_SERVICE_PROVIDER=\"VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default\""
-else
-    # Use neutron metadata proxy
-    s+=",q-dhcp,q-meta"
-
-    # NOTE(yamamoto): MIDONET_USE_PACKAGE doesn't support java7,
-    # which is used by MidoNet < 5.0
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_PACKAGE=False"
-fi
+# Enable VPNaaS
+s+=",neutron-vpnaas"
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-vpnaas https://github.com/openstack/neutron-vpnaas"
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_VPNAAS_SERVICE_PROVIDER=\"VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default\""
 
 export OVERRIDE_ENABLED_SERVICES="$s"
 
@@ -149,14 +114,12 @@ r="^(?!.*"
 # exclude the slow tag (part of the default for 'full')
 r="$r(?:.*\[.*\bslow\b.*\])"
 
-if [ "${_ZOOM}" = "True" ]; then
-    # https://bugs.launchpad.net/tempest/+bug/1509590
-    r="$r|(?:tempest\.api\.network\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\.test_add_remove_network_from_dhcp_agent.*)"
-    r="$r|(?:tempest\.api\.network\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\.test_list_networks_hosted_by_one_dhcp.*)"
-    r="$r|(?:tempest\.api\.network\.admin\.test_agent_management\.AgentManagementTestJSON.*)"
-    r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\..*)"
-    r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_agent_management\.AgentManagementTestJSON\.*)"
-fi
+# https://bugs.launchpad.net/tempest/+bug/1509590
+r="$r|(?:tempest\.api\.network\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\.test_add_remove_network_from_dhcp_agent.*)"
+r="$r|(?:tempest\.api\.network\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\.test_list_networks_hosted_by_one_dhcp.*)"
+r="$r|(?:tempest\.api\.network\.admin\.test_agent_management\.AgentManagementTestJSON.*)"
+r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\..*)"
+r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_agent_management\.AgentManagementTestJSON\.*)"
 
 if [ "${_ML2}" = "True" ]; then
     # bug 1507453 1608796
