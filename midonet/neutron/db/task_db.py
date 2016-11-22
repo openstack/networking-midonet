@@ -16,7 +16,6 @@ import datetime
 import uuid
 
 from neutron_lib.db import model_base
-from oslo_log import log as logging
 from oslo_serialization import jsonutils
 import sqlalchemy as sa
 
@@ -50,8 +49,6 @@ OP_FLUSH = 'FLUSH'
 
 
 TASK_STATE_TABLE = 'midonet_task_state'
-
-LOG = logging.getLogger(__name__)
 
 
 class Task(model_base.BASEV2, model_base.HasProjectNoIndex):
