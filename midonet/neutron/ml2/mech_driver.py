@@ -39,7 +39,10 @@ class MidonetMechanismDriver(api.MechanismDriver):
 
     """ML2 Mechanism Driver for Midonet."""
 
-    supported_qos_rule_types = [qos_consts.RULE_TYPE_BANDWIDTH_LIMIT]
+    supported_qos_rule_types = [
+        qos_consts.RULE_TYPE_BANDWIDTH_LIMIT,
+        qos_consts.RULE_TYPE_DSCP_MARKING,
+    ]
 
     def __init__(self):
         self.vif_type = const.VIF_TYPE_MIDONET
