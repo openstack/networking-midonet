@@ -15,7 +15,6 @@
 
 import contextlib
 import mock
-import uuid
 import webob.exc
 
 from midonet.neutron.common import constants as mido_const
@@ -28,6 +27,8 @@ from neutron.db import servicetype_db as st_db
 from neutron.services import provider_configuration as provconf
 from neutron.tests.unit.api import test_extensions as test_ex
 from neutron.tests.unit.extensions import test_l3
+
+from oslo_utils import uuidutils
 
 L2_GW_NAME = 'l2_gw1'
 L2_GW_NAME2 = 'l2_gw2'
@@ -88,10 +89,10 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
         self._subnet2 = self._make_subnet(self.fmt, network2, "20.0.0.1",
                                    '20.0.0.0/24')
         self._subnet_id2 = self._subnet2['subnet']['id']
-        router1 = self._make_router('json', str(uuid.uuid4()),
+        router1 = self._make_router('json', uuidutils.generate_uuid(),
                                     'router1', True)
         self._router_id = router1['router']['id']
-        router2 = self._make_router('json', str(uuid.uuid4()),
+        router2 = self._make_router('json', uuidutils.generate_uuid(),
                                     'router2', True)
         self._router_id2 = router2['router']['id']
 
@@ -103,7 +104,7 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
     def _create_l2_gateway(self, name=L2_GW_NAME, device_id="", device_id2="",
                            seg_id=None):
         data = {'l2_gateway': {'devices': [{'device_id': device_id}],
-                               'tenant_id': str(uuid.uuid4()),
+                               'tenant_id': uuidutils.generate_uuid(),
                                'name': name}}
         if device_id2:
             data['l2_gateway']['devices'].append({'device_id': device_id2})
@@ -115,10 +116,11 @@ class MidonetL2GatewayTestCase(test_gw.GatewayDeviceTestCaseMixin,
 
     def _create_l2_gateway_connection(self, l2_gateway_id="", network_id="",
                                       segmentation_id=FAKE_SEG_ID):
-        data = {'l2_gateway_connection': {'l2_gateway_id': l2_gateway_id,
-                                          'network_id': network_id,
-                                          'tenant_id': str(uuid.uuid4()),
-                                          'segmentation_id': segmentation_id}}
+        data = {
+            'l2_gateway_connection': {'l2_gateway_id': l2_gateway_id,
+                                      'network_id': network_id,
+                                      'tenant_id': uuidutils.generate_uuid(),
+                                      'segmentation_id': segmentation_id}}
         l2_gw_conn_req = self.new_create_request('l2-gateway-connections',
                                                 data, self.fmt)
         return l2_gw_conn_req.get_response(self.ext_api)
