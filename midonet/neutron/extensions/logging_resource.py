@@ -150,7 +150,6 @@ class Logging_resource(extensions.ExtensionDescriptor):
         plural_mappings = resource_helper.build_plural_mappings(
             {}, RESOURCE_ATTRIBUTE_MAP)
 
-        attr.PLURALS.update(plural_mappings)
         resources = resource_helper.build_resource_info(
             plural_mappings,
             RESOURCE_ATTRIBUTE_MAP,
