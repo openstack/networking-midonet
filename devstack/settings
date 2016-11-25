@@ -13,9 +13,6 @@ MIDONET_REPO=${MIDONET_REPO:-http://github.com/midonet/midonet.git}
 MIDONET_BRANCH=${MIDONET_BRANCH:-master}
 MIDONET_DIR=${MIDONET_DIR:-$DEST/midonet}
 
-# This flag indicates to the MidoNet agent to use ZOOM (MN v2)
-MIDONET_USE_ZOOM=${MIDONET_USE_ZOOM:-True}
-
 # Set up cassndra (for flow state etc)
 # Ignored if MIDONET_USE_PACKAGE!=True
 MIDONET_USE_CASSANDRA=${MIDONET_USE_CASSANDRA:-False}
@@ -77,13 +74,11 @@ NETWORK_API_EXTENSIONS+=,pagination
 NETWORK_API_EXTENSIONS+=,sorting
 NETWORK_API_EXTENSIONS+=,project-id
 NETWORK_API_EXTENSIONS+=,flavors
-if [[ "$MIDONET_USE_ZOOM" == "True" ]]; then
-    NETWORK_API_EXTENSIONS+=,allowed-address-pairs,extraroute,port-security
-    NETWORK_API_EXTENSIONS+=,router-interface-fip
-    NETWORK_API_EXTENSIONS+=,provider
-    if is_service_enabled q-fwaas; then
-        NETWORK_API_EXTENSIONS+=,fwaas,fwaasrouterinsertion
-    fi
+NETWORK_API_EXTENSIONS+=,allowed-address-pairs,extraroute,port-security
+NETWORK_API_EXTENSIONS+=,router-interface-fip
+NETWORK_API_EXTENSIONS+=,provider
+if is_service_enabled q-fwaas; then
+    NETWORK_API_EXTENSIONS+=,fwaas,fwaasrouterinsertion
 fi
 if is_service_enabled neutron-vpnaas; then
     NETWORK_API_EXTENSIONS+=,vpnaas
