@@ -15,6 +15,13 @@
 
 import abc
 
+from neutron_lib.api import converters
+from neutron_lib.api import extensions as api_extensions
+from neutron_lib import exceptions as nexception
+from neutron_lib.plugins import directory
+from oslo_config import cfg
+import six
+
 from midonet.neutron._i18n import _
 from midonet.neutron.common import constants
 from neutron.api import extensions
@@ -22,11 +29,6 @@ from neutron.api.v2 import attributes as attr
 from neutron.api.v2 import base
 from neutron.api.v2 import resource_helper
 from neutron.quota import resource_registry
-from neutron_lib.api import converters
-from neutron_lib import exceptions as nexception
-from neutron_lib.plugins import directory
-from oslo_config import cfg
-import six
 
 
 class LoggingResourceNotFound(nexception.NotFound):
@@ -120,7 +122,7 @@ firewall_log_quota_opts = [
 cfg.CONF.register_opts(firewall_log_quota_opts, 'QUOTAS')
 
 
-class Logging_resource(extensions.ExtensionDescriptor):
+class Logging_resource(api_extensions.ExtensionDescriptor):
     """Logging resource extension."""
 
     @classmethod
