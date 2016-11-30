@@ -115,36 +115,10 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
                 return True
         return False
 
-    # REVISIT(yamamoto): This method is a copy of the base class method,
-    # with modified RouterExternalGatewayInUseByFloatingIp validation.
-    def _delete_current_gw_port(self, context, router_id, router,
-                                new_network_id):
-        """Delete gw port if attached to an old network."""
-        port_requires_deletion = (
-            router.gw_port and router.gw_port['network_id'] != new_network_id)
-        if not port_requires_deletion:
-            return
-        admin_ctx = context.elevated()
-        old_network_id = router.gw_port['network_id']
-
-        for ip in router.gw_port['fixed_ips']:
-            if self._subnet_has_fip(admin_ctx, router_id, ip['subnet_id']):
-                raise l3.RouterExternalGatewayInUseByFloatingIp(
-                    router_id=router_id, net_id=router.gw_port['network_id'])
-        gw_ips = [x['ip_address'] for x in router.gw_port.fixed_ips]
-        with context.session.begin(subtransactions=True):
-            gw_port = router.gw_port
-            router.gw_port = None
-            context.session.add(router)
-            context.session.expire(gw_port)
-            self._check_router_gw_port_in_use(context, router_id)
-        self._core_plugin.delete_port(
-            admin_ctx, gw_port['id'], l3_port_check=False)
-        registry.notify(resources.ROUTER_GATEWAY,
-                        events.AFTER_DELETE, self,
-                        router_id=router_id,
-                        network_id=old_network_id,
-                        gateway_ips=gw_ips)
+    def router_gw_port_has_floating_ips(self, context, router_id):
+        router = self._get_router(context, router_id)
+        return any([self._subnet_has_fip(context, router_id, ip['subnet_id'])
+            for ip in router.gw_port['fixed_ips']])
 
     def find_next_hop_for_fip(self, context, floatingip_db):
         # Find a next-hop address for a route from the floating_network_id
