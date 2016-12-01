@@ -149,9 +149,6 @@ r="$r|(?:^neutron\.tests\.tempest\.api\.test_subnetpools_negative\.SubnetPoolsNe
 # MidoNet doesn't support minimum bandwidth rules.  See also bug 1644097
 r="$r|(?:^neutron\.tests\.tempest\.api\.test_qos\.QosMinimumBandwidthRuleTestJSON)"
 
-# bug 1646370
-r="$r|(?:^neutron\.tests\.tempest\.api\.test_qos\.QosTestJSON\.test_delete_not_allowed_if_policy_in_use_by_network)"
-
 # Skip non-networking api tests to save testing time
 r="$r|(?:tempest\.api\.compute\..*)"
 r="$r|(?:tempest\.api\.identity\..*)"
