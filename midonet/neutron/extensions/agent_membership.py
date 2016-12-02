@@ -15,6 +15,7 @@
 
 import abc
 
+from neutron_lib.api import extensions as api_extensions
 from neutron_lib import exceptions as nexception
 from neutron_lib.plugins import directory
 
@@ -54,7 +55,7 @@ RESOURCE_ATTRIBUTE_MAP = {
 }
 
 
-class Agent_membership(extensions.ExtensionDescriptor):
+class Agent_membership(api_extensions.ExtensionDescriptor):
     """Agent membership extension."""
 
     @classmethod

@@ -15,6 +15,7 @@
 
 import abc
 
+from neutron_lib.api import extensions as api_extensions
 from neutron_lib import exceptions as nexception
 from neutron_lib.plugins import directory
 
@@ -195,7 +196,7 @@ SUB_RESOURCE_ATTRIBUTE_MAP = {
 }
 
 
-class Gateway_device(extensions.ExtensionDescriptor):
+class Gateway_device(api_extensions.ExtensionDescriptor):
     """Gateway device extension."""
 
     @classmethod
