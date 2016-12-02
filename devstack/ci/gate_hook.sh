@@ -106,6 +106,12 @@ s+=",neutron-vpnaas"
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-vpnaas https://github.com/openstack/neutron-vpnaas"
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_VPNAAS_SERVICE_PROVIDER=\"VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default\""
 
+# Enable QoS
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron https://github.com/openstack/neutron"
+s+=",q-qos"
+s+=",-q-trunk"  # bug 1643451
+load_conf_hook qos
+
 export OVERRIDE_ENABLED_SERVICES="$s"
 
 # Begin list of exclusions.
@@ -139,6 +145,12 @@ r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_external_network_extension\.
 
 # bug 1572439
 r="$r|(?:^neutron\.tests\.tempest\.api\.test_subnetpools_negative\.SubnetPoolsNegativeTestJSON\.test_update_subnetpool_associate_address_scope_wrong_ip_version)"
+
+# MidoNet doesn't support minimum bandwidth rules.  See also bug 1644097
+r="$r|(?:^neutron\.tests\.tempest\.api\.test_qos\.QosMinimumBandwidthRuleTestJSON)"
+
+# bug 1646370
+r="$r|(?:^neutron\.tests\.tempest\.api\.test_qos\.QosTestJSON\.test_delete_not_allowed_if_policy_in_use_by_network)"
 
 # Skip non-networking api tests to save testing time
 r="$r|(?:tempest\.api\.compute\..*)"

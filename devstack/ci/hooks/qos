@@ -1,0 +1,3 @@
+[[post-config|$NEUTRON_CONF]]
+[qos]
+notification_drivers = midonet
