@@ -44,30 +44,6 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
                     raise e.errors[0].error
                 raise l3.RouterInUse(router_id=router_id, reason=e)
 
-    # REVISIT(yamamoto): This method is a copy of the base class method,
-    # with 'router_id' notification argument added.
-    def _confirm_router_interface_not_in_use(self, context, router_id,
-                                             subnet_id):
-        subnet = self._core_plugin.get_subnet(context, subnet_id)
-        subnet_cidr = netaddr.IPNetwork(subnet['cidr'])
-        fip_qry = context.session.query(l3_db.FloatingIP)
-        try:
-            kwargs = {'context': context, 'subnet_id': subnet_id,
-                      'router_id': router_id}
-            registry.notify(
-                resources.ROUTER_INTERFACE,
-                events.BEFORE_DELETE, self, **kwargs)
-        except exceptions.CallbackFailure as e:
-            with excutils.save_and_reraise_exception():
-                # NOTE(armax): preserve old check's behavior
-                if len(e.errors) == 1:
-                    raise e.errors[0].error
-                raise l3.RouterInUse(router_id=router_id, reason=e)
-        for fip_db in fip_qry.filter_by(router_id=router_id):
-            if netaddr.IPAddress(fip_db['fixed_ip_address']) in subnet_cidr:
-                raise l3.RouterInterfaceInUseByFloatingIP(
-                    router_id=router_id, subnet_id=subnet_id)
-
     def get_router_for_floatingip(self, context, internal_port,
             internal_subnet, external_network_id):
         # REVISIT(yamamoto): These direct manipulation of core-plugin db
