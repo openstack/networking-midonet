@@ -10,9 +10,15 @@ function neutron_plugin_setup_interface_driver {
 
 function configure_neutron_midonet {
     echo "Configuring ML2 for Midonet"
-    populate_ml2_config /$Q_PLUGIN_CONF_FILE MIDONET midonet_uri=$MIDONET_API_URL
-    populate_ml2_config /$Q_PLUGIN_CONF_FILE MIDONET username=$Q_ADMIN_USERNAME
-    populate_ml2_config /$Q_PLUGIN_CONF_FILE MIDONET password=$SERVICE_PASSWORD
-    populate_ml2_config /$Q_PLUGIN_CONF_FILE MIDONET project_id=$SERVICE_TENANT_NAME
-    populate_ml2_config /$Q_PLUGIN_CONF_FILE MIDONET client=$MIDONET_CLIENT
+    iniset /$Q_PLUGIN_CONF_FILE MIDONET midonet_uri $MIDONET_API_URL
+    iniset /$Q_PLUGIN_CONF_FILE MIDONET username $Q_ADMIN_USERNAME
+    iniset /$Q_PLUGIN_CONF_FILE MIDONET password $SERVICE_PASSWORD
+    iniset /$Q_PLUGIN_CONF_FILE MIDONET project_id $SERVICE_TENANT_NAME
+    iniset /$Q_PLUGIN_CONF_FILE MIDONET client $MIDONET_CLIENT
+}
+
+function install_neutron_midonet {
+    if ! is_neutron_legacy_enabled; then
+        neutron_service_plugin_class_add midonet_l3
+    fi
 }
