@@ -414,3 +414,5 @@ class MidonetClientBase(object):
 
     def delete_qos_policy(self, context, policy):
         pass
+
+    # REVISIT(yamamoto): LBaaS v2

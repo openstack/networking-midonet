@@ -13,6 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import types
+
+import six
+
 from oslo_utils import excutils
 
 from neutron_lib import constants as n_const
@@ -49,3 +53,12 @@ def check_delete_network_precommit(context, id):
             if len(e.errors) == 1:
                 raise e.errors[0].error
             raise midonet_exc.MidonetNetworkInUse(network_id=id, reason=e)
+
+
+def unboundmethod(func, cls):
+    if six.PY3:
+        # python 3.x doesn't have unbound methods
+        func.__qualname__ = cls.__qualname__ + '.' + func.__name__  # PEP 3155
+        return func
+    else:  # python 2.x
+        return types.MethodType(func, None, cls)
