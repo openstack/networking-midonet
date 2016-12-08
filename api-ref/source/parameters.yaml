@@ -2,6 +2,12 @@
 
 # variables in path
 
+firewall_log_id:
+  description: |
+    The ID of the firewall log resource.
+  in: path
+  required: true
+  type: uuid
 logging_resource_id:
   description: |
     The ID of the logging resource.
@@ -28,6 +34,40 @@ description-request:
 description-request-put:
   description: |
     The human-readable description for the resource.
+  in: body
+  required: false
+  type: string
+firewall_id:
+  description: |
+    The ID of the FWaaS v1 firewall.
+  in: body
+  required: true
+  type: uuid
+firewall_log_id-body:
+  description: |
+    The ID of the firewall log resource.
+  in: body
+  required: true
+  type: uuid
+fw_event:
+  description: |
+    Type of firewall events to log.
+    ACCEPT, DROP, or ALL.
+  in: body
+  required: true
+  type: string
+fw_event-request:
+  description: |
+    Type of firewall events to log.
+    ACCEPT, DROP, or ALL.
+    Default is ALL.
+  in: body
+  required: false
+  type: string
+fw_event-request-put:
+  description: |
+    Type of firewall events to log.
+    ACCEPT, DROP, or ALL.
   in: body
   required: false
   type: string
