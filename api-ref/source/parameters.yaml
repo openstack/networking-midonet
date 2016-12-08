@@ -1,0 +1,95 @@
+# variables in header
+
+# variables in path
+
+logging_resource_id:
+  description: |
+    The ID of the logging resource.
+  in: path
+  required: true
+  type: uuid
+
+# variables in query
+
+# variables in body
+description:
+  description: |
+    The human-readable description for the resource.
+  in: body
+  required: true
+  type: string
+description-request:
+  description: |
+    The human-readable description for the resource.
+    Default is an empty string.
+  in: body
+  required: false
+  type: string
+description-request-put:
+  description: |
+    The human-readable description for the resource.
+  in: body
+  required: false
+  type: string
+id:
+  description: |
+    The ID of the resource.
+  in: body
+  required: true
+  type: uuid
+logging_resource_enabled:
+  description: |
+    Indicates whether this logging resource is enabled or disabled.
+  in: body
+  required: true
+  type: boolean
+logging_resource_enabled-request:
+  description: |
+    Indicates whether this logging resource is enabled or disabled.
+    Default is false.
+  in: body
+  required: false
+  type: boolean
+logging_resource_enabled-request-put:
+  description: |
+    Indicates whether this logging resource is enabled or disabled.
+  in: body
+  required: false
+  type: boolean
+logging_resource_id-body:
+  description: |
+    The ID of the logging resource.
+  in: body
+  required: true
+  type: uuid
+name:
+  description: |
+    Human-readable name of the resource.
+  in: body
+  required: true
+  type: string
+name-request:
+  description: |
+    Human-readable name of the resource.
+    Default is an empty string.
+  in: body
+  required: false
+  type: string
+name-request-put:
+  description: |
+    Human-readable name of the resource.
+  in: body
+  required: false
+  type: string
+project_id:
+  description: |
+    The ID of the project that owns the resource.
+  in: body
+  required: true
+  type: string
+project_id-request:
+  description: |
+    The ID of the project that owns the resource.
+  in: body
+  required: false
+  type: string
