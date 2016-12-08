@@ -19,7 +19,6 @@ from neutron_lib.plugins import directory
 
 from midonet.neutron._i18n import _, _LE, _LW
 from midonet.neutron.common import utils as c_utils
-from midonet.neutron.db import agent_membership_db as am_db
 from midonet.neutron.db import port_binding_db as pb_db
 from midonet.neutron.db import provider_network_db as pnet_db
 from midonet.neutron.midonet_v2 import managers
@@ -45,7 +44,6 @@ LOG = logging.getLogger(__name__)
 
 class MidonetPluginV2(plugin.MidonetMixinBase,
                       addr_pair_db.AllowedAddressPairsMixin,
-                      am_db.AgentMembershipDbMixin,
                       pnet_db.MidonetProviderNetworkMixin,
                       pb_db.MidonetPortBindingMixin,
                       ps_db.PortSecurityDbMixin):
@@ -58,7 +56,6 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
     # functionality-wise, it's alphabetically sorted for easier comparison.
     _base_supported_extension_aliases = [
         'agent',
-        'agent-membership',
         'allowed-address-pairs',
         'binding',
         'dhcp_agent_scheduler',
@@ -582,73 +579,6 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
 
         LOG.debug("MidonetPluginV2.delete_security_group_rule exiting: id=%r",
                   sg_rule_id)
-
-    @db_api.retry_if_session_inactive()
-    def create_agent_membership(self, context, agent_membership):
-        LOG.debug("MidonetPluginV2.create_agent_membership called: "
-                  " %(agent_membership)r",
-                  {'agent_membership': agent_membership})
-
-        with context.session.begin(subtransactions=True):
-            am = super(MidonetPluginV2, self).create_agent_membership(
-                context, agent_membership)
-            self.client.create_agent_membership_precommit(context, am)
-
-        try:
-            self.client.create_agent_membership_postcommit(am)
-        except Exception as ex:
-            with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create agent membership. am: %(am)r, "
-                              "error: %(err)s"), {'am': am, 'err': ex})
-                try:
-                    self.delete_agent_membership(context, am['id'])
-                except Exception:
-                    LOG.exception(_LE("Failed to delete "
-                                      "an agent membership %s"), am['id'])
-
-        LOG.debug("MidonetPluginV2.create_agent_membership exiting: "
-                  "%(agent_membership)r", {'agent_membership': am})
-        return am
-
-    @db_api.retry_if_session_inactive()
-    def get_agent_membership(self, context, id, filters=None, fields=None):
-        LOG.debug("MidonetPluginV2.get_agent_membership called: id=%(id)r",
-                  {'id': id})
-
-        with context.session.begin(subtransactions=True):
-            am = super(MidonetPluginV2, self).get_agent_membership(context, id)
-
-        LOG.debug("MidonetPluginV2.get_agent_membership exiting: id=%(id)r, "
-                  "agent_membership=%(agent_membership)r",
-                  {'id': id, 'agent_membership': am})
-        return am
-
-    @db_api.retry_if_session_inactive()
-    def get_agent_memberships(self, context, filters=None, fields=None,
-                              sorts=None, limit=None, marker=None,
-                              page_reverse=False):
-        LOG.debug("MidonetPluginV2.get_agent_memberships called")
-
-        with context.session.begin(subtransactions=True):
-            ams = super(MidonetPluginV2, self).get_agent_memberships(
-                context, filters, fields, sorts, limit, marker, page_reverse)
-
-        LOG.debug("MidonetPluginV2.get_agent_memberships exiting")
-        return ams
-
-    @db_api.retry_if_session_inactive()
-    def delete_agent_membership(self, context, id):
-        LOG.debug("MidonetPluginV2.delete_agent_membership called: %(id)r",
-                  {'id': id})
-
-        with context.session.begin(subtransactions=True):
-            super(MidonetPluginV2, self).delete_agent_membership(context, id)
-            self.client.delete_agent_membership_precommit(context, id)
-
-        self.client.delete_agent_membership_postcommit(id)
-
-        LOG.debug("MidonetPluginV2.delete_agent_membership exiting: %(id)r",
-                  {'id': id})
 
     def get_agents(self, context, filters=None, fields=None):
         LOG.debug("MidonetPluginV2.get_agents called")
