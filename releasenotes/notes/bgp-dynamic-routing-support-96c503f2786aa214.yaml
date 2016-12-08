@@ -9,4 +9,4 @@ features:
       via BGP using Neutron router port as the next-hop
     * Acceptance of routes via BGP from peers
 
-    See `BGP dynamic routing service <http://docs.openstack.org/developer/networking-midonet/readme.html#BGP-dynamic-routing-service>`_ for details.
+    See `BGP dynamic routing service <http://docs.openstack.org/developer/networking-midonet/installation.html#BGP-dynamic-routing-service>`_ for details.
