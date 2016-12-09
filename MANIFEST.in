@@ -17,6 +17,7 @@ recursive-include api-ref/source *
 exclude .gitignore
 exclude .gitreview
 exclude .coveragerc
+exclude .pylintrc
 exclude .testr.conf
 exclude run_tests.sh
 exclude tox.ini
