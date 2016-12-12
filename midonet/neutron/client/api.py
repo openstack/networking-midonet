@@ -240,7 +240,7 @@ class MidonetApiClient(base.MidonetClientBase):
         self.api_cli.delete_qos_policy(id_)
 
 
-def _build_func(method):
+def _build_func(method, lb_op):
     # update takes (context, old_obj, obj, **kwargs)
     # others take (context, obj, **kwargs)
     def f(self, context, **kwargs):
@@ -257,9 +257,9 @@ def _build_func(method):
                 'obj_dict': obj_dict,
             })
             return
-        if op == 'create':
+        if lb_op == 'create':
             return api_method(obj_dict)
-        elif op == 'update':
+        elif lb_op == 'update':
             return api_method(id_, obj_dict)
         else:  # delete, refresh, stats
             return api_method(id_)
@@ -280,6 +280,6 @@ for resource in [
         ops += ['refresh', 'stats']
     for op in ops:
         method = op + '_' + resource
-        f = _build_func(method)
+        f = _build_func(method, op)
         unbound = utils.unboundmethod(f, MidonetApiClient)
         setattr(MidonetApiClient, method, unbound)
