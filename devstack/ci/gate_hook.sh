@@ -159,9 +159,6 @@ if [ "${_ML2}" = "True" ]; then
     r="$r|(?:^neutron\.tests\.tempest\.api\.test_routers\.RoutersTest\.test_router_interface_status)"
 fi
 
-# bug 1513312
-r="$r|(?:.*test_host_name_is_same_as_server_name.*)"
-
 # bug 1579005
 r="$r|(?:tempest\.api\.network\.test_routers\.RoutersTest\.test_router_interface_port_update_with_fixed_ip)"
 
