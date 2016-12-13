@@ -46,6 +46,7 @@ class FirewallLog(extension.NeutronClientExtension):
     versions = ['2.0']
 
     def add_known_arguments(self, parser):
+        super(FirewallLog, self).add_known_arguments(parser)
         parser.add_argument(
             'logging_resource', metavar='LOGGING_RESOURCE',
             help=_('ID of the logging_resource.'))
@@ -61,14 +62,12 @@ class FirewallLogCreate(extension.ClientExtensionCreate, FirewallLog):
 
     shell_command = 'logging-firewall-create'
 
-    def get_parser(self, parser):
-        parser = super(loggingV20.CreateCommand, self).get_parser(parser)
-        self.add_known_arguments(parser)
+    def add_known_arguments(self, parser):
+        super(FirewallLogCreate, self).add_known_arguments(parser)
         parser.add_argument(
             '--firewall-id', dest='firewall_id',
             required=True,
             help=_('Firewall to be logged'))
-        return parser
 
     def args2body(self, args):
         body = {}

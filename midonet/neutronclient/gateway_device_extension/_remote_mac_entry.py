@@ -33,6 +33,7 @@ class RemoteMacEntry(extension.NeutronClientExtension):
     versions = ['2.0']
 
     def add_known_arguments(self, parser):
+        super(RemoteMacEntry, self).add_known_arguments(parser)
         parser.add_argument(
             'gateway_device', metavar='GATEWAY_DEVICE',
             help=_('ID of the gateway device.'))
@@ -47,8 +48,8 @@ class RemoteMacEntryCreate(extension.ClientExtensionCreate, RemoteMacEntry):
 
     shell_command = 'gateway-device-remote-mac-entry-create'
 
-    def get_parser(self, parser):
-        parser = super(gw_deviceV20.CreateCommand, self).get_parser(parser)
+    def add_known_arguments(self, parser):
+        super(RemoteMacEntryCreate, self).add_known_arguments(parser)
         parser.add_argument(
             '--mac-address', dest='mac_address',
             required=True,
@@ -61,8 +62,6 @@ class RemoteMacEntryCreate(extension.ClientExtensionCreate, RemoteMacEntry):
             '--segmentation-id', dest='segmentation_id',
             required=True,
             help=_('VNI to be used'))
-        self.add_known_arguments(parser)
-        return parser
 
     def args2body(self, args):
         body = {}
