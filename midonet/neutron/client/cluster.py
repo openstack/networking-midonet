@@ -109,17 +109,6 @@ class MidonetClusterClient(base.MidonetClientBase):
                          data_type=task.SECURITY_GROUP_RULE,
                          resource_id=security_group_rule_id)
 
-    # Agent membership extension
-
-    def create_agent_membership_precommit(self, context, agent_membership):
-        task.create_task(context, task.CREATE, data_type=task.AGENT_MEMBERSHIP,
-                         resource_id=agent_membership['id'],
-                         data=agent_membership)
-
-    def delete_agent_membership_precommit(self, context, agent_membership_id):
-        task.create_task(context, task.DELETE, data_type=task.AGENT_MEMBERSHIP,
-                         resource_id=agent_membership_id)
-
     # Agent extension
 
     def _midonet_hosts(self):

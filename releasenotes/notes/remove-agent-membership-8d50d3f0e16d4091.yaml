@@ -1,0 +1,7 @@
+---
+deprecations:
+  - agent-membership extension has been removed.
+    Because it has never been in a usable state, there should not
+    be user-noticable impacts.
+    Please use the MidoNet API (via eg. midonet-cli) to configure
+    tunnel zones and hosts.
