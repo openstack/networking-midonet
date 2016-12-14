@@ -80,6 +80,7 @@ NETWORK_API_EXTENSIONS+=,flavors
 NETWORK_API_EXTENSIONS+=,allowed-address-pairs,extraroute,port-security
 NETWORK_API_EXTENSIONS+=,router-interface-fip
 NETWORK_API_EXTENSIONS+=,provider
+NETWORK_API_EXTENSIONS+=,fip64
 if is_service_enabled q-fwaas; then
     NETWORK_API_EXTENSIONS+=,fwaas,fwaasrouterinsertion
 fi

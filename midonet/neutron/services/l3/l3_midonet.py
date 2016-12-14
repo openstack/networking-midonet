@@ -54,7 +54,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
     """
 
     supported_extension_aliases = ["router", "extraroute", "ext-gw-mode",
-                                   "router-interface-fip"]
+                                   "router-interface-fip", "fip64"]
 
     __native_pagination_support = True
     __native_sorting_support = True

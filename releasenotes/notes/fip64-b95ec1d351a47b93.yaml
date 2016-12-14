@@ -1,0 +1,4 @@
+---
+features:
+  - FIP64 extension was added.
+    It allows users to associate IPv6 floating IPs to IPv4 fixed IPs.

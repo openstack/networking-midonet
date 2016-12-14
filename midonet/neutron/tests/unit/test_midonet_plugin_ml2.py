@@ -242,6 +242,11 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
         # without a subnet, therefore we don't want to test this.
         pass
 
+    def test_create_floatingip_ipv6_only_network_returns_400(self):
+        # MidoNet supports floating IPv6, where it is possible to assign a
+        # floating IP on an external network with only an IPv6 subnet.
+        pass
+
     def test_create_router_no_gateway_ip(self):
         with self.network() as net:
             self._set_net_external(net['network']['id'])
