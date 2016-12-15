@@ -20,6 +20,7 @@ from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 
 from neutron_lbaas.drivers import driver_base
+from neutron_lib.plugins import directory
 
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import utils
@@ -82,7 +83,17 @@ def _build_manager_impl(resource):
 
 class MidonetLoadBalancerManager(_build_manager_impl('loadbalancerv2'),
                                  driver_base.BaseLoadBalancerManager):
-    pass
+
+    # Override the create method here to ensure that the VIP port
+    # associated with this load balancer has its 'admin_state_up' field
+    # set to True. If it is set to False, midonet will not pass traffic
+    # through the VIP.
+    def create(self, context, obj, **kwargs):
+        plugin = directory.get_plugin()
+        plugin.update_port(context, obj.vip_port_id,
+                           {'port': {'admin_state_up': True}})
+        return super(MidonetLoadBalancerManager, self).create(
+            context, obj, **kwargs)
 
 
 class MidonetListenerManager(_build_manager_impl('listenerv2'),
