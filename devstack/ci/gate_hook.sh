@@ -139,6 +139,12 @@ s+=",q-qos"
 s+=",-q-trunk"  # bug 1643451
 load_conf_hook qos
 
+# Enable LBaaSv2
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas"
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service q-lbaasv2"
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_LBAAS_SERVICE_PROVIDERV2=\"LOADBALANCERV2:Midonet:midonet.neutron.services.loadbalancer.v2_driver.MidonetLoadBalancerDriver:default\""
+
+
 export OVERRIDE_ENABLED_SERVICES="$s"
 
 # Begin list of exclusions.
