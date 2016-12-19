@@ -15,10 +15,13 @@
 
 from oslo_log import log as logging
 
+from midonet.neutron._i18n import _LW
 from midonet.neutron.client import base
 from midonet.neutron.common import utils
+from midonet.neutron.rpc import topology_client
 
 from midonetclient import client
+from midonetclient import topology
 
 LOG = logging.getLogger(__name__)
 
@@ -29,6 +32,7 @@ class MidonetApiClient(base.MidonetClientBase):
         self.api_cli = client.MidonetClient(conf.midonet_uri, conf.username,
                                             conf.password,
                                             project_id=conf.project_id)
+        self.config = conf
 
     def create_network_postcommit(self, network):
         self.api_cli.create_network(network)
@@ -238,6 +242,17 @@ class MidonetApiClient(base.MidonetClientBase):
         policy_dict = policy.to_dict()
         id_ = policy_dict['id']
         self.api_cli.delete_qos_policy(id_)
+
+    # Topology API
+    def topo_get_pool_members(self):
+        try:
+            ret = topology_client.get_all_midonet_pool_members(
+                self.config.cluster_ip, self.config.cluster_port)
+        except topology.TopologyError as e:
+            LOG.warning(_LW(
+                'Error communicating with topology API: %s'), str(e))
+            ret = []
+        return ret
 
 
 def _build_func(method, lb_op):

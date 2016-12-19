@@ -44,9 +44,6 @@ MIDO_DB_PASSWORD=${MIDO_DB_PASSWORD:-$MIDO_PASSWORD}
 TASKS_DB_CONN=${TASKS_DB_CONN:-jdbc:mysql://localhost:3306/neutron?user=$MIDO_DB_USER&password=$MIDO_DB_PASSWORD}
 TASKS_DB_DRIVER_CLASS=${TASKS_DB_DRIVER_CLASS:-org.mariadb.jdbc.Driver}
 
-# Cluster Topology API
-TOPOLOGY_API_PORT=${TOPOLOGY_API_PORT:-8088}
-
 # Auth variables. They are exported so that you could source this file and
 # run midonet-cli using these credentials
 export MIDO_API_URL=$API_URI
@@ -122,6 +119,7 @@ configure_mn "cluster.loggers.root" "DEBUG"
 configure_mn "cluster.rest_api.http_port" $API_PORT
 configure_mn "cluster.topology_api.enabled" "true"
 configure_mn "cluster.topology_api.port" $TOPOLOGY_API_PORT
+configure_mn "cluster.topology_api.socket_enabled" "true"
 
 if [[ "$ENABLE_TASKS_IMPORTER" = "True" ]]; then
     configure_mn "cluster.neutron_importer.enabled" "true"

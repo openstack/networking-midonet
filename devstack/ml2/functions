@@ -15,6 +15,8 @@ function configure_neutron_midonet {
     iniset /$Q_PLUGIN_CONF_FILE MIDONET password $SERVICE_PASSWORD
     iniset /$Q_PLUGIN_CONF_FILE MIDONET project_id $SERVICE_TENANT_NAME
     iniset /$Q_PLUGIN_CONF_FILE MIDONET client $MIDONET_CLIENT
+    iniset /$Q_PLUGIN_CONF_FILE MIDONET cluster_ip $MIDONET_SERVICE_HOST
+    iniset /$Q_PLUGIN_CONF_FILE MIDONET cluster_port $TOPOLOGY_API_PORT
 }
 
 function install_neutron_midonet {
