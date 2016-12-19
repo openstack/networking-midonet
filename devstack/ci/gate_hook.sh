@@ -82,7 +82,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=True
         ;;
-    rally)
+    rally|rally-v2)
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
@@ -97,6 +97,19 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=False
         ;;
+    rally-ml2)
+        # Note the actual url here is somewhat irrelevant because it
+        # caches in nodepool, however make it a valid url for
+        # documentation purposes.
+        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin rally git://git.openstack.org/openstack/rally"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_PLUGIN=ml2"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_MECHANISM_DRIVERS=midonet"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_TYPE_DRIVERS=midonet,uplink"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_TENANT_NETWORK_TYPE=midonet"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
+        _ML2=True
 esac
 
 # We are only interested on Neutron, so very few services are needed
