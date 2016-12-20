@@ -63,6 +63,7 @@ EDGE_ROUTER_NAME=${EDGE_ROUTER_NAME:-"mn-edge"}
 # Neutron net/subnet/port for uplink
 UPLINK_NET_NAME=${UPLINK_NET_NAME:-"mn-uplink-net"}
 UPLINK_SUBNET_NAME=${UPLINK_SUBNET_NAME:-"mn-uplink-subnet"}
+UPLINK_SUBNET_NAME6=${UPLINK_SUBNET_NAME6:-"mn-uplink-subnet6"}
 UPLINK_PORT_NAME=${UPLINK_PORT_NAME:-"mn-uplink-port"}
 # Veth pair
 UPLINK_VIRT_IFNAME=${UPLINK_VIRT_IFNAME:-"mn-uplink-virt"}
@@ -72,6 +73,10 @@ UPLINK_CIDR=${UPLINK_CIDR:-"172.19.0.0/30"}
 UPLINK_PREFIX_LEN=${UPLINK_PREFIX_LEN:-"30"}
 UPLINK_VIRT_IP=${UPLINK_VIRT_IP:-"172.19.0.1"}
 UPLINK_HOST_IP=${UPLINK_HOST_IP:-"172.19.0.2"}
+UPLINK_CIDR6=${UPLINK_CIDR6:-"fd1a:6fd3:0a22::/48"}
+UPLINK_PREFIX_LEN6=${UPLINK_PREFIX_LEN6:-"48"}
+UPLINK_VIRT_IP6=${UPLINK_VIRT_IP6:-"fd1a:6fd3:0a22::1"}
+UPLINK_HOST_IP6=${UPLINK_HOST_IP6:-"fd1a:6fd3:0a22::2"}
 
 sudo ip link add name ${UPLINK_HOST_IFNAME} type veth \
     peer name ${UPLINK_VIRT_IFNAME}
@@ -96,11 +101,16 @@ neutron --os-project-name admin \
     --disable-dhcp --name ${UPLINK_SUBNET_NAME} \
     ${UPLINK_NET_NAME} ${UPLINK_CIDR}
 neutron --os-project-name admin \
+    subnet-create \
+    --ip-version 6 --disable-dhcp --name ${UPLINK_SUBNET_NAME6} \
+    ${UPLINK_NET_NAME} ${UPLINK_CIDR6}
+neutron --os-project-name admin \
     port-create ${UPLINK_NET_NAME} \
     --name ${UPLINK_PORT_NAME} \
     --binding:host_id ${HOST_ID} \
     --binding:profile type=dict interface_name=${UPLINK_VIRT_IFNAME} \
-    --fixed-ip ip_address=${UPLINK_VIRT_IP}
+    --fixed-ip ip_address=${UPLINK_VIRT_IP} \
+    --fixed-ip ip_address=${UPLINK_VIRT_IP6}
 neutron --os-project-name admin \
     router-interface-add \
     ${EDGE_ROUTER_NAME} port=${UPLINK_PORT_NAME}
@@ -115,3 +125,7 @@ sudo ip addr add ${UPLINK_HOST_IP}/${UPLINK_PREFIX_LEN} \
     dev ${UPLINK_HOST_IFNAME}
 sudo ip route replace ${FLOATING_RANGE} via ${UPLINK_VIRT_IP}
 sudo ip route replace ${FIXED_RANGE} via ${UPLINK_VIRT_IP}
+
+sudo ip addr add ${UPLINK_HOST_IP6}/${UPLINK_PREFIX_LEN6} \
+    dev ${UPLINK_HOST_IFNAME}
+sudo ip route replace ${IPV6_PUBLIC_RANGE} via ${UPLINK_VIRT_IP6}

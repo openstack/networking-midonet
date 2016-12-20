@@ -68,6 +68,8 @@ if [[ "$1" == "stack" ]]; then
 
     elif [[ "$2" == "extra" ]]; then
 
+        tweak_neutron_initial_network_for_midonet
+
         if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
             if [ "$MIDONET_USE_UPLINK" == "True" ]; then
                 . $ABSOLUTE_PATH/uplink/create_uplink.sh

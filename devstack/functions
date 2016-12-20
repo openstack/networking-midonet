@@ -45,3 +45,16 @@ function configure_midonet_cli {
     iniset $MIDONETRC_FILE cli password $ADMIN_PASSWORD
     iniset $MIDONETRC_FILE cli project_id admin
 }
+
+function tweak_neutron_initial_network_for_midonet {
+    # Set up IPv6 public subnet for fip64
+
+    # REVISIT(yamamoto): clear the gateway during subnet creation because
+    # we don't support updating fixed-ips on the gw port.
+    neutron --os-cloud devstack-admin --os-region "$REGION_NAME" router-gateway-clear $ROUTER_ID
+
+    source $TOP_DIR/lib/neutron_plugins/services/l3
+    _neutron_create_public_subnet_v6 $EXT_NET_ID
+
+    neutron --os-cloud devstack-admin --os-region "$REGION_NAME" router-gateway-set $ROUTER_ID $EXT_NET_ID
+}
