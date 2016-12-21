@@ -466,7 +466,7 @@ class LoggingResourceTestCase(test_l3.L3NatTestCaseMixin,
                         tenant_id=self._tenant_id2) as log_res2, \
                 self.firewall(self._tenant_id) as fw, \
                 self.firewall_log(log_res1['logging_resource']['id'],
-                                  firewall_id=fw['firewall']['id']) as f_log1, \
+                    firewall_id=fw['firewall']['id']) as f_log1, \
                 self.firewall_log(log_res2['logging_resource']['id'],
                                   firewall_id=fw['firewall']['id'],
                                   tenant_id=self._tenant_id2) as f_log2:

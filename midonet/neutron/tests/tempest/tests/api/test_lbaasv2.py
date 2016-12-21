@@ -15,12 +15,16 @@
 
 # TODO(Joe): move L4 version of tests to neutron-lbaas project
 
-from neutron_lbaas.tests.tempest.v2.api import test_health_monitor_admin as hm_a  # noqa
-from neutron_lbaas.tests.tempest.v2.api import test_health_monitors_non_admin as hm_na  # noqa
+from neutron_lbaas.tests.tempest.v2.api \
+    import test_health_monitor_admin as hm_a
+from neutron_lbaas.tests.tempest.v2.api \
+    import test_health_monitors_non_admin as hm_na
 from neutron_lbaas.tests.tempest.v2.api import test_listeners_admin as l_a
 from neutron_lbaas.tests.tempest.v2.api import test_listeners_non_admin as l_na
-from neutron_lbaas.tests.tempest.v2.api import test_load_balancers_admin as lb_a  # noqa
-from neutron_lbaas.tests.tempest.v2.api import test_load_balancers_non_admin as lb_na  # noqa
+from neutron_lbaas.tests.tempest.v2.api \
+    import test_load_balancers_admin as lb_a
+from neutron_lbaas.tests.tempest.v2.api \
+    import test_load_balancers_non_admin as lb_na
 from neutron_lbaas.tests.tempest.v2.api import test_members_admin as m_a
 from neutron_lbaas.tests.tempest.v2.api import test_members_non_admin as m_na
 from neutron_lbaas.tests.tempest.v2.api import test_pools_admin as p_a
