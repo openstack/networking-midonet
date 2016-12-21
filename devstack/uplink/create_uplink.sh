@@ -85,6 +85,11 @@ for name in ${UPLINK_HOST_IFNAME} ${UPLINK_VIRT_IFNAME}; do
     sudo ip link set dev ${name} up
 done
 
+# NOTE(yamamoto): MidoNet fip64 implementation seems
+# incompatible with the checksum "offloading"
+install_package ethtool
+sudo ethtool -K ${UPLINK_HOST_IFNAME} tx-checksum-ip-generic off
+
 # Configure edge router and uplink network
 neutron --os-project-name admin \
     router-create \
