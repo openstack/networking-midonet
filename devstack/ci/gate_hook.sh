@@ -123,6 +123,9 @@ export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_METADATA=True"
 #   https://github.com/openstack-infra/puppet-iptables
 sudo iptables -I openstack-INPUT 1 -i metadata -j ACCEPT
 
+# Tweak the chain for midonet vpp downlink for fip64.
+sudo iptables -I openstack-INPUT 1 -i tun-dl-+ -j ACCEPT
+
 # Enable FWaaS
 s+=",q-fwaas"
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-fwaas https://github.com/openstack/neutron-fwaas"
