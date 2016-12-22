@@ -133,6 +133,8 @@ if [[ "$1" == "stack" ]]; then
             ln -sf /var/log/midolman/midolman.log ${LOGDIR}
             ln -sf /var/log/midolman/minions.log ${LOGDIR}
             ln -sf /var/log/midolman/minions-stderr.log ${LOGDIR}
+            ln -sf /var/log/midolman/vpp.log ${LOGDIR}
+            ln -sf /var/log/midolman/vpp-stderr.log ${LOGDIR}
             ln -sf /var/log/midolman/upstart-stderr.log ${LOGDIR}
             ln -sf /var/log/midonet-cluster/midonet-cluster.log ${LOGDIR}
             ln -sf /var/log/midonet-cluster/upstart-stderr.log ${LOGDIR}
