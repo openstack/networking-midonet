@@ -1,0 +1,3 @@
+---
+deprecations:
+  - Monolithic plugin (midonet_v2) is now deprecated.  Please use ML2 instead.

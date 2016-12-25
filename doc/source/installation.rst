@@ -55,7 +55,9 @@ MidoNet monolithic plugin
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This plugin is provided for compatibility reasons.
-It's recommended to use ML2 plugin with MidoNet drivers instead.
+It's deprecated and will be removed in a feature release.
+It's recommended to use ML2 plugin with MidoNet drivers instead,
+especially for a new deployment.
 
 The following entry in ``/etc/neutron/neutron.conf`` enables MidoNet as the Neutron plugin::
 
