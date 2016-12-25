@@ -29,7 +29,7 @@ class MidonetTypeTest(base.BaseTestCase):
 
     def setUp(self):
         super(MidonetTypeTest, self).setUp()
-        self.session = None
+        self.context = None
 
     def test_is_partial_segment(self):
         segment = {api.NETWORK_TYPE: self.network_type}
@@ -55,15 +55,15 @@ class MidonetTypeTest(base.BaseTestCase):
 
     def test_reserve_provider_segment(self):
         segment = {api.NETWORK_TYPE: self.network_type}
-        observed = self.driver.reserve_provider_segment(self.session, segment)
+        observed = self.driver.reserve_provider_segment(self.context, segment)
         self.assertEqual(segment, observed)
 
     def test_release_provider_segment(self):
         segment = {api.NETWORK_TYPE: self.network_type}
-        observed = self.driver.reserve_provider_segment(self.session, segment)
-        self.driver.release_segment(self.session, observed)
+        observed = self.driver.reserve_provider_segment(self.context, segment)
+        self.driver.release_segment(self.context, observed)
 
     def test_allocate_tenant_segment(self):
         expected = {api.NETWORK_TYPE: self.network_type}
-        observed = self.driver.allocate_tenant_segment(self.session)
+        observed = self.driver.allocate_tenant_segment(self.context)
         self.assertEqual(expected, observed)

@@ -24,7 +24,7 @@ from midonet.neutron.common import constants as const
 LOG = log.getLogger(__name__)
 
 
-class UplinkTypeDriver(api.TypeDriver):
+class UplinkTypeDriver(api.ML2TypeDriver):
     """Type driver for Uplink networks
 
     This type driver differentiates uplinks networks from other types.
@@ -48,13 +48,13 @@ class UplinkTypeDriver(api.TypeDriver):
                 msg = _("%s prohibited for uplink provider network") % key
                 raise exc.InvalidInput(error_message=msg)
 
-    def reserve_provider_segment(self, session, segment):
+    def reserve_provider_segment(self, context, segment):
         return segment
 
-    def allocate_tenant_segment(self, session):
+    def allocate_tenant_segment(self, context):
         return {api.NETWORK_TYPE: const.TYPE_UPLINK}
 
-    def release_segment(self, session, segment):
+    def release_segment(self, context, segment):
         pass
 
     def get_mtu(self, physical):

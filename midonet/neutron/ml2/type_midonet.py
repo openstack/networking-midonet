@@ -24,7 +24,7 @@ from midonet.neutron.common import constants as const
 LOG = log.getLogger(__name__)
 
 
-class MidonetTypeDriver(api.TypeDriver):
+class MidonetTypeDriver(api.ML2TypeDriver):
     """Type driver for Midonet networks
 
     This type driver differentiates midonet networks from other types.
@@ -48,13 +48,13 @@ class MidonetTypeDriver(api.TypeDriver):
                 msg = _("%s prohibited for midonet provider network") % key
                 raise exc.InvalidInput(error_message=msg)
 
-    def reserve_provider_segment(self, session, segment):
+    def reserve_provider_segment(self, context, segment):
         return segment
 
-    def allocate_tenant_segment(self, session):
+    def allocate_tenant_segment(self, context):
         return {api.NETWORK_TYPE: const.TYPE_MIDONET}
 
-    def release_segment(self, session, segment):
+    def release_segment(self, context, segment):
         pass
 
     def get_mtu(self, physical):
