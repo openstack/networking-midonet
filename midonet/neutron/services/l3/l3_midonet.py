@@ -36,7 +36,6 @@ from neutron.db import l3_dvr_db  # noqa
 from neutron.extensions import l3
 from neutron.extensions import multiprovidernet as mpnet
 from neutron.extensions import providernet as pnet
-from neutron.plugins.common import constants
 from oslo_config import cfg
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
@@ -72,7 +71,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
 
     @classmethod
     def get_plugin_type(cls):
-        return constants.L3_ROUTER_NAT
+        return n_const.L3
 
     def get_plugin_description(self):
         """Returns string description of the plugin."""
