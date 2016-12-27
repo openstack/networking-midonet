@@ -415,4 +415,8 @@ class MidonetClientBase(object):
     def delete_qos_policy(self, context, policy):
         pass
 
+    # Topology API
+    def topo_get_pool_members(self):
+        pass
+
     # REVISIT(yamamoto): LBaaS v2

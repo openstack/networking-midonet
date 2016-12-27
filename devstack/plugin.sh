@@ -107,6 +107,7 @@ if [[ "$1" == "stack" ]]; then
         export KEYSTONE_AUTH_PORT
         export SERVICE_PROJECT_NAME
         export SERVICE_PASSWORD
+        export TOPOLOGY_API_PORT
 
         export TIMESTAMP_FORMAT
         export LOGFILE

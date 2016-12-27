@@ -16,6 +16,7 @@
 from midonet.neutron.common import exceptions as mexc
 from midonetclient import topology  # noqa
 from midonetclient.topology import hosts
+from midonetclient.topology import pool_members
 
 
 import socket
@@ -50,3 +51,8 @@ def invoke_cluster_rpc(cluster_ip, cluster_port, call):
 
 def get_all_midonet_hosts(cluster_ip, cluster_port):
     return invoke_cluster_rpc(cluster_ip, cluster_port, hosts.get_all_dict)
+
+
+def get_all_midonet_pool_members(cluster_ip, cluster_port):
+    return invoke_cluster_rpc(cluster_ip, cluster_port,
+                              pool_members.get_all_dict)

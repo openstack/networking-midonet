@@ -31,12 +31,13 @@ function neutron_plugin_configure_plugin_agent {
 }
 
 function neutron_plugin_configure_service {
-
     iniset /$Q_PLUGIN_CONF_FILE MIDONET midonet_uri $MIDONET_API_URL
     iniset /$Q_PLUGIN_CONF_FILE MIDONET username $Q_ADMIN_USERNAME
     iniset /$Q_PLUGIN_CONF_FILE MIDONET password $SERVICE_PASSWORD
     iniset /$Q_PLUGIN_CONF_FILE MIDONET project_id $SERVICE_TENANT_NAME
     iniset /$Q_PLUGIN_CONF_FILE MIDONET client $MIDONET_CLIENT
+    iniset /$Q_PLUGIN_CONF_FILE MIDONET cluster_ip $MIDONET_SERVICE_HOST
+    iniset /$Q_PLUGIN_CONF_FILE MIDONET cluster_port $TOPOLOGY_API_PORT
 }
 
 function neutron_plugin_setup_interface_driver {

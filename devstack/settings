@@ -48,6 +48,9 @@ MIDONET_USE_KEYSTONE=${MIDONET_USE_KEYSTONE:-True}
 # create the fake uplink by default
 MIDONET_CREATE_FAKE_UPLINK=${MIDONET_CREATE_FAKE_UPLINK:-True}
 
+# Cluster Topology API
+TOPOLOGY_API_PORT=${TOPOLOGY_API_PORT:-8088}
+
 #
 # Set all the devstack ENV VARS needed to run midonet in a full OpenStack
 # deployment setting
