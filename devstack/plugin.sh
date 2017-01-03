@@ -50,13 +50,10 @@ if [[ "$1" == "stack" ]]; then
             fi
         fi
 
-        # Clone and build neutron midonet plugin
-        PLUGIN_PATH=$ABSOLUTE_PATH/..
-
     elif [[ "$2" == "install" ]]; then
 
         # Build neutron midonet plugin
-        pip_install --no-deps --editable $PLUGIN_PATH
+        pip_install --no-deps --editable $NETWORKING_MIDONET_DIR
         if [ "$MIDONET_USE_PACKAGE" != "True" ]; then
             # Build midonet client
             pip_install --editable $MIDONET_DIR/python-midonetclient
@@ -148,13 +145,13 @@ if [[ "$1" == "stack" ]]; then
             echo cluster.loggers.root: DEBUG|mn-conf set
         fi
 
-        # Set rootwrap.d to installed mm-ctl filters
-        sudo cp $ABSOLUTE_PATH/midonet_rootwrap.filters /etc/neutron/rootwrap.d/
+        # copy needed neutron config (eg rootwrap filters)
+        sudo cp $NETWORKING_MIDONET_DIR/etc/midonet_rootwrap.filters /etc/neutron/rootwrap.d/
 
         neutron-db-manage --subproject networking-midonet upgrade head
 
         if is_service_enabled nova; then
-            sudo cp $ABSOLUTE_PATH/midonet_rootwrap.filters /etc/nova/rootwrap.d/
+            sudo cp $NETWORKING_MIDONET_DIR/etc/midonet_rootwrap.filters /etc/nova/rootwrap.d/
 
             # Hack libvirt qemu conf to allow ethernet mode to run
             export LIBVIRT_QEMU_CONF='/etc/libvirt/qemu.conf'

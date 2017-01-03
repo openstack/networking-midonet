@@ -1,5 +1,7 @@
 #!/bin/bash
 
+NETWORKING_MIDONET_DIR=${NETWORKING_MIDONET_DIR:=$DEST/networking-midonet}
+
 # lib/neutron vs lib/neutron-legacy compat
 Q_META_DATA_IP=${Q_META_DATA_IP:-$SERVICE_HOST}
 
