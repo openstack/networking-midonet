@@ -332,3 +332,9 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
     # NOTE(yamamoto): ML2 no longer uses NeutronDbPluginV2.create_port
     def test_floatingip_with_invalid_create_port(self):
         self._test_floatingip_with_invalid_create_port(PLUGIN_NAME)
+
+    def test_floatingip_disassociate_notification(self):
+        pass  # bug 1658454
+
+    def test_first_floatingip_associate_notification(self):
+        pass  # bug 1658454

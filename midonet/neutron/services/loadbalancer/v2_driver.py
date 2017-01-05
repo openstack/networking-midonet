@@ -25,7 +25,6 @@ from oslo_service import loopingcall
 
 from neutron_lbaas.db.loadbalancer import models
 from neutron_lbaas.drivers import driver_base
-from neutron_lbaas.extensions import loadbalancerv2
 from neutron_lbaas.services.loadbalancer import constants as lb_const
 
 from midonet.neutron.client import base as c_base
@@ -36,7 +35,9 @@ LOG = logging.getLogger(__name__)
 
 MN_STATUS_TO_OPERATING_STATUS = {
     'ACTIVE': lb_const.ONLINE,
-    'INACTIVE': lb_const.OFFLINE}
+    'INACTIVE': lb_const.OFFLINE,
+    'NO_MONITOR': lb_const.NO_MONITOR,
+}
 
 
 class MidonetLoadBalancerDriver(driver_base.LoadBalancerBaseDriver):
@@ -62,18 +63,17 @@ class MidonetLoadBalancerDriver(driver_base.LoadBalancerBaseDriver):
         # Request a list of pool members from the Midonet API
         # Go through this member list and update the neutron DB with each
         # pool member's status.
-        members = self._client.topo_get_pool_members()
-
-        for m in members:
-            try:
-                new_status = MN_STATUS_TO_OPERATING_STATUS[m['status']]
-                self.plugin.db.update_status(
-                    context=self.admin_ctx, model=models.MemberV2,
-                    id=m['id'], operating_status=new_status)
-            except loadbalancerv2.EntityNotFound:
-                LOG.debug('No neutron pool member found for '
-                          'id=%(id)s, skipping status update.',
-                          {'id': m['id']})
+        db_members = self.plugin.db.get_pool_members(context=self.admin_ctx)
+        for m in db_members:
+            member_id = m.id
+            midonet_member = self._client.get_pool_member(
+                self.admin_ctx, member_id)
+            LOG.debug("backend member: %(member)s", {'member': midonet_member})
+            midonet_status = midonet_member['status']
+            new_status = MN_STATUS_TO_OPERATING_STATUS[midonet_status]
+            self.plugin.db.update_status(
+                context=self.admin_ctx, model=models.MemberV2,
+                id=member_id, operating_status=new_status)
 
 
 def _build_func(method, client_method):

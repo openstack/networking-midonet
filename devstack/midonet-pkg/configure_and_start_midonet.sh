@@ -117,9 +117,12 @@ function die {
 
 configure_mn "cluster.loggers.root" "DEBUG"
 configure_mn "cluster.rest_api.http_port" $API_PORT
-configure_mn "cluster.topology_api.enabled" "true"
-configure_mn "cluster.topology_api.port" $TOPOLOGY_API_PORT
-configure_mn "cluster.topology_api.socket_enabled" "true"
+# NOTE(yamamoto): The following configurations are commented out
+# because we don't have users of the topology api right now.
+# (The "agent" extension is the only user.  but it's incomplete.)
+# configure_mn "cluster.topology_api.enabled" "true"
+# configure_mn "cluster.topology_api.port" $TOPOLOGY_API_PORT
+# configure_mn "cluster.topology_api.socket_enabled" "true"
 
 if [[ "$ENABLE_TASKS_IMPORTER" = "True" ]]; then
     configure_mn "cluster.neutron_importer.enabled" "true"

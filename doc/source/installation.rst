@@ -141,26 +141,6 @@ file ``/etc/neutron/neutron.conf``::
     [service_providers]
     service_provider=LOADBALANCERV2:Midonet:midonet.neutron.services.loadbalancer.v2_driver.MidonetLoadBalancerDriver:default
 
-In order to retrieve pool member status updates from the backend and update the
-neutron database, the topology API must be enabled, configured, and a socket
-opened to retrieve this information.
-
-To do this, use the `mn-conf` utility to set the configuration::
-
-    mn-conf set cluster.topology_api.enabled=true
-    mn-conf set cluster.topology_api.port=TOPOLOGY_API_PORT
-    mn-conf set cluster.topology_api.socket_enabled=true
-
-The TOPOLOGY_API_PORT defaults to 8081 if not set explicitly.  To set the
-topology API server and port, add the following to the *[midonet]* section
-of the Neutron configuration file ``/etc/neutron/neutron.conf``::
-
-    [midonet]
-    cluster_ip = CLUSTER_SERVER
-    cluster_port = TOPOLOGY_API_PORT
-
-By default, `cluster_ip` is "localhost" and `cluster_port` is 8081.
-
 
 VPNaaS
 ------
