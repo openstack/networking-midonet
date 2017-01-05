@@ -220,9 +220,6 @@ r="$r|(?:tempest\.api\.network\.test_routers\.RoutersTest\.test_router_interface
 r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_external_network_extension\.ExternalNetworksRBACTestJSON\.test_regular_client_shares_with_another)"
 r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_external_network_extension\.ExternalNetworksRBACTestJSON\.test_external_update_policy_from_wildcard_to_specific_tenant)"
 
-# bug 1572439
-r="$r|(?:^neutron\.tests\.tempest\.api\.test_subnetpools_negative\.SubnetPoolsNegativeTestJSON\.test_update_subnetpool_associate_address_scope_wrong_ip_version)"
-
 # Skip non-networking api tests to save testing time
 r="$r|(?:tempest\.api\.compute\..*)"
 r="$r|(?:tempest\.api\.identity\..*)"
