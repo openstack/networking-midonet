@@ -103,7 +103,7 @@ driver.::
 FWaaS
 -----
 
-MidoNet implements Neutron FWaaS extention API.
+Starting v5.0, MidoNet implements Neutron FWaaS extention API.
 
 To configure it, add the following service plugin to the `service_plugins` list
 in the DEFAULT section of ``/etc/neutron/neutron.conf``::
@@ -118,10 +118,9 @@ because this plugin does not use Neutron L3 agent.
 LBaaS v2
 --------
 
-MidoNet plugin provides LBaaS v2 service driver.
+Starting v5.4, MidoNet implements Neutron LBaaS v2 extension API.
 
-Note: MidoNet backend version 5.4 or later must be installed for backend
-support for LBaaS V2.
+MidoNet plugin provides LBaaS v2 service driver.
 
 To configure it, add the following entries in the Neutron configuration
 file ``/etc/neutron/neutron.conf``::
@@ -279,8 +278,7 @@ TaaS plugin configuration file `/etc/neutron/taas_plugin.ini`::
 QoS
 ---
 
-With the latest development version of MidoNet,
-networking-midonet supports Neutron QoS extension.
+Starting v5.4, MidoNet implements Neutron QoS extension API.
 
 QoS service plugin
 ~~~~~~~~~~~~~~~~~~
