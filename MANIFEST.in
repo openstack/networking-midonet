@@ -6,6 +6,7 @@ include TESTING.rst
 include requirements.txt
 include test-requirements.txt
 include etc/policy.json
+include etc/midonet_rootwrap.filters
 include midonet/neutron/db/migration/alembic.ini
 include midonet/neutron/db/migration/alembic_migration/README
 include midonet/neutron/db/migration/alembic_migration/script.py.mako
