@@ -73,6 +73,16 @@ networking-midonet uses its own L3 service plugin::
     [DEFAULT]
     service_plugins = midonet_l3
 
+L3 extensions
+~~~~~~~~~~~~~
+
+In addition to the standard ones, networking-midonet L3 service plugin
+provides the following extensions.  No additional configurations are
+necessary to enable them.  They are enabled unconditionally.
+
+- router-interface-fip (MidoNet 5.1.1 and later)
+- fip64 (MidoNet 5.4 and later)
+
 
 Interaction with Neutron agents
 -------------------------------
