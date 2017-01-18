@@ -91,39 +91,48 @@ install_package ethtool
 sudo ethtool -K ${UPLINK_HOST_IFNAME} tx-checksum-ip-generic off
 
 # Configure edge router and uplink network
-neutron --os-project-name admin \
-    router-create \
+openstack --os-project-name admin \
+    router create \
     ${EDGE_ROUTER_NAME}
-neutron --os-project-name admin \
-    router-interface-add \
+openstack --os-project-name admin \
+    router add subnet \
     ${EDGE_ROUTER_NAME} ${PUBLIC_SUBNET_NAME}
+# NOTE(yamamoto): Still using neutron command here to workaround bug 1657311
 neutron --os-project-name admin \
     net-create \
     ${UPLINK_NET_NAME} \
     --provider:network_type uplink
-neutron --os-project-name admin \
-    subnet-create \
-    --disable-dhcp --name ${UPLINK_SUBNET_NAME} \
-    ${UPLINK_NET_NAME} ${UPLINK_CIDR}
-neutron --os-project-name admin \
-    subnet-create \
-    --ip-version 6 --disable-dhcp --name ${UPLINK_SUBNET_NAME6} \
-    ${UPLINK_NET_NAME} ${UPLINK_CIDR6}
-neutron --os-project-name admin \
-    port-create ${UPLINK_NET_NAME} \
-    --name ${UPLINK_PORT_NAME} \
-    --binding:host_id ${HOST_ID} \
-    --binding:profile type=dict interface_name=${UPLINK_VIRT_IFNAME} \
-    --fixed-ip ip_address=${UPLINK_VIRT_IP} \
-    --fixed-ip ip_address=${UPLINK_VIRT_IP6}
-neutron --os-project-name admin \
-    router-interface-add \
-    ${EDGE_ROUTER_NAME} port=${UPLINK_PORT_NAME}
-neutron --os-project-name admin \
-    router-update \
-    ${EDGE_ROUTER_NAME} \
-    --routes type=dict list=true \
-        destination=0.0.0.0/0,nexthop=${UPLINK_HOST_IP}
+#openstack --os-project-name admin \
+#    network create \
+#    --provider-network-type uplink \
+#    ${UPLINK_NET_NAME}
+openstack --os-project-name admin \
+    subnet create \
+    --no-dhcp \
+    --network ${UPLINK_NET_NAME} \
+    --subnet-range ${UPLINK_CIDR} \
+    ${UPLINK_SUBNET_NAME}
+openstack --os-project-name admin \
+    subnet create \
+    --ip-version 6 --no-dhcp \
+    --network ${UPLINK_NET_NAME} \
+    --subnet-range ${UPLINK_CIDR6} \
+    ${UPLINK_SUBNET_NAME6}
+openstack --os-project-name admin \
+    port create \
+    --network ${UPLINK_NET_NAME} \
+    --host ${HOST_ID} \
+    --binding-profile interface_name=${UPLINK_VIRT_IFNAME} \
+    --fixed-ip ip-address=${UPLINK_VIRT_IP} \
+    --fixed-ip ip-address=${UPLINK_VIRT_IP6} \
+    ${UPLINK_PORT_NAME}
+openstack --os-project-name admin \
+    router add port \
+    ${EDGE_ROUTER_NAME} ${UPLINK_PORT_NAME}
+openstack --os-project-name admin \
+    router set \
+    --route destination=0.0.0.0/0,gateway=${UPLINK_HOST_IP} \
+    ${EDGE_ROUTER_NAME}
 
 # Configure host side
 sudo ip addr add ${UPLINK_HOST_IP}/${UPLINK_PREFIX_LEN} \
