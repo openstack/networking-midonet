@@ -78,7 +78,7 @@ if [[ "$1" == "stack" ]]; then
                 $MIDONET_DIR/tools/devmido/create_fake_uplink_l2.sh \
                     $EXT_NET_ID $FLOATING_RANGE $PUBLIC_NETWORK_GATEWAY
                 local ROUTER_GW_IP
-                ROUTER_GW_IP=`neutron port-list -c fixed_ips -c device_owner | grep router_gateway | awk -F'ip_address'  '{ print $2 }' | cut -f3 -d\" | tr '\n' ' '`
+                ROUTER_GW_IP=$(openstack --os-cloud devstack-admin --os-region "$REGION_NAME" port list -c 'Fixed IP Addresses' --device-owner network:router_gateway | awk -F'ip_address'  '{ print $2 }' | cut -f2 -d\' | tr '\n' ' ')
                 sudo ip route replace ${FIXED_RANGE} via ${ROUTER_GW_IP}
             fi
         fi
