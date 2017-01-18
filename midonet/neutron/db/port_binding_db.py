@@ -12,6 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib.api.definitions import portbindings
 from neutron_lib.api import validators
 from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
@@ -19,7 +20,6 @@ from neutron_lib import exceptions as n_exc
 from neutron.api.v2 import attributes as attr
 from neutron.db import db_base_plugin_v2
 from neutron.db import models_v2
-from neutron.extensions import portbindings
 import sqlalchemy as sa
 from sqlalchemy import orm
 

@@ -22,6 +22,7 @@ import testscenarios
 import testtools
 from webob import exc
 
+from neutron_lib.api.definitions import portbindings
 from neutron_lib.api.definitions import provider_net as pnet
 from neutron_lib import constants as n_const
 from neutron_lib.plugins import directory
@@ -33,7 +34,6 @@ from midonet.neutron.tests.unit import test_midonet_plugin as test_mn_plugin
 from networking_l2gw.db.l2gateway import l2gateway_models  # noqa
 from neutron import context
 from neutron.db import api as db_api
-from neutron.extensions import portbindings
 from neutron.extensions import portsecurity as psec
 from neutron.extensions import securitygroup as sg
 from neutron.plugins.common import constants as p_const

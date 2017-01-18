@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib.api.definitions import portbindings
 from neutron_lib import constants as n_const
 
 from midonet.neutron.client import base as c_base
@@ -33,7 +34,6 @@ from neutron.db import external_net_db
 from neutron.db import extradhcpopt_db
 from neutron.db import portbindings_db
 from neutron.db import securitygroups_db
-from neutron.extensions import portbindings
 
 from oslo_config import cfg
 from oslo_utils import importutils
