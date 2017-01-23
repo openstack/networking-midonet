@@ -225,29 +225,3 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
         self._apply_dict_extend_functions(l3.FLOATINGIPS, floatingip_dict,
                                           floatingip_db)
         return floatingip_dict
-
-    # REVISIT(yamamoto): This method is a copy of the base class method,
-    # modified to use find_next_hop_for_fip hook.
-    def _update_fip_assoc(self, context, fip, floatingip_db, external_port):
-        previous_router_id = floatingip_db.router_id
-        port_id, internal_ip_address, router_id = (
-            self._check_and_get_fip_assoc(context, fip, floatingip_db))
-        update = {'fixed_ip_address': internal_ip_address,
-                  'fixed_port_id': port_id,
-                  'router_id': router_id,
-                  'last_known_router_id': previous_router_id}
-        if 'description' in fip:
-            update['description'] = fip['description']
-        floatingip_db.update(update)
-        next_hop = None
-        if router_id:
-            next_hop = self.find_next_hop_for_fip(context, floatingip_db)
-        return {'fixed_ip_address': internal_ip_address,
-                'fixed_port_id': port_id,
-                'router_id': router_id,
-                'last_known_router_id': previous_router_id,
-                'floating_ip_address': floatingip_db.floating_ip_address,
-                'floating_network_id': floatingip_db.floating_network_id,
-                'floating_ip_id': floatingip_db.id,
-                'next_hop': next_hop,
-                'context': context}
