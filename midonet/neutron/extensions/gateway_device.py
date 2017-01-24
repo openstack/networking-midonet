@@ -37,6 +37,11 @@ class RemoteMacEntryNotFound(nexception.NotFound):
     message = _("Remote MAC entry %(id)s does not exist")
 
 
+class RemoteMacEntryWrongGatewayDevice(nexception.InvalidInput):
+    message = _("Remote MAC entry %(id)s does not belong to gateway "
+                "device %(gateway_device_id)s")
+
+
 class ResourceNotFound(nexception.NotFound):
     message = _("specified resource %(resource_id)s does not exist")
 
