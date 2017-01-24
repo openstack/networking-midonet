@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib.api.definitions import provider_net as pnet
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 
@@ -35,7 +36,6 @@ from neutron.db import extraroute_db
 from neutron.db import l3_dvr_db  # noqa
 from neutron.extensions import l3
 from neutron.extensions import multiprovidernet as mpnet
-from neutron.extensions import providernet as pnet
 from oslo_config import cfg
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging

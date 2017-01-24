@@ -22,6 +22,7 @@ import testscenarios
 import testtools
 from webob import exc
 
+from neutron_lib.api.definitions import provider_net as pnet
 from neutron_lib import constants as n_const
 from neutron_lib.plugins import directory
 
@@ -34,7 +35,6 @@ from neutron import context
 from neutron.db import api as db_api
 from neutron.extensions import portbindings
 from neutron.extensions import portsecurity as psec
-from neutron.extensions import providernet as pnet
 from neutron.extensions import securitygroup as sg
 from neutron.plugins.common import constants as p_const
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
