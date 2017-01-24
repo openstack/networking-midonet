@@ -30,7 +30,7 @@ Border GW API
 -------------
 Border GW funtionality is required for multi-site deployment. It should connect
 Tenant's overlay networks across sites. It will use dedicated Tunnel that connects
-Tenant networks accross sites. L2GW abstract model fits very well into Border GW case.
+Tenant networks across sites. L2GW abstract model fits very well into Border GW case.
 Current L2GW API imposes limitation that should be released in order to
 support Border GW use case. It should be possible to create L2GW specifing device
 and segmentation_id, without specific interface name. Interface name is not necessary
