@@ -212,9 +212,6 @@ if [ "${_ML2}" = "True" ]; then
     r="$r|(?:^neutron\.tests\.tempest\.api\.test_routers\.RoutersTest\.test_router_interface_status)"
 fi
 
-# bug 1579005
-r="$r|(?:tempest\.api\.network\.test_routers\.RoutersTest\.test_router_interface_port_update_with_fixed_ip)"
-
 # MidoNet doesn't support a gateway port without IP. (MNP-167)
 # "Bad router request: No IPs assigned to the gateway port for router"
 r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_external_network_extension\.ExternalNetworksRBACTestJSON\.test_regular_client_shares_with_another)"
