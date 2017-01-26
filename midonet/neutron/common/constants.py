@@ -38,5 +38,5 @@ ROUTER_STATUS_ERROR = "ERROR"
 # for resource name on callback method
 MIDONET_NETWORK = "midonet_network"
 
-# for bgp dynamic router extention
+# for bgp dynamic router extension
 LOGICAL_ROUTER = 'logical_router'

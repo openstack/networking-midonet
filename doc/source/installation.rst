@@ -113,7 +113,7 @@ driver.::
 FWaaS
 -----
 
-Starting v5.0, MidoNet implements Neutron FWaaS extention API.
+Starting v5.0, MidoNet implements Neutron FWaaS extension API.
 
 To configure it, add the following service plugin to the `service_plugins` list
 in the DEFAULT section of ``/etc/neutron/neutron.conf``::
