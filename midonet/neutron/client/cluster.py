@@ -15,7 +15,6 @@
 
 from midonet.neutron.client import base
 from midonet.neutron.db import task_db as task
-from midonet.neutron.rpc import topology_client as top
 
 import neutron.db.api as db
 
@@ -108,25 +107,6 @@ class MidonetClusterClient(base.MidonetClientBase):
         task.create_task(context, task.DELETE,
                          data_type=task.SECURITY_GROUP_RULE,
                          resource_id=security_group_rule_id)
-
-    # Agent extension
-
-    def _midonet_hosts(self):
-        for mido_host in top.get_all_midonet_hosts(
-                self.conf.cluster_ip, self.conf.cluster_port):
-            yield mido_host
-
-    def get_agent(self, agent_id):
-        for mido_host in self._midonet_hosts():
-            if mido_host.get('id') == agent_id:
-                return top.midonet_host_to_neutron_agent(mido_host)
-        return None
-
-    def get_agents(self):
-        res = []
-        for mido_host in self._midonet_hosts():
-            res.append(top.midonet_host_to_neutron_agent(mido_host))
-        return res
 
     # LBaaS
 
