@@ -269,6 +269,8 @@ QoS
 ---
 
 Starting v5.4, MidoNet implements Neutron QoS extension API.
+It's automatically enabled when QoS service plugin is configured.
+No MidoNet-specific configuration is necessary.
 
 QoS service plugin
 ~~~~~~~~~~~~~~~~~~
@@ -278,9 +280,6 @@ file `/etc/neutron/neutron.conf`::
 
     [DEFAULT]
     service_plugins = qos
-
-    [qos]
-    notification_drivers = midonet
 
 QoS core resource extension for ML2
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

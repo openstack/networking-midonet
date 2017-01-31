@@ -25,8 +25,10 @@ class QoSDriverTestCase(base.BaseTestCase):
         super(QoSDriverTestCase, self).setUp()
         self._mock_client = mock.Mock()
         with mock.patch("midonet.neutron.client.base.load_client",
-                        return_value=self._mock_client):
-            self._driver = qos_driver.MidoNetQosServiceNotificationDriver()
+                        return_value=self._mock_client), \
+            mock.patch(
+                "neutron.services.qos.drivers.base.DriverBase.__init__"):
+            self._driver = qos_driver.MidoNetQosDriver()
 
     def test_qos_policy_create(self):
         mock_context = mock.Mock()
