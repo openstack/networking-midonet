@@ -25,7 +25,6 @@ from neutron.callbacks import events
 from neutron.callbacks import exceptions
 from neutron.callbacks import registry
 from neutron.callbacks import resources
-from neutron.db import l3_db
 from neutron.db import l3_gwmode_db
 from neutron.db.models import l3 as l3_models
 from neutron.db import models_v2
@@ -58,18 +57,18 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
         # resources is not ideal.
         gw_port = orm.aliased(models_v2.Port, name="gw_port")
         routerport_qry = context.session.query(
-            l3_db.RouterPort.router_id,
+            l3_models.RouterPort.router_id,
             models_v2.IPAllocation.ip_address
         ).join(
             models_v2.Port, models_v2.IPAllocation
         ).filter(
             models_v2.Port.network_id == internal_port['network_id'],
-            l3_db.RouterPort.port_type.in_(
+            l3_models.RouterPort.port_type.in_(
                 n_const.ROUTER_INTERFACE_OWNERS
             ),
             models_v2.IPAllocation.subnet_id == internal_subnet['id']
         ).join(
-            gw_port, gw_port.device_id == l3_db.RouterPort.router_id
+            gw_port, gw_port.device_id == l3_models.RouterPort.router_id
         ).filter(
             gw_port.network_id == external_network_id,
         ).distinct()
@@ -92,7 +91,7 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
         # Return True if the subnet has one of floating IPs for the router
         subnet = self._core_plugin.get_subnet(context, subnet_id)
         subnet_cidr = netaddr.IPNetwork(subnet['cidr'])
-        fip_qry = context.session.query(l3_db.FloatingIP)
+        fip_qry = context.session.query(l3_models.FloatingIP)
         fip_qry = fip_qry.filter_by(router_id=router_id)
         for fip_db in fip_qry:
             if netaddr.IPAddress(fip_db['floating_ip_address']) in subnet_cidr:
