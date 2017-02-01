@@ -17,6 +17,7 @@ import netaddr
 import testtools
 
 from tempest.lib.common.utils import data_utils
+from tempest.lib import decorators
 import tempest.lib.exceptions as lib_exc
 from tempest import test
 
@@ -40,7 +41,7 @@ class RouterInterfaceFip(base.BaseAdminNetworkTest):
     def resource_setup(cls):
         super(RouterInterfaceFip, cls).resource_setup()
 
-    @test.idempotent_id('943ab44d-0ea7-4c6a-bdfd-8ba759622992')
+    @decorators.idempotent_id('943ab44d-0ea7-4c6a-bdfd-8ba759622992')
     def test_router_interface_fip(self):
         # +-------------+
         # | router1     |
