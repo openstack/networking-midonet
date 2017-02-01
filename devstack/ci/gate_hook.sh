@@ -117,7 +117,7 @@ esac
 s=""
 s+="mysql,rabbit"
 s+=",key"
-s+=",n-api,n-cond,n-cpu,n-crt,n-sch"
+s+=",n-api,n-cond,n-cpu,n-crt,n-sch,placement-api"
 s+=",g-api,g-reg"
 s+=",q-svc,quantum"
 if [ -z "${RALLY_SCENARIO}" ] ; then
