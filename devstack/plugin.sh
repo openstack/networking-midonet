@@ -171,9 +171,6 @@ EOF"
                 sudo service libvirt-bin restart
             fi
         fi
-    elif [[ "$2" == "test-config" ]]; then
-        # bug/1660209
-        iniset $TEMPEST_CONFIG compute-feature-enabled metadata_service False
     fi
 
 elif [[ "$1" == "unstack" ]]; then
