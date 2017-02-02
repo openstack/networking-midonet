@@ -1,0 +1,14 @@
+register_project_for_upgrade networking-midonet
+
+# REVISIT(yamamoto): This is a hack to upgrade before neutron.
+# Otherwise, neutron-db-migrate picks our old version and fail.
+# bug/1648176
+UPGRADE_PROJECTS="networking-midonet ${UPGRADE_PROJECTS/ networking-midonet/}"
+
+# REVISIT(yamamoto): Probably shouldn't be here
+sudo iptables -I openstack-INPUT 1 -i metadata -j ACCEPT
+
+for w in base target; do
+    devstack_localrc $w LOGDIR=\$SCREEN_LOGDIR
+    devstack_localrc $w IPV6_ENABLED=False
+done
