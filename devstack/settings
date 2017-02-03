@@ -100,11 +100,7 @@ if is_service_enabled q-qos; then
     NETWORK_API_EXTENSIONS+=,qos
 fi
 if is_service_enabled q-lbaasv2; then
-    # There is a bug (#1651012) in neutron-lbaas where the 'lbaas' extension
-    # is required to run lbaasv2 api tests.
-    # TODO(Joe): Remove the 'lbaas' extension from this list once the bug is
-    # fixed.
-    NETWORK_API_EXTENSIONS+=,lbaas,lbaasv2
+    NETWORK_API_EXTENSIONS+=,lbaasv2
 fi
 
 # Don't let mido.sh configure the logging
