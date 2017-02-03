@@ -101,3 +101,6 @@ class Bgp_speaker_router_insertion(extensions.ExtensionDescriptor):
             return EXTENDED_ATTRIBUTES_2_0
         else:
             return {}
+
+    def get_required_extensions(self):
+        return ["bgp"]
