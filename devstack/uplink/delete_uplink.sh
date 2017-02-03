@@ -29,9 +29,17 @@ UPLINK_PORT_NAME=${UPLINK_PORT_NAME:-"mn-uplink-port"}
 UPLINK_VIRT_IFNAME=${UPLINK_VIRT_IFNAME:-"mn-uplink-virt"}
 UPLINK_HOST_IFNAME=${UPLINK_HOST_IFNAME:-"mn-uplink-host"}
 
-neutron router-interface-delete ${EDGE_ROUTER_NAME} port=${UPLINK_PORT_NAME}
-neutron net-delete ${UPLINK_NET_NAME}
-neutron router-interface-delete ${EDGE_ROUTER_NAME} ${PUBLIC_SUBNET_NAME}
-neutron router-delete ${EDGE_ROUTER_NAME}
+openstack --os-project-name admin \
+    router remove port \
+    ${EDGE_ROUTER_NAME} ${UPLINK_PORT_NAME}
+openstack --os-project-name admin \
+    network delete \
+    ${UPLINK_NET_NAME}
+openstack --os-project-name admin \
+    router remove port \
+    ${EDGE_ROUTER_NAME} ${PUBLIC_SUBNET_NAME}
+openstack --os-project-name admin \
+    router delete \
+    ${EDGE_ROUTER_NAME}
 
 sudo ip link delete ${UPLINK_HOST_IFNAME}
