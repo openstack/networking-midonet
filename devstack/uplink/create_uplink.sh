@@ -97,15 +97,10 @@ openstack --os-project-name admin \
 openstack --os-project-name admin \
     router add subnet \
     ${EDGE_ROUTER_NAME} ${PUBLIC_SUBNET_NAME}
-# NOTE(yamamoto): Still using neutron command here to workaround bug 1657311
-neutron --os-project-name admin \
-    net-create \
-    ${UPLINK_NET_NAME} \
-    --provider:network_type uplink
-#openstack --os-project-name admin \
-#    network create \
-#    --provider-network-type uplink \
-#    ${UPLINK_NET_NAME}
+openstack --os-project-name admin \
+    network create \
+    --provider-network-type uplink \
+    ${UPLINK_NET_NAME}
 openstack --os-project-name admin \
     subnet create \
     --no-dhcp \
