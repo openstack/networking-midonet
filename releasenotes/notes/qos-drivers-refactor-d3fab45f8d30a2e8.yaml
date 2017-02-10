@@ -1,0 +1,5 @@
+---
+deprecations:
+  - |
+    ``notification_drivers`` from ``[qos]`` section has been deprecated.
+    Please remove it from your configuration.

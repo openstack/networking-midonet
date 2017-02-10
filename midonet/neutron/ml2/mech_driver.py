@@ -17,8 +17,6 @@ from neutron_lib.api.definitions import portbindings
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 
-from neutron.services.qos import qos_consts
-
 from midonet.neutron._i18n import _
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
@@ -26,6 +24,7 @@ from midonet.neutron.common import constants as const
 from midonet.neutron.common import utils as c_utils
 from midonet.neutron.ml2 import sg_callback
 from midonet.neutron.ml2 import util as m_util
+from midonet.neutron.services.qos import driver as qos_driver
 
 from neutron.plugins.ml2 import driver_api as api
 from oslo_config import cfg
@@ -39,11 +38,6 @@ class MidonetMechanismDriver(api.MechanismDriver):
 
     """ML2 Mechanism Driver for Midonet."""
 
-    supported_qos_rule_types = [
-        qos_consts.RULE_TYPE_BANDWIDTH_LIMIT,
-        qos_consts.RULE_TYPE_DSCP_MARKING,
-    ]
-
     def __init__(self):
         self.vif_type = const.VIF_TYPE_MIDONET
         self.supported_vnic_types = [portbindings.VNIC_NORMAL]
@@ -51,6 +45,8 @@ class MidonetMechanismDriver(api.MechanismDriver):
 
         self.client = c_base.load_client(cfg.CONF.MIDONET)
         self.client.initialize()
+
+        qos_driver.register()
 
     def initialize(self):
         self.sec_handler = sg_callback.MidonetSecurityGroupsHandler(

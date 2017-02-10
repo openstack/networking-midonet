@@ -149,10 +149,6 @@ MidoNet driver::
     enable_service q-qos
     disable_service q-trunk  # bug 1643451
 
-    [[post-config|$NEUTRON_CONF]]
-    [qos]
-    notification_drivers = midonet
-
 
 LBaaS v2
 --------

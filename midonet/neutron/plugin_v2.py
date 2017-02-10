@@ -23,6 +23,8 @@ from midonet.neutron.db import port_binding_db as pb_db
 from midonet.neutron.db import provider_network_db as pnet_db
 from midonet.neutron.midonet_v2 import managers
 from midonet.neutron import plugin
+from midonet.neutron.services.qos import driver as qos_driver
+
 from neutron.api.v2 import attributes
 from neutron.db import allowedaddresspairs_db as addr_pair_db
 from neutron.db import api as db_api
@@ -33,7 +35,6 @@ from neutron.extensions import extra_dhcp_opt as edo_ext
 from neutron.extensions import portsecurity as psec
 from neutron.extensions import providernet as pnet
 from neutron.extensions import securitygroup as ext_sg
-from neutron.services.qos import qos_consts
 from oslo_db import exception as oslo_db_exc
 from oslo_log import log as logging
 from oslo_utils import excutils
@@ -80,16 +81,12 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
     __native_pagination_support = True
     __native_sorting_support = True
 
-    supported_qos_rule_types = [
-        qos_consts.RULE_TYPE_BANDWIDTH_LIMIT,
-        qos_consts.RULE_TYPE_DSCP_MARKING,
-    ]
-
     def __init__(self):
         self.extension_manager = managers.ExtensionManager()
         self.extension_manager.initialize()
         super(MidonetPluginV2, self).__init__()
         self.client.initialize()
+        qos_driver.register()
 
     @db_api.retry_if_session_inactive()
     def create_network(self, context, network):
