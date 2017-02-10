@@ -11,34 +11,26 @@ To Run DevStack with Full OpenStack Environment
 3. Run ``stack.sh``
 
 
-To Run DevStack with monolithic midonet plugin
------------------------------------------------
+local.conf examples
+-------------------
 
-1. Download DevStack
-2. Copy the sample ``midonet/local.conf.sample`` file over to the devstack
-   directory as ``local.conf``.
-3. Run ``stack.sh``
+ML2 Plugin with MidoNet drivers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+You can find an example at `devstack/ml2/local.conf.sample
+<https://git.openstack.org/cgit/openstack/networking-midonet/plain/devstack/ml2/local.conf.sample>`_
+in the source tree.
 
-To Run DevStack with ML2 and midonet mechanism driver
------------------------------------------------------
+.. literalinclude:: ../../devstack/ml2/local.conf.sample
 
-1. Download DevStack
-2. Copy the sample ``ml2/local.conf.sample`` file over to the devstack directory
-   as ``local.conf``.
-3. Run ``stack.sh``
+MidoNet plugin (deprecated)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Note that with these configurations, only the following services are started::
+You can find an example at `devstack/midonet/local.conf.sample
+<https://git.openstack.org/cgit/openstack/networking-midonet/plain/devstack/midonet/local.conf.sample>`_
+in the source tree.
 
-    rabbit
-    mysql
-    keystone
-    nova
-    glance
-    neutron
-    lbaas
-    tempest
-    horizon
+.. literalinclude:: ../../devstack/midonet/local.conf.sample
 
 
 MidoNet backend communication
