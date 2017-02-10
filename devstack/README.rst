@@ -2,13 +2,11 @@
 DevStack external plugin
 ========================
 
+networking-midonet has its
+`devstack plugin <http://docs.openstack.org/developer/devstack/plugins.html>`_.
+The following ``local.conf`` snippet would enable it::
 
-To Run DevStack with Full OpenStack Environment
------------------------------------------------
-
-1. Download DevStack
-2. Prepare ``local.conf``
-3. Run ``stack.sh``
+    enable_plugin networking-midonet https://git.openstack.org/openstack/networking-midonet
 
 
 local.conf examples
