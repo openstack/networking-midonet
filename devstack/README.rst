@@ -163,3 +163,13 @@ MidoNet driver::
     enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas
     enable_service q-lbaasv2
     NEUTRON_LBAAS_SERVICE_PROVIDERV2="LOADBALANCERV2:Midonet:midonet.neutron.services.loadbalancer.v2_driver.MidonetLoadBalancerDriver:default"
+
+
+Tap as a service
+----------------
+
+The following ``local.conf`` snippet would enable Tap-as-a-service support::
+
+    enable_plugin tap-as-a-service https://git.openstack.org/openstack/tap-as-a-service
+    enable_service taas
+    TAAS_SERVICE_DRIVER="TAAS:Midonet:midonet.neutron.services.taas.service_drivers.taas_midonet.MidonetTaasDriver:default"
