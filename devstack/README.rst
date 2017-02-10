@@ -147,7 +147,6 @@ MidoNet driver::
 
     enable_plugin neutron https://github.com/openstack/neutron
     enable_service q-qos
-    disable_service q-trunk  # bug 1643451
 
 
 LBaaS v2
