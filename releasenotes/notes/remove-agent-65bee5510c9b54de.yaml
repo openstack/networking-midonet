@@ -1,0 +1,7 @@
+---
+deprecations:
+  - |
+    The functionality to report MidoNet agents for ``agent`` extension
+    has been removed.  This is not relevant to majority of users because
+    it has been available only when v2 plugin is used with the experimental
+    task-based API.

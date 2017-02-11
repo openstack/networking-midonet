@@ -577,21 +577,6 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.delete_security_group_rule exiting: id=%r",
                   sg_rule_id)
 
-    def get_agents(self, context, filters=None, fields=None):
-        LOG.debug("MidonetPluginV2.get_agents called")
-
-        agents = super(MidonetPluginV2, self).get_agents(context, filters,
-                                                         fields)
-        return agents + self.client.get_agents()
-
-    def get_agent(self, context, id, fields=None):
-        LOG.debug("MidonetPluginV2.get_agent called: %(id)r", {'id': id})
-
-        agent = self.client.get_agent(id)
-        if not agent:
-            agent = super(MidonetPluginV2, self).get_agent(context, id, fields)
-        return agent
-
     def _midonet_v2_extend_network_dict(self, result, netdb):
         session = db_api.get_session()
         with session.begin(subtransactions=True):

@@ -38,10 +38,8 @@ from neutron.extensions import portsecurity as psec
 from neutron.extensions import securitygroup as sg
 from neutron.plugins.common import constants as p_const
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
-from neutron.tests.unit.api import test_extensions
 from neutron.tests.unit.db import test_allowedaddresspairs_db as test_addr
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_plugin
-from neutron.tests.unit.extensions import test_agent
 from neutron.tests.unit.extensions import test_extra_dhcp_opt as test_dhcpopts
 from neutron.tests.unit.extensions import test_extraroute as test_ext_route
 from neutron.tests.unit.extensions import test_l3_ext_gw_mode as test_gw_mode
@@ -50,7 +48,6 @@ from neutron.tests.unit.extensions import test_securitygroup as test_sg
 from neutron.tests.unit import testlib_api
 
 from oslo_config import cfg
-from oslo_utils import uuidutils
 
 
 load_tests = testscenarios.load_tests_apply_scenarios
@@ -522,63 +519,6 @@ class TestMidonetDataState(testlib_api.SqlTestCase):
         data_state_db.set_readwrite(self.session)
         ds = data_state_db.get_data_state(self.session)
         self.assertFalse(ds.readonly)
-
-
-class TestMidonetAgent(MidonetPluginV2TestCase,
-                       test_agent.AgentDBTestMixIn):
-
-    def setUp(self):
-        super(TestMidonetAgent, self).setUp()
-        self.adminContext = context.get_admin_context()
-        ext_mgr = test_agent.AgentTestExtensionManager()
-        self.ext_api = test_extensions.setup_extensions_middleware(ext_mgr)
-
-    def test_list_agents_including_midonet_agents(self):
-        agents = self._register_agent_states()
-        agent1 = {
-            'id': uuidutils.generate_uuid(),
-            'binary': 'midolman',
-            'admin_state_up': True,
-            'host': 'midohostA',
-            'agent_type': 'Midonet Agent'}
-
-        agent2 = {
-            'id': uuidutils.generate_uuid(),
-            'binary': 'midolman',
-            'admin_state_up': False,
-            'host': 'midohostB',
-            'agent_type': 'Midonet Agent'}
-
-        self.client_mock.get_agents.return_value = [agent1, agent2]
-
-        res = self._list('agents')
-        agent_ids = [ag['id'] for ag in res['agents']]
-
-        self.assertEqual(len(agents) + 2, len(res['agents']))
-        self.assertIn(agent1['id'], agent_ids)
-        self.assertIn(agent2['id'], agent_ids)
-
-    def test_show_midonet_agent(self):
-        self._register_agent_states()
-
-        agent_id = uuidutils.generate_uuid()
-        self.client_mock.get_agent.return_value = {
-            'id': agent_id,
-            'binary': 'midolman',
-            'admin_state_up': True,
-            'host': 'midohostA',
-            'agent_type': 'Midonet Agent'}
-
-        agent = self._show('agents', agent_id)
-        self.assertEqual(agent_id, agent['agent']['id'])
-
-    def test_show_non_existent_midonet_agent(self):
-        self._register_agent_states()
-
-        self.client_mock.get_agent.return_value = None
-
-        self._show('agents', uuidutils.generate_uuid(),
-                   expected_code=exc.HTTPNotFound.code)
 
 
 class TestMidonetDataVersion(testlib_api.SqlTestCase):

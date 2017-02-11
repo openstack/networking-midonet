@@ -207,14 +207,6 @@ class MidonetClientBase(object):
     def delete_agent_membership_postcommit(self, agent_membership_id):
         pass
 
-    # Agent extension
-
-    def get_agent(self, agent_id):
-        return None
-
-    def get_agents(self):
-        return []
-
     # LBaaS methods - these are not inside a DB transaction.  DB updates as
     # well as blocking API calls are allowed.
 
