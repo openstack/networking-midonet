@@ -124,7 +124,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=False
-        _ADV_SVC=True
+        _ADV_SVC=False
         ;;
     rally-ml2)
         # Note the actual url here is somewhat irrelevant because it
@@ -139,7 +139,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_TENANT_NETWORK_TYPE=midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=True
-        _ADV_SVC=True
+        _ADV_SVC=False
 esac
 
 # We are only interested on Neutron, so very few services are needed
