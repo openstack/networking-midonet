@@ -28,8 +28,10 @@ if [[ "$1" == "stack" ]]; then
 
         if [ "$MIDONET_USE_PACKAGE" = "True" ]; then
             sudo $ABSOLUTE_PATH/midonet-pkg/configure_repo.sh \
-                $MIDNOET_DEB_URI $MIDNOET_DEB_SUITE $MIDNOET_DEB_COMPONENT
-            sudo $ABSOLUTE_PATH/midonet-pkg/install_pkgs.sh
+                $MIDNOET_DEB_URI $MIDNOET_DEB_SUITE $MIDNOET_DEB_COMPONENT \
+                $MIDONET_USE_CASSANDRA
+            sudo $ABSOLUTE_PATH/midonet-pkg/install_pkgs.sh \
+                $MIDONET_USE_CASSANDRA
         else
             # Clone and build midonet service
             if [[ "$OFFLINE" != "True" ]]; then
