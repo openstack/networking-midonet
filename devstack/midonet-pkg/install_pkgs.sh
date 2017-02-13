@@ -15,6 +15,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+MIDONET_USE_CASSANDRA=$1
+
 # Remove possible reminders from the previous devmido runs
 rm -rf \
     /usr/local/bin/mn-conf \
