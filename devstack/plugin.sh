@@ -83,10 +83,6 @@ if [[ "$1" == "stack" ]]; then
             fi
         fi
 
-        # Workaround fip64 checksum issue
-        install_package ethtool
-        sudo ethtool -K tnvxlan-fip64 tx off
-
     elif [[ "$2" == "post-config" ]]; then
 
         configure_neutron_midonet
