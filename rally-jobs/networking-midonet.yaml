@@ -348,7 +348,6 @@
         network_create_args: {}
         router_create_args: {}
         routers_per_subnet: 2
-        router_create_args: {}
         port_create_args: {}
       runner:
         type: "rps"
