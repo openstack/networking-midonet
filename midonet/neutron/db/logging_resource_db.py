@@ -20,12 +20,9 @@ from neutron_fwaas.extensions import firewall as fw_ext
 
 from oslo_db import exception as db_exc
 from oslo_log import helpers as log_helpers
-from oslo_log import log as logging
 from oslo_utils import uuidutils
 
 from sqlalchemy.orm import exc
-
-LOG = logging.getLogger(__name__)
 
 
 class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
