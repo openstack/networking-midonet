@@ -100,7 +100,14 @@ class TestMidonetSecurityGroup(test_sg.TestSecurityGroups,
 
 class TestMidonetSubnetsV2(MidonetPluginV2TestCase,
                            test_plugin.TestSubnetsV2):
-    pass
+
+    def test_delete_subnet_port_exists_owned_by_network(self):
+        # MidoNet doesn't support updating dhcp port's fixed-ips.
+        pass
+
+    def test_delete_subnet_dhcp_port_associated_with_other_subnets(self):
+        # MidoNet doesn't support updating dhcp port's fixed-ips.
+        pass
 
 
 class TestMidonetPortsV2(MidonetPluginV2TestCase,
