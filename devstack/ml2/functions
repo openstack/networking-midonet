@@ -17,10 +17,16 @@ function configure_neutron_midonet {
     iniset /$Q_PLUGIN_CONF_FILE MIDONET client $MIDONET_CLIENT
     iniset /$Q_PLUGIN_CONF_FILE MIDONET cluster_ip $MIDONET_SERVICE_HOST
     iniset /$Q_PLUGIN_CONF_FILE MIDONET cluster_port $TOPOLOGY_API_PORT
+
+    if ! is_neutron_legacy_enabled; then
+        neutron_service_plugin_class_add midonet_l3
+        iniset /$Q_PLUGIN_CONF_FILE ml2 mechanism_drivers midonet
+        iniset /$Q_PLUGIN_CONF_FILE ml2 type_drivers midonet,uplink
+        iniset /$Q_PLUGIN_CONF_FILE ml2 tenant_network_types midonet
+        iniset /$Q_PLUGIN_CONF_FILE ml2 external_network_type midonet
+    fi
 }
 
 function install_neutron_midonet {
-    if ! is_neutron_legacy_enabled; then
-        neutron_service_plugin_class_add midonet_l3
-    fi
+    :
 }
