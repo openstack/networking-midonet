@@ -16,14 +16,14 @@
 
 job=$1
 
-# Inject config from hook into local.conf
+_DEVSTACK_LOCAL_CONFIG_TAIL=
+
+# Inject config from hook
 function load_conf_hook {
     local hook="$1"
     local new="$2"
     local GATE_DEST=$BASE/$new
     local GATE_HOOKS=$GATE_DEST/networking-midonet/devstack/ci/hooks
-    local DEVSTACK_PATH=$GATE_DEST/devstack
-    local LOCAL_CONF=$DEVSTACK_PATH/local.conf
 
     if [ "$new" = "old" -a ! -f $GATE_HOOKS/$hook ]; then
         # REVISIT(yamamoto): Revisit once
@@ -31,7 +31,7 @@ function load_conf_hook {
         echo "Skipping $GATE_HOOKS/$hook for old branch"
         return
     fi
-    cat $GATE_HOOKS/$hook >> $LOCAL_CONF
+    _DEVSTACK_LOCAL_CONFIG_TAIL+=$'\n'"$(cat $GATE_HOOKS/$hook)"
 }
 
 case $job in
@@ -241,5 +241,7 @@ export DEVSTACK_LOCAL_CONFIG+=$'\n'"LOGDIR=$BASE/new/screen-logs"
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"KEYSTONE_TOKEN_FORMAT=fernet"
 
 load_conf_hook quotas new
+
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"$_DEVSTACK_LOCAL_CONFIG_TAIL"
 
 $BASE/new/devstack-gate/devstack-vm-gate.sh
