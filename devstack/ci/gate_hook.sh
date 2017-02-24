@@ -42,16 +42,22 @@ case $job in
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
         export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_PLUGIN=ml2"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_MECHANISM_DRIVERS=midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_TYPE_DRIVERS=midonet,uplink"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_TENANT_NETWORK_TYPE=midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ADV_SVC=False
+        _LEGACY=False
         _QOS=False
         ;;
     ml2-full)
+        # Note the actual url here is somewhat irrelevant because it
+        # caches in nodepool, however make it a valid url for
+        # documentation purposes.
+        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
+        _ADV_SVC=True
+        _LEGACY=False
+        _QOS=True
+        ;;
+    ml2-full-legacy)
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
@@ -64,6 +70,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ADV_SVC=True
         _QOS=True
+        _LEGACY=True
         ;;
     grenade-v2)
         # NOTE(yamamoto): This job performs a migration from v2 to ML2
@@ -78,6 +85,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ADV_SVC=False
         _QOS=True
+        _LEGACY=True
         load_conf_hook quotas old
         # REVISIT(yamamoto): A crude workaround for bug/1700487
         # A better fix: Iec45a33930a06b17be00e8602f2457ab6960073f
@@ -96,9 +104,8 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_TYPE_DRIVERS=midonet,uplink"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_TENANT_NETWORK_TYPE=midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_ZOOM=True"
-        _ZOOM=True
         _ADV_SVC=False
+        _LEGACY=True
         _QOS=True
         load_conf_hook quotas old
         ;;
@@ -108,13 +115,9 @@ case $job in
         # documentation purposes.
         export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin rally git://git.openstack.org/openstack/rally"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_PLUGIN=ml2"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_MECHANISM_DRIVERS=midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_TYPE_DRIVERS=midonet,uplink"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_TENANT_NETWORK_TYPE=midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ADV_SVC=False
+        _LEGACY=False
         _QOS=False
 esac
 
@@ -129,7 +132,11 @@ s+="mysql,rabbit"
 s+=",key"
 s+=",n-api,n-cond,n-cpu,n-crt,n-sch,placement-api,n-api-meta"
 s+=",g-api,g-reg"
-s+=",q-svc,quantum"
+if [ "${_LEGACY}" = "True" ]; then
+    s+=",q-svc"
+else
+    s+=",neutron-api"
+fi
 if [ -z "${RALLY_SCENARIO}" ] ; then
     # Only include tempest if this is not a rally job.
     s+=",tempest"
@@ -151,18 +158,27 @@ sudo iptables -I openstack-INPUT 1 -i tun-dl-+ -j ACCEPT || :
 
 if [ "${_ADV_SVC}" = "True" ]; then
     # Enable FWaaS
-    s+=",q-fwaas"
+    if [ "${_LEGACY}" = "True" ]; then
+        s+=",q-fwaas"
+    else
+        s+=",neutron-fwaas-v1"
+    fi
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-fwaas https://github.com/openstack/neutron-fwaas"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"FWAAS_PLUGIN=midonet_firewall"
 
     # Enable VPNaaS
+    # NOTE(yamamoto): neutron-vpnaas devstack plugin doesn't have q- name
     s+=",neutron-vpnaas"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-vpnaas https://github.com/openstack/neutron-vpnaas"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_VPNAAS_SERVICE_PROVIDER=\"VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default\""
 
     # Enable LBaaSv2
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas"
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service q-lbaasv2"
+    if [ "${_LEGACY}" = "True" ]; then
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service q-lbaasv2"
+    else
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service neutron-lbaasv2"
+    fi
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_LBAAS_SERVICE_PROVIDERV2=\"LOADBALANCERV2:Midonet:midonet.neutron.services.loadbalancer.v2_driver.MidonetLoadBalancerDriver:default\""
 
     # Enable Tap as a service
@@ -175,13 +191,22 @@ if [ "${_ADV_SVC}" = "True" ]; then
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"DR_MODE=dr_plugin"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"BGP_PLUGIN=midonet_bgp"
     # See REVISIT comment in devstack/settings
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service q-dr"
+    if [ "${_LEGACY}" = "True" ]; then
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service q-dr"
+    else
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service neutron-dr"
+    fi
 fi
 
 if [ "${_QOS}" = "True" ]; then
     # Enable QoS
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron https://github.com/openstack/neutron"
-    s+=",q-qos"
+    if [ "${_LEGACY}" = "True" ]; then
+        s+=",q-qos"
+    else
+        s+=",neutron-qos"
+    fi
+
 fi
 
 export OVERRIDE_ENABLED_SERVICES="$s"
