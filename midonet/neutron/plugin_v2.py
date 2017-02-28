@@ -15,6 +15,9 @@
 
 import sqlalchemy
 
+from neutron_lib.callbacks import events
+from neutron_lib.callbacks import registry
+from neutron_lib.callbacks import resources
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 from neutron_lib.plugins import directory
@@ -28,9 +31,6 @@ from midonet.neutron import plugin
 from midonet.neutron.services.qos import driver as qos_driver
 
 from neutron.api.v2 import attributes
-from neutron.callbacks import events
-from neutron.callbacks import registry
-from neutron.callbacks import resources
 from neutron.db import _resource_extend as resource_extend
 from neutron.db import allowedaddresspairs_db as addr_pair_db
 from neutron.db import api as db_api

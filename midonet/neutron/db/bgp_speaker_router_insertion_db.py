@@ -16,15 +16,14 @@
 from midonet.neutron.db import bgp_speaker_router_insertion_model as model
 from midonet.neutron.extensions import bgp_speaker_router_insertion as bsri
 
-from neutron_dynamic_routing.db import bgp_db as bdb
-from neutron_dynamic_routing.extensions import bgp as bgp_ext
-from neutron_lib.plugins import directory
-
-from neutron.callbacks import events
-from neutron.callbacks import registry
-from neutron.callbacks import resources
 from neutron.db import api as db_api
 from neutron.extensions import l3
+from neutron_dynamic_routing.db import bgp_db as bdb
+from neutron_dynamic_routing.extensions import bgp as bgp_ext
+from neutron_lib.callbacks import events
+from neutron_lib.callbacks import registry
+from neutron_lib.callbacks import resources
+from neutron_lib.plugins import directory
 from oslo_db import exception as db_exc
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging

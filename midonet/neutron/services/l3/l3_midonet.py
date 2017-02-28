@@ -14,6 +14,9 @@
 #    under the License.
 
 from neutron_lib.api.definitions import provider_net as pnet
+from neutron_lib.callbacks import events
+from neutron_lib.callbacks import registry
+from neutron_lib.callbacks import resources
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 
@@ -26,9 +29,6 @@ from midonet.neutron import extensions
 from midonet.neutron.extensions import routerinterfacefip
 
 from neutron.api import extensions as neutron_extensions
-from neutron.callbacks import events
-from neutron.callbacks import registry
-from neutron.callbacks import resources
 from neutron.db import api as db_api
 from neutron.db import common_db_mixin
 from neutron.db import extraroute_db
