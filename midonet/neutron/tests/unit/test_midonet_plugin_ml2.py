@@ -23,9 +23,9 @@ from oslo_config import cfg
 
 from neutron_lib.api.definitions import provider_net as pnet
 from neutron_lib import constants as n_const
+from neutron_lib import context
 from neutron_lib.plugins import directory
 
-from neutron import context
 from neutron.extensions import external_net
 from neutron.tests.unit.api import test_extensions
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_plugin

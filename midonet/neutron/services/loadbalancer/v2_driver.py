@@ -15,7 +15,7 @@
 
 # lbaasv2 driver for MidoNet
 
-from neutron import context as ncontext
+from neutron_lib import context as ncontext
 from neutron_lib.plugins import directory
 
 from oslo_config import cfg
