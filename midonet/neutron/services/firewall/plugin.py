@@ -48,7 +48,7 @@ class _MidonetFirewallDriver(object):
         self.plugin = callbacks.plugin
 
     @log_helpers.log_method_call
-    def create_firewall(self, context, firewall):
+    def create_firewall(self, context, firewall, host=None):
         # This method is called outside of DB transaction
         try:
             self.client.create_firewall(context, firewall)
@@ -67,7 +67,7 @@ class _MidonetFirewallDriver(object):
         self._set_firewall_status_noerror(context, firewall)
 
     @log_helpers.log_method_call
-    def update_firewall(self, context, firewall):
+    def update_firewall(self, context, firewall, host=None):
         # This method is called outside of DB transaction
         try:
             self.client.update_firewall(context, firewall)
@@ -93,7 +93,7 @@ class _MidonetFirewallDriver(object):
         self.callbacks.set_firewall_status(context, firewall['id'], status)
 
     @log_helpers.log_method_call
-    def delete_firewall(self, context, firewall):
+    def delete_firewall(self, context, firewall, host=None):
         # This method is called outside of DB transaction
         try:
             self.client.delete_firewall(context, firewall)
