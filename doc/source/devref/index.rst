@@ -38,7 +38,6 @@ Programming HowTos and Tutorials
 
    alembic_migrations
    testing
-   packages
 
 
 Networking MidoNet Internals
