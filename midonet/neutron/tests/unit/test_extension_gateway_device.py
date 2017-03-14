@@ -277,6 +277,28 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                     self.fmt, req.get_response(self.ext_api))
                 self.assertEqual(1, len(res['remote_mac_entries']))
 
+    def test_list_remote_mac_with_two_gateways(self):
+        with self.gateway_device_type_router_vtep(
+                resource_id=self._router_id) as gw_dev, \
+             self.gateway_device_type_router_vtep(
+                resource_id=self._router_id_in_use,
+                tunnel_ips=[FAKE_TUNNEL_IP2]) as gw_dev2:
+            with self.remote_mac_entry(gw_dev['gateway_device']['id']) as rme:
+                req = self.new_list_request('gw/gateway_devices/'
+                                            + gw_dev['gateway_device']['id']
+                                            + '/remote_mac_entries')
+                res = self.deserialize(
+                    self.fmt, req.get_response(self.ext_api))
+                self.assertEqual(1, len(res['remote_mac_entries']))
+                self.assertEqual(rme['remote_mac_entry']['id'],
+                                 res['remote_mac_entries'][0]['id'])
+                req = self.new_list_request('gw/gateway_devices/'
+                                            + gw_dev2['gateway_device']['id']
+                                            + '/remote_mac_entries')
+                res = self.deserialize(
+                    self.fmt, req.get_response(self.ext_api))
+                self.assertEqual([], res['remote_mac_entries'])
+
     def test_delete_remote_mac(self):
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
@@ -287,6 +309,20 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                                               rme['remote_mac_entry']['id'])
                 res = req.get_response(self.ext_api)
                 self.assertEqual(webob.exc.HTTPNoContent.code, res.status_int)
+
+    def test_delete_remote_mac_with_wrong_gateway(self):
+        with self.gateway_device_type_router_vtep(
+                resource_id=self._router_id) as gw_dev, \
+             self.gateway_device_type_router_vtep(
+                resource_id=self._router_id_in_use,
+                tunnel_ips=[FAKE_TUNNEL_IP2]) as gw_dev2:
+            with self.remote_mac_entry(gw_dev['gateway_device']['id']) as rme:
+                req = self.new_delete_request('gw/gateway_devices/'
+                                              + gw_dev2['gateway_device']['id']
+                                              + '/remote_mac_entries',
+                                              rme['remote_mac_entry']['id'])
+                res = req.get_response(self.ext_api)
+                self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
 
     def test_delete_gateway_device_with_remote_mac(self):
         with self.gateway_device_type_router_vtep(
