@@ -653,9 +653,7 @@ class GatewayDeviceTestCaseWithML2(GatewayDeviceTestCaseMixin,
             req = self.new_delete_request('networks',
                                           self._network_id)
             res = req.get_response(self.api)
-            # ML2 plugin on upstream code will return 500 error regardless of
-            # ML2 driver exception class
-            self.assertLessEqual(webob.exc.HTTPConflict.code, res.status_int)
+            self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
             req = self.new_show_request('networks', self._network_id)
             res = req.get_response(self.api)
             self.assertEqual(webob.exc.HTTPOk.code, res.status_int)
