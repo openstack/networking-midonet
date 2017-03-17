@@ -16,9 +16,9 @@
 import mock
 from oslo_utils import uuidutils
 
-from neutron.agent.common import config
 from neutron.agent.linux import interface as n_interface
 from neutron.agent.linux import utils
+from neutron.conf.agent import common as config
 from neutron.tests.unit.agent.linux import test_interface as n_test
 
 from midonet.neutron.agent import interface
