@@ -210,10 +210,13 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
         else:
             return gw_hw_vtep_db
 
-    def _get_remote_mac_entry(self, context, id):
+    def _get_remote_mac_entry(self, context, id, gateway_device_id):
         try:
             query = self._model_query(context, GatewayRemoteMacTable)
             rmt_db = query.filter(GatewayRemoteMacTable.id == id).one()
+            if rmt_db.device_id != gateway_device_id:
+                raise gw_device_ext.RemoteMacEntryWrongGatewayDevice(
+                    id=id, gateway_device_id=gateway_device_id)
 
         except exc.NoResultFound:
             raise gw_device_ext.RemoteMacEntryNotFound(id=id)
@@ -441,7 +444,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
 
     def delete_gateway_device_remote_mac_entry(self, context, id,
                                                gateway_device_id):
-        rmt_db = self._get_remote_mac_entry(context, id)
+        rmt_db = self._get_remote_mac_entry(context, id, gateway_device_id)
         with context.session.begin(subtransactions=True):
             context.session.delete(rmt_db)
 
@@ -469,6 +472,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
                                               marker=None, page_reverse=False):
         marker_obj = self._get_marker_obj(context, 'remote_mac_entry', limit,
                                           marker)
+        filters['device_id'] = [gateway_device_id]
         return self._get_collection(context,
                                     GatewayRemoteMacTable,
                                     self._make_remote_mac_dict,
@@ -479,7 +483,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
 
     def get_gateway_device_remote_mac_entry(self, context, id,
                                             gateway_device_id, fields=None):
-        rme = self._get_remote_mac_entry(context, id)
+        rme = self._get_remote_mac_entry(context, id, gateway_device_id)
         return self._make_remote_mac_dict(rme, fields)
 
     def update_gateway_device(self, context, id, gw_device):
