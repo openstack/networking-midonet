@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import sqlalchemy
+
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 from neutron_lib.plugins import directory
@@ -97,7 +99,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         net_data['tenant_id'] = tenant_id
         self._ensure_default_security_group(context, tenant_id)
 
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             net_db = self.create_network_db(context, network)
             net = self._make_network_dict(net_db, process_extensions=False,
                                           context=context)
@@ -133,8 +135,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
     def get_network(self, context, id, fields=None):
         LOG.debug("MidonetPluginV2.get_network called: id=%(id)r", {'id': id})
 
-        session = context.session
-        with session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             net = super(MidonetPluginV2, self).get_network(context, id, None)
             self._extend_provider_network_dict(context, net)
 
@@ -145,8 +146,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.get_networks called: filters=%(filters)r",
                   {'filters': filters})
 
-        session = context.session
-        with session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             nets = super(MidonetPluginV2,
                          self).get_networks(context, filters, None, sorts,
                                             limit, marker, page_reverse)
@@ -166,7 +166,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         net_data = network['network']
         pnet._raise_if_updates_provider_attributes(net_data)
 
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             net = super(MidonetPluginV2, self).update_network(
                 context, id, network)
             self.extension_manager.process_update_network(context, net_data,
@@ -192,7 +192,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
     def delete_network(self, context, id):
         LOG.debug("MidonetPluginV2.delete_network called: id=%r", id)
 
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             c_utils.check_delete_network_precommit(context, id)
             self._process_l3_delete(context, id)
             try:
@@ -215,7 +215,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
     def create_subnet(self, context, subnet):
         LOG.debug("MidonetPluginV2.create_subnet called: subnet=%r", subnet)
 
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             s = super(MidonetPluginV2, self).create_subnet(context, subnet)
             self.extension_manager.process_create_subnet(context,
                 subnet['subnet'], s)
@@ -239,7 +239,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
     def delete_subnet(self, context, id):
         LOG.debug("MidonetPluginV2.delete_subnet called: id=%s", id)
 
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             super(MidonetPluginV2, self).delete_subnet(context, id)
             self.client.delete_subnet_precommit(context, id)
 
@@ -251,7 +251,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
     def update_subnet(self, context, id, subnet):
         LOG.debug("MidonetPluginV2.update_subnet called: id=%s", id)
 
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             s = super(MidonetPluginV2, self).update_subnet(context, id, subnet)
             self.extension_manager.process_update_subnet(context,
                 subnet['subnet'], s)
@@ -271,6 +271,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.create_port called: port=%r", port)
 
         port_data = port['port']
+        tenant_id = port_data['tenant_id']
+        self._ensure_default_security_group(context, tenant_id)
         # REVISIT(yamamoto): this nested transaction is a workaround
         # for bug #1490917.
         with db_api.autonested_transaction(context.session):
@@ -369,7 +371,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         if l3_port_check and l3plugin:
             l3plugin.prevent_l3_port_deletion(context, id)
 
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             if l3plugin:
                 l3plugin.disassociate_floatingips(context, id,
                                                   do_notify=False)
@@ -385,7 +387,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.update_port called: id=%(id)s "
                   "port=%(port)r", {'id': id, 'port': port})
 
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
 
             # update the port DB
             original_port = super(MidonetPluginV2, self).get_port(context, id)
@@ -468,7 +470,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             self._ensure_default_security_group(context, tenant_id)
 
         # Create the Neutron sg first
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             sg = super(MidonetPluginV2, self).create_security_group(
                 context, security_group, default_sg)
             self.client.create_security_group_precommit(context, sg)
@@ -500,7 +502,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         if sg["name"] == 'default' and not context.is_admin:
             raise ext_sg.SecurityGroupCannotRemoveDefault()
 
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             super(MidonetPluginV2, self).delete_security_group(context, id)
             self.client.delete_security_group_precommit(context, id)
 
@@ -514,7 +516,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                   "security_group_rule=%(security_group_rule)r",
                   {'security_group_rule': security_group_rule})
 
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             rule = super(MidonetPluginV2, self).create_security_group_rule(
                 context, security_group_rule)
             self.client.create_security_group_rule_precommit(context, rule)
@@ -541,7 +543,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                   "security_group_rules=%(security_group_rules)r",
                   {'security_group_rules': security_group_rules})
 
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             rules = super(
                 MidonetPluginV2, self).create_security_group_rule_bulk_native(
                     context, security_group_rules)
@@ -566,7 +568,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.delete_security_group_rule called: "
                   "sg_rule_id=%s", sg_rule_id)
 
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             super(MidonetPluginV2, self).delete_security_group_rule(context,
                                                                  sg_rule_id)
             self.client.delete_security_group_rule_precommit(context,
@@ -578,20 +580,23 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                   sg_rule_id)
 
     def _midonet_v2_extend_network_dict(self, result, netdb):
-        session = db_api.get_session()
-        with session.begin(subtransactions=True):
-            self.extension_manager.extend_network_dict(session, netdb, result)
+        session = self._object_session_or_new_session(netdb)
+        self.extension_manager.extend_network_dict(session, netdb, result)
 
     def _midonet_v2_extend_port_dict(self, result, portdb):
-        session = db_api.get_session()
-        with session.begin(subtransactions=True):
-            self.extension_manager.extend_port_dict(session, portdb, result)
+        session = self._object_session_or_new_session(portdb)
+        self.extension_manager.extend_port_dict(session, portdb, result)
 
     def _midonet_v2_extend_subnet_dict(self, result, subnetdb):
-        session = db_api.get_session()
-        with session.begin(subtransactions=True):
-            self.extension_manager.extend_subnet_dict(
-                session, subnetdb, result)
+        session = self._object_session_or_new_session(subnetdb)
+        self.extension_manager.extend_subnet_dict(session, subnetdb, result)
+
+    @staticmethod
+    def _object_session_or_new_session(sql_obj):
+        session = sqlalchemy.inspect(sql_obj).session
+        if not session:
+            session = db_api.get_reader_session()
+        return session
 
     db_base_plugin_v2.NeutronDbPluginV2.register_dict_extend_funcs(
                attributes.NETWORKS, ['_midonet_v2_extend_network_dict'])
