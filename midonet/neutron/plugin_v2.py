@@ -28,6 +28,9 @@ from midonet.neutron import plugin
 from midonet.neutron.services.qos import driver as qos_driver
 
 from neutron.api.v2 import attributes
+from neutron.callbacks import events
+from neutron.callbacks import registry
+from neutron.callbacks import resources
 from neutron.db import allowedaddresspairs_db as addr_pair_db
 from neutron.db import api as db_api
 from neutron.db import db_base_plugin_v2
@@ -112,6 +115,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             if psec.PORTSECURITY in net_data:
                 self._process_network_port_security_create(context, net_data,
                                                            net)
+            registry.notify(resources.NETWORK, events.PRECOMMIT_CREATE, self,
+                            context=context, request=net_data, network=net)
             self.client.create_network_precommit(context, net)
 
         try:
@@ -167,6 +172,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         pnet._raise_if_updates_provider_attributes(net_data)
 
         with db_api.context_manager.writer.using(context):
+            original_network = super(MidonetPluginV2, self).get_network(
+                context, id)
             net = super(MidonetPluginV2, self).update_network(
                 context, id, network)
             self.extension_manager.process_update_network(context, net_data,
@@ -181,6 +188,9 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             # revision
             context.session.flush()
             net = self.get_network(context, id)
+            registry.notify(resources.NETWORK, events.PRECOMMIT_UPDATE, self,
+                            context=context, request=net_data, network=net,
+                            original_network=original_network)
             self.client.update_network_precommit(context, id, net)
 
         self.client.update_network_postcommit(id, net)
@@ -216,11 +226,14 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.create_subnet called: subnet=%r", subnet)
 
         with db_api.context_manager.writer.using(context):
-            s = super(MidonetPluginV2, self).create_subnet(context, subnet)
+            s, net_db, ipam_sub = self._create_subnet_precommit(
+                context, subnet)
             self.extension_manager.process_create_subnet(context,
                 subnet['subnet'], s)
             self.client.create_subnet_precommit(context, s)
 
+        # db base plugin post commit ops
+        self._create_subnet_postcommit(context, s, net_db, ipam_sub)
         try:
             self.client.create_subnet_postcommit(s)
         except Exception as ex:
@@ -273,9 +286,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         port_data = port['port']
         tenant_id = port_data['tenant_id']
         self._ensure_default_security_group(context, tenant_id)
-        # REVISIT(yamamoto): this nested transaction is a workaround
-        # for bug #1490917.
-        with db_api.autonested_transaction(context.session):
+        with db_api.context_manager.writer.using(context):
             # Set status along admin_state_up if the parameter is specified.
             if port['port'].get('admin_state_up') is not None:
                 if not port['port']['admin_state_up']:

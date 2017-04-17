@@ -131,9 +131,7 @@ if [[ "$ENABLE_TASKS_IMPORTER" = "True" ]]; then
 fi
 if [ "$MIDONET_USE_KEYSTONE" = "True" ]; then
     configure_mn "cluster.auth.keystone.admin_token" ""
-    configure_mn "cluster.auth.keystone.protocol" "$KEYSTONE_AUTH_PROTOCOL"
-    configure_mn "cluster.auth.keystone.host" "$KEYSTONE_AUTH_HOST"
-    configure_mn "cluster.auth.keystone.port" "$KEYSTONE_AUTH_PORT"
+    configure_mn "cluster.auth.keystone.url" "$KEYSTONE_AUTH_URI_V3"
     configure_mn "cluster.auth.keystone.domain_name" "default"
     configure_mn "cluster.auth.keystone.tenant_name" "$SERVICE_PROJECT_NAME"
     configure_mn "cluster.auth.keystone.user_name" "midonet"

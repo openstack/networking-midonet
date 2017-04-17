@@ -19,10 +19,8 @@ from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 
 from neutron.services.qos.drivers import base
-from neutron.services.qos.notification_drivers import qos_base
 from neutron.services.qos import qos_consts
 
-from midonet.neutron._i18n import _LW
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import constants as m_const
 
@@ -77,27 +75,3 @@ def register():
     if not DRIVER:
         DRIVER = MidoNetQosDriver.create()
     LOG.debug('MidoNet QoS driver registered')
-
-
-# NOTE(yamamoto): The following driver is just a no-op to avoid
-# breaking the existing configuration.
-class MidoNetQosServiceNotificationDriver(
-    qos_base.QosServiceNotificationDriverBase):
-
-    def __init__(self):
-        super(MidoNetQosServiceNotificationDriver, self).__init__()
-        LOG.warning(
-            _LW("MidoNet QoS notification driver is no longer necessary. "
-                "Please remove QoS notification_drivers configuration."))
-
-    def get_description(self):
-        return "MidoNet QoS notification driver (no-op version)"
-
-    def create_policy(self, context, policy):
-        pass
-
-    def update_policy(self, context, policy):
-        pass
-
-    def delete_policy(self, context, policy):
-        pass

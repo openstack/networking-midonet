@@ -99,9 +99,7 @@ if [[ "$1" == "stack" ]]; then
         export API_TIMEOUT=${MIDONET_API_TIMEOUT}
 
         export MIDONET_USE_KEYSTONE
-        export KEYSTONE_AUTH_PROTOCOL
-        export KEYSTONE_AUTH_HOST
-        export KEYSTONE_AUTH_PORT
+        export KEYSTONE_AUTH_URI_V3
         export SERVICE_PROJECT_NAME
         export SERVICE_PASSWORD
         export TOPOLOGY_API_PORT

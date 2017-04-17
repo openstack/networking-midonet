@@ -23,6 +23,7 @@ from neutron_lib.plugins import directory
 from neutron.callbacks import events
 from neutron.callbacks import registry
 from neutron.callbacks import resources
+from neutron.db import api as db_api
 from neutron.extensions import l3
 from oslo_db import exception as db_exc
 from oslo_log import helpers as log_helpers
@@ -41,7 +42,7 @@ class BgpSpeakerRouterInsertionDbMixin(object):
     def set_router_for_bgp_speaker(self, context, bgp_sp_id, r_id):
         """Sets the routers associated with the bgp speaker."""
         try:
-            with context.session.begin(subtransactions=True):
+            with db_api.context_manager.writer.using(context):
                 bgp_router_db = model.BgpSpeakerRouterAssociation(
                         bgp_speaker_id=bgp_sp_id,
                         router_id=r_id)
@@ -114,7 +115,7 @@ class BgpSpeakerRouterInsertionDbMixin(object):
                 context, bgp_sp_id, router_id)
 
     def _get_bgp_speakers_by_bgp_peer_binding(self, context, bgp_peer_id):
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.reader.using(context):
             query = context.session.query(bdb.BgpSpeaker)
             query = query.filter(
                 bdb.BgpSpeakerPeerBinding.bgp_speaker_id == bdb.BgpSpeaker.id,
@@ -122,7 +123,7 @@ class BgpSpeakerRouterInsertionDbMixin(object):
             return query.all()
 
     def delete_bgp_speaker_router_insertion(self, context, bsp_id):
-        with context.session.begin(subtransactions=True):
+        with db_api.context_manager.writer.using(context):
             query = self._model_query(
                     context, model.BgpSpeakerRouterAssociation)
             query.filter(
