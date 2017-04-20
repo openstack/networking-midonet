@@ -188,6 +188,11 @@ if [ "${_ADV_SVC}" = "True" ]; then
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service q-lbaasv2"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_LBAAS_SERVICE_PROVIDERV2=\"LOADBALANCERV2:Midonet:midonet.neutron.services.loadbalancer.v2_driver.MidonetLoadBalancerDriver:default\""
+
+    # Enable Tap as a service
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin tap-as-a-service https://git.openstack.org/openstack/tap-as-a-service"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service taas"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"TAAS_SERVICE_DRIVER=\"TAAS:Midonet:midonet.neutron.services.taas.service_drivers.taas_midonet.MidonetTaasDriver:default\""
 fi
 
 export OVERRIDE_ENABLED_SERVICES="$s"
@@ -223,7 +228,7 @@ r="$r|(?:tempest\.api\.image\..*)"
 # End list of exclusions.
 r="$r)"
 
-r="$r^(tempest\.(api|scenario)|neutron_fwaas|neutron_vpnaas|neutron|midonet)\..*$"
+r="$r^(tempest\.(api|scenario)|neutron_fwaas|neutron_vpnaas|neutron_taas|neutron|midonet)\..*$"
 
 export DEVSTACK_GATE_TEMPEST_REGEX="$r"
 export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS=1
