@@ -503,7 +503,7 @@ def gateway_device_callback(resource, event, trigger, **kwargs):
         resource_id = kwargs['router_id']
         gw_dev_type = gw_device_ext.ROUTER_DEVICE_TYPE
         resource_type = 'router'
-    elif resource == midonet_const.MIDONET_NETWORK:
+    elif resource == resources.NETWORK:
         resource_id = kwargs['network_id']
         gw_dev_type = gw_device_ext.NETWORK_VLAN_TYPE
         resource_type = 'network'
@@ -522,11 +522,5 @@ def gateway_device_callback(resource, event, trigger, **kwargs):
 def subscribe():
     registry.subscribe(
         gateway_device_callback, resources.ROUTER, events.BEFORE_DELETE)
-
-    # We can only add PRECOMMIT_DELETE events in MidoNet ML2 mechanism driver
-    # while we can add both BEFORE_DELETE and PRECOMMIT_DELETE in MidoNet
-    # plugin. To keep the ML2 and plugin behavior the same, use
-    # PRECOMMIT_DELETE event for both ML2 and plugin.
     registry.subscribe(
-        gateway_device_callback, midonet_const.MIDONET_NETWORK,
-        events.PRECOMMIT_DELETE)
+        gateway_device_callback, resources.NETWORK, events.PRECOMMIT_DELETE)
