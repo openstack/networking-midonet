@@ -5,8 +5,7 @@ NETWORKING_MIDONET_DIR=${NETWORKING_MIDONET_DIR:=$DEST/networking-midonet}
 # lib/neutron vs lib/neutron-legacy compat
 Q_META_DATA_IP=${Q_META_DATA_IP:-$SERVICE_HOST}
 
-# Use MidoNet binary packages rather than devmido
-# NOTE(yamamoto): This doesn't support java7, which is used by MidoNet < 5.0
+# Use MidoNet binary packages
 MIDONET_USE_PACKAGE=${MIDONET_USE_PACKAGE:-True}
 MIDNOET_DEB_URI=${MIDNOET_DEB_URI:-http://builds.midonet.org/devstack}
 MIDNOET_DEB_SUITE=${MIDNOET_DEB_SUITE:-unstable}
@@ -19,12 +18,8 @@ MIDONET_BRANCH=${MIDONET_BRANCH:-master}
 MIDONET_DIR=${MIDONET_DIR:-$DEST/midonet}
 
 # Set up cassndra (for flow state etc)
-# Ignored if MIDONET_USE_PACKAGE!=True
 MIDONET_USE_CASSANDRA=${MIDONET_USE_CASSANDRA:-False}
 
-# Use uplink network for "fake" uplink
-# MIDONET_USE_UPLINK=False is incompatible with MIDONET_USE_PACKAGE=True
-MIDONET_USE_UPLINK=${MIDONET_USE_UPLINK:-True}
 # Configure NAT for public network.
 # You need to configure PUBLIC_INTERFACE properly.
 MIDONET_USE_UPLINK_NAT=${MIDONET_USE_UPLINK_NAT:-False}
