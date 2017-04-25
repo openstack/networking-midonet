@@ -32,3 +32,6 @@ requests-mock>=1.1 # Apache-2.0
 
 # api-ref
 os-api-ref>=1.0.0 # Apache-2.0
+
+# os-vif plugin unit tests
+os-vif>=1.4.0  # Apache-2.0

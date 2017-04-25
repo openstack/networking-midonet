@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    os-vif plugin for midonet was added.
+    It will be used by nova automatically if supported.
+    No configuration is necessary.
