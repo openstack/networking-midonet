@@ -33,6 +33,7 @@ MN_DRIVER_KLASS = ('midonet.neutron.services.vpn.service_drivers.'
 
 extensions_path = ':'.join(extensions.__path__ + nextensions.__path__)
 DB_VPN_PLUGIN_KLASS = "neutron_vpnaas.services.vpn.plugin.VPNDriverPlugin"
+FLAVOR_PLUGIN_KLASS = "neutron.services.flavors.flavors_plugin.FlavorsPlugin"
 
 
 class VPNTestExtensionManager(test_l3_plugin.L3TestExtensionManager):
@@ -53,7 +54,8 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
                   test_mn.MidonetPluginV2TestCase):
     def setUp(self):
         service_plugins = {
-            'vpn_plugin_name': DB_VPN_PLUGIN_KLASS}
+            'vpn_plugin_name': DB_VPN_PLUGIN_KLASS,
+            'flavors_plugin': FLAVOR_PLUGIN_KLASS}
         vpnaas_provider = (plugin_const.VPN + ':vpnaas:' + MN_DRIVER_KLASS
                            + ':default')
         mock.patch.object(provconf.NeutronModule, 'service_providers',

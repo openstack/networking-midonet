@@ -33,7 +33,7 @@ LOG = logging.getLogger(__name__)
 class MidonetIPsecVPNDriver(base_ipsec.BaseIPsecVPNDriver):
     def __init__(self, service_plugin):
         super(MidonetIPsecVPNDriver, self).__init__(
-            service_plugin, ipsec_validator.IpsecVpnValidator(service_plugin))
+            service_plugin, ipsec_validator.IpsecVpnValidator(self))
         self.plugin = plugin.VPNPlugin()
         self.client = c_base.load_client(cfg.CONF.MIDONET)
 
