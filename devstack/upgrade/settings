@@ -6,7 +6,7 @@ register_project_for_upgrade networking-midonet
 UPGRADE_PROJECTS="networking-midonet ${UPGRADE_PROJECTS/ networking-midonet/}"
 
 # REVISIT(yamamoto): Probably shouldn't be here
-sudo iptables -I openstack-INPUT 1 -i metadata -j ACCEPT
+sudo iptables -I openstack-INPUT 1 -i metadata -j ACCEPT || :
 
 for w in base target; do
     devstack_localrc $w LOGDIR=\$SCREEN_LOGDIR

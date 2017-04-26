@@ -164,10 +164,10 @@ export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_METADATA=True"
 # forwarded to the metadata proxy:
 #   https://github.com/openstack-infra/system-config/blob/master/modules/openstack_project/manifests/single_use_slave.pp
 #   https://github.com/openstack-infra/puppet-iptables
-sudo iptables -I openstack-INPUT 1 -i metadata -j ACCEPT
+sudo iptables -I openstack-INPUT 1 -i metadata -j ACCEPT || :
 
 # Tweak the chain for midonet vpp downlink for fip64.
-sudo iptables -I openstack-INPUT 1 -i tun-dl-+ -j ACCEPT
+sudo iptables -I openstack-INPUT 1 -i tun-dl-+ -j ACCEPT || :
 
 if [ "${_ADV_SVC}" = "True" ]; then
     # Enable FWaaS
