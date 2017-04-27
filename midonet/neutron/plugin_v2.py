@@ -31,9 +31,9 @@ from neutron.api.v2 import attributes
 from neutron.callbacks import events
 from neutron.callbacks import registry
 from neutron.callbacks import resources
+from neutron.db import _resource_extend as resource_extend
 from neutron.db import allowedaddresspairs_db as addr_pair_db
 from neutron.db import api as db_api
-from neutron.db import db_base_plugin_v2
 from neutron.db import portsecurity_db as ps_db
 from neutron.extensions import allowedaddresspairs as addr_pair
 from neutron.extensions import extra_dhcp_opt as edo_ext
@@ -48,6 +48,7 @@ from oslo_utils import excutils
 LOG = logging.getLogger(__name__)
 
 
+@resource_extend.has_resource_extenders
 class MidonetPluginV2(plugin.MidonetMixinBase,
                       addr_pair_db.AllowedAddressPairsMixin,
                       pnet_db.MidonetProviderNetworkMixin,
@@ -590,17 +591,26 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.delete_security_group_rule exiting: id=%r",
                   sg_rule_id)
 
-    def _midonet_v2_extend_network_dict(self, result, netdb):
-        session = self._object_session_or_new_session(netdb)
-        self.extension_manager.extend_network_dict(session, netdb, result)
+    @staticmethod
+    @resource_extend.extends([attributes.NETWORKS])
+    def _midonet_v2_extend_network_dict(result, netdb):
+        plugin = directory.get_plugin()
+        session = plugin._object_session_or_new_session(netdb)
+        plugin.extension_manager.extend_network_dict(session, netdb, result)
 
-    def _midonet_v2_extend_port_dict(self, result, portdb):
-        session = self._object_session_or_new_session(portdb)
-        self.extension_manager.extend_port_dict(session, portdb, result)
+    @staticmethod
+    @resource_extend.extends([attributes.PORTS])
+    def _midonet_v2_extend_port_dict(result, portdb):
+        plugin = directory.get_plugin()
+        session = plugin._object_session_or_new_session(portdb)
+        plugin.extension_manager.extend_port_dict(session, portdb, result)
 
-    def _midonet_v2_extend_subnet_dict(self, result, subnetdb):
-        session = self._object_session_or_new_session(subnetdb)
-        self.extension_manager.extend_subnet_dict(session, subnetdb, result)
+    @staticmethod
+    @resource_extend.extends([attributes.SUBNETS])
+    def _midonet_v2_extend_subnet_dict(result, subnetdb):
+        plugin = directory.get_plugin()
+        session = plugin._object_session_or_new_session(subnetdb)
+        plugin.extension_manager.extend_subnet_dict(session, subnetdb, result)
 
     @staticmethod
     def _object_session_or_new_session(sql_obj):
@@ -608,10 +618,3 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         if not session:
             session = db_api.get_reader_session()
         return session
-
-    db_base_plugin_v2.NeutronDbPluginV2.register_dict_extend_funcs(
-               attributes.NETWORKS, ['_midonet_v2_extend_network_dict'])
-    db_base_plugin_v2.NeutronDbPluginV2.register_dict_extend_funcs(
-               attributes.PORTS, ['_midonet_v2_extend_port_dict'])
-    db_base_plugin_v2.NeutronDbPluginV2.register_dict_extend_funcs(
-               attributes.SUBNETS, ['midonet_v2_extend_subnet_dict'])
