@@ -44,6 +44,7 @@ from oslo_utils import excutils
 LOG = logging.getLogger(__name__)
 
 
+@registry.has_registry_receivers
 class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
                              extraroute_db.ExtraRoute_db_mixin,
                              l3_db_midonet.MidonetL3DBMixin):
@@ -60,7 +61,6 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
 
     def __init__(self):
         super(MidonetL3ServicePlugin, self).__init__()
-        self.__subscribe()
 
         # Instantiate MidoNet API client
         self.client = c_base.load_client(cfg.CONF.MIDONET)
@@ -280,6 +280,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
                                       "status %s"), id)
         return fip
 
+    @registry.receives(resources.ROUTER_INTERFACE, [events.BEFORE_DELETE])
     def _check_router_interface_used_as_gw_for_fip(self, resource,
                                                    event, trigger, **kwargs):
         context = kwargs['context']
@@ -288,9 +289,3 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         if self._subnet_has_fip(context, router_id, subnet_id):
             raise routerinterfacefip.RouterInterfaceInUseAsGatewayByFloatingIP(
                 router_id=router_id, subnet_id=subnet_id)
-
-    def __subscribe(self):
-        registry.subscribe(
-            self._check_router_interface_used_as_gw_for_fip,
-            resources.ROUTER_INTERFACE,
-            events.BEFORE_DELETE)

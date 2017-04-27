@@ -31,7 +31,6 @@ from sqlalchemy.ext import declarative
 from sqlalchemy import orm
 from sqlalchemy.orm import exc
 
-from midonet.neutron.common import constants as midonet_const
 from midonet.neutron.extensions import gateway_device as gw_device_ext
 
 GATEWAY_DEVICES = 'midonet_gateway_devices'
@@ -157,6 +156,7 @@ class GatewayRemoteMacTable(model_base.BASEV2):
         primaryjoin="GatewayDevice.id==GatewayRemoteMacTable.device_id")
 
 
+@registry.has_registry_receivers
 class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
                       common_db_mixin.CommonDbMixin):
     """Mixin class to add gateway device."""
@@ -497,30 +497,22 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
         gw_dev_db = self._update_gateway_device_db(context, id, gw_dev)
         return self._make_gateway_device_dict(gw_dev_db)
 
-
-def gateway_device_callback(resource, event, trigger, **kwargs):
-    if resource == resources.ROUTER:
-        resource_id = kwargs['router_id']
-        gw_dev_type = gw_device_ext.ROUTER_DEVICE_TYPE
-        resource_type = 'router'
-    elif resource == resources.NETWORK:
-        resource_id = kwargs['network_id']
-        gw_dev_type = gw_device_ext.NETWORK_VLAN_TYPE
-        resource_type = 'network'
-    else:
-        return
-    gw_dev_plugin = directory.get_plugin(midonet_const.GATEWAY_DEVICE)
-    if gw_dev_plugin:
+    @registry.receives(resources.ROUTER, [events.BEFORE_DELETE])
+    @registry.receives(resources.NETWORK, [events.PRECOMMIT_DELETE])
+    def _gateway_device_callback(self, resource, event, trigger, **kwargs):
+        if resource == resources.ROUTER:
+            resource_id = kwargs['router_id']
+            gw_dev_type = gw_device_ext.ROUTER_DEVICE_TYPE
+            resource_type = 'router'
+        elif resource == resources.NETWORK:
+            resource_id = kwargs['network_id']
+            gw_dev_type = gw_device_ext.NETWORK_VLAN_TYPE
+            resource_type = 'network'
+        else:
+            return
         context = kwargs.get('context')
-        if gw_dev_plugin._get_gateway_device_from_resource(context,
-                                                           gw_dev_type,
-                                                           resource_id):
+        if self._get_gateway_device_from_resource(context,
+                                                  gw_dev_type,
+                                                  resource_id):
             raise gw_device_ext.DeviceInUseByGatewayDevice(
                 resource_id=resource_id, resource_type=resource_type)
-
-
-def subscribe():
-    registry.subscribe(
-        gateway_device_callback, resources.ROUTER, events.BEFORE_DELETE)
-    registry.subscribe(
-        gateway_device_callback, resources.NETWORK, events.PRECOMMIT_DELETE)

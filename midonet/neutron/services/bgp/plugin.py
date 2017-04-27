@@ -56,7 +56,6 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
 
         # Instantiate MidoNet API client.
         self.client = c_base.load_client(cfg.CONF.MIDONET)
-        bsridb.subscribe()
 
         super(MidonetBgpPlugin, self).__init__()
 

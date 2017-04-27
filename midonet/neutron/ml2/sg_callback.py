@@ -27,12 +27,13 @@ from midonet.neutron._i18n import _LE
 LOG = logging.getLogger(__name__)
 
 
+@registry.has_registry_receivers
 class MidonetSecurityGroupsHandler(object):
 
     def __init__(self, client):
         self.client = client
-        self.subscribe()
 
+    @registry.receives(resources.SECURITY_GROUP, [events.AFTER_CREATE])
     @log_helpers.log_method_call
     def create_security_group(self, resource, event, trigger, **kwargs):
         sg = kwargs.get('security_group')
@@ -49,10 +50,12 @@ class MidonetSecurityGroupsHandler(object):
                     LOG.exception(_LE("Failed to delete security group %s"),
                                   sg['id'])
 
+    @registry.receives(resources.SECURITY_GROUP, [events.AFTER_UPDATE])
     @log_helpers.log_method_call
     def update_security_group(self, resource, event, trigger, **kwargs):
         pass
 
+    @registry.receives(resources.SECURITY_GROUP, [events.AFTER_DELETE])
     @log_helpers.log_method_call
     def delete_security_group(self, resource, event, trigger, **kwargs):
         sg_id = kwargs.get('security_group_id')
@@ -63,6 +66,7 @@ class MidonetSecurityGroupsHandler(object):
                           "in Midonet: %(err)s"),
                       {"sg_id": sg_id, "err": ex})
 
+    @registry.receives(resources.SECURITY_GROUP_RULE, [events.AFTER_CREATE])
     @log_helpers.log_method_call
     def create_security_group_rule(self, resource, event, trigger, **kwargs):
         sgr = kwargs.get('security_group_rule')
@@ -81,6 +85,7 @@ class MidonetSecurityGroupsHandler(object):
                                       " rule %s"),
                                   sgr['id'])
 
+    @registry.receives(resources.SECURITY_GROUP_RULE, [events.AFTER_DELETE])
     @log_helpers.log_method_call
     def delete_security_group_rule(self, resource, event, trigger, **kwargs):
         sgr_id = kwargs.get('security_group_rule_id')
@@ -91,20 +96,3 @@ class MidonetSecurityGroupsHandler(object):
                 LOG.error(_LE("Failed to delete a security group %(sgr_id)s "
                               "in Midonet: %(err)s"),
                           {"sgr_id": sgr_id, "err": ex})
-
-    def subscribe(self):
-        registry.subscribe(
-            self.create_security_group,
-            resources.SECURITY_GROUP, events.AFTER_CREATE)
-        registry.subscribe(
-            self.update_security_group,
-            resources.SECURITY_GROUP, events.AFTER_UPDATE)
-        registry.subscribe(
-            self.delete_security_group,
-            resources.SECURITY_GROUP, events.AFTER_DELETE)
-        registry.subscribe(
-            self.create_security_group_rule,
-            resources.SECURITY_GROUP_RULE, events.AFTER_CREATE)
-        registry.subscribe(
-            self.delete_security_group_rule,
-            resources.SECURITY_GROUP_RULE, events.AFTER_DELETE)

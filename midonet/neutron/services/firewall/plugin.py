@@ -137,4 +137,6 @@ class MidonetFirewallPlugin(fw_plugin.FirewallPlugin):
         self.client = c_base.load_client(cfg.CONF.MIDONET)
         self.agent_rpc = _MidonetFirewallDriver(self.client, self.callbacks)
         self.endpoints = [self.callbacks]  # So that tests don't complain
+        # TODO(yamamoto): Remove this subscribe() call once neutron-fwaas
+        # was converted to use registry decorators.
         firewall_db.subscribe()
