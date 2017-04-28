@@ -138,10 +138,6 @@ class Logging_resource(api_extensions.ExtensionDescriptor):
         return "The logging resource extension."
 
     @classmethod
-    def get_namespace(cls):
-        return "http://docs.openstack.org/ext/logging_resource/api/v2.0"
-
-    @classmethod
     def get_updated(cls):
         return "2016-06-06T10:00:00-00:00"
 

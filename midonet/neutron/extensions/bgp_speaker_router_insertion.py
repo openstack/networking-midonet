@@ -88,11 +88,6 @@ class Bgp_speaker_router_insertion(extensions.ExtensionDescriptor):
         return "Bgp Speaker Router insertion on specified router"
 
     @classmethod
-    def get_namespace(cls):
-        return ("http://docs.openstack.org/ext/bgp-speaker-router-insertion/"
-                "api/v2.0")
-
-    @classmethod
     def get_updated(cls):
         return "2016-04-17T10:00:00-00:00"
 
