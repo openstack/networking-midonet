@@ -18,6 +18,7 @@ from oslo_config import cfg
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 
+from neutron.common import constants
 from neutron.services.qos.drivers import base
 from neutron.services.qos import qos_consts
 
@@ -31,10 +32,17 @@ LOG = logging.getLogger(__name__)
 DRIVER = None
 
 
-SUPPORTED_RULES = [
-    qos_consts.RULE_TYPE_BANDWIDTH_LIMIT,
-    qos_consts.RULE_TYPE_DSCP_MARKING,
-]
+SUPPORTED_RULES = {
+    qos_consts.RULE_TYPE_BANDWIDTH_LIMIT: {
+        qos_consts.MAX_KBPS: {
+            'type:range': [0, constants.DB_INTEGER_MAX_VALUE]},
+        qos_consts.MAX_BURST: {
+            'type:range': [0, constants.DB_INTEGER_MAX_VALUE]}
+    },
+    qos_consts.RULE_TYPE_DSCP_MARKING: {
+        qos_consts.DSCP_MARK: {'type:values': constants.VALID_DSCP_MARKS}
+    }
+}
 
 
 class MidoNetQosDriver(base.DriverBase):
