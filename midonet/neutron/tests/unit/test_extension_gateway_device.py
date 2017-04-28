@@ -164,8 +164,7 @@ class GatewayDeviceTestCaseMixin(object):
 
 
 class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
-                            GatewayDeviceTestCaseMixin,
-                            test_mn.MidonetPluginV2TestCase):
+                            GatewayDeviceTestCaseMixin):
 
     def setUp(self, plugin=None, service_plugins=None, ext_mgr=None):
 
@@ -553,6 +552,9 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                                           self._network_id)
             res = req.get_response(self.api)
             self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
+            req = self.new_show_request('networks', self._network_id)
+            res = req.get_response(self.api)
+            self.assertEqual(webob.exc.HTTPOk.code, res.status_int)
 
     def test_update_gateway_device(self):
         with self.gateway_device_type_router_vtep(
@@ -624,36 +626,11 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                 self.assertEqual(2, len(res['gateway_devices']))
 
 
-class GatewayDeviceTestCaseWithML2(GatewayDeviceTestCaseMixin,
+class GatewayDeviceTestCaseWithV2(GatewayDeviceTestCase,
+                                  test_mn.MidonetPluginV2TestCase):
+    pass
+
+
+class GatewayDeviceTestCaseWithML2(GatewayDeviceTestCase,
                                    test_mn_ml2.MidonetPluginML2TestCase):
-
-    def setUp(self, plugin=None, service_plugins=None, ext_mgr=None):
-
-        service_plugins = {
-            'gateway_device_plugin_name': DB_GATEWAY_DEVICE_PLUGIN_KLASS}
-
-        gw_dev_mgr = GatewayDeviceTestExtensionManager()
-        super(GatewayDeviceTestCaseWithML2,
-            self).setUp(service_plugins=service_plugins,
-                        ext_mgr=gw_dev_mgr)
-        self.ext_api = test_ex.setup_extensions_middleware(gw_dev_mgr)
-
-        network = self._make_network(self.fmt, 'net1', True)
-        self._subnet = self._make_subnet(self.fmt, network, "10.0.0.1",
-                                         '10.0.0.0/24')
-        self._subnet_id = self._subnet['subnet']['id']
-
-        self._network_id = self._make_network(self.fmt,
-                                              'gateway_network_vlan', True)[
-                                              'network']['id']
-
-    def test_delete_network_in_use(self):
-        with self.gateway_device_type_network_vlan(
-                resource_id=self._network_id):
-            req = self.new_delete_request('networks',
-                                          self._network_id)
-            res = req.get_response(self.api)
-            self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
-            req = self.new_show_request('networks', self._network_id)
-            res = req.get_response(self.api)
-            self.assertEqual(webob.exc.HTTPOk.code, res.status_int)
+    pass
