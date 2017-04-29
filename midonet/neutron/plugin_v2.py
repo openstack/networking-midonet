@@ -141,7 +141,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
     def get_network(self, context, id, fields=None):
         LOG.debug("MidonetPluginV2.get_network called: id=%(id)r", {'id': id})
 
-        with db_api.context_manager.writer.using(context):
+        with db_api.context_manager.reader.using(context):
             net = super(MidonetPluginV2, self).get_network(context, id, None)
             self._extend_provider_network_dict(context, net)
 
@@ -152,7 +152,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.get_networks called: filters=%(filters)r",
                   {'filters': filters})
 
-        with db_api.context_manager.writer.using(context):
+        with db_api.context_manager.reader.using(context):
             nets = super(MidonetPluginV2,
                          self).get_networks(context, filters, None, sorts,
                                             limit, marker, page_reverse)
