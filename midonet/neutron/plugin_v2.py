@@ -100,7 +100,6 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
 
         net_data = network['network']
         tenant_id = net_data['tenant_id']
-        net_data['tenant_id'] = tenant_id
         self._ensure_default_security_group(context, tenant_id)
 
         with db_api.context_manager.writer.using(context):
