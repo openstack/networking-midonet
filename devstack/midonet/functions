@@ -3,13 +3,15 @@
 # Neutron MidoNet plugin
 # ----------------------
 
-
-function neutron_plugin_configure_common {
+function _create_config {
     local conf_file
+    local _Q_PLUGIN_CONF_FILE
 
-    Q_PLUGIN_CONF_PATH=etc/neutron/plugins/midonet
+    Q_PLUGIN_CONF_PATH=etc/neutron/plugins/${Q_PLUGIN}
     Q_PLUGIN_CONF_FILENAME=midonet.ini
     Q_PLUGIN_CLASS=${MIDONET_PLUGIN}
+    conf_file=midonet.ini.v2.sample
+    _Q_PLUGIN_CONF_FILE=/${Q_PLUGIN_CONF_PATH}/${Q_PLUGIN_CONF_FILENAME}
 
     cd ${NETWORKING_MIDONET_DIR}
     mkdir -p etc/midonet
@@ -17,9 +19,22 @@ function neutron_plugin_configure_common {
         --namespace midonet_v2
     cd -
     mkdir -p /${Q_PLUGIN_CONF_PATH}
-    conf_file=midonet.ini.v2.sample
-    cp ${NETWORKING_MIDONET_DIR}/etc/midonet/${conf_file} \
-       /${Q_PLUGIN_CONF_PATH}/${Q_PLUGIN_CONF_FILENAME}
+    cp ${NETWORKING_MIDONET_DIR}/etc/midonet/${conf_file} ${_Q_PLUGIN_CONF_FILE}
+
+    iniset /$_Q_PLUGIN_CONF_FILE MIDONET midonet_uri $MIDONET_API_URL
+    iniset /$_Q_PLUGIN_CONF_FILE MIDONET username $Q_ADMIN_USERNAME
+    iniset /$_Q_PLUGIN_CONF_FILE MIDONET password $SERVICE_PASSWORD
+    iniset /$_Q_PLUGIN_CONF_FILE MIDONET project_id $SERVICE_TENANT_NAME
+    iniset /$_Q_PLUGIN_CONF_FILE MIDONET client $MIDONET_CLIENT
+    iniset /$_Q_PLUGIN_CONF_FILE MIDONET cluster_ip $MIDONET_SERVICE_HOST
+    iniset /$_Q_PLUGIN_CONF_FILE MIDONET cluster_port $TOPOLOGY_API_PORT
+}
+
+function neutron_plugin_configure_common {
+    if ! is_neutron_legacy_enabled; then
+        die $LINENO "neutron_plugin_configure_common called unexpectedly!"
+    fi
+    _create_config
 }
 
 function neutron_plugin_configure_l3_agent {
@@ -31,13 +46,9 @@ function neutron_plugin_configure_plugin_agent {
 }
 
 function neutron_plugin_configure_service {
-    iniset /$Q_PLUGIN_CONF_FILE MIDONET midonet_uri $MIDONET_API_URL
-    iniset /$Q_PLUGIN_CONF_FILE MIDONET username $Q_ADMIN_USERNAME
-    iniset /$Q_PLUGIN_CONF_FILE MIDONET password $SERVICE_PASSWORD
-    iniset /$Q_PLUGIN_CONF_FILE MIDONET project_id $SERVICE_TENANT_NAME
-    iniset /$Q_PLUGIN_CONF_FILE MIDONET client $MIDONET_CLIENT
-    iniset /$Q_PLUGIN_CONF_FILE MIDONET cluster_ip $MIDONET_SERVICE_HOST
-    iniset /$Q_PLUGIN_CONF_FILE MIDONET cluster_port $TOPOLOGY_API_PORT
+    if ! is_neutron_legacy_enabled; then
+        die $LINENO "neutron_plugin_configure_service called unexpectedly!"
+    fi
 }
 
 function neutron_plugin_setup_interface_driver {
@@ -51,7 +62,11 @@ function neutron_plugin_check_adv_test_requirements {
 }
 
 function configure_neutron_midonet {
-    :
+    if ! is_neutron_legacy_enabled; then
+        # NOTE(yamamoto): This overwrites what configure_neutron_new did.
+        _create_config
+        neutron_service_plugin_class_add midonet_l3
+    fi
 }
 
 function configure_qos_midonet {
@@ -59,5 +74,9 @@ function configure_qos_midonet {
 }
 
 function install_neutron_midonet {
+    :
+}
+
+function configure_qos_midonet_v2 {
     :
 }
