@@ -26,6 +26,7 @@ from neutron_lib.api.definitions import portbindings
 from neutron_lib.api.definitions import provider_net as pnet
 from neutron_lib import constants as n_const
 from neutron_lib import context
+from neutron_lib.plugins import constants as plugin_const
 from neutron_lib.plugins import directory
 
 from midonet.neutron.common import constants as m_const
@@ -36,7 +37,6 @@ from networking_l2gw.db.l2gateway import l2gateway_models  # noqa
 from neutron.db import api as db_api
 from neutron.extensions import portsecurity as psec
 from neutron.extensions import securitygroup as sg
-from neutron.plugins.common import constants as p_const
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 from neutron.tests.unit.db import test_allowedaddresspairs_db as test_addr
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_plugin
@@ -432,7 +432,7 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
         with self.port() as port, self.router() as router:
             ctx = context.get_admin_context()
             plugin = directory.get_plugin()
-            l3_plugin = directory.get_plugin(n_const.L3)
+            l3_plugin = directory.get_plugin(plugin_const.L3)
             router_id = router['router']['id']
             port_id = port['port']['id']
             interface_info = {
@@ -591,33 +591,33 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
     def test_create_provider_net_with_local(self):
         # We map well-known types to the default value
         # REVISIT(yamamoto): Clean this up once horizon is fixed
-        with self.provider_net(net_type=p_const.TYPE_LOCAL) as net:
+        with self.provider_net(net_type=n_const.TYPE_LOCAL) as net:
             self.assertEqual(m_const.TYPE_MIDONET,
                              net['network'][pnet.NETWORK_TYPE])
 
     def test_create_provider_net_with_flat(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=p_const.TYPE_FLAT):
+            self.provider_net(net_type=n_const.TYPE_FLAT):
             pass
 
     def test_create_provider_net_with_gre(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=p_const.TYPE_GRE):
+            self.provider_net(net_type=n_const.TYPE_GRE):
             pass
 
     def test_create_provider_net_with_vlan(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=p_const.TYPE_VLAN):
+            self.provider_net(net_type=n_const.TYPE_VLAN):
             pass
 
     def test_create_provider_net_with_vxlan(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=p_const.TYPE_VXLAN):
+            self.provider_net(net_type=n_const.TYPE_VXLAN):
             pass
 
     def test_create_provider_net_with_geneve(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=p_const.TYPE_GENEVE):
+            self.provider_net(net_type=n_const.TYPE_GENEVE):
             pass
 
     def test_create_provider_net_with_midonet(self):

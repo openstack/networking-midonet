@@ -20,9 +20,10 @@ from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 from neutron.db import servicetype_db as sdb
 from neutron import extensions as nextensions
-from neutron.plugins.common import constants as n_const
 from neutron.services import provider_configuration as provconf
 from neutron.tests.unit.extensions import test_l3 as test_l3_plugin
+from neutron_lib import constants
+from neutron_lib.plugins import constants as plugin_const
 from neutron_vpnaas import extensions
 from neutron_vpnaas.tests.unit.db.vpn import test_vpn_db
 
@@ -53,13 +54,13 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
     def setUp(self):
         service_plugins = {
             'vpn_plugin_name': DB_VPN_PLUGIN_KLASS}
-        vpnaas_provider = (n_const.VPN + ':vpnaas:' + MN_DRIVER_KLASS
+        vpnaas_provider = (plugin_const.VPN + ':vpnaas:' + MN_DRIVER_KLASS
                            + ':default')
         mock.patch.object(provconf.NeutronModule, 'service_providers',
                           return_value=[vpnaas_provider]).start()
         manager = sdb.ServiceTypeManager.get_instance()
         manager.add_provider_configuration(
-            n_const.VPN, provconf.ProviderConfiguration())
+            plugin_const.VPN, provconf.ProviderConfiguration())
 
         super(VPNTestCase, self).setUp(service_plugins=service_plugins,
                                        ext_mgr=VPNTestExtensionManager())
@@ -69,7 +70,7 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
             req = self.new_show_request('vpnservices',
                     vpnservice['vpnservice']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            self.assertEqual(n_const.ACTIVE, res['vpnservice']['status'])
+            self.assertEqual(constants.ACTIVE, res['vpnservice']['status'])
 
     def test_create_vpn_service_error_delete_neutron_resource(self):
         self.client_mock.create_vpn_service.side_effect = Exception(
@@ -110,7 +111,7 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
 
             req = self.new_show_request('vpnservices', vpnservice_id)
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            self.assertEqual(n_const.ERROR, res['vpnservice']['status'])
+            self.assertEqual(constants.ERROR, res['vpnservice']['status'])
 
     def test_delete_vpnservice(self):
         """Test case to delete a vpnservice."""
@@ -135,7 +136,7 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
             req = self.new_show_request('ipsec-site-connections',
                 ipsec_site_connection['ipsec_site_connection']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            self.assertEqual(n_const.ACTIVE,
+            self.assertEqual(constants.ACTIVE,
                 res['ipsec_site_connection']['status'])
 
     def test_create_two_ipsec_site_connections_one_vpnservice(self):
@@ -161,7 +162,7 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
                 self.assertEqual(vpnservice['vpnservice']['id'],
                                  res['vpnservice']['id'])
 
-                self.assertEqual(n_const.ACTIVE,
+                self.assertEqual(constants.ACTIVE,
                                  ipsec_site_connection['status'])
 
     def test_create_ipsec_site_connection_error_delete_neutron_resouce(self):
@@ -208,7 +209,7 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
             req = self.new_show_request('ipsec-site-connections',
                     ipsec_site_conn_id)
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            self.assertEqual(n_const.ERROR,
+            self.assertEqual(constants.ERROR,
                     res['ipsec_site_connection']['status'])
 
     def test_delete_ipsec_site_connection(self):
