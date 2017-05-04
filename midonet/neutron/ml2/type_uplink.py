@@ -13,10 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron.plugins.ml2 import driver_api
 from neutron_lib import exceptions as exc
+from neutron_lib.plugins.ml2 import api
 from oslo_log import log
-
-from neutron.plugins.ml2 import driver_api as api
 
 from midonet.neutron._i18n import _, _LI
 from midonet.neutron.common import constants as const
@@ -24,7 +24,7 @@ from midonet.neutron.common import constants as const
 LOG = log.getLogger(__name__)
 
 
-class UplinkTypeDriver(api.ML2TypeDriver):
+class UplinkTypeDriver(driver_api.ML2TypeDriver):
     """Type driver for Uplink networks
 
     This type driver differentiates uplinks networks from other types.

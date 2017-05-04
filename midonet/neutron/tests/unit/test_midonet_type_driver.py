@@ -14,11 +14,11 @@
 #    under the License.
 
 from neutron_lib import exceptions as exc
+from neutron_lib.plugins.ml2 import api
 
 from midonet.neutron.common import constants as const
 from midonet.neutron.ml2 import type_midonet
 
-from neutron.plugins.ml2 import driver_api as api
 from neutron.tests import base
 
 
