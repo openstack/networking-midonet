@@ -18,13 +18,13 @@ from oslo_utils import excutils
 from oslo_utils import uuidutils
 from sqlalchemy import orm
 
+from neutron_lib.callbacks import events
+from neutron_lib.callbacks import exceptions
+from neutron_lib.callbacks import registry
+from neutron_lib.callbacks import resources
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 
-from neutron.callbacks import events
-from neutron.callbacks import exceptions
-from neutron.callbacks import registry
-from neutron.callbacks import resources
 from neutron.db import l3_gwmode_db
 from neutron.db.models import l3 as l3_models
 from neutron.db import models_v2

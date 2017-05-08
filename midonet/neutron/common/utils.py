@@ -19,14 +19,14 @@ import six
 
 from oslo_utils import excutils
 
+from neutron_lib.callbacks import events
+from neutron_lib.callbacks import exceptions as callback_exc
+from neutron_lib.callbacks import registry
 from neutron_lib import constants as n_const
 
 from midonet.neutron.common import constants as midonet_const
 from midonet.neutron.common import exceptions as midonet_exc
 
-from neutron.callbacks import events
-from neutron.callbacks import exceptions as callback_exc
-from neutron.callbacks import registry
 from neutron.common import exceptions as n_exc
 
 
