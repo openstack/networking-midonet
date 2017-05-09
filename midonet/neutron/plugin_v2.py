@@ -22,6 +22,7 @@ from midonet.neutron.common import utils as c_utils
 from midonet.neutron.db import port_binding_db as pb_db
 from midonet.neutron.db import provider_network_db as pnet_db
 from midonet.neutron.midonet_v2 import managers
+from midonet.neutron.ml2 import sg_callback
 from midonet.neutron import plugin
 from midonet.neutron.services.qos import driver as qos_driver
 
@@ -36,6 +37,7 @@ from neutron.extensions import portsecurity as psec
 from neutron.extensions import providernet as pnet
 from neutron.extensions import securitygroup as ext_sg
 from oslo_db import exception as oslo_db_exc
+from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 from oslo_utils import excutils
 
@@ -87,6 +89,8 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         super(MidonetPluginV2, self).__init__()
         self.client.initialize()
         qos_driver.register()
+        self.sec_handler = sg_callback.MidonetSecurityGroupsHandler(
+            self.client)
 
     @db_api.retry_if_session_inactive()
     def create_network(self, context, network):
@@ -455,127 +459,11 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         LOG.debug("MidonetPluginV2.update_port exiting: p=%r", p)
         return p
 
-    @db_api.retry_if_session_inactive()
-    def create_security_group(self, context, security_group, default_sg=False):
-        LOG.debug("MidonetPluginV2.create_security_group called: "
-                  "security_group=%(security_group)s "
-                  "default_sg=%(default_sg)s ",
-                  {'security_group': security_group, 'default_sg': default_sg})
-
-        sg = security_group.get('security_group')
-        tenant_id = sg['tenant_id']
-        if not default_sg:
-            self._ensure_default_security_group(context, tenant_id)
-
-        # Create the Neutron sg first
-        with context.session.begin(subtransactions=True):
-            sg = super(MidonetPluginV2, self).create_security_group(
-                context, security_group, default_sg)
-            self.client.create_security_group_precommit(context, sg)
-
-        try:
-            self.client.create_security_group_postcommit(sg)
-        except Exception as ex:
-            with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create MidoNet resources for "
-                              "sg %(sg)r, error=%(err)r"),
-                          {"sg": sg, "err": ex})
-                try:
-                    self.delete_security_group(context, sg['id'])
-                except Exception:
-                    LOG.exception(_LE("Failed to delete a security group %s"),
-                                  sg['id'])
-
-        LOG.debug("MidonetPluginV2.create_security_group exiting: sg=%r", sg)
-        return sg
-
-    @db_api.retry_if_session_inactive()
-    def delete_security_group(self, context, id):
-        LOG.debug("MidonetPluginV2.delete_security_group called: id=%s", id)
-
-        sg = super(MidonetPluginV2, self).get_security_group(context, id)
-        if not sg:
-            raise ext_sg.SecurityGroupNotFound(id=id)
-
-        if sg["name"] == 'default' and not context.is_admin:
-            raise ext_sg.SecurityGroupCannotRemoveDefault()
-
-        with context.session.begin(subtransactions=True):
-            super(MidonetPluginV2, self).delete_security_group(context, id)
-            self.client.delete_security_group_precommit(context, id)
-
-        self.client.delete_security_group_postcommit(id)
-
-        LOG.debug("MidonetPluginV2.delete_security_group exiting: id=%r", id)
-
-    @db_api.retry_if_session_inactive()
-    def create_security_group_rule(self, context, security_group_rule):
-        LOG.debug("MidonetPluginV2.create_security_group_rule called: "
-                  "security_group_rule=%(security_group_rule)r",
-                  {'security_group_rule': security_group_rule})
-
-        with context.session.begin(subtransactions=True):
-            rule = super(MidonetPluginV2, self).create_security_group_rule(
-                context, security_group_rule)
-            self.client.create_security_group_rule_precommit(context, rule)
-
-        try:
-            self.client.create_security_group_rule_postcommit(rule)
-        except Exception as ex:
-            with excutils.save_and_reraise_exception():
-                LOG.error(_LE('Failed to create security group rule %(sg)s,'
-                          'error: %(err)s'), {'sg': rule, 'err': ex})
-                try:
-                    self.delete_security_group_rule(context, rule['id'])
-                except Exception:
-                    LOG.exception(_LE("Failed to delete "
-                                      "a security group rule %s"), rule['id'])
-
-        LOG.debug("MidonetPluginV2.create_security_group_rule exiting: "
-                  "rule=%r", rule)
-        return rule
-
-    @db_api.retry_if_session_inactive()
+    @log_helpers.log_method_call
     def create_security_group_rule_bulk(self, context, security_group_rules):
-        LOG.debug("MidonetPluginV2.create_security_group_rule_bulk called: "
-                  "security_group_rules=%(security_group_rules)r",
-                  {'security_group_rules': security_group_rules})
-
-        with context.session.begin(subtransactions=True):
-            rules = super(
-                MidonetPluginV2, self).create_security_group_rule_bulk_native(
-                    context, security_group_rules)
-            self.client.create_security_group_rule_bulk_precommit(context,
-                                                                  rules)
-
-        try:
-            self.client.create_security_group_rule_bulk_postcommit(rules)
-        except Exception as ex:
-            LOG.error(_LE("Failed to create bulk security group rules %(sg)s, "
-                          "error: %(err)s"), {"sg": rules, "err": ex})
-            with excutils.save_and_reraise_exception():
-                for rule in rules:
-                    self.delete_security_group_rule(context, rule['id'])
-
-        LOG.debug("MidonetPluginV2.create_security_group_rule_bulk exiting: "
-                  "rules=%r", rules)
-        return rules
-
-    @db_api.retry_if_session_inactive()
-    def delete_security_group_rule(self, context, sg_rule_id):
-        LOG.debug("MidonetPluginV2.delete_security_group_rule called: "
-                  "sg_rule_id=%s", sg_rule_id)
-
-        with context.session.begin(subtransactions=True):
-            super(MidonetPluginV2, self).delete_security_group_rule(context,
-                                                                 sg_rule_id)
-            self.client.delete_security_group_rule_precommit(context,
-                                                             sg_rule_id)
-
-        self.client.delete_security_group_rule_postcommit(sg_rule_id)
-
-        LOG.debug("MidonetPluginV2.delete_security_group_rule exiting: id=%r",
-                  sg_rule_id)
+        return super(MidonetPluginV2,
+                     self).create_security_group_rule_bulk_native(
+                     context, security_group_rules)
 
     def _midonet_v2_extend_network_dict(self, result, netdb):
         session = db_api.get_session()
