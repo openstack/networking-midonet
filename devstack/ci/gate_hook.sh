@@ -16,7 +16,7 @@
 
 job=$1
 
-_DEVSTACK_LOCAL_CONFIG_TAIL=
+LOCAL_CONF=/tmp/late-local.conf
 
 GATE_DEST=$BASE/new
 GATE_HOOKS=$GATE_DEST/networking-midonet/devstack/ci/hooks
@@ -24,7 +24,7 @@ GATE_HOOKS=$GATE_DEST/networking-midonet/devstack/ci/hooks
 # Inject config from hook
 function load_conf_hook {
     local hook="$1"
-    _DEVSTACK_LOCAL_CONFIG_TAIL+=$'\n'"$(cat $GATE_HOOKS/$hook)"
+    $DSCONF merge_lc $LOCAL_CONF $GATE_HOOKS/$hook
 }
 
 case $job in
@@ -204,6 +204,7 @@ export DEVSTACK_LOCAL_CONFIG+=$'\n'"KEYSTONE_TOKEN_FORMAT=fernet"
 
 load_conf_hook quotas
 
-export DEVSTACK_LOCAL_CONFIG+=$'\n'"$_DEVSTACK_LOCAL_CONFIG_TAIL"
-
+# NOTE(yamamoto): devstack-gate merges DEVSTACK_LOCALCONF
+# after DEVSTACK_LOCAL_CONFIG
+export DEVSTACK_LOCALCONF=$(cat $LOCAL_CONF)
 $BASE/new/devstack-gate/devstack-vm-gate.sh
