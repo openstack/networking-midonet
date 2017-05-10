@@ -14,6 +14,7 @@
 #    under the License.
 
 from neutron_lib import exceptions as exc
+from neutron_lib.plugins.ml2 import api as ml2_api
 from oslo_log import log
 
 from neutron.plugins.ml2 import driver_api as api
@@ -44,7 +45,7 @@ class MidonetTypeDriver(api.ML2TypeDriver):
 
     def validate_provider_segment(self, segment):
         for key, value in segment.items():
-            if value and key != api.NETWORK_TYPE:
+            if value and key != ml2_api.NETWORK_TYPE:
                 msg = _("%s prohibited for midonet provider network") % key
                 raise exc.InvalidInput(error_message=msg)
 
@@ -52,7 +53,7 @@ class MidonetTypeDriver(api.ML2TypeDriver):
         return segment
 
     def allocate_tenant_segment(self, context):
-        return {api.NETWORK_TYPE: const.TYPE_MIDONET}
+        return {ml2_api.NETWORK_TYPE: const.TYPE_MIDONET}
 
     def release_segment(self, context, segment):
         pass
