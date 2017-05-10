@@ -15,11 +15,13 @@
 
 import sqlalchemy
 
+from neutron_lib.api.definitions import port_security as psec
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
+from neutron_lib.exceptions import port_security as psec_exc
 from neutron_lib.plugins import directory
 
 from midonet.neutron._i18n import _, _LE, _LW
@@ -37,7 +39,6 @@ from neutron.db import api as db_api
 from neutron.db import portsecurity_db as ps_db
 from neutron.extensions import allowedaddresspairs as addr_pair
 from neutron.extensions import extra_dhcp_opt as edo_ext
-from neutron.extensions import portsecurity as psec
 from neutron.extensions import providernet as pnet
 from neutron.extensions import securitygroup as ext_sg
 from oslo_db import exception as oslo_db_exc
@@ -328,7 +329,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
 
             if port_psec is False:
                 if self._check_update_has_security_groups(port):
-                    raise psec.PortSecurityAndIPRequiredForSecurityGroups()
+                    raise psec_exc.PortSecurityAndIPRequiredForSecurityGroups()
                 if self._check_update_has_allowed_address_pairs(port):
                     raise addr_pair.AddressPairAndPortSecurityRequired()
             else:
@@ -433,7 +434,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             port_psec = p.get(psec.PORTSECURITY)
             if port_psec is False:
                 if p.get(ext_sg.SECURITYGROUPS):
-                    raise psec.PortSecurityPortHasSecurityGroup()
+                    raise psec_exc.PortSecurityPortHasSecurityGroup()
                 if p.get(addr_pair.ADDRESS_PAIRS):
                     raise addr_pair.AddressPairAndPortSecurityRequired()
             # NOTE(yamamoto): Retrieve the db object to get the correct
