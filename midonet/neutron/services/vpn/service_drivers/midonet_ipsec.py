@@ -16,7 +16,8 @@
 from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
 
-from neutron.plugins.common import constants as const
+from neutron_lib import constants as const
+
 from neutron_vpnaas.services.vpn import plugin
 from neutron_vpnaas.services.vpn.service_drivers import base_ipsec
 from neutron_vpnaas.services.vpn.service_drivers import ipsec_validator

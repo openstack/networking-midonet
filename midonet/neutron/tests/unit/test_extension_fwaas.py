@@ -15,8 +15,8 @@
 
 
 from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
-from neutron.plugins.common import constants as n_const
 from neutron_fwaas.tests.unit.services.firewall import test_fwaas_plugin as tfp
+from neutron_lib import constants as n_const
 
 # Overwrite the FWaaS plugin constant so that the MidoNet FWaaS plugin gets
 # loaded when the tests run.

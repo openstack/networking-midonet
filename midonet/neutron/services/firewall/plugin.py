@@ -17,10 +17,11 @@ from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
 
 from neutron.api import extensions as neutron_extensions
-from neutron.plugins.common import constants as const
 from neutron_fwaas.db.firewall import firewall_db
 from neutron_fwaas import extensions
 from neutron_fwaas.services.firewall import fwaas_plugin as fw_plugin
+
+from neutron_lib import constants
 
 from oslo_config import cfg
 from oslo_log import helpers as log_helpers
@@ -78,7 +79,7 @@ class _MidonetFirewallDriver(object):
                           {"fw_id": firewall["id"], "err": ex})
                 try:
                     self.callbacks.set_firewall_status(context, firewall['id'],
-                                                       const.ERROR)
+                                                       constants.ERROR)
                 except Exception:
                     LOG.exception(_LE("Failed to update firewall status %s"),
                                   firewall['id'])
@@ -87,9 +88,9 @@ class _MidonetFirewallDriver(object):
 
     def _set_firewall_status_noerror(self, context, firewall):
         if firewall['add-router-ids']:
-            status = const.ACTIVE
+            status = constants.ACTIVE
         else:
-            status = const.INACTIVE
+            status = constants.INACTIVE
         self.callbacks.set_firewall_status(context, firewall['id'], status)
 
     @log_helpers.log_method_call
@@ -104,7 +105,7 @@ class _MidonetFirewallDriver(object):
                           {"fw_id": firewall["id"], "err": ex})
                 try:
                     self.callbacks.set_firewall_status(context, firewall['id'],
-                                                       const.ERROR)
+                                                       constants.ERROR)
                 except Exception:
                     LOG.exception(_LE("Failed to update firewall status %s"),
                                   firewall['id'])

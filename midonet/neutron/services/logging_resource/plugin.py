@@ -18,7 +18,7 @@ from midonet.neutron.client import base as c_base
 from midonet.neutron.common import constants as midonet_const
 from midonet.neutron.db import logging_resource_db as log_res_db
 
-from neutron.plugins.common import constants as const
+from neutron_lib.plugins import constants as const
 from neutron_lib.plugins import directory
 
 from oslo_config import cfg
