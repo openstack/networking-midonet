@@ -15,6 +15,7 @@
 
 import sqlalchemy
 
+from neutron_lib.api.definitions import extra_dhcp_opt as edo_ext
 from neutron_lib.api.definitions import port_security as psec
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
@@ -38,7 +39,6 @@ from neutron.db import allowedaddresspairs_db as addr_pair_db
 from neutron.db import api as db_api
 from neutron.db import portsecurity_db as ps_db
 from neutron.extensions import allowedaddresspairs as addr_pair
-from neutron.extensions import extra_dhcp_opt as edo_ext
 from neutron.extensions import providernet as pnet
 from neutron.extensions import securitygroup as ext_sg
 from oslo_db import exception as oslo_db_exc
