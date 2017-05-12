@@ -93,7 +93,7 @@ case $job in
         _ML2=True
         _ADV_SVC=True
         ;;
-    grenade)
+    grenade|grenade-ml2)
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
