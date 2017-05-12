@@ -228,6 +228,13 @@ r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_non_admin\.TestPool
 r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_non_admin\.TestPools\.test_create_pool_with_session_persistence_redundant_cookie_name)"
 r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_non_admin\.TestPools\.test_create_pool_with_session_persistence_without_cookie_name)"
 
+# bug 1693103
+r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.scenario\.test_session_persistence\.TestSessionPersistence\.test_session_persistence)"
+
+# DDT tests have protocol=HTTP hardcoded.  MidoNet doesn't support it.
+# Also, they often exceed the quota of loadbalancer
+r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.ddt\..*)"
+
 # Skip non-networking api tests to save testing time
 r="$r|(?:tempest\.api\.compute\..*)"
 r="$r|(?:tempest\.api\.identity\..*)"
@@ -236,7 +243,7 @@ r="$r|(?:tempest\.api\.image\..*)"
 # End list of exclusions.
 r="$r)"
 
-r="$r^(tempest\.(api|scenario)|neutron_fwaas|neutron_lbaas\.tests\.tempest\.v2\.api|neutron_vpnaas|neutron_taas|neutron|midonet)\..*$"
+r="$r^(tempest\.(api|scenario)|neutron_fwaas|neutron_lbaas|neutron_vpnaas|neutron_taas|neutron|midonet)\..*$"
 
 export DEVSTACK_GATE_TEMPEST_REGEX="$r"
 export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS=1
