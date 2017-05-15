@@ -589,11 +589,9 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
             pass
 
     def test_create_provider_net_with_local(self):
-        # We map well-known types to the default value
-        # REVISIT(yamamoto): Clean this up once horizon is fixed
-        with self.provider_net(net_type=n_const.TYPE_LOCAL) as net:
-            self.assertEqual(m_const.TYPE_MIDONET,
-                             net['network'][pnet.NETWORK_TYPE])
+        with testtools.ExpectedException(exc.HTTPClientError), \
+            self.provider_net(net_type=n_const.TYPE_LOCAL):
+            pass
 
     def test_create_provider_net_with_flat(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
