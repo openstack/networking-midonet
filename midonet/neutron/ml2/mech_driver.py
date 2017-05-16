@@ -23,6 +23,7 @@ from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as const
 from midonet.neutron.common import utils as c_utils
+from midonet.neutron.db import v2_migration
 from midonet.neutron.ml2 import sg_callback
 from midonet.neutron.ml2 import util as m_util
 from midonet.neutron.services.qos import driver as qos_driver
@@ -39,6 +40,7 @@ class MidonetMechanismDriver(api.MechanismDriver):
     """ML2 Mechanism Driver for Midonet."""
 
     def __init__(self):
+        v2_migration.migrate()
         self.vif_type = const.VIF_TYPE_MIDONET
         self.supported_vnic_types = [portbindings.VNIC_NORMAL]
         self.vif_details = {portbindings.CAP_PORT_FILTER: True}
