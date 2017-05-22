@@ -17,15 +17,7 @@ import types
 
 import six
 
-from oslo_utils import excutils
-
-from neutron_lib.callbacks import events
-from neutron_lib.callbacks import exceptions as callback_exc
-from neutron_lib.callbacks import registry
 from neutron_lib import constants as n_const
-
-from midonet.neutron.common import constants as midonet_const
-from midonet.neutron.common import exceptions as midonet_exc
 
 from neutron.common import exceptions as n_exc
 
@@ -41,18 +33,6 @@ def check_update_port(orig, new):
         raise n_exc.UnsupportedPortDeviceOwner(op='fixed_ips update',
                                                port_id=new['id'],
                                                device_owner=device_owner)
-
-
-def check_delete_network_precommit(context, id):
-    try:
-        kwargs = {'context': context, 'network_id': id}
-        registry.notify(midonet_const.MIDONET_NETWORK,
-                        events.PRECOMMIT_DELETE, None, **kwargs)
-    except callback_exc.CallbackFailure as e:
-        with excutils.save_and_reraise_exception():
-            if len(e.errors) == 1:
-                raise e.errors[0].error
-            raise midonet_exc.MidonetNetworkInUse(network_id=id, reason=e)
 
 
 def unboundmethod(func, cls):
