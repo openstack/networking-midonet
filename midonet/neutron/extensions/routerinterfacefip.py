@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib.api.definitions import router_interface_fip
 from neutron_lib.api import extensions
 from neutron_lib import exceptions as n_exc
 
@@ -30,16 +31,22 @@ class Routerinterfacefip(extensions.ExtensionDescriptor):
 
     @classmethod
     def get_name(cls):
-        return "MidoNet Router interface FIP Extension"
+        return router_interface_fip.NAME
 
     @classmethod
     def get_alias(cls):
-        return "router-interface-fip"
+        return router_interface_fip.ALIAS
 
     @classmethod
     def get_description(cls):
-        return "MidoNet Router interface FIP Extension"
+        return router_interface_fip.DESCRIPTION
 
     @classmethod
     def get_updated(cls):
-        return "2015-11-11T10:00:00-00:00"
+        return router_interface_fip.UPDATED_TIMESTAMP
+
+    def get_required_extensions(self):
+        return router_interface_fip.REQUIRED_EXTENSIONS
+
+    def get_optional_extensions(self):
+        return router_interface_fip.OPTIONAL_EXTENSIONS
