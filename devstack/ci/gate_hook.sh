@@ -220,6 +220,14 @@ fi
 r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_external_network_extension\.ExternalNetworksRBACTestJSON\.test_regular_client_shares_with_another)"
 r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_external_network_extension\.ExternalNetworksRBACTestJSON\.test_external_update_policy_from_wildcard_to_specific_tenant)"
 
+# MidoNet doesn't support HTTP_COOKIE/APP_COOKIE
+r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_admin\.TestPools\.test_update_pool_sesssion_persistence_app_cookie)"
+r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_admin\.TestPools\.test_update_pool_sesssion_persistence_app_to_http)"
+r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_non_admin\.TestPools\.test_create_pool_with_session_persistence_http_cookie)"
+r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_non_admin\.TestPools\.test_create_pool_with_session_persistence_app_cookie)"
+r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_non_admin\.TestPools\.test_create_pool_with_session_persistence_redundant_cookie_name)"
+r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_non_admin\.TestPools\.test_create_pool_with_session_persistence_without_cookie_name)"
+
 # Skip non-networking api tests to save testing time
 r="$r|(?:tempest\.api\.compute\..*)"
 r="$r|(?:tempest\.api\.identity\..*)"
@@ -228,7 +236,7 @@ r="$r|(?:tempest\.api\.image\..*)"
 # End list of exclusions.
 r="$r)"
 
-r="$r^(tempest\.(api|scenario)|neutron_fwaas|neutron_vpnaas|neutron_taas|neutron|midonet)\..*$"
+r="$r^(tempest\.(api|scenario)|neutron_fwaas|neutron_lbaas\.tests\.tempest\.v2\.api|neutron_vpnaas|neutron_taas|neutron|midonet)\..*$"
 
 export DEVSTACK_GATE_TEMPEST_REGEX="$r"
 export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS=1

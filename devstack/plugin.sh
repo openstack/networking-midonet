@@ -164,6 +164,10 @@ EOF"
                 sudo service libvirt-bin restart
             fi
         fi
+    elif [[ "$2" == "test-config" ]]; then
+        # MidoNet LBaaS doesn't support HTTP.
+        iniset $TEMPEST_CONFIG lbaas default_listener_protocol TCP
+        iniset $TEMPEST_CONFIG lbaas default_pool_protocol TCP
     fi
 
 elif [[ "$1" == "unstack" ]]; then
