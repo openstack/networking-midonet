@@ -19,7 +19,6 @@ from midonet.neutron.extensions import bgp_speaker_router_insertion as bsri
 from neutron.db import api as db_api
 from neutron.extensions import l3
 from neutron_dynamic_routing.db import bgp_db as bdb
-from neutron_dynamic_routing.extensions import bgp as bgp_ext
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
@@ -33,6 +32,7 @@ from sqlalchemy.orm import exc
 LOG = logging.getLogger(__name__)
 
 
+@registry.has_registry_receivers
 class BgpSpeakerRouterInsertionDbMixin(object):
 
     """Access methods for the bgp_speaker_router_associations table."""
@@ -129,18 +129,10 @@ class BgpSpeakerRouterInsertionDbMixin(object):
                 model.BgpSpeakerRouterAssociation.bgp_speaker_id ==
                 bsp_id).delete()
 
-
-def bgp_speaker_callback(resource, event, trigger, **kwargs):
-    router_id = kwargs['router_id']
-    bgp_plugin = directory.get_plugin(bgp_ext.BGP_EXT_ALIAS)
-    if bgp_plugin:
+    @registry.receives(resources.ROUTER, [events.BEFORE_DELETE])
+    def bgp_speaker_callback(self, resource, event, trigger, **kwargs):
+        router_id = kwargs['router_id']
         context = kwargs.get('context')
-        if bgp_plugin.get_bgp_speaker_associated_with_router(context,
-                                                             router_id):
+        if self.get_bgp_speaker_associated_with_router(context, router_id):
             raise l3.RouterInUse(router_id=router_id,
                     reason='is associated with bgp speaker')
-
-
-def subscribe():
-    registry.subscribe(
-        bgp_speaker_callback, resources.ROUTER, events.BEFORE_DELETE)
