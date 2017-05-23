@@ -12,13 +12,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib.api.definitions import port as port_def
 from neutron_lib.api.definitions import portbindings
 from neutron_lib.api import validators
 from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
 from neutron_lib.plugins import directory
 
-from neutron.api.v2 import attributes as attr
 from neutron.db import _resource_extend as resource_extend
 from neutron.db import models_v2
 import sqlalchemy as sa
@@ -92,7 +92,7 @@ class MidonetPortBindingMixin(object):
         self._extend_mido_portbinding(port, if_name)
 
     @staticmethod
-    @resource_extend.extends([attr.PORTS])
+    @resource_extend.extends([port_def.COLLECTION_NAME])
     def _extend_port_mido_portbinding(port_res, port_db):
         bind_port = port_db.port_binding_info
         if_name = bind_port.interface_name if bind_port else None

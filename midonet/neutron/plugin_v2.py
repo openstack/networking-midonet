@@ -16,7 +16,10 @@
 import sqlalchemy
 
 from neutron_lib.api.definitions import extra_dhcp_opt as edo_ext
+from neutron_lib.api.definitions import network as net_def
+from neutron_lib.api.definitions import port as port_def
 from neutron_lib.api.definitions import port_security as psec
+from neutron_lib.api.definitions import subnet as subnet_def
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
@@ -34,7 +37,6 @@ from midonet.neutron.ml2 import sg_callback
 from midonet.neutron import plugin
 from midonet.neutron.services.qos import driver as qos_driver
 
-from neutron.api.v2 import attributes
 from neutron.db import _resource_extend as resource_extend
 from neutron.db import allowedaddresspairs_db as addr_pair_db
 from neutron.db import api as db_api
@@ -483,21 +485,21 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                      context, security_group_rules)
 
     @staticmethod
-    @resource_extend.extends([attributes.NETWORKS])
+    @resource_extend.extends([net_def.COLLECTION_NAME])
     def _midonet_v2_extend_network_dict(result, netdb):
         plugin = directory.get_plugin()
         session = plugin._object_session_or_new_session(netdb)
         plugin.extension_manager.extend_network_dict(session, netdb, result)
 
     @staticmethod
-    @resource_extend.extends([attributes.PORTS])
+    @resource_extend.extends([port_def.COLLECTION_NAME])
     def _midonet_v2_extend_port_dict(result, portdb):
         plugin = directory.get_plugin()
         session = plugin._object_session_or_new_session(portdb)
         plugin.extension_manager.extend_port_dict(session, portdb, result)
 
     @staticmethod
-    @resource_extend.extends([attributes.SUBNETS])
+    @resource_extend.extends([subnet_def.COLLECTION_NAME])
     def _midonet_v2_extend_subnet_dict(result, subnetdb):
         plugin = directory.get_plugin()
         session = plugin._object_session_or_new_session(subnetdb)
