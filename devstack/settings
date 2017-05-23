@@ -81,7 +81,7 @@ NETWORK_API_EXTENSIONS+=,allowed-address-pairs,extraroute,port-security
 NETWORK_API_EXTENSIONS+=,router-interface-fip
 NETWORK_API_EXTENSIONS+=,provider
 NETWORK_API_EXTENSIONS+=,fip64
-if is_service_enabled q-fwaas; then
+if is_service_enabled q-fwaas neutron-fwaas-v1; then
     NETWORK_API_EXTENSIONS+=,fwaas,fwaasrouterinsertion
 fi
 if is_service_enabled neutron-vpnaas; then
@@ -91,10 +91,10 @@ fi
 if is_service_enabled taas; then
     NETWORK_API_EXTENSIONS+=,taas
 fi
-if is_service_enabled q-qos; then
+if is_service_enabled q-qos neutron-qos; then
     NETWORK_API_EXTENSIONS+=,qos
 fi
-if is_service_enabled q-lbaasv2; then
+if is_service_enabled q-lbaasv2 neutron-lbaasv2; then
     NETWORK_API_EXTENSIONS+=,lbaasv2
 fi
 
