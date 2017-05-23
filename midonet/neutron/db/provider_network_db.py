@@ -14,11 +14,10 @@
 
 from neutron_lib.api.definitions import provider_net as pnet
 from neutron_lib.api import validators
-from neutron_lib import constants as p_const
 from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
 
-from midonet.neutron._i18n import _, _LW
+from midonet.neutron._i18n import _
 from midonet.neutron.common import constants as m_const
 from neutron.db import models_v2
 from oslo_log import log as logging
@@ -27,12 +26,6 @@ from sqlalchemy import orm
 
 
 LOG = logging.getLogger(__name__)
-
-
-_MIDONET_TYPES = [
-    p_const.TYPE_LOCAL,
-    m_const.TYPE_MIDONET,
-]
 
 
 class NetworkBinding(model_base.BASEV2):
@@ -67,16 +60,7 @@ class MidonetProviderNetworkMixin(object):
         if not validators.is_attr_set(net_type):
             return None
 
-        if net_type in _MIDONET_TYPES:
-            # NOTE(yamamoto): Accept a few well-known types as
-            # the default type.  This is a workaround for Horizon, which
-            # currently doesn't have a way to specify MidoNet network types
-            # or "no provider network".
-            # REVISIT(yamamoto): Clean this up once Horizon is fixed
-            if net_type != m_const.TYPE_MIDONET:
-                LOG.warning(_LW('Unsupported network type %(type)s detected '
-                                'in a create network request.'),
-                            {'type': net_type})
+        if net_type == m_const.TYPE_MIDONET:
             return None
 
         if net_type != m_const.TYPE_UPLINK:
