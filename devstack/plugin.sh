@@ -168,6 +168,8 @@ EOF"
         # MidoNet LBaaS doesn't support HTTP.
         iniset $TEMPEST_CONFIG lbaas default_listener_protocol TCP
         iniset $TEMPEST_CONFIG lbaas default_pool_protocol TCP
+        # MidoNet LBaaS only supports SOURCE_IP.
+        iniset $TEMPEST_CONFIG lbaas session_persistence_types SOURCE_IP
     fi
 
 elif [[ "$1" == "unstack" ]]; then
