@@ -208,6 +208,14 @@ r="^(?!.*"
 # exclude the slow tag (part of the default for 'full')
 r="$r(?:.*\[.*\bslow\b.*\])"
 
+if ! lsb_release -i 2>/dev/null | grep -iq "ubuntu"; then
+    # bug 1699465
+    # The centos-7 image on gate uses libvirt-2.0.0-10.el7_3.9.x86_64,
+    # which doesn't seem to have the following fix:
+    #     https://github.com/libvirt/libvirt/commit/07262221234af0902cc649c1c991e8f11fa350d9
+    r="$r|(?:tempest\.scenario\.test_network_advanced_server_ops\.TestNetworkAdvancedServerOps\.test_server_connectivity_reboot)"
+fi
+
 # https://bugs.launchpad.net/tempest/+bug/1509590
 r="$r|(?:tempest\.api\.network\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\.test_add_remove_network_from_dhcp_agent.*)"
 r="$r|(?:tempest\.api\.network\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\.test_list_networks_hosted_by_one_dhcp.*)"
