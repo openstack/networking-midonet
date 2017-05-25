@@ -22,6 +22,8 @@
 set -x
 set -e
 
+source $TOP_DIR/functions
+
 ## defaults
 
 # IP address/hostname to use for the services
@@ -54,13 +56,13 @@ export MIDO_PASSWORD=${MIDO_PASSWORD:-midonet}
 ## Stop services
 
 for x in midolman midonet-cluster zookeeper cassandra; do
-    sudo service $x stop || :
+    stop_service $x || :
 done
 
 ## Zookeeper
 
 sudo rm -rf /var/lib/zookeeper/*
-sudo service zookeeper restart
+restart_service zookeeper
 
 ## Cassandra
 
@@ -76,7 +78,7 @@ if [ "${MIDONET_USE_CASSANDRA}" = True ]; then
     # Related bug: https://issues.apache.org/jira/browse/CASSANDRA-5895
     sudo sed -i -e "s/-Xss180k/-Xss228k/g" $CASSANDRA_ENV_FILE
     sudo rm -rf /var/lib/cassandra/*
-    sudo service cassandra restart
+    restart_service cassandra
 fi
 
 ## MidoNet
@@ -147,7 +149,7 @@ MIDOENT_CLUSTER_ENV_FILE='/etc/midonet-cluster/midonet-cluster-env.sh'
 sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1128M/' $MIDOENT_CLUSTER_ENV_FILE
 sudo sed -i 's/\(HEAP_NEWSIZE=\).*$/\164M/' $MIDOENT_CLUSTER_ENV_FILE
 
-sudo service midonet-cluster restart
+restart_service midonet-cluster
 
 if ! timeout $API_TIMEOUT sh -c 'while ! midonet-cli -e host list; do sleep 1; done'; then
     die $LINENO "API server didn't start in $API_TIMEOUT seconds"
@@ -172,7 +174,7 @@ sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1256M/' $MIDOLMAN_ENV_FILE
 MINIONS_ENV_FILE='/etc/midolman/minions-env.sh'
 sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1128M/' $MINIONS_ENV_FILE
 
-sudo service midolman restart
+restart_service midolman
 
 if ! timeout 60 sh -c 'while test -z "$(midonet-cli -e host list)"; do sleep 1; done'; then
     die $LINENO "HostService didn't register the host"
