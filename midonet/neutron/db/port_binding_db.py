@@ -48,7 +48,7 @@ class MidonetPortBindingMixin(object):
         if if_name:
             port_res[portbindings.PROFILE] = {"interface_name": if_name}
         else:
-            port_res[portbindings.PROFILE] = None
+            port_res[portbindings.PROFILE] = {}
 
     def _process_mido_portbindings_create_and_update(self, context, port_data,
                                                      port):
