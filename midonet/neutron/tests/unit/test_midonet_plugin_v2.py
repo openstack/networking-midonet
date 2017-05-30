@@ -241,7 +241,7 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
 
     def test_create_mido_portbinding_no_profile_specified(self):
         with self.port() as port:
-            self.assertIsNone(port['port'][portbindings.PROFILE])
+            self.assertEqual({}, port['port'][portbindings.PROFILE])
 
     def test_create_mido_portbinding_no_host_binding(self):
         # Create a binding when there is no host binding.  This should throw
@@ -323,7 +323,7 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
             args = {'port': {portbindings.PROFILE: None}}
             req = self.new_update_request('ports', args, port['port']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.api))
-            self.assertIsNone(res['port'][portbindings.PROFILE])
+            self.assertEqual({}, res['port'][portbindings.PROFILE])
 
     def test_update_mido_portbinding_unbind_already_unbound(self):
         # Unbinding an unbound port results in no-op
@@ -332,7 +332,7 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
             req = self.new_update_request('ports', args, port['port']['id'])
             # Success with profile set to None
             res = self.deserialize(self.fmt, req.get_response(self.api))
-            self.assertIsNone(res['port'][portbindings.PROFILE])
+            self.assertEqual({}, res['port'][portbindings.PROFILE])
 
     def test_update_mido_portbinding_no_interface(self):
         # Update binding with no interface name.  Should return an error.
