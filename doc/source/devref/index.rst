@@ -31,6 +31,14 @@ level designs.
 The developer guide also includes information about testing infrastructure.
 
 
+Policies
+--------
+.. toctree::
+   :maxdepth: 3
+
+   policies
+
+
 Programming HowTos and Tutorials
 --------------------------------
 .. toctree::
