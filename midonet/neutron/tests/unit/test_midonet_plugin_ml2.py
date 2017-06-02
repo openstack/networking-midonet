@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import contextlib
 import functools
 import mock
 import testscenarios
@@ -28,11 +29,16 @@ from neutron_lib.plugins import directory
 
 from neutron.extensions import external_net
 from neutron.tests.unit.api import test_extensions
+from neutron.tests.unit.db import test_allowedaddresspairs_db as test_addr
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_plugin
+from neutron.tests.unit.extensions import test_extra_dhcp_opt as test_dhcpopts
 from neutron.tests.unit.extensions import test_extraroute as test_ext_route
 from neutron.tests.unit.extensions import test_l3
+from neutron.tests.unit.extensions import test_l3_ext_gw_mode as test_gw_mode
+from neutron.tests.unit.extensions import test_portsecurity as test_psec
 from neutron.tests.unit.extensions import test_securitygroup as test_sg
 
+from midonet.neutron.common import constants as m_const
 from midonet.neutron.tests.unit import test_midonet_plugin as test_mn_plugin
 
 load_tests = testscenarios.load_tests_apply_scenarios
@@ -60,7 +66,10 @@ class MidonetPluginConf(object):
                               ['midonet', 'openvswitch'],
                               group='ml2')
         cfg.CONF.set_override('tenant_network_types',
-                              ['midonet', 'uplink', 'local'],
+                              ['midonet'],
+                              group='ml2')
+        cfg.CONF.set_override('extension_drivers',
+                              ['port_security'],
                               group='ml2')
         if parent_setup:
             parent_setup()
@@ -98,7 +107,7 @@ class MidonetPluginML2TestCase(test_plugin.NeutronDbPluginV2TestCase):
 
 
 class TestMidonetNetworksML2(MidonetPluginML2TestCase,
-                            test_plugin.TestNetworksV2):
+                             test_plugin.TestNetworksV2):
     pass
 
 
@@ -332,3 +341,145 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
     # NOTE(yamamoto): ML2 no longer uses NeutronDbPluginV2.create_port
     def test_floatingip_with_invalid_create_port(self):
         self._test_floatingip_with_invalid_create_port(PLUGIN_NAME)
+
+
+class TestMidonetProviderNet(MidonetPluginML2TestCase):
+
+    @contextlib.contextmanager
+    def provider_net(self, name='name1', net_type=m_const.TYPE_UPLINK,
+                     admin_state_up=True):
+        args = {pnet.NETWORK_TYPE: net_type,
+                'tenant_id': 'admin'}
+        net = self._make_network(self.fmt, name, admin_state_up,
+                                 arg_list=(pnet.NETWORK_TYPE, 'tenant_id'),
+                                 **args)
+        yield net
+
+    def test_create_provider_net(self):
+        keys = {pnet.NETWORK_TYPE: m_const.TYPE_UPLINK,
+                'name': 'name1'}
+        with self.provider_net() as net:
+            self.assertDictSupersetOf(keys, net['network'])
+
+    def test_create_provider_net_with_bogus_type(self):
+        # Create with a bogus network type
+        with testtools.ExpectedException(exc.HTTPClientError), \
+            self.provider_net(net_type="random"):
+            pass
+
+    def test_create_provider_net_with_local(self):
+        with self.provider_net(net_type=n_const.TYPE_LOCAL) as net:
+            self.assertEqual(n_const.TYPE_LOCAL,
+                             net['network'][pnet.NETWORK_TYPE])
+
+    def test_create_provider_net_with_flat(self):
+        with testtools.ExpectedException(exc.HTTPClientError), \
+            self.provider_net(net_type=n_const.TYPE_FLAT):
+            pass
+
+    def test_create_provider_net_with_gre(self):
+        with testtools.ExpectedException(exc.HTTPClientError), \
+            self.provider_net(net_type=n_const.TYPE_GRE):
+            pass
+
+    def test_create_provider_net_with_vlan(self):
+        with testtools.ExpectedException(exc.HTTPClientError), \
+            self.provider_net(net_type=n_const.TYPE_VLAN):
+            pass
+
+    def test_create_provider_net_with_vxlan(self):
+        with testtools.ExpectedException(exc.HTTPClientError), \
+            self.provider_net(net_type=n_const.TYPE_VXLAN):
+            pass
+
+    def test_create_provider_net_with_geneve(self):
+        with testtools.ExpectedException(exc.HTTPClientError), \
+            self.provider_net(net_type=n_const.TYPE_GENEVE):
+            pass
+
+    def test_create_provider_net_with_midonet(self):
+        with self.provider_net(net_type=m_const.TYPE_MIDONET) as net:
+            self.assertEqual(m_const.TYPE_MIDONET,
+                             net['network'][pnet.NETWORK_TYPE])
+
+    def test_create_provider_net_without_type(self):
+        args = {'network': {'tenant_id': 'admin'}}
+        req = self.new_create_request('networks', args, self.fmt)
+        res = req.get_response(self.api)
+        self.assertEqual(201, res.status_int)
+        net_res = self.deserialize(self.fmt, res)
+        self.assertEqual(m_const.TYPE_MIDONET,
+                         net_res['network'][pnet.NETWORK_TYPE])
+
+    def test_update_provider_net_unsupported(self):
+        # Update including the network type is not supported
+        with self.provider_net() as net:
+            args = {"network": {"name": "foo",
+                                pnet.NETWORK_TYPE: m_const.TYPE_UPLINK}}
+            req = self.new_update_request('networks', args,
+                                          net['network']['id'])
+            res = req.get_response(self.api)
+            self.assertEqual(400, res.status_int)
+
+    def test_delete_provider_net(self):
+        with self.provider_net() as net:
+            req = self.new_delete_request('networks', net['network']['id'])
+            res = req.get_response(self.api)
+            self.assertEqual(exc.HTTPNoContent.code, res.status_int)
+
+    def test_show_provider_net(self):
+        with self.provider_net() as net:
+            req = self.new_show_request('networks', net['network']['id'])
+            res = self.deserialize(self.fmt, req.get_response(self.api))
+            self.assertEqual(m_const.TYPE_UPLINK,
+                             res['network'][pnet.NETWORK_TYPE])
+
+    def test_list_provider_nets(self):
+        # Create two uplink prov nets and retrieve them
+        with self.provider_net():
+            with self.provider_net(name="net2"):
+                req = self.new_list_request('networks')
+                res = self.deserialize(
+                    self.fmt, req.get_response(self.api))
+                self.assertEqual(2, len(res['networks']))
+                for res_net in res['networks']:
+                    self.assertEqual(m_const.TYPE_UPLINK,
+                                     res_net[pnet.NETWORK_TYPE])
+
+    def test_list_provider_nets_filtered_by_invalid_type(self):
+        # Search a list of two provider networks with type uplink and type vlan
+        with self.provider_net(name="net2"):
+            with self.provider_net(name="net2"):
+                params_str = "%s=%s" % (pnet.NETWORK_TYPE, 'vlan')
+                req = self.new_list_request('networks', None,
+                                            params=params_str)
+                res = self.deserialize(
+                    self.fmt, req.get_response(self.api))
+                self.assertEqual(0, len(res['networks']))
+
+
+class TestMidonetAllowedAddressPair(test_addr.TestAllowedAddressPairs,
+                                    MidonetPluginML2TestCase):
+    pass
+
+
+class TestMidonetPortSecurity(test_psec.TestPortSecurity,
+                              MidonetPluginML2TestCase):
+    pass
+
+
+class TestMidonetExtGwMode(test_gw_mode.ExtGwModeIntTestCase,
+                           MidonetPluginML2TestCase):
+
+    pass
+
+
+class TestMidonetExtraDHCPOpts(test_dhcpopts.TestExtraDhcpOpt,
+                               MidonetPluginML2TestCase):
+
+    pass
+
+
+class TestMidonetSecurityGroup(test_sg.TestSecurityGroups,
+                               MidonetPluginML2TestCase):
+    pass
