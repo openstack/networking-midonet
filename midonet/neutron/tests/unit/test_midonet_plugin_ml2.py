@@ -22,12 +22,14 @@ from webob import exc
 
 from oslo_config import cfg
 
+from neutron_lib.api.definitions import portbindings
 from neutron_lib.api.definitions import provider_net as pnet
 from neutron_lib import constants as n_const
 from neutron_lib import context
 from neutron_lib.plugins import directory
 
 from neutron.extensions import external_net
+from neutron.tests.unit import _test_extension_portbindings as test_bindings
 from neutron.tests.unit.api import test_extensions
 from neutron.tests.unit.db import test_allowedaddresspairs_db as test_addr
 from neutron.tests.unit.db import test_db_base_plugin_v2 as test_plugin
@@ -456,6 +458,199 @@ class TestMidonetProviderNet(MidonetPluginML2TestCase):
                 res = self.deserialize(
                     self.fmt, req.get_response(self.api))
                 self.assertEqual(0, len(res['networks']))
+
+
+class TestMidonetPortBinding(MidonetPluginML2TestCase,
+                             test_bindings.PortBindingsTestCase):
+
+    # Test case does not set binding:host_id, so ml2 does not attempt
+    # to bind port
+    VIF_TYPE = portbindings.VIF_TYPE_UNBOUND
+    HAS_PORT_FILTER = True
+
+    @contextlib.contextmanager
+    def port_with_binding_profile(self, host='host', if_name='if_name'):
+        args = {portbindings.PROFILE: {'interface_name': if_name},
+                portbindings.HOST_ID: host}
+        with test_plugin.optional_ctx(None, self.subnet) as subnet_to_use:
+            net_id = subnet_to_use['subnet']['network_id']
+            port = self._make_port(self.fmt, net_id,
+                                   arg_list=(portbindings.PROFILE,
+                                             portbindings.HOST_ID,), **args)
+            yield port
+
+    def test_create_mido_portbinding(self):
+        keys = {portbindings.PROFILE: {'interface_name': 'if_name'},
+                portbindings.HOST_ID: 'host'}
+        with self.port_with_binding_profile() as port:
+            self.assertDictSupersetOf(keys, port['port'])
+
+    def test_show_mido_portbinding(self):
+        keys = {portbindings.PROFILE: {'interface_name': 'if_name'},
+                portbindings.HOST_ID: 'host'}
+        with self.port_with_binding_profile() as port:
+            self.assertDictSupersetOf(keys, port['port'])
+            req = self.new_show_request('ports', port['port']['id'])
+            res = self.deserialize(self.fmt, req.get_response(self.api))
+            self.assertDictSupersetOf(keys, res['port'])
+
+    def test_create_mido_portbinding_no_profile_specified(self):
+        with self.port() as port:
+            # NOTE(yamamoto): midonet_v2 returns None where ML2 returns {}.
+            self.assertEqual({}, port['port'][portbindings.PROFILE])
+
+    def test_create_mido_portbinding_no_host_binding(self):
+        # Create a binding when there is no host binding.
+        # ML2 allows it and makes the port UNBOUND.
+        # (Unlike midonet_v2, where it fails with 400.)
+        with self.network() as net:
+            args = {'port': {'tenant_id': net['network']['tenant_id'],
+                             'network_id': net['network']['id'],
+                             portbindings.PROFILE:
+                                 {'interface_name': 'if_name'},
+                             portbindings.HOST_ID: None}}
+            req = self.new_create_request('ports', args, self.fmt)
+            res = req.get_response(self.api)
+            self.assertEqual(201, res.status_int)
+            result = self.deserialize(self.fmt, res)
+            self.assertDictSupersetOf({
+                portbindings.PROFILE: {'interface_name': 'if_name'},
+                portbindings.VIF_TYPE: portbindings.VIF_TYPE_UNBOUND,
+            }, result['port'])
+
+    def test_create_mido_portbinding_no_interface(self):
+        # Create binding with no interface name.
+        # ML2 allows it.
+        # (Unlike midonet_v2, where a non empty profile should always have
+        # a valid interface_name and otherwise fails with 400.)
+        with self.network() as net:
+            args = {'port': {'tenant_id': net['network']['tenant_id'],
+                             'network_id': net['network']['id'],
+                             portbindings.PROFILE: {'foo': ''},
+                             portbindings.HOST_ID: 'host'}}
+            req = self.new_create_request('ports', args, self.fmt)
+            res = req.get_response(self.api)
+            self.assertEqual(201, res.status_int)
+            result = self.deserialize(self.fmt, res)
+            self.assertDictSupersetOf({
+                portbindings.PROFILE: {'foo': ''},
+                portbindings.VIF_TYPE: m_const.VIF_TYPE_MIDONET,
+            }, result['port'])
+
+    def test_create_mido_portbinding_bad_interface(self):
+        # Create binding with a bad interface name.  Should return an error.
+        # It succeeds because our mech driver doesn't validate it.
+        # (Unlike midonet_v2, where it fails with 400.)
+        with self.network() as net:
+            args = {'port': {'tenant_id': net['network']['tenant_id'],
+                             'network_id': net['network']['id'],
+                             portbindings.PROFILE: {'interface_name': ''},
+                             portbindings.HOST_ID: 'host'}}
+            req = self.new_create_request('ports', args, self.fmt)
+            res = req.get_response(self.api)
+            self.assertEqual(201, res.status_int)
+            result = self.deserialize(self.fmt, res)
+            self.assertDictSupersetOf({
+                portbindings.PROFILE: {'interface_name': ''},
+                portbindings.VIF_TYPE: m_const.VIF_TYPE_MIDONET,
+            }, result['port'])
+
+    def test_update_mido_portbinding(self):
+        keys = {portbindings.HOST_ID: 'host2',
+                portbindings.PROFILE: {'interface_name': 'if_name2'},
+                'admin_state_up': False,
+                'name': 'test_port2'}
+        with self.port_with_binding_profile() as port:
+            args = {
+                'port': {portbindings.PROFILE: {'interface_name': 'if_name2'},
+                         portbindings.HOST_ID: 'host2',
+                         'admin_state_up': False,
+                         'name': 'test_port2'}}
+            req = self.new_update_request('ports', args, port['port']['id'])
+            res = self.deserialize(self.fmt, req.get_response(self.api))
+            self.assertDictSupersetOf(keys, res['port'])
+
+    def test_update_mido_portbinding_no_profile_specified(self):
+        # Modify binding without specifying the profile.
+        keys = {portbindings.HOST_ID: 'host2',
+                portbindings.PROFILE: {'interface_name': 'if_name'},
+                'admin_state_up': False,
+                'name': 'test_port2'}
+        with self.port_with_binding_profile() as port:
+            args = {'port': {portbindings.HOST_ID: 'host2',
+                             'admin_state_up': False,
+                             'name': 'test_port2'}}
+            req = self.new_update_request('ports', args, port['port']['id'])
+            res = self.deserialize(self.fmt, req.get_response(self.api))
+            self.assertDictSupersetOf(keys, res['port'])
+
+    def test_update_mido_portbinding_no_host_binding(self):
+        # Update a binding when there is no host binding.
+        # ML2 allows it and makes the port UNBOUND.
+        # (Unlike midonet_v2, where it fails with 400.)
+        with self.port() as port:
+            args = {
+                'port': {portbindings.PROFILE: {'interface_name': 'if_name2'}}}
+            req = self.new_update_request('ports', args, port['port']['id'])
+            res = req.get_response(self.api)
+            self.assertEqual(200, res.status_int)
+            result = self.deserialize(self.fmt, res)
+            self.assertDictSupersetOf({
+                portbindings.PROFILE: {'interface_name': 'if_name2'},
+                portbindings.VIF_TYPE: portbindings.VIF_TYPE_UNBOUND,
+            }, result['port'])
+
+    def test_update_mido_portbinding_unbind(self):
+        # Unbinding a bound port
+        with self.port_with_binding_profile() as port:
+            args = {'port': {portbindings.PROFILE: None}}
+            req = self.new_update_request('ports', args, port['port']['id'])
+            res = self.deserialize(self.fmt, req.get_response(self.api))
+            # NOTE(yamamoto): midonet_v2 returns None where ML2 returns {}.
+            self.assertEqual({}, res['port'][portbindings.PROFILE])
+
+    def test_update_mido_portbinding_unbind_already_unbound(self):
+        # Unbinding an unbound port results in no-op
+        with self.port() as port:
+            args = {'port': {portbindings.PROFILE: None}}
+            req = self.new_update_request('ports', args, port['port']['id'])
+            # Success with profile set to None
+            res = self.deserialize(self.fmt, req.get_response(self.api))
+            # NOTE(yamamoto): midonet_v2 returns None where ML2 returns {}.
+            self.assertEqual({}, res['port'][portbindings.PROFILE])
+
+    def test_update_mido_portbinding_no_interface(self):
+        # Update binding with no interface name.
+        # ML2 allows it.
+        # (Unlike midonet_v2, where a non empty profile should always have
+        # a valid interface_name and otherwise fails with 400.)
+        with self.port_with_binding_profile() as port:
+            args = {
+                'port': {portbindings.PROFILE: {'foo': ''}}}
+            req = self.new_update_request('ports', args, port['port']['id'])
+            res = req.get_response(self.api)
+            self.assertEqual(200, res.status_int)
+            result = self.deserialize(self.fmt, res)
+            self.assertDictSupersetOf({
+                portbindings.PROFILE: {'foo': ''},
+                portbindings.VIF_TYPE: m_const.VIF_TYPE_MIDONET,
+            }, result['port'])
+
+    def test_update_mido_portbinding_bad_interface(self):
+        # Update binding with a bad interface name.
+        # It succeeds because our mech driver doesn't validate it.
+        # (Unlike midonet_v2, where it fails with 400.)
+        with self.port_with_binding_profile() as port:
+            args = {
+                'port': {portbindings.PROFILE: {'interface_name': ''}}}
+            req = self.new_update_request('ports', args, port['port']['id'])
+            res = req.get_response(self.api)
+            self.assertEqual(200, res.status_int)
+            result = self.deserialize(self.fmt, res)
+            self.assertDictSupersetOf({
+                portbindings.PROFILE: {'interface_name': ''},
+                portbindings.VIF_TYPE: m_const.VIF_TYPE_MIDONET,
+            }, result['port'])
 
 
 class TestMidonetAllowedAddressPair(test_addr.TestAllowedAddressPairs,
