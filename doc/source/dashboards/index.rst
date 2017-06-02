@@ -7,4 +7,4 @@ Gerrit Dashboards
 Grafana Dashboards
 ==================
 
-`Networking-MidoNet Failure Rate <http://grafana.openstack.org/dashboard/db/networking-midonet-failure-rate>`
+`Networking-MidoNet Failure Rate <http://grafana.openstack.org/dashboard/db/networking-midonet-failure-rate>`_
