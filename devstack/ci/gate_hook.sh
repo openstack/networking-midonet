@@ -193,6 +193,11 @@ if [ "${_ADV_SVC}" = "True" ]; then
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin tap-as-a-service https://git.openstack.org/openstack/tap-as-a-service"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service taas"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"TAAS_SERVICE_DRIVER=\"TAAS:Midonet:midonet.neutron.services.taas.service_drivers.taas_midonet.MidonetTaasDriver:default\""
+
+    # Enable neutron-dynamic-routing
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-dynamic-routing https://git.openstack.org/openstack/neutron-dynamic-routing"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"DR_MODE=dr_plugin"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"BGP_PLUGIN=midonet_bgp"
 fi
 
 export OVERRIDE_ENABLED_SERVICES="$s"
