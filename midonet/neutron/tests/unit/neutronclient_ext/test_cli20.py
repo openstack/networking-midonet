@@ -71,7 +71,7 @@ class CLIExtTestV20Base(test_cli20.CLITestV20Base):
 
         self.client.httpclient.request(
             test_cli20.MyUrlComparator(
-                test_cli20.end_url(path, format=self.format), self.client),
+                test_cli20.end_url(path), self.client),
             'PUT',
             body=mox_body,
             headers=mox.ContainsKeyValue(
@@ -102,7 +102,7 @@ class CLIExtTestV20Base(test_cli20.CLITestV20Base):
             path = path % parent_id
         path = path % myid
         self.client.httpclient.request(
-            test_cli20.end_url(path, query, format=self.format), 'GET',
+            test_cli20.end_url(path, query), 'GET',
             body=None,
             headers=mox.ContainsKeyValue(
                 'X-Auth-Token', TOKEN)).AndReturn((MyResp(200), resstr))
@@ -127,7 +127,7 @@ class CLIExtTestV20Base(test_cli20.CLITestV20Base):
             path = path % parent_id
         path = path % myid
         self.client.httpclient.request(
-            test_cli20.end_url(path, format=self.format), 'DELETE',
+            test_cli20.end_url(path), 'DELETE',
             body=None,
             headers=mox.ContainsKeyValue(
                 'X-Auth-Token', TOKEN)).AndReturn((MyResp(204), None))
