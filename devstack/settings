@@ -97,6 +97,13 @@ fi
 if is_service_enabled q-lbaasv2 neutron-lbaasv2; then
     NETWORK_API_EXTENSIONS+=,lbaasv2
 fi
+# REVISIT(yamamoto): This relies on the order of plugins unless q-dr
+# is explicitly enabled in local.conf because neutron-dynamic-routing
+# uses their devstack/settings to enable services.
+if is_service_enabled q-dr; then
+    NETWORK_API_EXTENSIONS+=,bgp
+    NETWORK_API_EXTENSIONS+=,bgp-speaker-router-insertion
+fi
 
 # Don't let mido.sh configure the logging
 CONFIGURE_LOGGING=False
