@@ -17,6 +17,7 @@ Contents:
    contributing
    history
    upgrade
+   ml2_migration
    devref/index
    specs/index
    dashboards/index
