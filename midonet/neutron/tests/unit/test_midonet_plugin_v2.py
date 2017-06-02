@@ -14,10 +14,8 @@
 #    under the License.
 
 import contextlib
-import datetime
 import functools
 import mock
-from sqlalchemy.orm import sessionmaker
 import testscenarios
 import testtools
 from webob import exc
@@ -31,11 +29,8 @@ from neutron_lib.plugins import constants as plugin_const
 from neutron_lib.plugins import directory
 
 from midonet.neutron.common import constants as m_const
-from midonet.neutron.db import data_state_db
-from midonet.neutron.db import data_version_db as dv_db
 from midonet.neutron.tests.unit import test_midonet_plugin as test_mn_plugin
 from networking_l2gw.db.l2gateway import l2gateway_models  # noqa
-from neutron.db import api as db_api
 from neutron.extensions import securitygroup as sg
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 from neutron.tests.unit.db import test_allowedaddresspairs_db as test_addr
@@ -45,7 +40,6 @@ from neutron.tests.unit.extensions import test_extraroute as test_ext_route
 from neutron.tests.unit.extensions import test_l3_ext_gw_mode as test_gw_mode
 from neutron.tests.unit.extensions import test_portsecurity as test_psec
 from neutron.tests.unit.extensions import test_securitygroup as test_sg
-from neutron.tests.unit import testlib_api
 
 from oslo_config import cfg
 
@@ -497,71 +491,6 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
 
     def test_floatingip_with_invalid_create_port(self):
         self._test_floatingip_with_invalid_create_port(PLUGIN_NAME)
-
-
-class TestMidonetDataState(testlib_api.SqlTestCase):
-
-    def setUp(self):
-        super(TestMidonetDataState, self).setUp()
-        self.session = self.get_session()
-        self.session.add(data_state_db.DataState(
-            updated_at=datetime.datetime.utcnow(),
-            readonly=False))
-
-    def get_session(self):
-        engine = db_api.context_manager.get_legacy_facade().get_engine()
-        Session = sessionmaker(bind=engine)
-        return Session()
-
-    def test_data_show(self):
-        ds = data_state_db.get_data_state(self.session)
-        self.assertIsNotNone(ds.id)
-
-    def test_data_state_readonly(self):
-        data_state_db.set_readonly(self.session)
-        ds = data_state_db.get_data_state(self.session)
-        self.assertTrue(ds.readonly)
-        # TODO(Joe) - creating tasks should fail here. Implement
-        # with further task_db changes coming in data sync
-        data_state_db.set_readwrite(self.session)
-        ds = data_state_db.get_data_state(self.session)
-        self.assertFalse(ds.readonly)
-
-
-class TestMidonetDataVersion(testlib_api.SqlTestCase):
-
-    def get_session(self):
-        engine = db_api.context_manager.get_legacy_facade().get_engine()
-        Session = sessionmaker(bind=engine)
-        return Session()
-
-    def test_create_version(self):
-        session = self.get_session()
-        dv_db.create_data_version(session)
-        version = dv_db.get_last_version(session)
-        self.assertEqual(1, version.id)
-        self.assertEqual(dv_db.STARTED, version.sync_tasks_status)
-
-    def _test_version_status(self, version_update_func, status):
-        session = self.get_session()
-        dv_db.create_data_version(session)
-        version = dv_db.get_last_version(session)
-        self.assertEqual(dv_db.STARTED, version.sync_tasks_status)
-        version_update_func(session)
-        version = dv_db.get_last_version(session)
-        self.assertEqual(status, version.sync_tasks_status)
-
-    def test_update_version_status_completed(self):
-        self._test_version_status(dv_db.complete_last_version,
-                                  dv_db.COMPLETED)
-
-    def test_update_version_status_error(self):
-        self._test_version_status(dv_db.error_last_version,
-                                  dv_db.ERROR)
-
-    def test_update_version_status_aborted(self):
-        self._test_version_status(dv_db.abort_last_version,
-                                  dv_db.ABORTED)
 
 
 class TestMidonetProviderNet(MidonetPluginV2TestCase):
