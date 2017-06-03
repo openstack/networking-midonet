@@ -67,6 +67,8 @@ if [[ "$1" == "stack" ]]; then
             install_package ruby-dev
             install_package ruby-ronn
             sudo gem install fpm
+            # Also, we need JDK to build MidoNet (vs JRE)
+            install_package openjdk-8-jdk-headless
             ./gradlew debian
             find . -type f -name "*.deb" -print0 | xargs -0 sudo dpkg -i
             cd ${orig_dir}
