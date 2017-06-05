@@ -7,14 +7,14 @@ Q_META_DATA_IP=${Q_META_DATA_IP:-$SERVICE_HOST}
 
 # Use MidoNet binary packages
 MIDONET_USE_PACKAGE=${MIDONET_USE_PACKAGE:-True}
-MIDONET_DEB_URI=${MIDONET_DEB_URI:-http://builds.midonet.org/midonet-5.4}
+MIDONET_DEB_URI=${MIDONET_DEB_URI:-http://builds.midonet.org/devstack}
 MIDONET_DEB_SUITE=${MIDONET_DEB_SUITE:-unstable}
 MIDONET_DEB_COMPONENT=${MIDONET_DEB_COMPONENT:-main}
 
 # MidoNet repo
 # Ignored if MIDONET_USE_PACKAGE=True
 MIDONET_REPO=${MIDONET_REPO:-http://github.com/midonet/midonet.git}
-MIDONET_BRANCH=${MIDONET_BRANCH:-staging/v5.4}
+MIDONET_BRANCH=${MIDONET_BRANCH:-master}
 MIDONET_DIR=${MIDONET_DIR:-$DEST/midonet}
 
 # Set up cassndra (for flow state etc)
