@@ -545,15 +545,44 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
 
     def test_create_gateway_device_hw_vtep_without_management_ip(self):
         res = self._create_gateway_device_hw_vtep(
-            management_port=FAKE_MANAGEMENT_PORT)
+            management_port=FAKE_MANAGEMENT_PORT,
+            management_protocol=OVSDB,
+            tunnel_ips=[FAKE_TUNNEL_IP])
         self.deserialize(self.fmt, res)
         self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
 
     def test_create_gateway_device_hw_vtep_without_management_port(self):
         res = self._create_gateway_device_hw_vtep(
-            management_ip=FAKE_MANAGEMENT_IP)
+            management_ip=FAKE_MANAGEMENT_IP,
+            management_protocol=OVSDB,
+            tunnel_ips=[FAKE_TUNNEL_IP])
         self.deserialize(self.fmt, res)
         self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
+
+    def test_create_gateway_device_hw_vtep_without_management_protocol(self):
+        res = self._create_gateway_device_hw_vtep(
+            management_ip=FAKE_MANAGEMENT_IP,
+            management_port=FAKE_MANAGEMENT_PORT,
+            tunnel_ips=[FAKE_TUNNEL_IP])
+        self.deserialize(self.fmt, res)
+        self.assertEqual(webob.exc.HTTPCreated.code, res.status_int)
+
+    def test_create_gateway_device_hw_vtep_without_tunnel_ips(self):
+        res = self._create_gateway_device_hw_vtep(
+            management_ip=FAKE_MANAGEMENT_IP,
+            management_port=FAKE_MANAGEMENT_PORT,
+            management_protocol=OVSDB)
+        self.deserialize(self.fmt, res)
+        self.assertEqual(webob.exc.HTTPBadRequest.code, res.status_int)
+
+    def test_create_gateway_device_hw_vtep_with_string_management_port(self):
+        res = self._create_gateway_device_hw_vtep(
+            management_ip=FAKE_MANAGEMENT_IP,
+            management_port=str(FAKE_MANAGEMENT_PORT),
+            management_protocol=OVSDB,
+            tunnel_ips=[FAKE_TUNNEL_IP])
+        self.deserialize(self.fmt, res)
+        self.assertEqual(webob.exc.HTTPCreated.code, res.status_int)
 
     def test_create_gateway_device_router_vtep_without_resource_id(self):
         res = self._create_gateway_device_router_vtep()

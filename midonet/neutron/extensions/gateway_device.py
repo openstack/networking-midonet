@@ -16,6 +16,7 @@
 import abc
 
 from neutron_lib.api import extensions as api_extensions
+from neutron_lib.api import validators
 from neutron_lib.db import constants as db_const
 from neutron_lib import exceptions as nexception
 from neutron_lib.plugins import directory
@@ -108,6 +109,15 @@ class OperationRemoteMacEntryNotSupported(nexception.Conflict):
                 "%(type)s type.")
 
 
+def _validate_port_or_none(data, valid_values=None):
+    if data is None:
+        return
+    return validators.validate_range(data, [0, 65535])
+
+
+validators.add_validator('_midonet_port_or_none', _validate_port_or_none)
+
+
 GATEWAY_DEVICE = 'gateway_device'
 GATEWAY_DEVICES = '%ss' % GATEWAY_DEVICE
 
@@ -150,7 +160,7 @@ RESOURCE_ATTRIBUTE_MAP = {
                           'validate': {'type:ip_address_or_none': None},
                           'is_visible': True},
         'management_port': {'allow_post': True, 'allow_put': False,
-                            'validate': {'type:port_range': None},
+                            'validate': {'type:_midonet_port_or_none': None},
                             'default': None, 'is_visible': True},
         'management_protocol': {'allow_post': True, 'allow_put': False,
                                 'is_visible': True, 'default': None},
