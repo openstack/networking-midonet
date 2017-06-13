@@ -33,6 +33,10 @@ from midonet.neutron.common import utils
 LOG = logging.getLogger(__name__)
 
 
+# TODO(yamamoto): Introduce LBaaS PRECOMMIT callbacks and
+# subscribe them for task-based api.
+
+
 MN_STATUS_TO_OPERATING_STATUS = {
     'ACTIVE': lb_const.ONLINE,
     'INACTIVE': lb_const.OFFLINE,

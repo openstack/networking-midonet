@@ -29,6 +29,10 @@ from oslo_utils import excutils
 LOG = logging.getLogger(__name__)
 
 
+# TODO(yamamoto): Update for the new driver API (See bug 1577339)
+# and override precommit methods for task-based api.
+
+
 @six.add_metaclass(abc.ABCMeta)
 class MidonetL2gwDriver(service_drivers.L2gwDriver):
     """L2GW MidoNet Service Driver class."""

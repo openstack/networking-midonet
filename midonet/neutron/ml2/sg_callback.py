@@ -33,6 +33,8 @@ class MidonetSecurityGroupsHandler(object):
     def __init__(self, client):
         self.client = client
 
+    # TODO(yamamoto): Implement PRECOMMIT hooks for task-based api
+    # (bug 1694699)
     @registry.receives(resources.SECURITY_GROUP, [events.AFTER_CREATE])
     @log_helpers.log_method_call
     def create_security_group(self, resource, event, trigger, **kwargs):
