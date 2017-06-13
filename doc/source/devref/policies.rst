@@ -29,7 +29,7 @@ Review and merge patches
 
 - Do not ignore the result of non-voting jobs.
 
-  When you merge a patch with non-voting jobs failinig, please leave
+  When you merge a patch with non-voting jobs failing, please leave
   a message to explain why.  Please make sure that there's a bug filed
   for the symptom.
   E.g. "Jenkins failures are unrelated to this patch.  bug xxxxxx."
