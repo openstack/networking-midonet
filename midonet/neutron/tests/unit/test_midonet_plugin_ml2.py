@@ -59,6 +59,9 @@ class MidonetPluginConf(object):
     @staticmethod
     def setUp(test_case, parent_setup=None):
         """Perform additional configuration around the parent's setUp."""
+        ovo_push_interface_p = mock.patch(
+            'neutron.plugins.ml2.ovo_rpc.OVOServerRpcInterface')
+        ovo_push_interface_p.start()
         cfg.CONF.set_override('client', test_mn_plugin.TEST_MN_CLIENT,
                               group='MIDONET')
         cfg.CONF.set_override('type_drivers',
