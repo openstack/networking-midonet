@@ -13,6 +13,21 @@ See also:
 Review and merge patches
 ------------------------
 
+- How to find patches to review
+
+  Unlike some of other gerrit-using communities, (e.g. midonet project
+  on gerrithub) a submitter of patches usually doesn't add reviewers
+  to their patches explicitly.  (Nor recommended to do so)
+  We consider it's reviewer's responsibility to find patches to review.
+  There are a few tools available to help the process.
+
+    - Gerrit dashboards [#dashboards]_
+
+    - Email notifications from gerrit [#watched_projects]_
+
+    - Gerrit notifications on Freenode IRC channels,
+      #openstack-neutron [#neutron_irc]_ and #midonet [#midonet_irc]_
+
 - We require two +2 votes before merging a patch.
 
   When you merge a patch without two +2 votes, please leave a message
@@ -43,4 +58,8 @@ Review and merge patches
   E.g. "recheck bug xxxxxxx"
   E.g. "recheck builds.midonet.org connection timeout"
 
+.. [#dashboards] https://docs.openstack.org/developer/networking-midonet/dashboards/index.html#gerrit-dashboards
+.. [#watched_projects] https://review.openstack.org/#/settings/projects
+.. [#neutron_irc] http://eavesdrop.openstack.org/irclogs/%23openstack-neutron/latest.log.html
+.. [#midonet_irc] http://eavesdrop.openstack.org/irclogs/%23midonet/latest.log.html
 .. [#recheck_trigger] https://github.com/openstack-infra/project-config/blob/89bc1bf84940cdc565da97c77d203e4d826f4b92/zuul.yaml#L7-L8
