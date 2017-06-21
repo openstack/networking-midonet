@@ -198,6 +198,8 @@ if [ "${_ADV_SVC}" = "True" ]; then
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-dynamic-routing https://git.openstack.org/openstack/neutron-dynamic-routing"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"DR_MODE=dr_plugin"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"BGP_PLUGIN=midonet_bgp"
+    # See REVISIT comment in devstack/settings
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service q-dr"
 fi
 
 export OVERRIDE_ENABLED_SERVICES="$s"
