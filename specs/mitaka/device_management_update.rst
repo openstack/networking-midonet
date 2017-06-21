@@ -15,7 +15,7 @@ provide device-level gateway management service to the operators.
 This API is required in order to propagate device connectivity details to enable
 Midonet to manage VTEP Logical Switch configuration upon Logical Gateway definition.
 In order to support Router Peering and Direct Connect use cases following definition
-in [2]_, Overlay VTEP Router device is supported by MidoNet.
+in [2]_, Overlay VTEP Router device is supported by MidoNet. [3]_
 While for the routing functionality this device is managed as
 traditional neutron Router, it should be possible for operator
 (or Orchestration Layer) to enable its VTEP functionality.

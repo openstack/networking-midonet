@@ -11,7 +11,7 @@ Logging API for firewall-rules
 This document describes MidoNet's implementation of
 logging for firewall rules.
 
-FWaaS v2.0 will be implemented in newton,
+FWaaS v2.0 [2]_ will be implemented in newton,
 However, first of all we implement MidoNet for mitaka with FWaaS v1.0
 because development schedule between
 networking-midonet and neutron does not match.
