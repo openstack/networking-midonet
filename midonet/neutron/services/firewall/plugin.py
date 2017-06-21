@@ -31,6 +31,11 @@ from oslo_utils import excutils
 LOG = logging.getLogger(__name__)
 
 
+# TODO(yamamoto): This driver needs a major restructure for task-based api.
+# I'm not sure if it's worth the effort given that FWaaS v2 things are
+# coming.  FWaaS v2 will have a better driver api.
+
+
 class _MidonetFirewallDriver(object):
     """FWaaS driver for MidoNet that implements the RPC API
 

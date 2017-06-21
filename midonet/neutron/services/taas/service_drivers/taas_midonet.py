@@ -35,6 +35,7 @@ class MidonetTaasDriver(taas_service_drivers.TaasBaseDriver):
 
     @log_helpers.log_method_call
     def create_tap_service_precommit(self, context):
+        # TODO(yamamoto): Call self.client for task-based api
         pass
 
     @log_helpers.log_method_call
@@ -50,6 +51,7 @@ class MidonetTaasDriver(taas_service_drivers.TaasBaseDriver):
 
     @log_helpers.log_method_call
     def delete_tap_service_precommit(self, context):
+        # TODO(yamamoto): Call self.client for task-based api
         pass
 
     @log_helpers.log_method_call
@@ -65,6 +67,7 @@ class MidonetTaasDriver(taas_service_drivers.TaasBaseDriver):
 
     @log_helpers.log_method_call
     def create_tap_flow_precommit(self, context):
+        # TODO(yamamoto): Call self.client for task-based api
         pass
 
     @log_helpers.log_method_call
@@ -80,6 +83,7 @@ class MidonetTaasDriver(taas_service_drivers.TaasBaseDriver):
 
     @log_helpers.log_method_call
     def delete_tap_flow_precommit(self, context):
+        # TODO(yamamoto): Call self.client for task-based api
         pass
 
     @log_helpers.log_method_call

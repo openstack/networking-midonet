@@ -29,6 +29,8 @@ from oslo_utils import excutils
 LOG = logging.getLogger(__name__)
 
 
+# TODO(yamamoto): Introduce VPNaaS PRECOMMIT callbacks and
+# subscribe them for task-based api.
 class MidonetIPsecVPNDriver(base_ipsec.BaseIPsecVPNDriver):
     def __init__(self, service_plugin):
         super(MidonetIPsecVPNDriver, self).__init__(service_plugin,

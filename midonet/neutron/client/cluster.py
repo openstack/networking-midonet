@@ -159,4 +159,13 @@ class MidonetClusterClient(base.MidonetClientBase):
         task.create_task(context, task.DELETE, data_type=task.HEALTH_MONITOR,
                          resource_id=health_monitor_id)
 
-    # REVISIT(yamamoto): recent additions, including QoS, lbaasv2
+    # TODO(yamamoto): Implement the following
+    # - FWaaS v1
+    # - VPNaaS
+    # - L2 gateway
+    # - gateway device
+    # - BGP
+    # - logging resource / firewall log
+    # - Tap as a service
+    # - QoS
+    # - LBaaS v2
