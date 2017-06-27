@@ -49,6 +49,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=False
         _ADV_SVC=False
+        _QOS=False
         ;;
     v2-full)
         # Note the actual url here is somewhat irrelevant because it
@@ -64,6 +65,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=False
         _ADV_SVC=True
+        _QOS=True
         ;;
     ml2)
         # Note the actual url here is somewhat irrelevant because it
@@ -78,6 +80,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=True
         _ADV_SVC=False
+        _QOS=False
         ;;
     ml2-full)
         # Note the actual url here is somewhat irrelevant because it
@@ -92,6 +95,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=True
         _ADV_SVC=True
+        _QOS=True
         ;;
     grenade-v2)
         # Note the actual url here is somewhat irrelevant because it
@@ -106,6 +110,7 @@ case $job in
         # NOTE(yamamoto): This job performs a migration to ML2
         _ML2=True
         _ADV_SVC=False
+        _QOS=True
         load_conf_hook quotas old
         # REVISIT(yamamoto): A crude workaround for bug/1700487
         # A better fix: Iec45a33930a06b17be00e8602f2457ab6960073f
@@ -128,6 +133,7 @@ case $job in
         _ZOOM=True
         _ML2=True
         _ADV_SVC=False
+        _QOS=True
         load_conf_hook quotas old
         ;;
     rally|rally-v2)
@@ -145,6 +151,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=False
         _ADV_SVC=False
+        _QOS=False
         ;;
     rally-ml2)
         # Note the actual url here is somewhat irrelevant because it
@@ -160,6 +167,7 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         _ML2=True
         _ADV_SVC=False
+        _QOS=False
 esac
 
 # We are only interested on Neutron, so very few services are needed
@@ -200,10 +208,6 @@ if [ "${_ADV_SVC}" = "True" ]; then
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-vpnaas https://github.com/openstack/neutron-vpnaas"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_VPNAAS_SERVICE_PROVIDER=\"VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default\""
 
-    # Enable QoS
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron https://github.com/openstack/neutron"
-    s+=",q-qos"
-
     # Enable LBaaSv2
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service q-lbaasv2"
@@ -220,6 +224,12 @@ if [ "${_ADV_SVC}" = "True" ]; then
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"BGP_PLUGIN=midonet_bgp"
     # See REVISIT comment in devstack/settings
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service q-dr"
+fi
+
+if [ "${_QOS}" = "True" ]; then
+    # Enable QoS
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron https://github.com/openstack/neutron"
+    s+=",q-qos"
 fi
 
 export OVERRIDE_ENABLED_SERVICES="$s"

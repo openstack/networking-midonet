@@ -22,5 +22,5 @@ if [ ${Q_PLUGIN} != ml2 ]; then
     iniset /$_Q_PLUGIN_CONF_FILE ml2 type_drivers midonet,uplink
     iniset /$_Q_PLUGIN_CONF_FILE ml2 tenant_network_types midonet
     iniset /$_Q_PLUGIN_CONF_FILE ml2 external_network_type midonet
-    iniset /$_Q_PLUGIN_CONF_FILE ml2 extension_drivers port_security
+    iniset /$_Q_PLUGIN_CONF_FILE ml2 extension_drivers port_security,qos
 fi
