@@ -19,6 +19,7 @@ from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
+from neutron_lib.plugins import constants as plugin_constants
 
 from midonet.neutron._i18n import _LE, _LW
 from midonet.neutron.client import base as c_base
@@ -71,7 +72,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
 
     @classmethod
     def get_plugin_type(cls):
-        return n_const.L3
+        return plugin_constants.L3
 
     def get_plugin_description(self):
         """Returns string description of the plugin."""
