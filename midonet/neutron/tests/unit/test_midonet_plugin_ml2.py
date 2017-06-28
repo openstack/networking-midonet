@@ -26,6 +26,7 @@ from neutron_lib.api.definitions import portbindings
 from neutron_lib.api.definitions import provider_net as pnet
 from neutron_lib import constants as n_const
 from neutron_lib import context
+from neutron_lib.plugins import constants as plugin_constants
 from neutron_lib.plugins import directory
 
 from neutron.extensions import external_net
@@ -280,7 +281,7 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
         with self.port() as port, self.router() as router:
             ctx = context.get_admin_context()
             plugin = directory.get_plugin()
-            l3_plugin = directory.get_plugin(n_const.L3)
+            l3_plugin = directory.get_plugin(plugin_constants.L3)
             router_id = router['router']['id']
             port_id = port['port']['id']
             interface_info = {

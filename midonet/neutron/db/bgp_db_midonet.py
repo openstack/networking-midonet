@@ -14,7 +14,7 @@
 #    under the License.
 
 from neutron_dynamic_routing.db import bgp_db
-from neutron_lib import constants
+from neutron_lib.plugins import constants
 from neutron_lib.plugins import directory
 
 from neutron.ipam import utils as ipam_utils

@@ -26,6 +26,7 @@ from neutron_lib.callbacks import resources
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 from neutron_lib.exceptions import port_security as psec_exc
+from neutron_lib.plugins import constants as plugin_constants
 from neutron_lib.plugins import directory
 
 from midonet.neutron._i18n import _, _LE, _LW
@@ -385,7 +386,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                   "l3_port_check=%(l3_port_check)r",
                   {'id': id, 'l3_port_check': l3_port_check})
 
-        l3plugin = directory.get_plugin(n_const.L3)
+        l3plugin = directory.get_plugin(plugin_constants.L3)
 
         # if needed, check to see if this is a port owned by
         # and l3-router.  If so, we should prevent deletion.
