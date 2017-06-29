@@ -67,24 +67,10 @@ firewall_log_quota_opts = [
 cfg.CONF.register_opts(firewall_log_quota_opts, 'QUOTAS')
 
 
-class Logging_resource(api_extensions.ExtensionDescriptor):
+class Logging_resource(api_extensions.APIExtensionDescriptor):
     """Logging resource extension."""
 
-    @classmethod
-    def get_name(cls):
-        return logging_resource.NAME
-
-    @classmethod
-    def get_alias(cls):
-        return logging_resource.ALIAS
-
-    @classmethod
-    def get_description(cls):
-        return logging_resource.DESCRIPTION
-
-    @classmethod
-    def get_updated(cls):
-        return logging_resource.UPDATED_TIMESTAMP
+    api_definition = logging_resource
 
     @classmethod
     def get_resources(cls):
@@ -120,12 +106,6 @@ class Logging_resource(api_extensions.ExtensionDescriptor):
             resources.append(resource)
 
         return resources
-
-    def get_extended_resources(self, version):
-        if version == "2.0":
-            return logging_resource.RESOURCE_ATTRIBUTE_MAP
-        else:
-            return {}
 
 
 @six.add_metaclass(abc.ABCMeta)
