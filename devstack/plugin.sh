@@ -58,8 +58,9 @@ if [[ "$1" == "stack" ]]; then
             # Clone MidoNet source
             if [[ "$OFFLINE" != "True" ]]; then
                 if [[ ! -d $MIDONET_DIR ]]; then
-                    local orig_dir=$(pwd)
+                    local orig_dir
 
+                    orig_dir =$(pwd)
                     git clone $MIDONET_REPO $MIDONET_DIR
                     cd $MIDONET_DIR
                     git checkout $MIDONET_BRANCH
@@ -68,7 +69,9 @@ if [[ "$1" == "stack" ]]; then
             fi
 
             # Build and install MidoNet packages
-            local orig_dir=$(pwd)
+            local orig_dir
+
+            orig_dir=$(pwd)
             cd $MIDONET_DIR
             find . -type f -name "*.deb" -print0 | xargs -0 -r rm
             ./gradlew nsdb:clean  # workaround for errors after proto changes
