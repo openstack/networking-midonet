@@ -22,6 +22,7 @@
 set -x
 set -e
 
+source $TOP_DIR/functions-common
 source $TOP_DIR/functions
 
 ## defaults
@@ -97,22 +98,6 @@ function configure_mn {
     # In some commands, mn-conf creates a local file, which requires root
     # access.  For simplicity, always call mn-conf with root for now.
     echo $1 : "${value}" | MIDO_ZOOKEEPER_HOSTS="$ZOOKEEPER_HOSTS" sudo mn-conf set
-}
-
-# Prints line number and "message" then exits
-# die $LINENO "message"
-# REVISIT(yamamoto): this shouldn't be here
-function die {
-    local exitcode=$?
-    set +o xtrace
-    local line=$1; shift
-    if [ $exitcode == 0 ]; then
-        exitcode=1
-    fi
-    err $line "$*"
-    # Give buffers a second to flush
-    sleep 1
-    exit $exitcode
 }
 
 # midonet-cluster
