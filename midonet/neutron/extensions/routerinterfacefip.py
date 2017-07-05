@@ -26,27 +26,7 @@ class RouterInterfaceInUseAsGatewayByFloatingIP(n_exc.InUse):
                 "by one or more floating IPs as a gateway.")
 
 
-class Routerinterfacefip(extensions.ExtensionDescriptor):
+class Routerinterfacefip(extensions.APIExtensionDescriptor):
     """Router interface FIP extension."""
 
-    @classmethod
-    def get_name(cls):
-        return router_interface_fip.NAME
-
-    @classmethod
-    def get_alias(cls):
-        return router_interface_fip.ALIAS
-
-    @classmethod
-    def get_description(cls):
-        return router_interface_fip.DESCRIPTION
-
-    @classmethod
-    def get_updated(cls):
-        return router_interface_fip.UPDATED_TIMESTAMP
-
-    def get_required_extensions(self):
-        return router_interface_fip.REQUIRED_EXTENSIONS
-
-    def get_optional_extensions(self):
-        return router_interface_fip.OPTIONAL_EXTENSIONS
+    api_definition = router_interface_fip

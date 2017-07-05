@@ -17,27 +17,7 @@ from neutron_lib.api.definitions import fip64
 from neutron_lib.api import extensions
 
 
-class Fip64(extensions.ExtensionDescriptor):
+class Fip64(extensions.APIExtensionDescriptor):
     """Floating IPv6 for IPv4 instances (NAT64)."""
 
-    @classmethod
-    def get_name(cls):
-        return fip64.NAME
-
-    @classmethod
-    def get_alias(cls):
-        return fip64.ALIAS
-
-    @classmethod
-    def get_description(cls):
-        return fip64.DESCRIPTION
-
-    @classmethod
-    def get_updated(cls):
-        return fip64.UPDATED_TIMESTAMP
-
-    def get_required_extensions(self):
-        return fip64.REQUIRED_EXTENSIONS
-
-    def get_optional_extensions(self):
-        return fip64.OPTIONAL_EXTENSIONS
+    api_definition = fip64
