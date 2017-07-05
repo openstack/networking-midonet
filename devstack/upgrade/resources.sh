@@ -5,7 +5,7 @@ set -x
 source $GRENADE_DIR/grenaderc
 source $GRENADE_DIR/functions
 
-function verify() {
+function verify {
     case $1 in
         "post-upgrade")
             # NOTE(yamamoto): Upgrade tempest config.  This doesn't really
