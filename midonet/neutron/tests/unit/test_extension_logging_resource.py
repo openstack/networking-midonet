@@ -14,6 +14,7 @@
 #    under the License.
 
 import contextlib
+
 import webob.exc
 
 from midonet.neutron import extensions as midoextensions

@@ -13,14 +13,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import socket
+import uuid
+
 from midonet.neutron.common import exceptions as mexc
 from midonetclient import topology  # noqa
 from midonetclient.topology import hosts
 from midonetclient.topology import pool_members
-
-
-import socket
-import uuid
 
 
 MIDO_AGENT_NAME = 'Midonet Agent'

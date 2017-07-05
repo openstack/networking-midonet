@@ -14,8 +14,10 @@
 #    under the License.
 
 import datetime
-from neutron_lib.db import model_base
+
 import sqlalchemy as sa
+
+from neutron_lib.db import model_base
 
 
 DATA_VERSIONS_TABLE = 'midonet_data_versions'

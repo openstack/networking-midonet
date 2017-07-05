@@ -14,6 +14,7 @@
 #    under the License.
 
 import abc
+
 import six
 
 from midonet.neutron._i18n import _LE
