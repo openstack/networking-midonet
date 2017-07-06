@@ -15,6 +15,7 @@
 
 import contextlib
 import functools
+
 import mock
 import testscenarios
 import testtools

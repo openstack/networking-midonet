@@ -14,6 +14,7 @@
 #    under the License.
 
 import itertools
+
 from oslo_config import cfg
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
