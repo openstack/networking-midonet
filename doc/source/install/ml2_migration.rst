@@ -45,10 +45,11 @@ Basically, you need to:
 
 - Change `core_plugin` to `ml2`
 
-- Add the `ml2` section.
+- Add the `ml2` group.
 
-The `MIDONET` section is common for both of the monolithic plugin and
-the ML2 driver.  It doesn't need any changes.
+The :oslo.config:group:`midonet` group is common for both of
+the monolithic plugin and the ML2 driver.
+It doesn't need any changes.
 
 
 Example before migration
