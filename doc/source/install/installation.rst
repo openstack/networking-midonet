@@ -33,6 +33,27 @@ python-midonetclient from source::
     $ sudo pip install -e 'git://github.com/midonet/midonet.git@master#egg=midonetclient&subdirectory=python-midonetclient'
 
 
+MidoNet API configuration
+-------------------------
+
+You need to configure the Neutron server how to talk with
+your MidoNet cluster.
+
+* Prepare a Keystone credential, with which the Neutron server
+  will send requests to the MidoNet cluster.
+
+* Configure Keystone authentication in MidoNet.
+  See `Using the Keystone authentication service <https://docs.midonet.org/docs/latest-en/operations-guide/content/keystone_authentication.html>`_ in
+  MidoNet documentation for details.
+
+* Configure the following options in the Neutron server configuration file.
+
+  :oslo.config:option:`midonet.midonet_uri`
+  :oslo.config:option:`midonet.username`
+  :oslo.config:option:`midonet.password`
+  :oslo.config:option:`midonet.project_id`
+
+
 Core plugin
 -----------
 
