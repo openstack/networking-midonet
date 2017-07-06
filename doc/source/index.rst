@@ -19,6 +19,13 @@ Installation
    install/upgrade
    install/ml2_migration
 
+Configuration options
+---------------------
+.. toctree::
+   :maxdepth: 2
+
+   configuration/index
+
 Contributor Guide
 -----------------
 .. toctree::
