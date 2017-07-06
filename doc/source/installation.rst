@@ -16,9 +16,9 @@ How to Install
 --------------
 
 For productional deployments, we recommend to use a package for your
-distribution if available::
+distribution if available:
 
-    http://builds.midonet.org/
+http://builds.midonet.org/
 
 You can install the plugin from the source code by running the following
 command::
@@ -92,9 +92,9 @@ No Neutron agents are necessary for networking-midonet.
 You can configure networking-midonet work with Neutron DHCP and
 Metadata agents.  But it isn't recommended anymore.
 
-For details, please refer to MidoNet documentation::
+For details, please refer to MidoNet documentation:
 
-    https://docs.midonet.org
+https://docs.midonet.org
 
 
 .. _interface-driver:
@@ -177,9 +177,9 @@ L2 Gateway Service
 
 Starting v5.1, MidoNet implements Neutron L2 Gateway Service extension API.
 The implementation differs slightly from upstream.
-Please check the following spec to see the differences:
+Please check the spec to see the differences:
 
-    http://docs.openstack.org/developer/networking-midonet/specs/mitaka/border_gw.html
+http://docs.openstack.org/developer/networking-midonet/specs/mitaka/border_gw.html
 
 MidoNet plugin implements L2 Gateway Service as a service driver.
 To configure it, add the following service plugin to the `service_plugins` list
