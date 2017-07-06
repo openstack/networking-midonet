@@ -179,7 +179,7 @@ Starting v5.1, MidoNet implements Neutron L2 Gateway Service extension API.
 The implementation differs slightly from upstream.
 Please check the spec to see the differences:
 
-http://docs.openstack.org/developer/networking-midonet/specs/mitaka/border_gw.html
+https://docs.openstack.org/networking-midonet/latest/specs/mitaka/border_gw.html
 
 MidoNet plugin implements L2 Gateway Service as a service driver.
 To configure it, add the following service plugin to the `service_plugins` list
