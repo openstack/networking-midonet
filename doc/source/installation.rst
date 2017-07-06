@@ -195,12 +195,6 @@ L2 Gateway plugin configuration file `/etc/neutron/l2gw_plugin.ini`::
     service_provider = L2GW:Midonet:midonet.neutron.services.l2gateway.service_drivers.l2gw_midonet.MidonetL2gwDriver:default
 
 
-Magnum
-------
-
-Starting v5.2, MidoNet can be used for Magnum deployment.
-
-
 BGP dynamic routing service
 ---------------------------
 
@@ -301,3 +295,9 @@ To enable it, add the following configuration to the
 `OPENSTACK_NEUTRON_NETWORK` dict in `local_settings.py`::
 
     'supported_provider_types': ['midonet', 'uplink'],
+
+
+Magnum
+------
+
+Starting v5.2, MidoNet can be used for Magnum deployment.
