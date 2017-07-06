@@ -5,7 +5,7 @@ Script Auto-generation
 ----------------------
 
 Please refer to the Neutron documentation
-`Script Auto-generation <http://docs.openstack.org/developer/neutron/devref/alembic_migrations.html#script-auto-generation>`_
+`Script Auto-generation <https://docs.openstack.org/neutron/latest/devref/alembic_migrations.html#script-auto-generation>`_
 for the instruction to auto-generate migration scripts.
 
 You need to specify `--subproject networking-midonet` option to the

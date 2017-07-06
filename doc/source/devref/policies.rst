@@ -5,7 +5,7 @@ This page explains development policies for `networking-midonet` project.
 
 See also:
 
-- `Neutron Policies <https://docs.openstack.org/developer/neutron/policies/index.html>`_
+- `Neutron Policies <https://docs.openstack.org/neutron/latest/policies/index.html>`_
 
 - `OpenStack Developer's Guide <https://docs.openstack.org/infra/manual/developers.html>`_
 
@@ -58,7 +58,7 @@ Review and merge patches
   E.g. "recheck bug xxxxxxx"
   E.g. "recheck builds.midonet.org connection timeout"
 
-.. [#dashboards] https://docs.openstack.org/developer/networking-midonet/dashboards/index.html#gerrit-dashboards
+.. [#dashboards] https://docs.openstack.org/networking-midonet/latest/dashboards/index.html#gerrit-dashboards
 .. [#watched_projects] https://review.openstack.org/#/settings/projects
 .. [#neutron_irc] http://eavesdrop.openstack.org/irclogs/%23openstack-neutron/latest.log.html
 .. [#midonet_irc] http://eavesdrop.openstack.org/irclogs/%23midonet/latest.log.html
