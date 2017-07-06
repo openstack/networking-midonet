@@ -19,7 +19,7 @@ You can find an example at `devstack/ml2/local.conf.sample
 <https://git.openstack.org/cgit/openstack/networking-midonet/plain/devstack/ml2/local.conf.sample>`_
 in the source tree.
 
-.. literalinclude:: ../../devstack/ml2/local.conf.sample
+.. literalinclude:: ../../../devstack/ml2/local.conf.sample
 
 MidoNet plugin (deprecated)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -28,7 +28,7 @@ You can find an example at `devstack/midonet/local.conf.sample
 <https://git.openstack.org/cgit/openstack/networking-midonet/plain/devstack/midonet/local.conf.sample>`_
 in the source tree.
 
-.. literalinclude:: ../../devstack/midonet/local.conf.sample
+.. literalinclude:: ../../../devstack/midonet/local.conf.sample
 
 
 MidoNet backend communication
