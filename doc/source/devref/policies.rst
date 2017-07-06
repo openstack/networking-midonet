@@ -5,9 +5,9 @@ This page explains development policies for `networking-midonet` project.
 
 See also:
 
-    - `Neutron Policies <https://docs.openstack.org/developer/neutron/policies/index.html>`_
+- `Neutron Policies <https://docs.openstack.org/developer/neutron/policies/index.html>`_
 
-    - `OpenStack Developer's Guide <https://docs.openstack.org/infra/manual/developers.html>`_
+- `OpenStack Developer's Guide <https://docs.openstack.org/infra/manual/developers.html>`_
 
 
 Review and merge patches
@@ -21,14 +21,14 @@ Review and merge patches
   We consider it's reviewer's responsibility to find patches to review.
   There are a few tools available to help the process.
 
-    - Gerrit dashboards [#dashboards]_
+  - Gerrit dashboards [#dashboards]_
 
-    - Email notifications from gerrit [#watched_projects]_
+  - Email notifications from gerrit [#watched_projects]_
 
-    - Gerrit notifications on Freenode IRC channels,
-      #openstack-neutron [#neutron_irc]_ and #midonet [#midonet_irc]_
+  - Gerrit notifications on Freenode IRC channels,
+    #openstack-neutron [#neutron_irc]_ and #midonet [#midonet_irc]_
 
-- We require two +2 votes before merging a patch.
+- We require two +2 votes before merging a patch
 
   When you merge a patch without two +2 votes, please leave a message
   to explain why.
@@ -42,14 +42,14 @@ Review and merge patches
   E.g. When the gate jobs are known to be broken. (In that case,
   running them would just waste the infra resources.)
 
-- Do not ignore the result of non-voting jobs.
+- Do not ignore the result of non-voting jobs
 
   When you merge a patch with non-voting jobs failing, please leave
   a message to explain why.  Please make sure that there's a bug filed
   for the symptom.
   E.g. "Jenkins failures are unrelated to this patch.  bug xxxxxx."
 
-- Document "recheck" reasons.
+- Document "recheck" reasons
 
   Writing a comment starting with "recheck" [#recheck_trigger]_
   on the gerrit, you can re-trigger jenkins jobs for the patch.

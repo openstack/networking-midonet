@@ -4,8 +4,8 @@ MidoNet FWaaS
 
 FWaaS model provides two ways to implement its API:
 
- * Driver for the agent running on the network node
- * Full implementation of FWaaS plugin
+- Driver for the agent running on the network node
+- Full implementation of FWaaS plugin
 
 Since MidoNet does not require the network nodes in deployment, the first
 option is not viable.  The second option is possible but it turns out there is
