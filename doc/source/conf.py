@@ -82,3 +82,13 @@ latex_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 # intersphinx_mapping = {'http://docs.python.org/': None}
+
+autodoc_mock_imports = [
+    # NOTE(yamamoto): We don't have midonetclient in requirements.txt.
+    'midonetclient',
+    # NOTE(yamamoto): Avoid import-time side effects.
+    #    Guru meditation now registers SIGUSR1 and SIGUSR2 by default
+    #    for backward compatibility. SIGUSR1 will no longer be registered
+    #    in a future release, so please use SIGUSR2 to generate reports.
+    'oslo_reports',
+]
