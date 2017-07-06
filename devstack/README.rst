@@ -113,7 +113,10 @@ In MidoNet, router treated as bgp-speaker must be specified.
 To configure MidoNet including BGP dynamic routing service
 when running devstack, make sure the following is defined in ``local.conf``::
 
-    Q_SERVICE_PLUGIN_CLASSES=midonet_bgp
+    enable_plugin neutron-dynamic-routing https://git.openstack.org/openstack/neutron-dynamic-routing
+    DR_MODE=dr_plugin
+    BGP_PLUGIN=midonet_bgp
+    enable_service q-dr
 
 
 Logging Resource Service
