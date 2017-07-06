@@ -198,11 +198,7 @@ L2 Gateway plugin configuration file `/etc/neutron/l2gw_plugin.ini`::
 Magnum
 ------
 
-Starting v5.2, MidoNet can be used for Magnum deployment with the
-following workaround.
-
-Note: MidoNet doesn't provide LBaaS v2 functionality.  You may need
-to disable it in your template.
+Starting v5.2, MidoNet can be used for Magnum deployment.
 
 
 BGP dynamic routing service
