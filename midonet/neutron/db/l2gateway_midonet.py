@@ -46,7 +46,7 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
         # validate it in this method.
         super(MidonetL2GatewayMixin,
               self).validate_l2_gateway_connection_for_create(
-                      context, l2_gateway_connection)
+                  context, l2_gateway_connection)
 
         # Validate l2 gateway existence before getting gateway device type
         gw_connection = l2_gateway_connection[self.connection_resource]
@@ -57,11 +57,11 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
         if self._get_l2_gateway_connection_by_l2gw_id(
                 context, gw_connection['l2_gateway_id']):
             raise exceptions.MidonetL2GatewayConnectionExists(
-                    l2_gateway_id=gw_connection['l2_gateway_id'])
+                l2_gateway_id=gw_connection['l2_gateway_id'])
 
         # Validate segmentation id range according to gateway device type
         gw_connection = l2_gateway_connection[
-                           constants.CONNECTION_RESOURCE_NAME]
+            constants.CONNECTION_RESOURCE_NAME]
         seg_id = gw_connection.get(constants.SEG_ID)
         if seg_id:
             gw_type = self.get_gateway_device_type_from_l2gw(context, l2gw)
@@ -70,9 +70,9 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
     def _get_l2_gateway_seg_id(self, context, l2_gw_id):
         seg_id = None
         l2_gw_dev = self.get_l2gateway_devices_by_gateway_id(
-                    context, l2_gw_id)
+            context, l2_gw_id)
         interfaces = self.get_l2gateway_interfaces_by_device_id(
-                    context, l2_gw_dev[0]['id'])
+            context, l2_gw_dev[0]['id'])
         if interfaces:
             seg_id = interfaces[0][constants.SEG_ID]
         return seg_id
@@ -83,7 +83,7 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
 
     def get_gateway_device_type_from_l2gw(self, context, l2gw):
         gw_id = (l2gw['devices'][0].get('device_id')) or (
-                     l2gw['devices'][0].get('device_name'))
+            l2gw['devices'][0].get('device_name'))
         gw_db = (directory.get_plugin(midonet_const.GATEWAY_DEVICE).
                  get_gateway_device(context, gw_id))
         return gw_db['type']
@@ -99,7 +99,7 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
             device['device_name'] = device['device_id']
             if device.get(constants.SEG_ID):
                 l2gw_midonet_validators.is_valid_segmentaion_id(
-                        gw['type'], device[constants.SEG_ID])
+                    gw['type'], device[constants.SEG_ID])
                 device['interfaces'].append(
                     {constants.SEG_ID: [str(device[constants.SEG_ID])]})
         return super(MidonetL2GatewayMixin, self).create_l2_gateway(
@@ -127,8 +127,8 @@ class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):
 
         # Validate only network existence since l2_gateway existence is
         # validated in validate_l2_gateway_connection_for_create method.
-        if not self._core_plugin.get_network(context,
-                gw_connection['network_id']):
+        if not self._core_plugin.get_network(
+                context, gw_connection['network_id']):
             raise neutron_extensions.NetworkNotFound(
                 net_id=gw_connection['network_id'])
         return super(MidonetL2GatewayMixin, self).create_l2_gateway_connection(

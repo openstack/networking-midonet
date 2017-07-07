@@ -134,7 +134,8 @@ class Bgp(BgpClientMixin, base.BaseTempestTestCase):
             enable_snat=False,
             project_id=cls.os_primary.network_client.tenant_id)
         network = cls.create_network(network_name='right-network')
-        subnet = cls.create_subnet(network,
+        subnet = cls.create_subnet(
+            network,
             cidr=netaddr.IPNetwork('10.10.0.0/24'),
             name='right-subnet')
         cls.create_router_interface(router['id'], subnet['id'])
@@ -209,7 +210,8 @@ class Bgp(BgpClientMixin, base.BaseTempestTestCase):
     @decorators.idempotent_id('c1208ce2-c55f-4424-9035-25de83161d6f')
     def test_bgp(self):
         # RIGHT
-        right_server = self._create_server(network=self._right_network,
+        right_server = self._create_server(
+            network=self._right_network,
             create_floating_ip=False)
 
         # LEFT
@@ -219,9 +221,11 @@ class Bgp(BgpClientMixin, base.BaseTempestTestCase):
                                 pkey=self.keypair['private_key'])
 
         # check LEFT -> RIGHT connectivity via BGP advertised routes
-        self.check_remote_connectivity(ssh_client,
+        self.check_remote_connectivity(
+            ssh_client,
             right_server['port']['fixed_ips'][0]['ip_address'],
             should_succeed=False)
         self._setup_bgp()
-        self.check_remote_connectivity(ssh_client,
+        self.check_remote_connectivity(
+            ssh_client,
             right_server['port']['fixed_ips'][0]['ip_address'])

@@ -67,14 +67,14 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
 
     def test_create_vpn_service(self):
         with self.vpnservice() as vpnservice:
-            req = self.new_show_request('vpnservices',
-                    vpnservice['vpnservice']['id'])
+            req = self.new_show_request(
+                'vpnservices', vpnservice['vpnservice']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
             self.assertEqual(constants.ACTIVE, res['vpnservice']['status'])
 
     def test_create_vpn_service_error_delete_neutron_resource(self):
         self.client_mock.create_vpn_service.side_effect = Exception(
-                "Fake Error")
+            "Fake Error")
         with self.subnet(cidr='10.2.0.0/24') as subnet, \
                 self.router() as router:
             try:
@@ -101,7 +101,7 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
 
     def test_update_vpn_service_error_change_neutron_resource_status(self):
         self.client_mock.update_vpn_service.side_effect = Exception(
-                "Fake Error")
+            "Fake Error")
         with self.vpnservice() as vpnservice:
             data = {'vpnservice': {'name': 'vpnservice2'}}
             vpnservice_id = vpnservice['vpnservice']['id']
@@ -124,7 +124,7 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
 
     def test_delete_vpn_service_error_delete_neutron_resouce(self):
         self.client_mock.delete_vpn_service_side_effect = Exception(
-                "Fake Error")
+            "Fake Error")
         self.test_delete_vpnservice()
         # check the resouce deleted in Neutron DB
         req = self.new_list_request('vpnservices')
@@ -133,10 +133,12 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
 
     def test_create_ipsec_site_connection(self):
         with self.ipsec_site_connection() as ipsec_site_connection:
-            req = self.new_show_request('ipsec-site-connections',
+            req = self.new_show_request(
+                'ipsec-site-connections',
                 ipsec_site_connection['ipsec_site_connection']['id'])
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            self.assertEqual(constants.ACTIVE,
+            self.assertEqual(
+                constants.ACTIVE,
                 res['ipsec_site_connection']['status'])
 
     def test_create_two_ipsec_site_connections_one_vpnservice(self):
@@ -156,7 +158,7 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
             for ipsec_site_connection in res['ipsec_site_connections']:
                 # Check that the associated vpnservice is the correct one
                 req = self.new_show_request(
-                        'vpnservices', ipsec_site_connection['vpnservice_id'])
+                    'vpnservices', ipsec_site_connection['vpnservice_id'])
                 res = self.deserialize(self.fmt,
                                        req.get_response(self.ext_api))
                 self.assertEqual(vpnservice['vpnservice']['id'],
@@ -167,16 +169,17 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
 
     def test_create_ipsec_site_connection_error_delete_neutron_resouce(self):
         self.client_mock.create_ipsec_site_conn.side_effect = Exception(
-                "Fake Error")
+            "Fake Error")
         with self.vpnservice() as vpnservice, \
                 self.ikepolicy() as ikepolicy, \
                 self.ipsecpolicy() as ipsecpolicy:
-            self._create_ipsec_site_connection(self.fmt, 'site_conn2',
-                    peer_cidrs='192.168.101.0/24',
-                    vpnservice_id=vpnservice['vpnservice']['id'],
-                    ikepolicy_id=ikepolicy['ikepolicy']['id'],
-                    ipsecpolicy_id=ipsecpolicy['ipsecpolicy']['id'],
-                    expected_res_status=500)
+            self._create_ipsec_site_connection(
+                self.fmt, 'site_conn2',
+                peer_cidrs='192.168.101.0/24',
+                vpnservice_id=vpnservice['vpnservice']['id'],
+                ikepolicy_id=ikepolicy['ikepolicy']['id'],
+                ipsecpolicy_id=ipsecpolicy['ipsecpolicy']['id'],
+                expected_res_status=500)
             req = self.new_list_request('ipsec-site-connections')
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
             self.assertFalse(res['ipsec_site_connections'])
@@ -185,9 +188,9 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
         with self.ipsec_site_connection() as ipsec_site_connection:
             data = {'ipsec_site_connection': {'mtu': '1300'}}
             ipsec_site_conn_id = (
-                   ipsec_site_connection['ipsec_site_connection']['id'])
-            req = self.new_update_request('ipsec-site-connections', data,
-                    ipsec_site_conn_id)
+                ipsec_site_connection['ipsec_site_connection']['id'])
+            req = self.new_update_request(
+                'ipsec-site-connections', data, ipsec_site_conn_id)
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
             self.assertEqual(1300, res['ipsec_site_connection']['mtu'])
             self.assertEqual(
@@ -196,35 +199,37 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
 
     def test_update_ipsec_site_connection_error(self):
         self.client_mock.update_ipsec_site_conn.side_effect = Exception(
-                "Fake Error")
+            "Fake Error")
         with self.ipsec_site_connection() as ipsec_site_connection:
             data = {'ipsec_site_connection': {'mtu': '1300'}}
             ipsec_site_conn_id = (
-                   ipsec_site_connection['ipsec_site_connection']['id'])
+                ipsec_site_connection['ipsec_site_connection']['id'])
             req = self.new_update_request('ipsec-site-connections', data,
                                           ipsec_site_conn_id)
             res = req.get_response(self.ext_api)
             self.assertEqual(500, res.status_int)
 
-            req = self.new_show_request('ipsec-site-connections',
-                    ipsec_site_conn_id)
+            req = self.new_show_request(
+                'ipsec-site-connections',
+                ipsec_site_conn_id)
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            self.assertEqual(constants.ERROR,
-                    res['ipsec_site_connection']['status'])
+            self.assertEqual(
+                constants.ERROR,
+                res['ipsec_site_connection']['status'])
 
     def test_delete_ipsec_site_connection(self):
-        with self.ipsec_site_connection(name="site_conn2",
-                do_delete=False) as ipsec_site_connection:
+        with self.ipsec_site_connection(
+                name="site_conn2", do_delete=False) as ipsec_site_connection:
             ipsec_site_conn_id = \
-                    ipsec_site_connection['ipsec_site_connection']['id']
-            req = self.new_delete_request('ipsec-site-connections',
-                    ipsec_site_conn_id)
+                ipsec_site_connection['ipsec_site_connection']['id']
+            req = self.new_delete_request(
+                'ipsec-site-connections', ipsec_site_conn_id)
             res = req.get_response(self.ext_api)
             self.assertEqual(204, res.status_int)
 
     def test_delete_ipsec_site_connection_error(self):
         self.client_mock.delete_ipsec_site_conn.side_effect = Exception(
-                "Fake Error")
+            "Fake Error")
         self.test_delete_ipsec_site_connection()
         req = self.new_list_request('ipsec-site-connections')
         res = self.deserialize(self.fmt, req.get_response(self.ext_api))

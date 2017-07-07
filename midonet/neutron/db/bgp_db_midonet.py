@@ -49,7 +49,7 @@ class MidonetBgpDbMixin(bgp_db.BgpDbMixin):
         for port in ports:
             subnet_id = port['fixed_ips'][0]['subnet_id']
             cidr = core_plugin.get_subnet(
-                    context, subnet_id, fields=['cidr'])
+                context, subnet_id, fields=['cidr'])
             if self._extract_valid_peer_ips(cidr['cidr'], peer_ips):
                 nexthops.append(port['fixed_ips'][0]['ip_address'])
             dest_networks.append(cidr['cidr'])

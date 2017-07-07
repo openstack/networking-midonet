@@ -144,16 +144,16 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
             self.client.update_router_postcommit(id, r)
             if r['status'] != m_const.ROUTER_STATUS_ACTIVE:
                 data = {'router': {'status': m_const.ROUTER_STATUS_ACTIVE}}
-                r = super(MidonetL3ServicePlugin,
-                        self).update_router(context, id, data)
+                r = super(MidonetL3ServicePlugin, self).update_router(
+                    context, id, data)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Failed to update a router %(r_id)s in MidoNet: "
                               "%(err)s"), {"r_id": id, "err": ex})
                 try:
                     data = {'router': {'status': m_const.ROUTER_STATUS_ERROR}}
-                    super(MidonetL3ServicePlugin,
-                        self).update_router(context, id, data)
+                    super(MidonetL3ServicePlugin, self).update_router(
+                        context, id, data)
                 except Exception:
                     LOG.exception(_LE("Failed to update a router "
                                       "status %s"), id)
@@ -275,7 +275,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
                               "%(err)s"), {"fip_id": id, "err": ex})
                 try:
                     self.update_floatingip_status(
-                            context, id, n_const.FLOATINGIP_STATUS_ERROR)
+                        context, id, n_const.FLOATINGIP_STATUS_ERROR)
                 except Exception:
                     LOG.exception(_LE("Failed to update floating ip "
                                       "status %s"), id)

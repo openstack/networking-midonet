@@ -66,7 +66,8 @@ class Fip64(base.BaseTempestTestCase):
             subnet_id=subnet_id,
             port_id=port_id)['floatingip']
         self.floating_ips.append(fip)
-        self.assertEqual(self._fip_ip_version,
+        self.assertEqual(
+            self._fip_ip_version,
             netaddr.IPAddress(fip['floating_ip_address']).version)
         return fip
 

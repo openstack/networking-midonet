@@ -136,43 +136,39 @@ class TestMidonetPortsV2(MidonetPluginV2TestCase,
                         [{'ip_address': FAKE_IP,
                           'subnet_id': sub['subnet']['id']}]}}
                 req = self.new_update_request(
-                        'ports', data, port['port']['id'])
+                    'ports', data, port['port']['id'])
                 res = req.get_response(self.api)
-                self.assertEqual(exc.HTTPInternalServerError.code,
-                        res.status_int)
+                self.assertEqual(
+                    exc.HTTPInternalServerError.code, res.status_int)
                 req = self.new_show_request('ports', port['port']['id'])
-                res = self.deserialize(self.fmt,
-                        req.get_response(self.api))
-                self.assertEqual(n_const.PORT_STATUS_ERROR,
-                        res['port']['status'])
+                res = self.deserialize(self.fmt, req.get_response(self.api))
+                self.assertEqual(
+                    n_const.PORT_STATUS_ERROR,
+                    res['port']['status'])
 
     def test_create_port_with_admin_state_up_false(self):
         with self.subnet(cidr=FAKE_CIDR) as sub:
-            with self.port(subnet=sub,
-                    admin_state_up=False) as port:
+            with self.port(subnet=sub, admin_state_up=False) as port:
                 req = self.new_show_request('ports', port['port']['id'])
-                res = self.deserialize(self.fmt,
-                        req.get_response(self.api))
-                self.assertEqual(n_const.PORT_STATUS_DOWN,
-                        res['port']['status'])
+                res = self.deserialize(self.fmt, req.get_response(self.api))
+                self.assertEqual(
+                    n_const.PORT_STATUS_DOWN, res['port']['status'])
 
     def test_update_port_admin_state_up_to_false_and_true(self):
         with self.subnet(cidr=FAKE_CIDR) as sub:
             with self.port(subnet=sub) as port:
                 data = {'port': {'admin_state_up': False}}
                 req = self.new_update_request(
-                        'ports', data, port['port']['id'])
+                    'ports', data, port['port']['id'])
                 res = req.get_response(self.api)
-                res = self.deserialize(self.fmt,
-                        req.get_response(self.api))
+                res = self.deserialize(self.fmt, req.get_response(self.api))
                 self.assertEqual(n_const.PORT_STATUS_DOWN,
                                  res['port']['status'])
                 data = {'port': {'admin_state_up': True}}
                 req = self.new_update_request(
-                        'ports', data, port['port']['id'])
+                    'ports', data, port['port']['id'])
                 res = req.get_response(self.api)
-                res = self.deserialize(self.fmt,
-                        req.get_response(self.api))
+                res = self.deserialize(self.fmt, req.get_response(self.api))
                 self.assertEqual(n_const.PORT_STATUS_ACTIVE,
                                  res['port']['status'])
 
@@ -183,20 +179,27 @@ class TestMidonetPortsV2(MidonetPluginV2TestCase,
                     subnet=sub,
                     device_owner=n_const.DEVICE_OWNER_ROUTER_INTF
             ) as port:
-                data = {'port': {'fixed_ips': [
-                    {'subnet_id': sub['subnet']['id'],
-                     'ip_address': updated_ip_address}
-                ]}}
+                data = {
+                    'port': {
+                        'fixed_ips': [
+                            {
+                                'subnet_id': sub['subnet']['id'],
+                                'ip_address': updated_ip_address
+                            }
+                        ]
+                    }
+                }
                 req = self.new_update_request(
-                        'ports', data, port['port']['id'])
+                    'ports', data, port['port']['id'])
                 res = req.get_response(self.api)
                 self.assertEqual(200, res.status_int)
 
                 req = self.new_show_request('ports', port['port']['id'])
-                res = self.deserialize(self.fmt,
-                        req.get_response(self.api))
-                self.assertEqual(updated_ip_address,
-                        res['port']['fixed_ips'][0]['ip_address'])
+                res = self.deserialize(
+                    self.fmt, req.get_response(self.api))
+                self.assertEqual(
+                    updated_ip_address,
+                    res['port']['fixed_ips'][0]['ip_address'])
 
 
 class TestMidonetPortBinding(MidonetPluginV2TestCase,
@@ -437,7 +440,7 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
                                    'add_router_interface_postcommit',
                                    auto_spec=True,
                                    side_effect=_MyException), \
-                testtools.ExpectedException(_MyException):
+                    testtools.ExpectedException(_MyException):
                 l3_plugin.add_router_interface(ctx, router_id, interface_info)
             port2 = plugin.get_port(ctx, port_id)
             self.assertEqual(port_id, port2['id'])
@@ -446,8 +449,11 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
         self.client_mock.update_floatingip_postcommit.side_effect = (
             Exception("Fake Error"))
         with self.port() as p:
-            private_sub = {'subnet': {'id':
-                    p['port']['fixed_ips'][0]['subnet_id']}}
+            private_sub = {
+                'subnet': {
+                    'id': p['port']['fixed_ips'][0]['subnet_id']
+                }
+            }
             with self.floatingip_no_assoc(private_sub) as fip:
                 data = {'floatingip': {'port_id': p['port']['id']}}
                 req = self.new_update_request('floatingips',
@@ -457,11 +463,12 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
                 self.assertEqual(exc.HTTPInternalServerError.code,
                                  res.status_int)
                 req = self.new_show_request(
-                        'floatingips', fip['floatingip']['id'])
+                    'floatingips', fip['floatingip']['id'])
                 res = self.deserialize(self.fmt,
                                        req.get_response(self.ext_api))
-                self.assertEqual(n_const.FLOATINGIP_STATUS_ERROR,
-                        res['floatingip']['status'])
+                self.assertEqual(
+                    n_const.FLOATINGIP_STATUS_ERROR,
+                    res['floatingip']['status'])
 
     def test_update_router_error_change_resource_status_to_error(self):
         self.client_mock.update_router_postcommit.side_effect = (
@@ -479,7 +486,7 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
                 self.assertEqual(exc.HTTPInternalServerError.code,
                                  res.status_int)
                 req = self.new_show_request(
-                        'routers', r['router']['id'])
+                    'routers', r['router']['id'])
                 res = self.deserialize(self.fmt,
                                        req.get_response(self.ext_api))
                 self.assertEqual('ERROR', res['router']['status'])
@@ -515,37 +522,37 @@ class TestMidonetProviderNet(MidonetPluginV2TestCase):
     def test_create_provider_net_with_bogus_type(self):
         # Create with a bogus network type
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type="random"):
+                self.provider_net(net_type="random"):
             pass
 
     def test_create_provider_net_with_local(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=n_const.TYPE_LOCAL):
+                self.provider_net(net_type=n_const.TYPE_LOCAL):
             pass
 
     def test_create_provider_net_with_flat(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=n_const.TYPE_FLAT):
+                self.provider_net(net_type=n_const.TYPE_FLAT):
             pass
 
     def test_create_provider_net_with_gre(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=n_const.TYPE_GRE):
+                self.provider_net(net_type=n_const.TYPE_GRE):
             pass
 
     def test_create_provider_net_with_vlan(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=n_const.TYPE_VLAN):
+                self.provider_net(net_type=n_const.TYPE_VLAN):
             pass
 
     def test_create_provider_net_with_vxlan(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=n_const.TYPE_VXLAN):
+                self.provider_net(net_type=n_const.TYPE_VXLAN):
             pass
 
     def test_create_provider_net_with_geneve(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=n_const.TYPE_GENEVE):
+                self.provider_net(net_type=n_const.TYPE_GENEVE):
             pass
 
     def test_create_provider_net_with_midonet(self):
@@ -639,11 +646,13 @@ class TestMidonetPortSecurityKludge(MidonetPluginV2TestCase):
 
     @contextlib.contextmanager
     def _do_mock(self, plugin):
-        port_mock = mock.patch.object(plugin,
+        port_mock = mock.patch.object(
+            plugin,
             '_process_port_port_security_create',
             auto_spec=True,
             return_value={})
-        network_mock = mock.patch.object(plugin,
+        network_mock = mock.patch.object(
+            plugin,
             '_process_network_port_security_create',
             auto_spec=True,
             return_value={})

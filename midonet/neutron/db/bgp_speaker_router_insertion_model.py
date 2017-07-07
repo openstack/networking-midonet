@@ -24,9 +24,11 @@ class BgpSpeakerRouterAssociation(model_base.BASEV2):
 
     __tablename__ = 'bgp_speaker_router_associations'
 
-    bgp_speaker_id = sa.Column(sa.String(36),
+    bgp_speaker_id = sa.Column(
+        sa.String(36),
         sa.ForeignKey('bgp_speakers.id', ondelete="CASCADE"),
         nullable=False, primary_key=True)
-    router_id = sa.Column(sa.String(36),
+    router_id = sa.Column(
+        sa.String(36),
         sa.ForeignKey('routers.id', ondelete="CASCADE"),
         nullable=False, unique=True)

@@ -36,8 +36,8 @@ neutron_milestone = [migration.MITAKA]
 
 def upgrade():
     op.create_foreign_key(
-            constraint_name=None,
-            source_table='midonet_gateway_overlay_router_devices',
-            referent_table='routers',
-            local_cols=['resource_id'],
-            remote_cols=['id'])
+        constraint_name=None,
+        source_table='midonet_gateway_overlay_router_devices',
+        referent_table='routers',
+        local_cols=['resource_id'],
+        remote_cols=['id'])

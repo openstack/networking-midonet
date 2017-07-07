@@ -45,7 +45,7 @@ class CLITestV20RemoteMacEntryJSON(test_cli20.CLIExtTestV20Base):
                                  position_values, parent_id=None):
         resource = 'remote_mac_entry'
         cmd = _remote_mac_entry.RemoteMacEntryCreate(
-                                        test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         self._test_create_resource(resource, cmd, None, 'myid',
                                    args, position_names, position_values,
                                    parent_id=parent_id)
@@ -88,7 +88,7 @@ class CLITestV20RemoteMacEntryJSON(test_cli20.CLIExtTestV20Base):
     def test_delete_remote_mac_entry(self):
         resource = 'remote_mac_entry'
         cmd = _remote_mac_entry.RemoteMacEntryDelete(
-                                        test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         gw_device_id = 'my_gw_device'
         my_id = 'myid'
         args = [my_id, gw_device_id]
@@ -98,7 +98,7 @@ class CLITestV20RemoteMacEntryJSON(test_cli20.CLIExtTestV20Base):
     def test_list_remote_mac_entries(self):
         resources = 'remote_mac_entries'
         cmd = _remote_mac_entry.RemoteMacEntryList(
-                                        test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         gw_device_id = 'my_gw_device'
         args = [gw_device_id]
         self._test_list_resources(resources, cmd, base_args=args,
@@ -107,7 +107,7 @@ class CLITestV20RemoteMacEntryJSON(test_cli20.CLIExtTestV20Base):
     def test_show_remote_mac_entry(self):
         resource = 'remote_mac_entry'
         cmd = _remote_mac_entry.RemoteMacEntryShow(
-                                        test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         gw_device_id = 'my_gw_device'
         my_id = 'myid'
         args = [my_id, gw_device_id]

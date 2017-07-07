@@ -78,7 +78,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
                 # If the router is already associated with bgp-speaker,
                 # RouterInUse will be raised.
                 self.set_router_for_bgp_speaker(
-                        context, bgp_sp['id'], router_id)
+                    context, bgp_sp['id'], router_id)
                 bgp_sp[m_const.LOGICAL_ROUTER] = router_id
 
         return bgp_sp
@@ -87,35 +87,35 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
     def delete_bgp_speaker(self, context, bgp_speaker_id):
         with db_api.context_manager.writer.using(context):
             bgp_sp = super(MidonetBgpPlugin, self).get_bgp_speaker(
-                    context, bgp_speaker_id)
+                context, bgp_speaker_id)
             super(MidonetBgpPlugin, self).delete_bgp_speaker(
-                    context, bgp_speaker_id)
+                context, bgp_speaker_id)
             # Plugin should call 'UPDATE' to clean up bgp-peers because
             # backend cannot handle excepting ID when 'DELETE' is called.
             self.client.update_bgp_speaker_precommit(
                 context, bgp_speaker_id, bgp_sp)
 
         self.client.update_bgp_speaker_postcommit(
-                bgp_speaker_id, bgp_sp)
+            bgp_speaker_id, bgp_sp)
 
     @log_helpers.log_method_call
     def get_bgp_speakers(self, context, filters=None, fields=None,
                          sorts=None, limit=None, marker=None,
                          page_reverse=False):
         bgp_sp_list = super(MidonetBgpPlugin, self).get_bgp_speakers(
-                context, filters, fields)
+            context, filters, fields)
         for bgp_sp in bgp_sp_list:
             rt_id = self.get_router_associated_with_bgp_speaker(
-                    context, bgp_sp['id'])
+                context, bgp_sp['id'])
             bgp_sp[m_const.LOGICAL_ROUTER] = rt_id
         return bgp_sp_list
 
     @log_helpers.log_method_call
     def get_bgp_speaker(self, context, bgp_speaker_id, fields=None):
         bgp_sp = super(MidonetBgpPlugin, self).get_bgp_speaker(
-                context, bgp_speaker_id, fields)
+            context, bgp_speaker_id, fields)
         rt_id = self.get_router_associated_with_bgp_speaker(
-                context, bgp_speaker_id)
+            context, bgp_speaker_id)
         bgp_sp[m_const.LOGICAL_ROUTER] = rt_id
         return bgp_sp
 
@@ -125,14 +125,14 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
         # an error when dictionary without 'bgp_peer_id' key is specified.
         if not self._get_id_for(bgp_peer_info, 'bgp_peer_id'):
             raise nexception.BadRequest(
-                    resource=bgp.BGP_SPEAKER_RESOURCE_NAME,
-                    msg="bgp_peer_id must be specified")
+                resource=bgp.BGP_SPEAKER_RESOURCE_NAME,
+                msg="bgp_peer_id must be specified")
         with db_api.context_manager.writer.using(context):
             # In MidoNet, bgp-peer can be related to only one bgp-speaker.
             if self._get_bgp_speakers_by_bgp_peer_binding(
                     context, bgp_peer_info['bgp_peer_id']):
                 raise bsri.MidonetBgpPeerInUse(
-                        id=bgp_peer_info['bgp_peer_id'])
+                    id=bgp_peer_info['bgp_peer_id'])
             if not self.get_router_associated_with_bgp_speaker(
                     context, bgp_speaker_id):
                 # External network must be associated with the bgp speaker.
@@ -141,10 +141,10 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
                 context, bgp_speaker_id, bgp_peer_info)
             # get peer info for MidoNet
             bgp_peer = super(MidonetBgpPlugin, self).get_bgp_peer(
-                    context, info['bgp_peer_id'])
+                context, info['bgp_peer_id'])
             # merge bgp_speaker information for MidoNet
             bgp_peer['bgp_speaker'] = self.get_bgp_speaker(
-                    context, bgp_speaker_id)
+                context, bgp_speaker_id)
             self.client.create_bgp_peer_precommit(context, bgp_peer)
 
         try:
@@ -157,7 +157,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
                        "err": ex})
             with excutils.save_and_reraise_exception():
                 super(MidonetBgpPlugin, self).remove_bgp_peer(
-                        context, bgp_speaker_id, bgp_peer_info)
+                    context, bgp_speaker_id, bgp_peer_info)
 
         return info
 
@@ -188,7 +188,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
                 context, bgp_peer_id, bgp_peer)
             updated_bgp_peer = {'bgp_peer': bgp_peer}
             self.client.update_bgp_peer_precommit(
-                    context, bgp_peer_id, updated_bgp_peer)
+                context, bgp_peer_id, updated_bgp_peer)
 
         self.client.update_bgp_peer_postcommit(bgp_peer_id,
                                                updated_bgp_peer)
@@ -197,11 +197,11 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
     @log_helpers.log_method_call
     def get_advertised_routes(self, context, bgp_speaker_id):
         rt_id = self.get_router_associated_with_bgp_speaker(
-                context, bgp_speaker_id)
+            context, bgp_speaker_id)
 
         # figure out advertised routes from attached networks
         attached_routes = self.get_routes_from_attached_networks(
-                context, bgp_speaker_id, rt_id)
+            context, bgp_speaker_id, rt_id)
 
         # prepare nexthops to change nexthop of extra
         # route to IP address of router port
@@ -209,7 +209,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
 
         # figure out advertised routes from extra routes
         extra_routes = self.get_routes_from_extra_routes(
-                context, rt_id, nexthops)
+            context, rt_id, nexthops)
 
         routes = attached_routes + extra_routes
         info = ({'destination': x, 'next_hop': y} for x, y in routes)
@@ -231,9 +231,9 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
                     context, network_info['network_id']):
                 raise bsri.NetworkTypeInvalid()
             info = super(MidonetBgpPlugin, self).add_gateway_network(
-                    context, bgp_speaker_id, network_info)
+                context, bgp_speaker_id, network_info)
             self.set_router_for_bgp_speaker_by_network(
-                    context, bgp_speaker_id, network_info['network_id'])
+                context, bgp_speaker_id, network_info['network_id'])
 
         return info
 
@@ -243,8 +243,8 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
             if self.get_bgp_peers_by_bgp_speaker(context, bgp_speaker_id):
                 raise bsri.BgpSpeakerInUse(id=bgp_speaker_id)
             info = super(MidonetBgpPlugin, self).remove_gateway_network(
-                    context, bgp_speaker_id, network_info)
+                context, bgp_speaker_id, network_info)
             self.delete_bgp_speaker_router_insertion(
-                    context, bgp_speaker_id)
+                context, bgp_speaker_id)
 
         return info

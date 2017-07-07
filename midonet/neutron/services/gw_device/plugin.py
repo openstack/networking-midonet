@@ -95,7 +95,8 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
                               "device %(gw_id)s in Midonet:"
                               "%(err)s"), {"gw_id": gw["id"], "err": ex})
                 try:
-                    super(MidonetGwDeviceServicePlugin,
+                    super(
+                        MidonetGwDeviceServicePlugin,
                         self).update_gateway_device(
                             context, gw['id'], backup_body)
                 except Exception:
@@ -120,7 +121,7 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
 
         if gw_device.type == gateway_device.NETWORK_VLAN_TYPE:
             raise gateway_device.OperationRemoteMacEntryNotSupported(
-                    type=gateway_device.NETWORK_VLAN_TYPE)
+                type=gateway_device.NETWORK_VLAN_TYPE)
 
         with context.session.begin(subtransactions=True):
             rme = super(MidonetGwDeviceServicePlugin,

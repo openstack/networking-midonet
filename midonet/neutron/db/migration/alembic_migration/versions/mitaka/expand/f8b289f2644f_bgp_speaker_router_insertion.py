@@ -29,12 +29,13 @@ import sqlalchemy as sa
 
 
 def upgrade():
-    op.create_table('bgp_speaker_router_associations',
+    op.create_table(
+        'bgp_speaker_router_associations',
         sa.Column('bgp_speaker_id', sa.String(length=36), nullable=False),
         sa.Column('router_id', sa.String(length=36), nullable=False,
                   unique=True),
-        sa.ForeignKeyConstraint(['bgp_speaker_id'], ['bgp_speakers.id'],
-            ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['router_id'], ['routers.id'],
-            ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(
+            ['bgp_speaker_id'], ['bgp_speakers.id'], ondelete='CASCADE'),
+        sa.ForeignKeyConstraint(
+            ['router_id'], ['routers.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('bgp_speaker_id'))

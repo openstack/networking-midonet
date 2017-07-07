@@ -53,11 +53,12 @@ class MidonetL2GatewayPlugin(l2gw_plugin.L2GatewayPlugin,
                                                   validate_gwdevice_list)
         val_type = validators._to_validation_type('l2gwdevice_list')
         validators.validators.pop(val_type, None)
-        validators.add_validator(val_type,
+        validators.add_validator(
+            val_type,
             l2gw_midonet_validators.validate_gwdevice_list)
         l2gw_validators.validate_network_mapping_list = (
-                l2gw_midonet_validators.
-                validate_network_mapping_list_without_seg_id_validation)
+            l2gw_midonet_validators.
+            validate_network_mapping_list_without_seg_id_validation)
         neutron_extensions.append_api_extensions_path(l2gateway_ext.__path__)
         super(MidonetL2GatewayPlugin, self).__init__()
 
@@ -90,7 +91,8 @@ class MidonetL2GatewayPlugin(l2gw_plugin.L2GatewayPlugin,
         self.validate_l2_gateway_connection_for_create(
             context, l2_gateway_connection)
         l2_gw_conn = (l2gw_db.MidonetL2GatewayMixin.
-            create_l2_gateway_connection(self, context, l2_gateway_connection))
+                      create_l2_gateway_connection(
+                          self, context, l2_gateway_connection))
 
         # Copy over the ID so that the MidoNet driver knows about it.  ID is
         # necessary for MidoNet to process its translation.
@@ -104,8 +106,8 @@ class MidonetL2GatewayPlugin(l2gw_plugin.L2GatewayPlugin,
         except Exception as ex:
             with excutils.save_and_reraise_exception():
                 LOG.error(_LE("Failed to create a l2 gateway connection "
-                    "%(gw_conn_id)s in Midonet:%(err)s"),
-                    {"gw_conn_id": l2_gw_conn["id"], "err": ex})
+                              "%(gw_conn_id)s in Midonet:%(err)s"),
+                          {"gw_conn_id": l2_gw_conn["id"], "err": ex})
                 try:
                     l2gw_db.MidonetL2GatewayMixin.delete_l2_gateway_connection(
                         self, context, l2_gw_conn["id"])

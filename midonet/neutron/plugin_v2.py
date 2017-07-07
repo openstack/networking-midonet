@@ -240,7 +240,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             s, net_db, ipam_sub = self._create_subnet_precommit(
                 context, subnet)
             self.extension_manager.process_create_subnet(context,
-                subnet['subnet'], s)
+                                                         subnet['subnet'], s)
             self.client.create_subnet_precommit(context, s)
 
         # db base plugin post commit ops
@@ -278,7 +278,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
         with db_api.context_manager.writer.using(context):
             s = super(MidonetPluginV2, self).update_subnet(context, id, subnet)
             self.extension_manager.process_update_subnet(context,
-                subnet['subnet'], s)
+                                                         subnet['subnet'], s)
             # NOTE(yamamoto): Retrieve the db object to get the correct
             # revision
             context.session.flush()
@@ -483,7 +483,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
     def create_security_group_rule_bulk(self, context, security_group_rules):
         return super(MidonetPluginV2,
                      self).create_security_group_rule_bulk_native(
-                     context, security_group_rules)
+                         context, security_group_rules)
 
     @staticmethod
     @resource_extend.extends([net_def.COLLECTION_NAME])

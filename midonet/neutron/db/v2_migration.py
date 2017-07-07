@@ -77,7 +77,8 @@ def log_calls(func):
 
 
 def check_alembic_versions(context):
-    LOG.info('Checking Neutron alembic versions are in %s',
+    LOG.info(
+        'Checking Neutron alembic versions are in %s',
         _KNOWN_NEUTRON_ALEMBIC_VERSIONS)
     stmt = sql.select(
         [sql.column('version_num')]).select_from(sql.table('alembic_version'))
@@ -183,13 +184,13 @@ def migrate():
         segments = {}
         uplink_network_ids = [seg.network_id for seg in old_segments]
         for network_id in uplink_network_ids:
-            segments[network_id] = add_segment(context,
-                network_id=network_id, network_type="uplink")
+            segments[network_id] = add_segment(
+                context, network_id=network_id, network_type="uplink")
         networks = context.session.query(models_v2.Network).all()
         for net in networks:
             if net.id not in uplink_network_ids:
-                segments[net.id] = add_segment(context,
-                    network_id=net.id, network_type="midonet")
+                segments[net.id] = add_segment(
+                    context, network_id=net.id, network_type="midonet")
 
         # Migrate port bindings
         # NOTE(yamamoto): Unlike midonet v2, ML2 has PortBinding rows
@@ -203,7 +204,8 @@ def migrate():
         for port in context.session.query(models_v2.Port).all():
             port_id = port.id
             if port_id in port_host:
-                add_binding_bound(context, port_id, segments[port.network_id],
+                add_binding_bound(
+                    context, port_id, segments[port.network_id],
                     port_host[port_id], port_interface.get(port_id))
             else:
                 add_binding_unbound(context, port_id)

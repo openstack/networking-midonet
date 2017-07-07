@@ -77,7 +77,7 @@ class MidonetL2gwDriver(service_drivers.L2gwDriver):
         self._validate_gw_connection(context, gw_conn_dict)
         if not gw_conn_dict[constants.SEG_ID]:
             seg_id = self.service_plugin._get_l2_gateway_seg_id(
-                    context, gw_conn_dict['l2_gateway_id'])
+                context, gw_conn_dict['l2_gateway_id'])
             gw_conn_dict[constants.SEG_ID] = seg_id
         try:
             self.client.create_l2_gateway_connection(context,

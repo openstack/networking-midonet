@@ -54,14 +54,14 @@ class CLITestV20FirewallLogJSON(test_cli20.CLIExtTestV20Base):
     def _create_firewall_log(self, args, position_names,
                              position_values, parent_id=None):
         cmd = _firewall_log.FirewallLogCreate(
-                test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         self._test_create_resource(RESOURCE, cmd, None, FAKE_FIREWALL_LOG_ID,
                                    args, position_names, position_values,
                                    parent_id=parent_id)
 
     def _update_firewall_log(self, args, values, parent_id=None):
         cmd = _firewall_log.FirewallLogUpdate(
-                test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         self._test_update_ext_resource(RESOURCE, cmd, FAKE_FIREWALL_LOG_ID,
                                        args, values, parent_id=parent_id)
 
@@ -112,7 +112,7 @@ class CLITestV20FirewallLogJSON(test_cli20.CLIExtTestV20Base):
 
     def test_delete_firewall_log(self):
         cmd = _firewall_log.FirewallLogDelete(
-                test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         args = [FAKE_FIREWALL_LOG_ID, FAKE_LOGGING_RESOURCE_ID]
         self._test_delete_ext_resource(RESOURCE, cmd,
                                        FAKE_FIREWALL_LOG_ID, args,
@@ -120,14 +120,14 @@ class CLITestV20FirewallLogJSON(test_cli20.CLIExtTestV20Base):
 
     def test_list_firewall_logs(self):
         cmd = _firewall_log.FirewallLogList(
-                test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         args = [FAKE_LOGGING_RESOURCE_ID]
         self._test_list_resources(RESOURCES, cmd, base_args=args,
                                   parent_id=FAKE_LOGGING_RESOURCE_ID)
 
     def test_show_firewall_log(self):
         cmd = _firewall_log.FirewallLogShow(
-                test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         args = [FAKE_FIREWALL_LOG_ID, FAKE_LOGGING_RESOURCE_ID]
         self._test_show_ext_resource(RESOURCE, cmd,
                                      FAKE_FIREWALL_LOG_ID, args,

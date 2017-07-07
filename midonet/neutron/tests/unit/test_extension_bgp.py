@@ -77,7 +77,7 @@ class BgpTestCase(test_l3.L3NatTestCaseMixin,
         service_plugins = {'bgp_plugin_name': BGP_PLUGIN_KLASS}
         bgp_mgr = BgpTestExtensionManager()
         super(BgpTestCase, self).setUp(
-                service_plugins=service_plugins, ext_mgr=bgp_mgr)
+            service_plugins=service_plugins, ext_mgr=bgp_mgr)
         self.ext_api = test_ex.setup_extensions_middleware(bgp_mgr)
         self.bgp_plugin = bgp_plugin.MidonetBgpPlugin()
 
@@ -116,7 +116,7 @@ class BgpTestCase(test_l3.L3NatTestCaseMixin,
         self._set_net_external(ext_net['network']['id'])
         self._ext_net_id = ext_net['network']['id']
         self._ext_subnet = self._make_subnet(self.fmt, ext_net, "100.65.0.1",
-                                            '100.65.0.0/24')
+                                             '100.65.0.0/24')
         self._ext_subnet_id = self._ext_subnet['subnet']['id']
         edge_router = self._make_router(self.fmt, uuidutils.generate_uuid(),
                                         'edge_router', True)

@@ -32,8 +32,8 @@ def add_common_paramaters_to_arguments(parser):
 
 def _get_logging_resource_id(client, logging_resource_id_or_name):
     return loggingV20.find_resourceid_by_name_or_id(
-            client, 'logging_resource',
-            logging_resource_id_or_name)
+        client, 'logging_resource',
+        logging_resource_id_or_name)
 
 
 class FirewallLog(extension.NeutronClientExtension):

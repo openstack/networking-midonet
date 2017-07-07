@@ -38,16 +38,16 @@ class FirewallLog(model_base.BASEV2, model_base.HasProjectNoIndex):
     __tablename__ = FIREWALL_LOGS
 
     id = sa.Column(sa.String(36), primary_key=True)
-    logging_resource_id = sa.Column(sa.String(36),
-                          sa.ForeignKey('midonet_logging_resources.id',
-                          ondelete="CASCADE"),
-                          nullable=False)
+    logging_resource_id = sa.Column(
+        sa.String(36),
+        sa.ForeignKey('midonet_logging_resources.id', ondelete="CASCADE"),
+        nullable=False)
     description = sa.Column(sa.String(1024))
     fw_event = sa.Column(sa.String(length=255), nullable=False)
-    firewall_id = sa.Column(sa.String(36),
-                  sa.ForeignKey('firewalls.id',
-                  ondelete="CASCADE"),
-                  nullable=False)
+    firewall_id = sa.Column(
+        sa.String(36),
+        sa.ForeignKey('firewalls.id', ondelete="CASCADE"),
+        nullable=False)
     logging_resource = orm.relationship(
         LoggingResource,
         backref=orm.backref('firewall_logs', cascade='delete', lazy='joined'),

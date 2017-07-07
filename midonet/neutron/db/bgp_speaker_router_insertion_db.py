@@ -43,13 +43,13 @@ class BgpSpeakerRouterInsertionDbMixin(object):
         try:
             with db_api.context_manager.writer.using(context):
                 bgp_router_db = model.BgpSpeakerRouterAssociation(
-                        bgp_speaker_id=bgp_sp_id,
-                        router_id=r_id)
+                    bgp_speaker_id=bgp_sp_id,
+                    router_id=r_id)
                 context.session.add(bgp_router_db)
         except db_exc.DBDuplicateEntry:
             raise l3.RouterInUse(
-                    router_id=r_id,
-                    reason='is already associated with bgp speaker')
+                router_id=r_id,
+                reason='is already associated with bgp speaker')
         except db_exc.DBReferenceError:
             raise l3.RouterNotFound(router_id=r_id)
 
@@ -110,8 +110,7 @@ class BgpSpeakerRouterInsertionDbMixin(object):
         router_id = ports[0]['device_id']
         # If the router is already associated with bgp-speaker,
         # RouterInUse will be raised.
-        self.set_router_for_bgp_speaker(
-                context, bgp_sp_id, router_id)
+        self.set_router_for_bgp_speaker(context, bgp_sp_id, router_id)
 
     def _get_bgp_speakers_by_bgp_peer_binding(self, context, bgp_peer_id):
         with db_api.context_manager.reader.using(context):
@@ -124,7 +123,7 @@ class BgpSpeakerRouterInsertionDbMixin(object):
     def delete_bgp_speaker_router_insertion(self, context, bsp_id):
         with db_api.context_manager.writer.using(context):
             query = self._model_query(
-                    context, model.BgpSpeakerRouterAssociation)
+                context, model.BgpSpeakerRouterAssociation)
             query.filter(
                 model.BgpSpeakerRouterAssociation.bgp_speaker_id ==
                 bsp_id).delete()
@@ -134,5 +133,5 @@ class BgpSpeakerRouterInsertionDbMixin(object):
         router_id = kwargs['router_id']
         context = kwargs.get('context')
         if self.get_bgp_speaker_associated_with_router(context, router_id):
-            raise l3.RouterInUse(router_id=router_id,
-                    reason='is associated with bgp speaker')
+            raise l3.RouterInUse(
+                router_id=router_id, reason='is associated with bgp speaker')
