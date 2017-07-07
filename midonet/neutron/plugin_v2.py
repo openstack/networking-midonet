@@ -183,8 +183,12 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                                                            net)
             # NOTE(yamamoto): Retrieve the db object to get the correct
             # revision
-            context.session.flush()
-            net = self.get_network(context, id)
+            # ToDO(QoS): This would change once EngineFacade moves out
+            db_network = self._get_network(context, id)
+            # Expire the db_network in current transaction, so that the join
+            # relationship can be updated.
+            context.session.expire(db_network)
+            net = self._make_network_dict(db_network, context=context)
             self.client.update_network_precommit(context, id, net)
 
         self.client.update_network_postcommit(id, net)
