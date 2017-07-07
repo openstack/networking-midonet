@@ -21,8 +21,6 @@ from oslo_log import log as logging
 from oslo_utils import excutils
 from oslo_utils import importutils
 
-from midonet.neutron._i18n import _LE
-
 LOG = logging.getLogger(__name__)
 
 
@@ -33,7 +31,7 @@ def load_client(conf):
         return client
     except ImportError:
         with excutils.save_and_reraise_exception():
-            LOG.exception(_LE("Error loading midonet client '%(client)s'"),
+            LOG.exception("Error loading midonet client '%(client)s'",
                           {'client': conf.client})
 
 

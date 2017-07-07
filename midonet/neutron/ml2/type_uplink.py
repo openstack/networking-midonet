@@ -18,7 +18,6 @@ from neutron_lib import exceptions as exc
 from neutron_lib.plugins.ml2 import api
 from oslo_log import log
 
-from midonet.neutron._i18n import _, _LI
 from midonet.neutron.common import constants as const
 
 LOG = log.getLogger(__name__)
@@ -31,7 +30,7 @@ class UplinkTypeDriver(driver_api.ML2TypeDriver):
     """
 
     def __init__(self):
-        LOG.info(_LI("ML2 UplinkTypeDriver initialization complete"))
+        LOG.info("ML2 UplinkTypeDriver initialization complete")
 
     def initialize(self):
         pass

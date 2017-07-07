@@ -25,7 +25,6 @@ from oslo_concurrency import processutils
 from oslo_log import log as logging
 from oslo_utils import excutils
 
-from midonet.neutron._i18n import _LE, _LW
 from midonet.os_vif import privsep
 
 
@@ -53,9 +52,9 @@ def create_tap_dev(dev, mac_address=None, multiqueue=False):
         except processutils.ProcessExecutionError:
             if multiqueue:
                 LOG.warning(
-                    _LW('Failed to create a tap device with ip tuntap. '
-                        'tunctl does not support creation of multi-queue '
-                        'enabled devices, skipping fallback.'))
+                    'Failed to create a tap device with ip tuntap. '
+                    'tunctl does not support creation of multi-queue '
+                    'enabled devices, skipping fallback.')
                 raise
 
             # Second option: tunctl
@@ -75,4 +74,4 @@ def delete_net_dev(dev):
             LOG.debug("Net device removed: '%s'", dev)
         except processutils.ProcessExecutionError:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed removing net device: '%s'"), dev)
+                LOG.error("Failed removing net device: '%s'", dev)

@@ -21,8 +21,6 @@ import stevedore
 
 from neutron.plugins.ml2.common import exceptions as ml2_exc
 
-from midonet.neutron._i18n import _LE, _LI
-
 LOG = log.getLogger(__name__)
 
 
@@ -40,13 +38,12 @@ class ExtensionManager(stevedore.named.NamedExtensionManager):
         # the order in which the drivers are called.
         self.ordered_ext_drivers = []
 
-        LOG.info(_LI("Configured extension driver names: %s"),
-                 _EXTENSION_DRIVERS)
+        LOG.info("Configured extension driver names: %s", _EXTENSION_DRIVERS)
         super(ExtensionManager, self).__init__('neutron.ml2.extension_drivers',
                                                _EXTENSION_DRIVERS,
                                                invoke_on_load=True,
                                                name_order=True)
-        LOG.info(_LI("Loaded extension driver names: %s"), self.names())
+        LOG.info("Loaded extension driver names: %s", self.names())
         self._register_drivers()
 
     def _register_drivers(self):
@@ -57,13 +54,13 @@ class ExtensionManager(stevedore.named.NamedExtensionManager):
         """
         for ext in self:
             self.ordered_ext_drivers.append(ext)
-        LOG.info(_LI("Registered extension drivers: %s"),
+        LOG.info("Registered extension drivers: %s",
                  [driver.name for driver in self.ordered_ext_drivers])
 
     def initialize(self):
         # Initialize each driver in the list.
         for driver in self.ordered_ext_drivers:
-            LOG.info(_LI("Initializing extension driver '%s'"), driver.name)
+            LOG.info("Initializing extension driver '%s'", driver.name)
             driver.obj.initialize()
 
     def extension_aliases(self):
@@ -72,7 +69,7 @@ class ExtensionManager(stevedore.named.NamedExtensionManager):
             alias = driver.obj.extension_alias
             if alias:
                 exts.append(alias)
-                LOG.info(_LI("Got %(alias)s extension from driver '%(drv)s'"),
+                LOG.info("Got %(alias)s extension from driver '%(drv)s'",
                          {'alias': alias, 'drv': driver.name})
         return exts
 
@@ -83,8 +80,8 @@ class ExtensionManager(stevedore.named.NamedExtensionManager):
                 getattr(driver.obj, method_name)(plugin_context, data, result)
             except Exception:
                 with excutils.save_and_reraise_exception():
-                    LOG.info(_LI("Extension driver '%(name)s' failed in "
-                             "%(method)s"),
+                    LOG.info("Extension driver '%(name)s' failed in "
+                             "%(method)s",
                              {'name': driver.name, 'method': method_name})
 
     def process_create_network(self, plugin_context, data, result):
@@ -122,8 +119,8 @@ class ExtensionManager(stevedore.named.NamedExtensionManager):
             try:
                 getattr(driver.obj, method_name)(session, base_model, result)
             except Exception:
-                LOG.error(_LE("Extension driver '%(name)s' failed in "
-                          "%(method)s"),
+                LOG.error("Extension driver '%(name)s' failed in "
+                          "%(method)s",
                           {'name': driver.name, 'method': method_name})
                 raise ml2_exc.ExtensionDriverError(driver=driver.name)
 

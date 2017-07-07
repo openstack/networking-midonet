@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as midonet_const
@@ -64,13 +63,13 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
             self.client.create_gateway_device_postcommit(gw)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create a gateway "
-                              "device %(gw_id)s in Midonet: %(err)s"),
+                LOG.error("Failed to create a gateway "
+                          "device %(gw_id)s in Midonet: %(err)s",
                           {"gw_id": gw["id"], "err": ex})
                 try:
                     self.delete_gateway_device(context, gw['id'])
                 except Exception:
-                    LOG.exception(_LE("Failed to delete a gateway device %s"),
+                    LOG.exception("Failed to delete a gateway device %s",
                                   gw["id"])
         return gw
 
@@ -89,17 +88,17 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
             self.client.update_gateway_device_postcommit(id, gw)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to update a gateway "
-                              "device %(gw_id)s in Midonet:"
-                              "%(err)s"), {"gw_id": gw["id"], "err": ex})
+                LOG.error("Failed to update a gateway "
+                          "device %(gw_id)s in Midonet:%(err)s",
+                          {"gw_id": gw["id"], "err": ex})
                 try:
                     super(
                         MidonetGwDeviceServicePlugin,
                         self).update_gateway_device(
                             context, gw['id'], backup_body)
                 except Exception:
-                    LOG.exception(_LE("Failed to update a gateway "
-                                      "device for rollback %s"), gw["id"])
+                    LOG.exception("Failed to update a gateway "
+                                  "device for rollback %s", gw["id"])
         return gw
 
     @log_helpers.log_method_call
@@ -132,8 +131,8 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
             self.client.create_gateway_device_remote_mac_entry_postcommit(rme)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create a remote mac entry "
-                              "%(rme_id)s for %(gw_id)s in Midonet:%(err)s"),
+                LOG.error("Failed to create a remote mac entry "
+                          "%(rme_id)s for %(gw_id)s in Midonet:%(err)s",
                           {"rme_id": rme["id"], "gw_id": gateway_device_id,
                            "err": ex})
                 try:
@@ -141,8 +140,8 @@ class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
                           self).delete_gateway_device_remote_mac_entry(
                         context, rme["id"], gateway_device_id)
                 except Exception:
-                    LOG.exception(_LE("Failed to delete a "
-                                      "remote mac entry %s"), rme["id"])
+                    LOG.exception("Failed to delete a remote mac entry %s",
+                                  rme["id"])
 
         return rme
 

@@ -22,8 +22,6 @@ from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 from oslo_utils import excutils
 
-from midonet.neutron._i18n import _LE
-
 LOG = logging.getLogger(__name__)
 
 
@@ -43,13 +41,13 @@ class MidonetSecurityGroupsHandler(object):
             self.client.create_security_group_postcommit(sg)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create a security group %(sg_id)s "
-                              "in Midonet: %(err)s"),
+                LOG.error("Failed to create a security group %(sg_id)s "
+                          "in Midonet: %(err)s",
                           {"sg_id": sg["id"], "err": ex})
                 try:
                     self.client.delete_security_group_postcommit(sg["id"])
                 except Exception:
-                    LOG.exception(_LE("Failed to delete security group %s"),
+                    LOG.exception("Failed to delete security group %s",
                                   sg['id'])
 
     @registry.receives(resources.SECURITY_GROUP, [events.AFTER_UPDATE])
@@ -64,8 +62,8 @@ class MidonetSecurityGroupsHandler(object):
         try:
             self.client.delete_security_group_postcommit(sg_id)
         except Exception as ex:
-            LOG.error(_LE("Failed to a delete security group %(sg_id)s "
-                          "in Midonet: %(err)s"),
+            LOG.error("Failed to a delete security group %(sg_id)s "
+                      "in Midonet: %(err)s",
                       {"sg_id": sg_id, "err": ex})
 
     @registry.receives(resources.SECURITY_GROUP_RULE, [events.AFTER_CREATE])
@@ -76,15 +74,14 @@ class MidonetSecurityGroupsHandler(object):
             self.client.create_security_group_rule_postcommit(sgr)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create a security group rule "
-                              "%(sgr_id)s in Midonet: %(err)s"),
+                LOG.error("Failed to create a security group rule "
+                          "%(sgr_id)s in Midonet: %(err)s",
                           {"sgr_id": sgr["id"], "err": ex})
                 try:
                     self.client.delete_security_group_rule_postcommit(
                         sgr["id"])
                 except Exception:
-                    LOG.exception(_LE("Failed to delete security group "
-                                      " rule %s"),
+                    LOG.exception("Failed to delete security group  rule %s",
                                   sgr['id'])
 
     @registry.receives(resources.SECURITY_GROUP_RULE, [events.AFTER_DELETE])
@@ -95,6 +92,6 @@ class MidonetSecurityGroupsHandler(object):
             self.client.delete_security_group_rule_postcommit(sgr_id)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to delete a security group %(sgr_id)s "
-                              "in Midonet: %(err)s"),
+                LOG.error("Failed to delete a security group %(sgr_id)s "
+                          "in Midonet: %(err)s",
                           {"sgr_id": sgr_id, "err": ex})

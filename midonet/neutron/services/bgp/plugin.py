@@ -28,7 +28,6 @@ from neutron.db import api as db_api
 from neutron_lib import exceptions as nexception
 from neutron_lib.plugins import directory
 
-from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import constants as m_const
 from midonet.neutron.db import bgp_db_midonet
@@ -150,9 +149,9 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
         try:
             self.client.create_bgp_peer_postcommit(bgp_peer)
         except Exception as ex:
-            LOG.error(_LE("Failed to create MidoNet resources to add bgp "
-                          "peer. bgp_peer=%(bgp_peer)s, "
-                          "bgp_speaker_id=%(bgp_speaker_id)s, error=%(err)r"),
+            LOG.error("Failed to create MidoNet resources to add bgp "
+                      "peer. bgp_peer=%(bgp_peer)s, "
+                      "bgp_speaker_id=%(bgp_speaker_id)s, error=%(err)r",
                       {"bgp_peer": bgp_peer, "bgp_speaker_id": bgp_speaker_id,
                        "err": ex})
             with excutils.save_and_reraise_exception():

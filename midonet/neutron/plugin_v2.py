@@ -29,7 +29,7 @@ from neutron_lib.exceptions import port_security as psec_exc
 from neutron_lib.plugins import constants as plugin_constants
 from neutron_lib.plugins import directory
 
-from midonet.neutron._i18n import _, _LE, _LW
+from midonet.neutron._i18n import _
 from midonet.neutron.common import utils as c_utils
 from midonet.neutron.db import port_binding_db as pb_db
 from midonet.neutron.db import provider_network_db as pnet_db
@@ -131,14 +131,13 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             self.client.create_network_postcommit(net)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create a network %(net_id)s "
-                              "in Midonet: %(err)s"),
+                LOG.error("Failed to create a network %(net_id)s "
+                          "in Midonet: %(err)s",
                           {"net_id": net["id"], "err": ex})
                 try:
                     self.delete_network(context, net['id'])
                 except Exception:
-                    LOG.exception(_LE("Failed to delete network %s"),
-                                  net['id'])
+                    LOG.exception("Failed to delete network %s", net['id'])
 
         self._apply_dict_extend_functions('networks', net, net_db)
 
@@ -219,7 +218,7 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             try:
                 super(MidonetPluginV2, self).delete_network(context, id)
             except n_exc.NetworkInUse as ex:
-                LOG.warning(_LW("Error deleting network %(net)s, retrying..."),
+                LOG.warning("Error deleting network %(net)s, retrying...",
                             {'net': id})
                 # Contention for DHCP port deletion and network deletion occur
                 # often which leads to NetworkInUse error.  Retry to get
@@ -249,12 +248,12 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             self.client.create_subnet_postcommit(s)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create a subnet %(s_id)s in Midonet:"
-                              "%(err)s"), {"s_id": s["id"], "err": ex})
+                LOG.error("Failed to create a subnet %(s_id)s in Midonet:"
+                          "%(err)s", {"s_id": s["id"], "err": ex})
                 try:
                     self.delete_subnet(context, s['id'])
                 except Exception:
-                    LOG.exception(_LE("Failed to delete subnet %s"), s['id'])
+                    LOG.exception("Failed to delete subnet %s", s['id'])
 
         LOG.debug("MidonetPluginV2.create_subnet exiting: subnet=%r", s)
         return s
@@ -366,14 +365,13 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
             self.client.create_port_postcommit(new_port)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create a port %(new_port)s: %(err)s"),
+                LOG.error("Failed to create a port %(new_port)s: %(err)s",
                           {"new_port": new_port, "err": ex})
                 try:
                     self.delete_port(context, new_port['id'],
                                      l3_port_check=False)
                 except Exception:
-                    LOG.exception(_LE("Failed to delete port %s"),
-                                  new_port['id'])
+                    LOG.exception("Failed to delete port %s", new_port['id'])
 
         self._apply_dict_extend_functions('ports', new_port, port_db)
 
@@ -468,13 +466,13 @@ class MidonetPluginV2(plugin.MidonetMixinBase,
                     p['revision_number'] = new_port['revision_number']
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to update a port %(port_id)s in "
-                              "MidoNet: %(err)s"), {"port_id": id, "err": ex})
+                LOG.error("Failed to update a port %(port_id)s in "
+                          "MidoNet: %(err)s", {"port_id": id, "err": ex})
                 try:
                     data = {'port': {'status': n_const.PORT_STATUS_ERROR}}
                     super(MidonetPluginV2, self).update_port(context, id, data)
                 except Exception:
-                    LOG.exception(_LE("Failed to update port status %s"), id)
+                    LOG.exception("Failed to update port status %s", id)
 
         LOG.debug("MidonetPluginV2.update_port exiting: p=%r", p)
         return p

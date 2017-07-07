@@ -21,7 +21,6 @@ from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 from neutron_lib.plugins import constants as plugin_constants
 
-from midonet.neutron._i18n import _LE, _LW
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as m_const
@@ -93,7 +92,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         for seg in self._segments(network):
             if seg[pnet.NETWORK_TYPE] in our_types:
                 return
-        LOG.warning(_LW("Incompatible network %s"), network)
+        LOG.warning("Incompatible network %s", network)
         raise n_exc.BadRequest(resource='router', msg='Incompatible network')
 
     def _validate_router_gw_network(self, context, r):
@@ -117,12 +116,12 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
             self.client.create_router_postcommit(r)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create a router %(r_id)s in Midonet:"
-                              "%(err)s"), {"r_id": r["id"], "err": ex})
+                LOG.error("Failed to create a router %(r_id)s in Midonet:"
+                          "%(err)s", {"r_id": r["id"], "err": ex})
                 try:
                     self.delete_router(context, r['id'])
                 except Exception:
-                    LOG.exception(_LE("Failed to delete a router %s"), r["id"])
+                    LOG.exception("Failed to delete a router %s", r["id"])
         return r
 
     @log_helpers.log_method_call
@@ -146,15 +145,14 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
                     context, id, data)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to update a router %(r_id)s in MidoNet: "
-                              "%(err)s"), {"r_id": id, "err": ex})
+                LOG.error("Failed to update a router %(r_id)s in MidoNet: "
+                          "%(err)s", {"r_id": id, "err": ex})
                 try:
                     data = {'router': {'status': m_const.ROUTER_STATUS_ERROR}}
                     super(MidonetL3ServicePlugin, self).update_router(
                         context, id, data)
                 except Exception:
-                    LOG.exception(_LE("Failed to update a router "
-                                      "status %s"), id)
+                    LOG.exception("Failed to update a router status %s", id)
         return r
 
     @log_helpers.log_method_call
@@ -188,9 +186,9 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         try:
             self.client.add_router_interface_postcommit(router_id, info)
         except Exception as ex:
-            LOG.error(_LE("Failed to create MidoNet resources to add router "
-                          "interface. info=%(info)s, router_id=%(router_id)s, "
-                          "error=%(err)r"),
+            LOG.error("Failed to create MidoNet resources to add router "
+                      "interface. info=%(info)s, router_id=%(router_id)s, "
+                      "error=%(err)r",
                       {"info": info, "router_id": router_id, "err": ex})
             with excutils.save_and_reraise_exception():
                 if not by_port:
@@ -228,12 +226,12 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
             self.client.create_floatingip_postcommit(fip)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create floating ip %(fip)s: %(err)s"),
+                LOG.error("Failed to create floating ip %(fip)s: %(err)s",
                           {"fip": fip, "err": ex})
                 try:
                     self.delete_floatingip(context, fip['id'])
                 except Exception:
-                    LOG.exception(_LE("Failed to delete a floating ip %s"),
+                    LOG.exception("Failed to delete a floating ip %s",
                                   fip['id'])
         return fip
 
@@ -268,15 +266,15 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
             self.client.update_floatingip_postcommit(id, fip)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to update a floating ip "
-                              "%(fip_id)s in MidoNet: "
-                              "%(err)s"), {"fip_id": id, "err": ex})
+                LOG.error("Failed to update a floating ip "
+                          "%(fip_id)s in MidoNet: %(err)s",
+                          {"fip_id": id, "err": ex})
                 try:
                     self.update_floatingip_status(
                         context, id, n_const.FLOATINGIP_STATUS_ERROR)
                 except Exception:
-                    LOG.exception(_LE("Failed to update floating ip "
-                                      "status %s"), id)
+                    LOG.exception("Failed to update floating ip status %s",
+                                  id)
         return fip
 
     @registry.receives(resources.ROUTER_INTERFACE, [events.BEFORE_DELETE])

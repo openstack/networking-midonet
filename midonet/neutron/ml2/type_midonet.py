@@ -19,7 +19,7 @@ from oslo_log import log
 
 from neutron.plugins.ml2 import driver_api as api
 
-from midonet.neutron._i18n import _, _LI
+from midonet.neutron._i18n import _
 from midonet.neutron.common import constants as const
 
 LOG = log.getLogger(__name__)
@@ -32,7 +32,7 @@ class MidonetTypeDriver(api.ML2TypeDriver):
     """
 
     def __init__(self):
-        LOG.info(_LI("ML2 MidonetTypeDriver initialization complete"))
+        LOG.info("ML2 MidonetTypeDriver initialization complete")
 
     def initialize(self):
         pass
