@@ -32,9 +32,7 @@ LOG = logging.getLogger(__name__)
 
 class MidonetGwDeviceServicePlugin(gateway_device_db.GwDeviceDbMixin):
 
-    """
-    Implements GatewayDevice service plugin for Midonet.
-    """
+    """Implements GatewayDevice service plugin for Midonet."""
 
     supported_extension_aliases = ["gateway-device"]
 

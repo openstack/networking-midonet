@@ -37,9 +37,9 @@ def get_session(config):
 
 
 def task_list(config, cmd):
-    """
-    Lists all of the tasks in the task table. Optionally filters tasks
-    to show unprocessed tasks.
+    """Lists all of the tasks in the task table.
+
+    Optionally filters tasks to show unprocessed tasks.
 
     :param config: contains neutron configuration, like database connection.
     :param cmd: unused, but needed in the function signature by the command
@@ -60,9 +60,9 @@ def task_list(config, cmd):
 
 
 def task_clean(config, cmd):
-    """
-    Removes all of the tasks that have been processed by the cluster from
-    the task table.
+    """Removes all of the tasks that have been processed by the cluster.
+
+    Remove those tasks from the task table.
 
     :param config: contains neutron configuration, like database connection.
     :param cmd: unused, but needed in the function signature by the command
@@ -73,8 +73,8 @@ def task_clean(config, cmd):
 
 
 def task_resource(config, cmd):
-    """
-    Lists all of the resources represented in the contents of the task table.
+    """Lists all of the resources represented in the task table.
+
     This will only show the most updated information, and it will not
     consider resources that have been removed from the task table.
 
@@ -93,8 +93,7 @@ def task_resource(config, cmd):
 
 
 def data_show(config, cmd):
-    """
-    Dumps the contents of the data state table.
+    """Dumps the contents of the data state table.
 
     :param config: contains neutron configuration, like database connection.
     :param cmd: unused, but needed in the function signature by the command
@@ -112,8 +111,7 @@ def data_show(config, cmd):
 
 
 def data_readonly(config, cmd):
-    """
-    Sets the task table access state to "read only"
+    """Sets the task table access state to "read only"
 
     :param config: contains neutron configuration, like database connection.
     :param cmd: unused, but needed in the function signature by the command
@@ -124,8 +122,7 @@ def data_readonly(config, cmd):
 
 
 def data_readwrite(config, cmd):
-    """
-    Sets the task table access state to "read and write"
+    """Sets the task table access state to "read and write"
 
     :param config: contains neutron configuration, like database connection.
     :param cmd: unused, but needed in the function signature by the command
@@ -136,8 +133,7 @@ def data_readwrite(config, cmd):
 
 
 def data_version_list(config, cmd):
-    """
-    Lists the statuses of the versions in the midonet data version table.
+    """Lists the statuses of the versions in the midonet data version table.
 
     :param config: contains neutron configuration, like database connection.
     :param cmd: unused, but needed in the function signature by the command

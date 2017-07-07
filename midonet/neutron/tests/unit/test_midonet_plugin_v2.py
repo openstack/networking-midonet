@@ -54,8 +54,7 @@ FAKE_IP = '10.0.0.240'
 
 
 class MidonetPluginConf(object):
-    """Plugin configuration shared across the unit and functional tests.
-    """
+    """Plugin configuration shared across the unit and functional tests."""
 
     plugin_name = PLUGIN_NAME
 

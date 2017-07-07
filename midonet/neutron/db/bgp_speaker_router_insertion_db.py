@@ -90,6 +90,7 @@ class BgpSpeakerRouterInsertionDbMixin(object):
     def set_router_for_bgp_speaker_by_network(self, context,
                                               bgp_sp_id, net_id):
         """This method selects one router to be a bgp speaker.
+
         To pare down routers, only first subnet in specified external
         network is used for selection.
         REVISIT(Kengo): There may be a case where there are two subnets

@@ -294,8 +294,9 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
 
     def _update_gateway_device_db(self, context, gw_dev_id, data):
         """Update the DB object.
-           following parameter can be updated.
-           name, tunnel_ips
+
+        following parameter can be updated.
+            name, tunnel_ips
         """
 
         add_ips, delete_ips = [], []

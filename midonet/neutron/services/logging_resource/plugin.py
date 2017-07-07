@@ -31,9 +31,7 @@ LOG = logging.getLogger(__name__)
 
 class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
 
-    """
-    Implements Logging Resource service plugin for Midonet.
-    """
+    """Implements Logging Resource service plugin for Midonet."""
 
     supported_extension_aliases = ["logging-resource"]
 

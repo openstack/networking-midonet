@@ -50,9 +50,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
                              extraroute_db.ExtraRoute_db_mixin,
                              l3_db_midonet.MidonetL3DBMixin):
 
-    """
-    Implements L3 Router service plugin for Midonet.
-    """
+    """Implements L3 Router service plugin for Midonet."""
 
     supported_extension_aliases = ["router", "extraroute", "ext-gw-mode",
                                    "router-interface-fip", "fip64"]

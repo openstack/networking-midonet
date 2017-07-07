@@ -128,11 +128,10 @@ class MidonetFirewallPlugin(fw_plugin.FirewallPlugin):
     """
 
     def __init__(self):
-        """Override initialization to avoid any RPC setup as MidoNet does not
-        rely on any agent to implement FWaaS.  Instead, set the rpc handling
-        to the _MidonetFirewallDriver class so that it handles the FWaaS update
-        events.
-        """
+        # Override initialization to avoid any RPC setup as MidoNet does not
+        # rely on any agent to implement FWaaS.  Instead, set the rpc handling
+        # to the _MidonetFirewallDriver class so that it handles the FWaaS
+        # update events.
 
         # Register the FWaaS extensions path
         neutron_extensions.append_api_extensions_path(extensions.__path__)

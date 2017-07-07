@@ -53,8 +53,7 @@ cfg.CONF.import_group('ml2', 'neutron.plugins.ml2.config')
 
 
 class MidonetPluginConf(object):
-    """Plugin configuration shared across the unit and functional tests.
-    """
+    """Plugin configuration shared across the unit and functional tests."""
 
     plugin_name = PLUGIN_NAME
 
