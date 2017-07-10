@@ -41,3 +41,11 @@ Dashboards
    :maxdepth: 2
 
    dashboards
+
+
+Python API reference
+--------------------
+.. toctree::
+   :maxdepth: 2
+
+   api/autoindex
