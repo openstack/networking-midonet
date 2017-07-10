@@ -155,10 +155,10 @@ class MidonetApiClient(base.MidonetClientBase):
     def create_ipsec_site_conn(self, context, ipsec_site_conn):
         self.api_cli.create_ipsec_site_conn(ipsec_site_conn)
 
-    def update_ipsec_site_conn(self, context, ipsec_site_conn_id,
-            ipsec_site_conn):
-        self.api_cli.update_ipsec_site_conn(ipsec_site_conn_id,
-                ipsec_site_conn)
+    def update_ipsec_site_conn(
+            self, context, ipsec_site_conn_id, ipsec_site_conn):
+        self.api_cli.update_ipsec_site_conn(
+            ipsec_site_conn_id, ipsec_site_conn)
 
     def delete_ipsec_site_conn(self, context, ipsec_site_conn_id):
         self.api_cli.delete_ipsec_site_conn(ipsec_site_conn_id)
@@ -197,9 +197,9 @@ class MidonetApiClient(base.MidonetClientBase):
         self.api_cli.delete_bgp_peer(bgp_peer_id)
 
     def update_logging_resource_postcommit(
-                self, logging_resource_id, logging_resource):
+            self, logging_resource_id, logging_resource):
         self.api_cli.update_logging_resource(
-                logging_resource_id, logging_resource)
+            logging_resource_id, logging_resource)
 
     def delete_logging_resource_postcommit(self, logging_resource_id):
         self.api_cli.delete_logging_resource(logging_resource_id)

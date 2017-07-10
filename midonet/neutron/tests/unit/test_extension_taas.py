@@ -86,9 +86,13 @@ class TestMidonetTaasCase(test_mn.MidonetPluginV2TestCase):
 
     def _create_tap_flow(self, tap_service_id, source_port, direction,
                          name=None, tenant_id=None):
-        t_f = {'tap_flow': {'tap_service_id': tap_service_id,
-                           'source_port': source_port,
-                           'direction': direction}}
+        t_f = {
+            'tap_flow': {
+                'tap_service_id': tap_service_id,
+                'source_port': source_port,
+                'direction': direction
+            }
+        }
         if name:
             t_f['tap_flow']['name'] = name
         if tenant_id:
@@ -135,7 +139,7 @@ class TestMidonetTaasCase(test_mn.MidonetPluginV2TestCase):
 
     def test_create_tap_service_error_delete_neutron_resource(self):
         self.client_mock.create_tap_service.side_effect = (
-                                            Exception("Fake Error"))
+            Exception("Fake Error"))
         with self.port(tenant_id=TENANT1) as port:
             dist_port = port['port']
             res = self._create_tap_service(port_id=dist_port['id'],
@@ -160,7 +164,7 @@ class TestMidonetTaasCase(test_mn.MidonetPluginV2TestCase):
 
     def test_delete_tap_service_error_delete_neutron_resource(self):
         self.client_mock.delete_tap_service.side_effect = (
-                                            Exception("Fake Error"))
+            Exception("Fake Error"))
         with self.port(tenant_id=TENANT1) as port:
             dist_port = port['port']
             with self.tap_service(port_id=dist_port['id']) as t_s:
@@ -177,7 +181,7 @@ class TestMidonetTaasCase(test_mn.MidonetPluginV2TestCase):
     @contextlib.contextmanager
     def create_tap_service_and_tap_flow(self):
         with self.port(tenant_id=TENANT1) as port1, \
-                 self.port(tenant_id=TENANT1) as port2:
+                self.port(tenant_id=TENANT1) as port2:
             dist_port = port1['port']
             source_port = port2['port']
             with self.tap_service(port_id=dist_port['id']) as t_s:
@@ -195,7 +199,7 @@ class TestMidonetTaasCase(test_mn.MidonetPluginV2TestCase):
 
     def test_create_tap_flow_error_delete_neutron_resource(self):
         self.client_mock.create_tap_flow.side_effect = (
-                                            Exception("Fake Error"))
+            Exception("Fake Error"))
         with self.port(tenant_id=TENANT1) as port1, \
                 self.port(tenant_id=TENANT1) as port2:
             dist_port = port1['port']
@@ -219,7 +223,7 @@ class TestMidonetTaasCase(test_mn.MidonetPluginV2TestCase):
 
     def test_delete_tap_flow_error_delete_neutron_resource(self):
         self.client_mock.delete_tap_flow.side_effect = (
-                                            Exception("Fake Error"))
+            Exception("Fake Error"))
         with self.create_tap_service_and_tap_flow() as tf:
             req = self.new_delete_request('tap_flows', tf['id'])
             res = req.get_response(self.ext_api)

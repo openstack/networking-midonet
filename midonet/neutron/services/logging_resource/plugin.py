@@ -53,7 +53,7 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
     @log_helpers.log_method_call
     def update_logging_resource(self, context, id, logging_resource):
         backup = self.get_logging_resource(
-                context, id, fields=['name', 'description', 'enabled'])
+            context, id, fields=['name', 'description', 'enabled'])
         backup_body = {'logging_resource': backup}
         with context.session.begin(subtransactions=True):
             has_logs = self._logging_resource_has_logs(context, id)
@@ -62,7 +62,7 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
                 self).update_logging_resource(context, id, logging_resource)
             if has_logs:
                 self.client.update_logging_resource_precommit(
-                        context, id, log_res)
+                    context, id, log_res)
 
         if not has_logs:
             return log_res
@@ -74,7 +74,8 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
                               "resource %(log_res_id)s in MidoNet: %(err)s"),
                           {"log_res_id": log_res["id"], "err": ex})
                 try:
-                    super(MidonetLoggingResourcePlugin,
+                    super(
+                        MidonetLoggingResourcePlugin,
                         self).update_logging_resource(
                             context, log_res['id'], backup_body)
                 except Exception:
@@ -96,11 +97,12 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
                                              firewall_log,
                                              logging_resource_id):
         with context.session.begin(subtransactions=True):
-            f_log = super(MidonetLoggingResourcePlugin,
-                          self).create_logging_resource_firewall_log(
-                          context, firewall_log, logging_resource_id)
+            f_log = super(
+                MidonetLoggingResourcePlugin,
+                self).create_logging_resource_firewall_log(
+                    context, firewall_log, logging_resource_id)
             f_log_info = self._make_info_for_midonet(
-                    context, f_log, logging_resource_id)
+                context, f_log, logging_resource_id)
             self.client.create_firewall_log_precommit(context, f_log_info)
 
         try:
@@ -112,9 +114,10 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
                           {"f_log_id": f_log["id"],
                            "log_res_id": logging_resource_id, "err": ex})
                 try:
-                    super(MidonetLoggingResourcePlugin,
+                    super(
+                        MidonetLoggingResourcePlugin,
                         self).delete_logging_resource_firewall_log(
-                        context, f_log["id"], logging_resource_id)
+                            context, f_log["id"], logging_resource_id)
                 except Exception:
                     LOG.exception(_LE("Failed to delete a "
                                       "firewall_log %s"), f_log["id"])
@@ -125,18 +128,17 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
     def update_logging_resource_firewall_log(
             self, context, id, logging_resource_id, firewall_log):
         backup = self.get_logging_resource_firewall_log(
-                context, id, logging_resource_id,
-                fields=['fw_event', 'description'])
+            context, id, logging_resource_id,
+            fields=['fw_event', 'description'])
         backup_body = {'firewall_log': backup}
         with context.session.begin(subtransactions=True):
             f_log = super(
                 MidonetLoggingResourcePlugin,
                 self).update_logging_resource_firewall_log(
-                        context, id, logging_resource_id, firewall_log)
+                    context, id, logging_resource_id, firewall_log)
             f_log_info = self._make_info_for_midonet(
-                    context, f_log, logging_resource_id)
-            self.client.update_firewall_log_precommit(
-                    context, id, f_log_info)
+                context, f_log, logging_resource_id)
+            self.client.update_firewall_log_precommit(context, id, f_log_info)
 
         try:
             self.client.update_firewall_log_postcommit(id, f_log_info)
@@ -146,7 +148,8 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
                               "%(f_log_id)s in Midonet:"
                               "%(err)s"), {"f_log_id": f_log["id"], "err": ex})
                 try:
-                    super(MidonetLoggingResourcePlugin,
+                    super(
+                        MidonetLoggingResourcePlugin,
                         self).update_logging_resource_firewall_log(
                             context, f_log['id'],
                             logging_resource_id, backup_body)

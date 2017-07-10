@@ -55,16 +55,16 @@ class CLITestV20LoggingResourceJSON(test_cli20.CLIExtTestV20Base):
         self.assertDictContainsSubset(log_res_cmd, shell.COMMANDS['2.0'])
 
     def _create_logging_resource(self, name, args,
-                               position_names, position_values):
+                                 position_names, position_values):
         cmd = _logging_resource.LoggingResourceCreate(
-                                        test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         self._test_create_resource(RESOURCE, cmd, name,
                                    FAKE_LOGGING_RESOURCE_ID,
                                    args, position_names, position_values)
 
     def _update_logging_resource(self, args, values):
         cmd = _logging_resource.LoggingResourceUpdate(
-                                        test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         self._test_update_resource(RESOURCE, cmd, FAKE_LOGGING_RESOURCE_ID,
                                    args, values)
 
@@ -91,14 +91,14 @@ class CLITestV20LoggingResourceJSON(test_cli20.CLIExtTestV20Base):
 
     def test_delete_logging_resource(self):
         cmd = _logging_resource.LoggingResourceDelete(
-                test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         args = [FAKE_LOGGING_RESOURCE_ID]
         self._test_delete_resource(RESOURCE, cmd,
                                    FAKE_LOGGING_RESOURCE_ID, args)
 
     def test_list_logging_resources(self):
         cmd = _logging_resource.LoggingResourceList(
-                test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         self._test_list_resources(RESOURCES, cmd)
 
     def test_list_logging_resources_with_pagination(self):
@@ -108,7 +108,7 @@ class CLITestV20LoggingResourceJSON(test_cli20.CLIExtTestV20Base):
 
     def test_list_logging_resource_with_firewall_logs(self):
         cmd = _logging_resource.LoggingResourceList(
-                test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         fw_log = [{"firewall_id": FAKE_FIREWALL_ID1,
                    "description": telr.FAKE_FW_LOG_DESC,
                    "id": FAKE_FIREWALL_LOG_ID1,
@@ -118,17 +118,17 @@ class CLITestV20LoggingResourceJSON(test_cli20.CLIExtTestV20Base):
                    "id": FAKE_FIREWALL_LOG_ID2,
                    "fw_event": log_res_ext.FW_EVENT_DROP}]
         response = {'logging_resources': [
-                       {"id": FAKE_LOGGING_RESOURCE_ID,
-                        "name": telr.FAKE_LOG_RES_NAME,
-                        "enabled": str(telr.ENABLED_TRUE),
-                        "description": telr.FAKE_LOG_RES_DESC,
-                        "firewall_logs": fw_log}]}
+            {"id": FAKE_LOGGING_RESOURCE_ID,
+             "name": telr.FAKE_LOG_RES_NAME,
+             "enabled": str(telr.ENABLED_TRUE),
+             "description": telr.FAKE_LOG_RES_DESC,
+             "firewall_logs": fw_log}]}
         args = ['-c', 'id', '-c', 'firewall_logs']
         self._test_list_columns(cmd, RESOURCES, response, args)
 
     def test_show_logging_resource(self):
         cmd = _logging_resource.LoggingResourceShow(
-                test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         args = ['--fields', 'id', '--fields', 'name', self.test_id]
         self._test_show_resource(RESOURCE, cmd, self.test_id, args,
                                  ['id', 'name'])

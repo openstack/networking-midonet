@@ -152,8 +152,9 @@ RESOURCE_ATTRIBUTE_MAP = {
                  'is_visible': True},
         'tenant_id': {'allow_post': True, 'allow_put': False,
                       'required_by_policy': True,
-                      'validate': {'type:string':
-                          db_const.PROJECT_ID_FIELD_SIZE},
+                      'validate': {
+                          'type:string': db_const.PROJECT_ID_FIELD_SIZE
+                      },
                       'is_visible': True},
         'management_ip': {'allow_post': True, 'allow_put': False,
                           'default': None,
@@ -165,8 +166,8 @@ RESOURCE_ATTRIBUTE_MAP = {
         'management_protocol': {'allow_post': True, 'allow_put': False,
                                 'is_visible': True, 'default': None},
         'resource_id': {'allow_post': True, 'allow_put': False,
-                        'validate': {'type:string':
-                            db_const.DEVICE_ID_FIELD_SIZE},
+                        'validate': {
+                            'type:string': db_const.DEVICE_ID_FIELD_SIZE},
                         'is_visible': True, 'required_by_policy': True,
                         'default': ""},
         'tunnel_ips': {'allow_post': True, 'allow_put': True,
@@ -205,11 +206,13 @@ SUB_RESOURCE_ATTRIBUTE_MAP = {
             # 1. delete this definition if neutron core is modified.
             # 2. add DB column and remain this definition
             #    if neutron core is not modified.
-            'tenant_id': {'allow_post': True, 'allow_put': False,
-                          'required_by_policy': True,
-                          'validate': {'type:string':
-                              db_const.PROJECT_ID_FIELD_SIZE},
-                          'is_visible': False}}
+            'tenant_id': {
+                'allow_post': True,
+                'allow_put': False,
+                'required_by_policy': True,
+                'validate': {'type:string': db_const.PROJECT_ID_FIELD_SIZE},
+                'is_visible': False}
+        }
     }
 }
 
@@ -297,8 +300,8 @@ class GwDevicePluginBase(object):
 
     @abc.abstractmethod
     def get_gateway_devices(self, context, filters=None, fields=None,
-                           sorts=None, limit=None, marker=None,
-                           page_reverse=False):
+                            sorts=None, limit=None, marker=None,
+                            page_reverse=False):
         pass
 
     @abc.abstractmethod

@@ -67,9 +67,8 @@ class LoggingResourceTestCase(test_l3.L3NatTestCaseMixin,
             'fwaas_plugin_name': 'midonet_firewall'}
 
         log_res_mgr = LoggingResourceTestExtensionManager()
-        super(LoggingResourceTestCase,
-            self).setUp(service_plugins=service_plugins,
-                        ext_mgr=log_res_mgr)
+        super(LoggingResourceTestCase, self).setUp(
+            service_plugins=service_plugins, ext_mgr=log_res_mgr)
         self.ext_api = test_ex.setup_extensions_middleware(log_res_mgr)
 
         router1 = self._make_router(self.fmt, uuidutils.generate_uuid(),
@@ -125,7 +124,7 @@ class LoggingResourceTestCase(test_l3.L3NatTestCaseMixin,
                                      'description': desc,
                                      'enabled': enabled}}
         log_res_req = self.new_create_request('logging/logging_resources',
-                                             data, self.fmt)
+                                              data, self.fmt)
         return log_res_req.get_response(self.ext_api)
 
     @contextlib.contextmanager
@@ -287,20 +286,20 @@ class LoggingResourceTestCase(test_l3.L3NatTestCaseMixin,
     def test_create_firewall_log_diff_log_res_diff_tenant_same_firewall(self):
         with self.logging_resource() as log_res, \
                 self.logging_resource(
-                        tenant_id=self._tenant_id2) as log_res2, \
+                    tenant_id=self._tenant_id2) as log_res2, \
                 self.firewall_log(log_res['logging_resource']['id'],
                                   firewall_id=self._fw_id1):
             res = self._create_firewall_log(
-                    log_res2['logging_resource']['id'],
-                    firewall_id=self._fw_id1,
-                    tenant_id=self._tenant_id2)
+                log_res2['logging_resource']['id'],
+                firewall_id=self._fw_id1,
+                tenant_id=self._tenant_id2)
             self.assertEqual(webob.exc.HTTPCreated.code, res.status_int)
 
     def test_create_firewall_log_with_not_found_firewall(self):
         with self.logging_resource() as log_res:
             res = self._create_firewall_log(
-                    log_res['logging_resource']['id'],
-                    firewall_id=NOT_FOUND_FW_UUID)
+                log_res['logging_resource']['id'],
+                firewall_id=NOT_FOUND_FW_UUID)
             self.assertEqual(webob.exc.HTTPNotFound.code, res.status_int)
 
     def test_create_firewall_log_in_same_log_res_with_same_firewall(self):
@@ -308,8 +307,8 @@ class LoggingResourceTestCase(test_l3.L3NatTestCaseMixin,
                 self.firewall_log(log_res['logging_resource']['id'],
                                   firewall_id=self._fw_id1):
             res = self._create_firewall_log(
-                    log_res['logging_resource']['id'],
-                    firewall_id=self._fw_id1)
+                log_res['logging_resource']['id'],
+                firewall_id=self._fw_id1)
             self.assertEqual(webob.exc.HTTPCreated.code, res.status_int)
 
     def test_create_firewall_log_in_diff_log_res_with_same_firewall(self):
@@ -318,8 +317,8 @@ class LoggingResourceTestCase(test_l3.L3NatTestCaseMixin,
                 self.firewall_log(log_res['logging_resource']['id'],
                                   firewall_id=self._fw_id1):
             res = self._create_firewall_log(
-                    log_res2['logging_resource']['id'],
-                    firewall_id=self._fw_id1)
+                log_res2['logging_resource']['id'],
+                firewall_id=self._fw_id1)
             self.assertEqual(webob.exc.HTTPCreated.code, res.status_int)
 
     def test_create_firewall_log_error_delete_neutron_resource(self):
@@ -411,7 +410,7 @@ class LoggingResourceTestCase(test_l3.L3NatTestCaseMixin,
                                         + log_res['logging_resource']['id']
                                         + '/firewall_logs')
             res = self.deserialize(
-                    self.fmt, req.get_response(self.ext_api))
+                self.fmt, req.get_response(self.ext_api))
             self.assertEqual(2, len(res['firewall_logs']))
 
     def test_delete_firewall_log(self):
@@ -442,7 +441,8 @@ class LoggingResourceTestCase(test_l3.L3NatTestCaseMixin,
             req = self.new_list_request('logging/logging_resources')
             res = self.deserialize(self.fmt,
                                    req.get_response(self.ext_api))
-            self.assertEqual([],
+            self.assertEqual(
+                [],
                 res['logging_resources'][0]['firewall_logs'])
 
     def test_delete_firewall_with_firewall_log(self):
@@ -464,9 +464,10 @@ class LoggingResourceTestCase(test_l3.L3NatTestCaseMixin,
     def test_delete_firewall_with_multiple_firewall_logs(self):
         with self.logging_resource() as log_res1, \
                 self.logging_resource(
-                        tenant_id=self._tenant_id2) as log_res2, \
+                    tenant_id=self._tenant_id2) as log_res2, \
                 self.firewall(self._tenant_id) as fw, \
-                self.firewall_log(log_res1['logging_resource']['id'],
+                self.firewall_log(
+                    log_res1['logging_resource']['id'],
                     firewall_id=fw['firewall']['id']) as f_log1, \
                 self.firewall_log(log_res2['logging_resource']['id'],
                                   firewall_id=fw['firewall']['id'],

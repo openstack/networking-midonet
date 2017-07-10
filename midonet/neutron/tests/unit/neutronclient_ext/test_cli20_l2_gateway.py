@@ -38,8 +38,7 @@ class CLITestV20L2gatewayJSON(test_cli20.CLIExtTestV20Base):
     def _create_l2gateway(self, name, args,
                           position_names, position_values):
         resource = 'l2_gateway'
-        cmd = _l2_gateway.L2GatewayCreate(
-                                        test_cli20.MyApp(sys.stdout), None)
+        cmd = _l2_gateway.L2GatewayCreate(test_cli20.MyApp(sys.stdout), None)
         self._test_create_resource(resource, cmd, name, 'myid',
                                    args, position_names, position_values)
 

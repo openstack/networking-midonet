@@ -36,7 +36,8 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
         """Create a logging_resource"""
         log_res = logging_resource['logging_resource']
         with context.session.begin(subtransactions=True):
-            log_res_db = model.LoggingResource(id=uuidutils.generate_uuid(),
+            log_res_db = model.LoggingResource(
+                id=uuidutils.generate_uuid(),
                 name=log_res['name'],
                 description=log_res['description'],
                 tenant_id=log_res['tenant_id'],
@@ -57,13 +58,14 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
         marker_obj = self._get_marker_obj(context, 'logging_resource',
                                           limit, marker)
 
-        return self._get_collection(context,
-                                    model.LoggingResource,
-                                    self._make_logging_resource_dict,
-                                    filters=filters, fields=fields,
-                                    sorts=sorts,
-                                    limit=limit, marker_obj=marker_obj,
-                                    page_reverse=page_reverse)
+        return self._get_collection(
+            context,
+            model.LoggingResource,
+            self._make_logging_resource_dict,
+            filters=filters, fields=fields,
+            sorts=sorts,
+            limit=limit, marker_obj=marker_obj,
+            page_reverse=page_reverse)
 
     @log_helpers.log_method_call
     def update_logging_resource(self, context, id, logging_resource):
@@ -161,7 +163,7 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
     def _logging_resource_has_logs(self, context, log_res_id):
         query = self._model_query(context, model.FirewallLog)
         return bool(query.filter(
-                model.FirewallLog.logging_resource_id == log_res_id).all())
+            model.FirewallLog.logging_resource_id == log_res_id).all())
 
     def _get_firewall_log(self, context, id):
         try:
@@ -187,9 +189,13 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
 
     def _extend_resource_specific_loggings(self, log_res_db, fields=None):
         # Currently, only firewall log is returned.
-        return {'firewall_logs': [self._make_firewall_log_dict(
-                f_log, fields) for f_log in log_res_db.firewall_logs
-                if log_res_db.firewall_logs]}
+        return {
+            'firewall_logs': [
+                self._make_firewall_log_dict(f_log, fields)
+                for f_log in log_res_db.firewall_logs
+                if log_res_db.firewall_logs
+            ]
+        }
 
     def _make_firewall_log_dict(self, f_log_db, fields=None):
         res = {'id': f_log_db['id'],

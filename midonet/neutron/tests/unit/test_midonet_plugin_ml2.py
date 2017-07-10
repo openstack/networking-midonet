@@ -292,7 +292,7 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
                                    'add_router_interface_postcommit',
                                    auto_spec=True,
                                    side_effect=_MyException), \
-                testtools.ExpectedException(_MyException):
+                    testtools.ExpectedException(_MyException):
                 l3_plugin.add_router_interface(ctx, router_id, interface_info)
             port2 = plugin.get_port(ctx, port_id)
             self.assertEqual(port_id, port2['id'])
@@ -301,8 +301,11 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
         self.client_mock.update_floatingip_postcommit.side_effect = (
             Exception("Fake Error"))
         with self.port() as p:
-            private_sub = {'subnet': {'id':
-                    p['port']['fixed_ips'][0]['subnet_id']}}
+            private_sub = {
+                'subnet': {
+                    'id': p['port']['fixed_ips'][0]['subnet_id']
+                }
+            }
             with self.floatingip_no_assoc(private_sub) as fip:
                 data = {'floatingip': {'port_id': p['port']['id']}}
                 req = self.new_update_request('floatingips',
@@ -312,11 +315,12 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
                 self.assertEqual(exc.HTTPInternalServerError.code,
                                  res.status_int)
                 req = self.new_show_request(
-                        'floatingips', fip['floatingip']['id'])
+                    'floatingips', fip['floatingip']['id'])
                 res = self.deserialize(self.fmt,
                                        req.get_response(self.ext_api))
-                self.assertEqual(n_const.FLOATINGIP_STATUS_ERROR,
-                        res['floatingip']['status'])
+                self.assertEqual(
+                    n_const.FLOATINGIP_STATUS_ERROR,
+                    res['floatingip']['status'])
 
     def test_update_router_error_change_resource_status_to_error(self):
         self.client_mock.update_router_postcommit.side_effect = (
@@ -334,7 +338,7 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
                 self.assertEqual(exc.HTTPInternalServerError.code,
                                  res.status_int)
                 req = self.new_show_request(
-                        'routers', r['router']['id'])
+                    'routers', r['router']['id'])
                 res = self.deserialize(self.fmt,
                                        req.get_response(self.ext_api))
                 self.assertEqual('ERROR', res['router']['status'])
@@ -371,7 +375,7 @@ class TestMidonetProviderNet(MidonetPluginML2TestCase):
     def test_create_provider_net_with_bogus_type(self):
         # Create with a bogus network type
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type="random"):
+                self.provider_net(net_type="random"):
             pass
 
     def test_create_provider_net_with_local(self):
@@ -381,27 +385,27 @@ class TestMidonetProviderNet(MidonetPluginML2TestCase):
 
     def test_create_provider_net_with_flat(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=n_const.TYPE_FLAT):
+                self.provider_net(net_type=n_const.TYPE_FLAT):
             pass
 
     def test_create_provider_net_with_gre(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=n_const.TYPE_GRE):
+                self.provider_net(net_type=n_const.TYPE_GRE):
             pass
 
     def test_create_provider_net_with_vlan(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=n_const.TYPE_VLAN):
+                self.provider_net(net_type=n_const.TYPE_VLAN):
             pass
 
     def test_create_provider_net_with_vxlan(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=n_const.TYPE_VXLAN):
+                self.provider_net(net_type=n_const.TYPE_VXLAN):
             pass
 
     def test_create_provider_net_with_geneve(self):
         with testtools.ExpectedException(exc.HTTPClientError), \
-            self.provider_net(net_type=n_const.TYPE_GENEVE):
+                self.provider_net(net_type=n_const.TYPE_GENEVE):
             pass
 
     def test_create_provider_net_with_midonet(self):

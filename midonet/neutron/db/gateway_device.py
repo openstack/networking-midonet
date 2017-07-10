@@ -97,9 +97,9 @@ def _resource_id_column(foreign_key):
 def _gateway_device_relation(class_name, ref_key):
     relation = "GatewayDevice.id==" + class_name + ".device_id"
     return orm.relationship(
-                GatewayDevice,
-                backref=orm.backref(ref_key, cascade='delete', lazy='joined'),
-                primaryjoin=relation)
+        GatewayDevice,
+        backref=orm.backref(ref_key, cascade='delete', lazy='joined'),
+        primaryjoin=relation)
 
 
 class GatewayOverlayRouterDevice(GatewayVirtualDevice, model_base.BASEV2):
@@ -261,8 +261,8 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
             res['management_port'] = None
             res['management_protocol'] = None
             res['resource_id'] = gw_dev_db.overlay_router[0]['resource_id']
-        res['tunnel_ips'] = list(map(lambda n: n['tunnel_ip'],
-                gw_dev_db.tunnel_ip_list))
+        res['tunnel_ips'] = list(map(
+            lambda n: n['tunnel_ip'], gw_dev_db.tunnel_ip_list))
         for item in gw_dev_db.mac_table_list:
             entry = {'id': item['id'],
                      'mac_address': item['mac_address'],
@@ -302,8 +302,8 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
         with context.session.begin(subtransactions=True):
             gw_dev_db = self._get_gateway_device(context, gw_dev_id)
             if data.get('tunnel_ips'):
-                exist_ips = list(map(lambda n: n['tunnel_ip'],
-                            gw_dev_db.tunnel_ip_list))
+                exist_ips = list(map(
+                    lambda n: n['tunnel_ip'], gw_dev_db.tunnel_ip_list))
                 add_ips = set(data['tunnel_ips']) - set(exist_ips)
                 delete_ips = set(exist_ips) - set(data['tunnel_ips'])
             if delete_ips:
@@ -328,7 +328,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
         if not gw_dev['management_ip'] or not gw_dev['management_port']:
             raise gw_device_ext.HwVtepTypeInvalid(type=gw_dev['type'])
         if self._get_hw_vtep_from_management_ip(
-            context, gw_dev['management_ip']):
+                context, gw_dev['management_ip']):
             raise gw_device_ext.GatewayDeviceParamDuplicate(
                 param_name='management_ip',
                 param_value=gw_dev['management_ip'])
@@ -343,7 +343,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
             raise gw_device_ext.ResourceNotFound(resource_id=router_id)
 
         if self._get_gateway_device_from_resource(
-               context, gw_device_ext.ROUTER_DEVICE_TYPE, router_id):
+                context, gw_device_ext.ROUTER_DEVICE_TYPE, router_id):
             raise gw_device_ext.DeviceInUseByGatewayDevice(
                 resource_id=router_id, resource_type='router')
 
@@ -363,7 +363,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
             raise gw_device_ext.ResourceNotFound(resource_id=network_id)
 
         if self._get_gateway_device_from_resource(
-               context, gw_device_ext.NETWORK_VLAN_TYPE, network_id):
+                context, gw_device_ext.NETWORK_VLAN_TYPE, network_id):
             raise gw_device_ext.DeviceInUseByGatewayDevice(
                 resource_id=network_id, resource_type='network')
 
@@ -389,7 +389,8 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
                                       gw_dev['type'])
 
         with context.session.begin(subtransactions=True):
-            gw_dev_db = GatewayDevice(id=uuidutils.generate_uuid(),
+            gw_dev_db = GatewayDevice(
+                id=uuidutils.generate_uuid(),
                 name=gw_dev['name'],
                 type=(gw_dev['type'] or gw_device_ext.HW_VTEP_TYPE),
                 tenant_id=tenant_id)

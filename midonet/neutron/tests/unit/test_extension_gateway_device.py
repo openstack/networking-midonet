@@ -173,9 +173,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
             'gateway_device_plugin_name': DB_GATEWAY_DEVICE_PLUGIN_KLASS}
 
         gw_dev_mgr = GatewayDeviceTestExtensionManager()
-        super(GatewayDeviceTestCase,
-            self).setUp(service_plugins=service_plugins,
-                        ext_mgr=gw_dev_mgr)
+        super(GatewayDeviceTestCase, self).setUp(
+            service_plugins=service_plugins, ext_mgr=gw_dev_mgr)
         self.ext_api = test_ex.setup_extensions_middleware(gw_dev_mgr)
 
         network = self._make_network(self.fmt, 'net1', True)
@@ -218,26 +217,27 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                     'vtep_address': FAKE_VTEP_ADDRESS,
                     'segmentation_id': FAKE_SEG_ID}
         with self.gateway_device_type_router_vtep(
-            resource_id=self._router_id) as gw_dev:
+                resource_id=self._router_id) as gw_dev:
             with self.remote_mac_entry(gw_dev['gateway_device']['id']) as rme:
                 self.assertDictSupersetOf(expected, rme['remote_mac_entry'])
 
     def test_create_remote_mac_on_network_vlan(self):
         with self.gateway_device_type_network_vlan(
-                    resource_id=self._network_id) as gw_dev:
+                resource_id=self._network_id) as gw_dev:
             res = self._create_remote_mac_entry(gw_dev['gateway_device']['id'])
             self.deserialize(self.fmt, res)
             self.assertEqual(webob.exc.HTTPConflict.code, res.status_int)
 
     def test_create_remote_mac_with_same_vtep_address(self):
         with self.gateway_device_type_router_vtep(
-            resource_id=self._router_id) as gw_dev:
+                resource_id=self._router_id) as gw_dev:
             with self.remote_mac_entry(gw_dev['gateway_device']['id']):
                 with self.remote_mac_entry(gw_dev['gateway_device']['id'],
                                            mac_address=FAKE_MAC_ADDRESS2):
-                    req = self.new_list_request('gw/gateway_devices/'
-                                            + gw_dev['gateway_device']['id']
-                                            + '/remote_mac_entries')
+                    req = self.new_list_request(
+                        'gw/gateway_devices/'
+                        + gw_dev['gateway_device']['id']
+                        + '/remote_mac_entries')
                     res = self.deserialize(
                         self.fmt, req.get_response(self.ext_api))
                     self.assertEqual(len(res['remote_mac_entries']), 2)
@@ -280,10 +280,10 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
 
     def test_list_remote_mac_with_two_gateways(self):
         with self.gateway_device_type_router_vtep(
-                resource_id=self._router_id) as gw_dev, \
-             self.gateway_device_type_router_vtep(
-                resource_id=self._router_id_in_use,
-                tunnel_ips=[FAKE_TUNNEL_IP2]) as gw_dev2:
+            resource_id=self._router_id) as gw_dev, \
+                self.gateway_device_type_router_vtep(
+                    resource_id=self._router_id_in_use,
+                    tunnel_ips=[FAKE_TUNNEL_IP2]) as gw_dev2:
             with self.remote_mac_entry(gw_dev['gateway_device']['id']) as rme:
                 req = self.new_list_request('gw/gateway_devices/'
                                             + gw_dev['gateway_device']['id']
@@ -314,9 +314,9 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
     def test_delete_remote_mac_with_wrong_gateway(self):
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev, \
-             self.gateway_device_type_router_vtep(
-                resource_id=self._router_id_in_use,
-                tunnel_ips=[FAKE_TUNNEL_IP2]) as gw_dev2:
+                self.gateway_device_type_router_vtep(
+                    resource_id=self._router_id_in_use,
+                    tunnel_ips=[FAKE_TUNNEL_IP2]) as gw_dev2:
             with self.remote_mac_entry(gw_dev['gateway_device']['id']) as rme:
                 req = self.new_delete_request('gw/gateway_devices/'
                                               + gw_dev2['gateway_device']['id']
@@ -430,7 +430,8 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                 req = self.new_list_request('gw/gateway_devices')
                 res = self.deserialize(self.fmt,
                                        req.get_response(self.ext_api))
-                self.assertEqual([],
+                self.assertEqual(
+                    [],
                     res['gateway_devices'][0]['remote_mac_entries'])
 
     def _make_remote_mac_entry(self, gw_dev_id, mac_address=FAKE_MAC_ADDRESS,
@@ -506,8 +507,14 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
     def test_update_gateway_device_with_multiple_tunnel_ips(self):
         with self.gateway_device_type_router_vtep(
                 resource_id=self._router_id) as gw_dev:
-            data = {'gateway_device':
-                {'tunnel_ips': [FAKE_TUNNEL_IP, FAKE_TUNNEL_IP2]}}
+            data = {
+                'gateway_device': {
+                    'tunnel_ips': [
+                        FAKE_TUNNEL_IP,
+                        FAKE_TUNNEL_IP2
+                    ]
+                }
+            }
             gw_dev_req = self.new_update_request(
                 'gw/gateway_devices',
                 data,

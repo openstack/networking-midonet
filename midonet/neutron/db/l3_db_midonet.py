@@ -51,8 +51,9 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
                     raise e.errors[0].error
                 raise l3.RouterInUse(router_id=router_id, reason=e)
 
-    def get_router_for_floatingip(self, context, internal_port,
-            internal_subnet, external_network_id):
+    def get_router_for_floatingip(
+            self, context, internal_port, internal_subnet,
+            external_network_id):
         # REVISIT(yamamoto): These direct manipulation of core-plugin db
         # resources is not ideal.
         gw_port = orm.aliased(models_v2.Port, name="gw_port")
@@ -100,8 +101,10 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
 
     def router_gw_port_has_floating_ips(self, context, router_id):
         router = self._get_router(context, router_id)
-        return any([self._subnet_has_fip(context, router_id, ip['subnet_id'])
-            for ip in router.gw_port['fixed_ips']])
+        return any([
+            self._subnet_has_fip(context, router_id, ip['subnet_id'])
+            for ip in router.gw_port['fixed_ips']
+        ])
 
     def find_next_hop_for_fip(self, context, floatingip_db):
         # Find a next-hop address for a route from the floating_network_id

@@ -47,16 +47,15 @@ class CLITestV20GatewayDeviceJSON(test_cli20.CLIExtTestV20Base):
                                position_names, position_values):
         resource = 'gateway_device'
         cmd = _gateway_device.GatewayDeviceCreate(
-                                        test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         self._test_create_resource(resource, cmd, name, 'myid',
                                    args, position_names, position_values)
 
     def _update_gateway_device(self, args, values):
         resource = 'gateway_device'
         cmd = _gateway_device.GatewayDeviceUpdate(
-                                        test_cli20.MyApp(sys.stdout), None)
-        self._test_update_resource(resource, cmd, 'myid',
-                                   args, values)
+            test_cli20.MyApp(sys.stdout), None)
+        self._test_update_resource(resource, cmd, 'myid', args, values)
 
     def test_create_gateway_device_for_hw_vtep_mandatory_params(self):
         name = 'hw-vtep-mandatory'
@@ -126,7 +125,7 @@ class CLITestV20GatewayDeviceJSON(test_cli20.CLIExtTestV20Base):
                                     position_names, position_values)
 
     def test_create_gateway_device_for_network_vlan_with_mandatory_params(
-                                                                        self):
+            self):
         name = 'network_vlan-mandatory'
         gw_type = 'network_vlan'
         resource_id = 'my_network_id'
@@ -172,7 +171,7 @@ class CLITestV20GatewayDeviceJSON(test_cli20.CLIExtTestV20Base):
     def test_delete_gateway_device(self):
         resource = 'gateway_device'
         cmd = _gateway_device.GatewayDeviceDelete(
-                                        test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         my_id = 'my-id'
         args = [my_id]
         self._test_delete_resource(resource, cmd, my_id, args)
@@ -180,28 +179,29 @@ class CLITestV20GatewayDeviceJSON(test_cli20.CLIExtTestV20Base):
     def test_list_gateway_devices(self):
         resources = 'gateway_devices'
         cmd = _gateway_device.GatewayDeviceList(
-                                        test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         self._test_list_resources(resources, cmd)
 
     def test_list_gateway_devices_with_pagination(self):
         resources = 'gateway_devices'
         cmd = _gateway_device.GatewayDeviceList(
-                                        test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         self._test_list_resources_with_pagination(resources, cmd)
 
     def test_list_gateway_device_with_remote_mac_entries(self):
         resources = 'gateway_devices'
         cmd = _gateway_device.GatewayDeviceList(
-                                        test_cli20.MyApp(sys.stdout), None)
-        rme = [{"segmentation_id": 100,
-               "vtep_address": "192.168.100.1",
-               "id": "remote_mac_entry_id1",
-               "mac_address": "fa:16:3e:db:79:80"},
-               {"segmentation_id": 100,
-               "vtep_address": "192.168.100.50",
-               "id": "remote_mac_entry_id1",
-               "mac_address": "fa:16:3e:df:79:80"},
-               ]
+            test_cli20.MyApp(sys.stdout), None)
+        rme = [
+            {"segmentation_id": 100,
+             "vtep_address": "192.168.100.1",
+             "id": "remote_mac_entry_id1",
+             "mac_address": "fa:16:3e:db:79:80"},
+            {"segmentation_id": 100,
+             "vtep_address": "192.168.100.50",
+             "id": "remote_mac_entry_id1",
+             "mac_address": "fa:16:3e:df:79:80"},
+        ]
         response = {'gateway_devices': [{"id": 'myid',
                                          "name": 'gw_device',
                                          "type": "router_vtep",
@@ -214,7 +214,7 @@ class CLITestV20GatewayDeviceJSON(test_cli20.CLIExtTestV20Base):
     def test_show_gateway_device(self):
         resource = 'gateway_device'
         cmd = _gateway_device.GatewayDeviceShow(
-                                        test_cli20.MyApp(sys.stdout), None)
+            test_cli20.MyApp(sys.stdout), None)
         args = ['--fields', 'id', '--fields', 'name', self.test_id]
         self._test_show_resource(resource, cmd, self.test_id, args,
                                  ['id', 'name'])

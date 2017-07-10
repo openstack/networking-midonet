@@ -273,8 +273,8 @@ class MidonetClientBase(object):
     def create_ipsec_site_conn(self, context, ipsec_site_conn):
         pass
 
-    def update_ipsec_site_conn(self, context, ipsec_site_conn_id,
-            ipsec_site_conn):
+    def update_ipsec_site_conn(
+            self, context, ipsec_site_conn_id, ipsec_site_conn):
         pass
 
     def delete_ipsec_site_conn(self, context, ipsec_site_conn_id):
