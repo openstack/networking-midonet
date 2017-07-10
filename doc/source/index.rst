@@ -13,8 +13,6 @@ Contents:
 
    installation
    devstack
-   usage
-   contributing
    history
    upgrade
    ml2_migration
