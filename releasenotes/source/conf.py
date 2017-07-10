@@ -30,8 +30,6 @@
 
 # -- General configuration ------------------------------------------------
 
-import openstackdocstheme
-
 # If your documentation needs a minimal Sphinx version, state it here.
 # needs_sphinx = '1.0'
 
@@ -39,7 +37,8 @@ import openstackdocstheme
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'reno.sphinxext'
+    'reno.sphinxext',
+    'openstackdocstheme',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -122,8 +121,15 @@ todo_include_todos = False
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
+
 html_theme = 'openstackdocs'
-html_theme_path = [openstackdocstheme.get_html_theme_path()]
+
+# openstackdocstheme options
+repository_name = 'openstack/%s' % project
+bug_project = project
+bug_tag = 'doc'
+html_last_updated_fmt = '%Y-%m-%d %H:%M'
+
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
