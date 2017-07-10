@@ -4,24 +4,38 @@
    contain the root `toctree` directive.
 
 Welcome to networking-midonet's documentation!
-========================================================
+==============================================
 
-Contents:
+Networking-midonet is a set of Neutron plugins and drivers for MidoNet.
 
+
+Installation
+------------
 .. toctree::
    :maxdepth: 2
 
-   installation
-   devstack
-   history
-   upgrade
-   ml2_migration
-   devref/index
-   specs/index
-   dashboards/index
+   install/installation
+   install/history
+   install/upgrade
+   install/ml2_migration
+
+Contributor Guide
+-----------------
+.. toctree::
+   :maxdepth: 2
+
+   contributor/index
+
+References
+----------
+.. toctree::
+   :maxdepth: 2
+
+   reference/specs/index
+
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
