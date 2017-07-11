@@ -116,7 +116,7 @@ FWaaS
 Starting v5.0, MidoNet implements Neutron FWaaS extension API.
 
 To configure it, add the following service plugin to the `service_plugins` list
-in the DEFAULT section of ``/etc/neutron/neutron.conf``::
+in the DEFAULT group of ``/etc/neutron/neutron.conf``::
 
     [DEFAULT]
     service_plugins = midonet_firewall
@@ -166,7 +166,7 @@ Gateway Device Service
 Starting v5.1, MidoNet implements Gateway Device Service vendor extension API.
 
 To configure it, add the following service plugin to the `service_plugins` list
-in the DEFAULT section of `/etc/neutron/neutron.conf`::
+in the DEFAULT group of `/etc/neutron/neutron.conf`::
 
     [DEFAULT]
     service_plugins = midonet_gwdevice
@@ -183,12 +183,12 @@ https://docs.openstack.org/networking-midonet/latest/specs/mitaka/border_gw.html
 
 MidoNet plugin implements L2 Gateway Service as a service driver.
 To configure it, add the following service plugin to the `service_plugins` list
-in the DEFAULT section of `/etc/neutron/neutron.conf`::
+in the DEFAULT group of `/etc/neutron/neutron.conf`::
 
     [DEFAULT]
     service_plugins = midonet_l2gw
 
-In addition, configure the service provider in the 'service_providers' section of
+In addition, configure the service provider in the 'service_providers' group of
 L2 Gateway plugin configuration file `/etc/neutron/l2gw_plugin.ini`::
 
     [service_providers]
@@ -212,7 +212,7 @@ The implementation differs from upstream as follows:
   router are showed as advertised routes.
 
 To configure it, add the following service plugin to the `service_plugins` list
-in the DEFAULT section of `/etc/neutron/neutron.conf`::
+in the DEFAULT group of `/etc/neutron/neutron.conf`::
 
     [DEFAULT]
     service_plugins = midonet_bgp
@@ -224,7 +224,7 @@ Logging Resource Service
 Starting v5.2, MidoNet implements Neutron Logging Resource Service extension API.
 
 To configure it, add the following service plugin to the `service_plugins` list
-in the DEFAULT section of `/etc/neutron/neutron.conf`::
+in the DEFAULT group of `/etc/neutron/neutron.conf`::
 
     [DEFAULT]
     service_plugins = midonet_logging_resource
@@ -232,7 +232,7 @@ in the DEFAULT section of `/etc/neutron/neutron.conf`::
 Firewall log is managed by Quota.
 Default value of firewall log is 10 that is same number as firewall.
 Basically, both Quota value for firewall and firewall log should be aligned.
-To tune it, change value of `quota_firewall_log` in the quotas section of
+To tune it, change value of `quota_firewall_log` in the quotas group of
 `/etc/neutron/neutron.conf`.
 
 
@@ -248,7 +248,7 @@ add the following entries in the Neutron configuration file
     [DEFAULT]
     service_plugins = taas
 
-In addition, configure the service provider in the 'service_providers' section of
+In addition, configure the service provider in the 'service_providers' group of
 TaaS plugin configuration file `/etc/neutron/taas_plugin.ini`::
 
     [service_providers]
