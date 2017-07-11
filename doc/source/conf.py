@@ -25,6 +25,7 @@ extensions = [
     # 'sphinx.ext.intersphinx',
     'reno.sphinxext',
     'openstackdocstheme',
+    'oslo_config.sphinxext',
 ]
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
