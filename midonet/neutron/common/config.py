@@ -31,13 +31,18 @@ mido_opts = [
                help=_('ID of the project that MidoNet admin user '
                       'belongs to.')),
     cfg.StrOpt('tunnel_protocol', default='vxlan',
-               help=_('Tunnel protocol used by Midonet')),
+               help=_('Tunnel protocol used by Midonet. '
+                      'Currently unused.')),
     cfg.StrOpt('cluster_ip', default='localhost',
-               help=_('IP that the cluster service can be reached on')),
+               help=_('IP that the cluster service can be reached on. '
+                      'Currently unused.')),
     cfg.StrOpt('cluster_port', default='8088',
-               help=_('Port that the cluster service can be reached on')),
+               help=_('Port that the cluster service can be reached on. '
+                      'Currently unused.')),
     cfg.StrOpt('client', default='midonet.neutron.client.api.MidonetApiClient',
-               help=_('MidoNet client used to access MidoNet data storage.')),
+               help=_('MidoNet client used to access MidoNet data storage. '
+                      'Do not change unless you want to try the experimental '
+                      'Task-based API.')),
 ]
 
 cfg.CONF.register_opts(mido_opts, "MIDONET")
