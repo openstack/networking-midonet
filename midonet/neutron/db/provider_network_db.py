@@ -16,13 +16,14 @@ from neutron_lib.api.definitions import provider_net as pnet
 from neutron_lib.api import validators
 from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
-
-from midonet.neutron._i18n import _
-from midonet.neutron.common import constants as m_const
-from neutron.db import models_v2
 from oslo_log import log as logging
 import sqlalchemy as sa
 from sqlalchemy import orm
+
+from neutron.db import models_v2
+
+from midonet.neutron._i18n import _
+from midonet.neutron.common import constants as m_const
 
 
 LOG = logging.getLogger(__name__)

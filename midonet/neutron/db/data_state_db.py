@@ -13,9 +13,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron.common import exceptions as exc
-from neutron_lib.db import model_base
 import sqlalchemy as sa
+
+from neutron_lib.db import model_base
+
+from midonet.neutron.common import exceptions as exc
 
 
 DATA_STATE_TABLE = 'midonet_data_state'

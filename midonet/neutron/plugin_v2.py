@@ -28,6 +28,18 @@ from neutron_lib import exceptions as n_exc
 from neutron_lib.exceptions import port_security as psec_exc
 from neutron_lib.plugins import constants as plugin_constants
 from neutron_lib.plugins import directory
+from oslo_db import exception as oslo_db_exc
+from oslo_log import helpers as log_helpers
+from oslo_log import log as logging
+from oslo_utils import excutils
+
+from neutron.db import _resource_extend as resource_extend
+from neutron.db import allowedaddresspairs_db as addr_pair_db
+from neutron.db import api as db_api
+from neutron.db import portsecurity_db as ps_db
+from neutron.extensions import allowedaddresspairs as addr_pair
+from neutron.extensions import providernet as pnet
+from neutron.extensions import securitygroup as ext_sg
 
 from midonet.neutron._i18n import _
 from midonet.neutron.common import utils as c_utils
@@ -37,18 +49,6 @@ from midonet.neutron.midonet_v2 import managers
 from midonet.neutron.ml2 import sg_callback
 from midonet.neutron import plugin
 from midonet.neutron.services.qos import driver as qos_driver
-
-from neutron.db import _resource_extend as resource_extend
-from neutron.db import allowedaddresspairs_db as addr_pair_db
-from neutron.db import api as db_api
-from neutron.db import portsecurity_db as ps_db
-from neutron.extensions import allowedaddresspairs as addr_pair
-from neutron.extensions import providernet as pnet
-from neutron.extensions import securitygroup as ext_sg
-from oslo_db import exception as oslo_db_exc
-from oslo_log import helpers as log_helpers
-from oslo_log import log as logging
-from oslo_utils import excutils
 
 
 LOG = logging.getLogger(__name__)

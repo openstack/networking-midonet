@@ -15,21 +15,19 @@
 
 import contextlib
 
+from oslo_utils import uuidutils
 import webob.exc
+
+from neutron.tests.unit.api import test_extensions as test_ex
+from neutron.tests.unit.extensions import test_extraroute
+from neutron.tests.unit.extensions import test_l3
+from neutron_dynamic_routing.extensions import bgp
 
 from midonet.neutron.common import constants as m_const
 from midonet.neutron import extensions as midoextensions
 from midonet.neutron.extensions import bgp_speaker_router_insertion as bsri
 from midonet.neutron.services.bgp import plugin as bgp_plugin
 from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
-
-from neutron_dynamic_routing.extensions import bgp
-
-from neutron.tests.unit.api import test_extensions as test_ex
-from neutron.tests.unit.extensions import test_extraroute
-from neutron.tests.unit.extensions import test_l3
-
-from oslo_utils import uuidutils
 
 FAKE_SPEAKER_NAME = "bgp_spaeker_1"
 FAKE_LOCAL_AS = 65000

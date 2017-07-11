@@ -16,19 +16,17 @@
 import contextlib
 
 import mock
+from oslo_utils import uuidutils
 import webob.exc
-
-from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 from neutron.db import servicetype_db as sdb
 from neutron.services import provider_configuration as provconf
 from neutron.tests.unit.api import test_extensions as test_ex
-
 from neutron_taas.common import constants as taas_const
 from neutron_taas.extensions import taas as ext_taas
 from neutron_taas.tests.unit.services.taas import test_taas_plugin  # noqa
 
-from oslo_utils import uuidutils
+from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 # Generate uuids
 TENANT1 = uuidutils.generate_uuid()

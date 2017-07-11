@@ -15,16 +15,15 @@
 
 import abc
 
+from oslo_config import cfg
+from oslo_log import log as logging
+from oslo_utils import excutils
 import six
-
-from midonet.neutron.client import base as c_base
 
 from networking_l2gw.services.l2gateway.common import constants
 from networking_l2gw.services.l2gateway import service_drivers
 
-from oslo_config import cfg
-from oslo_log import log as logging
-from oslo_utils import excutils
+from midonet.neutron.client import base as c_base
 
 LOG = logging.getLogger(__name__)
 

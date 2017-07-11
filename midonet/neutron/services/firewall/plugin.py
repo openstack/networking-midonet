@@ -13,19 +13,18 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron.client import base as c_base
+from neutron_lib import constants
+from oslo_config import cfg
+from oslo_log import helpers as log_helpers
+from oslo_log import log as logging
+from oslo_utils import excutils
 
 from neutron.api import extensions as neutron_extensions
 from neutron_fwaas.db.firewall import firewall_db
 from neutron_fwaas import extensions
 from neutron_fwaas.services.firewall import fwaas_plugin as fw_plugin
 
-from neutron_lib import constants
-
-from oslo_config import cfg
-from oslo_log import helpers as log_helpers
-from oslo_log import log as logging
-from oslo_utils import excutils
+from midonet.neutron.client import base as c_base
 
 LOG = logging.getLogger(__name__)
 

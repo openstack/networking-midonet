@@ -13,12 +13,11 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from midonetclient import client
 from oslo_log import log as logging
 
 from midonet.neutron.client import base
 from midonet.neutron.common import utils
-
-from midonetclient import client
 
 LOG = logging.getLogger(__name__)
 

@@ -15,11 +15,8 @@
 
 from neutron_lib.api.definitions import portbindings
 from neutron_lib import constants as n_const
-
-from midonet.neutron.client import base as c_base
-from midonet.neutron.common import config  # noqa
-from midonet.neutron.common import constants as const
-from midonet.neutron import extensions
+from oslo_config import cfg
+from oslo_utils import importutils
 
 from neutron.api import extensions as neutron_extensions
 from neutron.api.rpc.agentnotifiers import dhcp_rpc_agent_api
@@ -35,8 +32,10 @@ from neutron.db import extradhcpopt_db
 from neutron.db import portbindings_db
 from neutron.db import securitygroups_db
 
-from oslo_config import cfg
-from oslo_utils import importutils
+from midonet.neutron.client import base as c_base
+from midonet.neutron.common import config  # noqa
+from midonet.neutron.common import constants as const
+from midonet.neutron import extensions
 
 
 class MidonetMixinBase(db_base_plugin_v2.NeutronDbPluginV2,

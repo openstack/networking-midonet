@@ -20,13 +20,10 @@ from neutron_lib.callbacks import resources
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 from neutron_lib.plugins import constants as plugin_constants
-
-from midonet.neutron.client import base as c_base
-from midonet.neutron.common import config  # noqa
-from midonet.neutron.common import constants as m_const
-from midonet.neutron.db import l3_db_midonet
-from midonet.neutron import extensions
-from midonet.neutron.extensions import routerinterfacefip
+from oslo_config import cfg
+from oslo_log import helpers as log_helpers
+from oslo_log import log as logging
+from oslo_utils import excutils
 
 from neutron.api import extensions as neutron_extensions
 from neutron.db import api as db_api
@@ -36,10 +33,13 @@ from neutron.db import extraroute_db
 from neutron.db import l3_dvr_db  # noqa
 from neutron.extensions import l3
 from neutron.extensions import multiprovidernet as mpnet
-from oslo_config import cfg
-from oslo_log import helpers as log_helpers
-from oslo_log import log as logging
-from oslo_utils import excutils
+
+from midonet.neutron.client import base as c_base
+from midonet.neutron.common import config  # noqa
+from midonet.neutron.common import constants as m_const
+from midonet.neutron.db import l3_db_midonet
+from midonet.neutron import extensions
+from midonet.neutron.extensions import routerinterfacefip
 
 LOG = logging.getLogger(__name__)
 

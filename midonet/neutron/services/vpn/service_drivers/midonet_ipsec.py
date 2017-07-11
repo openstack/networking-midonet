@@ -13,17 +13,16 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron.client import base as c_base
-
 from neutron_lib import constants as const
+from oslo_config import cfg
+from oslo_log import log as logging
+from oslo_utils import excutils
 
 from neutron_vpnaas.services.vpn import plugin
 from neutron_vpnaas.services.vpn.service_drivers import base_ipsec
 from neutron_vpnaas.services.vpn.service_drivers import ipsec_validator
 
-from oslo_config import cfg
-from oslo_log import log as logging
-from oslo_utils import excutils
+from midonet.neutron.client import base as c_base
 
 LOG = logging.getLogger(__name__)
 

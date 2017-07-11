@@ -13,12 +13,12 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron._i18n import _
+from oslo_serialization import jsonutils
 
 from neutronclient.common import extension
 from neutronclient.neutron import v2_0 as loggingV20
 
-from oslo_serialization import jsonutils
+from midonet.neutron._i18n import _
 
 
 def add_common_paramaters_to_arguments(parser):

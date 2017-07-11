@@ -12,13 +12,15 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+
 import sys
+
+from neutronclient import shell
 
 from midonet.neutron.extensions import logging_resource as log_res_ext
 from midonet.neutron.tests.unit.neutronclient_ext import test_cli20
 from midonet.neutron.tests.unit import test_extension_logging_resource as telr
 from midonet.neutronclient.logging_resource_extension import _firewall_log
-from neutronclient import shell
 
 RESOURCE = 'firewall_log'
 RESOURCES = 'firewall_logs'

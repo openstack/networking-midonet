@@ -20,14 +20,15 @@ from neutron_lib.api import validators
 from neutron_lib.db import constants as db_const
 from neutron_lib import exceptions as nexception
 from neutron_lib.plugins import directory
+from oslo_log import log as logging
+import six
 
-from midonet.neutron._i18n import _
-from midonet.neutron.common import constants
 from neutron.api import extensions
 from neutron.api.v2 import base
 from neutron.api.v2 import resource_helper
-from oslo_log import log as logging
-import six
+
+from midonet.neutron._i18n import _
+from midonet.neutron.common import constants
 
 
 class GatewayDeviceNotFound(nexception.NotFound):

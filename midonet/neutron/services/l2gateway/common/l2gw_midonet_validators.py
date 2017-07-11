@@ -16,11 +16,12 @@
 from neutron_lib.api import validators
 from neutron_lib import exceptions
 
+from networking_l2gw.services.l2gateway.common import constants as l2gw_const
+from networking_l2gw.services.l2gateway.common import l2gw_validators
+
 from midonet.neutron._i18n import _
 from midonet.neutron.common import constants
 from midonet.neutron.extensions import gateway_device
-from networking_l2gw.services.l2gateway.common import constants as l2gw_const
-from networking_l2gw.services.l2gateway.common import l2gw_validators
 
 
 def validate_gwdevice_list(data, valid_values=None):

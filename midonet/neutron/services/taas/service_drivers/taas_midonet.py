@@ -13,14 +13,14 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron.client import base as c_base
-
-from neutron_taas.services.taas import service_drivers as taas_service_drivers
-
 from oslo_config import cfg
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 from oslo_utils import excutils
+
+from neutron_taas.services.taas import service_drivers as taas_service_drivers
+
+from midonet.neutron.client import base as c_base
 
 LOG = logging.getLogger(__name__)
 

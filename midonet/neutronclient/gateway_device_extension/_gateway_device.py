@@ -13,12 +13,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 #
-from midonet.neutron._i18n import _
+
+from oslo_serialization import jsonutils
 
 from neutronclient.common import extension
 from neutronclient.neutron import v2_0 as gw_deviceV20
 
-from oslo_serialization import jsonutils
+from midonet.neutron._i18n import _
 
 
 def add_name_and_tunnel_ips_to_arguments(parser):

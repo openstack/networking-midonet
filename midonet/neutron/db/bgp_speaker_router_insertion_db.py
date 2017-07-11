@@ -13,12 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron.db import bgp_speaker_router_insertion_model as model
-from midonet.neutron.extensions import bgp_speaker_router_insertion as bsri
-
-from neutron.db import api as db_api
-from neutron.extensions import l3
-from neutron_dynamic_routing.db import bgp_db as bdb
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
@@ -27,6 +21,13 @@ from oslo_db import exception as db_exc
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 from sqlalchemy.orm import exc
+
+from neutron.db import api as db_api
+from neutron.extensions import l3
+from neutron_dynamic_routing.db import bgp_db as bdb
+
+from midonet.neutron.db import bgp_speaker_router_insertion_model as model
+from midonet.neutron.extensions import bgp_speaker_router_insertion as bsri
 
 
 LOG = logging.getLogger(__name__)
