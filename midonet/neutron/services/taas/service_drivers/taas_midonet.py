@@ -12,7 +12,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-from midonet.neutron._i18n import _LE
+
 from midonet.neutron.client import base as c_base
 
 from neutron_taas.services.taas import service_drivers as taas_service_drivers
@@ -45,8 +45,8 @@ class MidonetTaasDriver(taas_service_drivers.TaasBaseDriver):
             self.client.create_tap_service(context._plugin_context, ts)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create tap service %(tap_service)s "
-                              "in Midonet: %(err)s"),
+                LOG.error("Failed to create tap service %(tap_service)s "
+                          "in Midonet: %(err)s",
                           {"tap_service": ts, "err": ex})
 
     @log_helpers.log_method_call
@@ -61,8 +61,8 @@ class MidonetTaasDriver(taas_service_drivers.TaasBaseDriver):
             self.client.delete_tap_service(context._plugin_context, ts['id'])
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to delete a tap service"
-                              "%(tap_service)s in Midonet: %(err)s"),
+                LOG.error("Failed to delete a tap service"
+                          "%(tap_service)s in Midonet: %(err)s",
                           {"tap_service": ts['id'], "err": ex})
 
     @log_helpers.log_method_call
@@ -77,8 +77,8 @@ class MidonetTaasDriver(taas_service_drivers.TaasBaseDriver):
             self.client.create_tap_flow(context._plugin_context, tf)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create tap flow %(tap_flow)s "
-                              "in Midonet: %(err)s"),
+                LOG.error("Failed to create tap flow %(tap_flow)s "
+                          "in Midonet: %(err)s",
                           {"tap_flow": tf, "err": ex})
 
     @log_helpers.log_method_call
@@ -93,6 +93,6 @@ class MidonetTaasDriver(taas_service_drivers.TaasBaseDriver):
             self.client.delete_tap_flow(context._plugin_context, tf['id'])
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to delete a tap flow"
-                              "%(tap_flow)s in Midonet: %(err)s"),
+                LOG.error("Failed to delete a tap flow"
+                          "%(tap_flow)s in Midonet: %(err)s",
                           {"tap_flow": tf['id'], "err": ex})

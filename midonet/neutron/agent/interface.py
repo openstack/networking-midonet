@@ -21,8 +21,6 @@ from neutron.agent.linux import interface as n_interface
 from neutron.agent.linux import ip_lib
 from neutron.agent.linux import utils
 
-from midonet.neutron._i18n import _LE, _LW
-
 LOG = logging.getLogger(__name__)
 
 
@@ -49,7 +47,7 @@ class MidonetInterfaceDriver(n_interface.LinuxInterfaceDriver):
             ns_dev.link.set_mtu(mtu)
             root_dev.link.set_mtu(mtu)
         else:
-            LOG.warning(_LW("No MTU configured for port %s"), port_id)
+            LOG.warning("No MTU configured for port %s", port_id)
 
         ns_dev.link.set_up()
         root_dev.link.set_up()
@@ -63,7 +61,7 @@ class MidonetInterfaceDriver(n_interface.LinuxInterfaceDriver):
         try:
             device.link.delete()
         except RuntimeError:
-            LOG.error(_LE("Failed unplugging interface '%s'"), device_name)
+            LOG.error("Failed unplugging interface '%s'", device_name)
         LOG.debug("Unplugged interface '%s'", device_name)
 
         ip_lib.IPWrapper(namespace=namespace).garbage_collect_namespace()

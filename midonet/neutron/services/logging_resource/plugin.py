@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import constants as midonet_const
 from midonet.neutron.db import logging_resource_db as log_res_db
@@ -68,8 +67,8 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
             self.client.update_logging_resource_postcommit(id, log_res)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to update a logging "
-                              "resource %(log_res_id)s in MidoNet: %(err)s"),
+                LOG.error("Failed to update a logging "
+                          "resource %(log_res_id)s in MidoNet: %(err)s",
                           {"log_res_id": log_res["id"], "err": ex})
                 try:
                     super(
@@ -77,8 +76,8 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
                         self).update_logging_resource(
                             context, log_res['id'], backup_body)
                 except Exception:
-                    LOG.exception(_LE("Failed to update a logging resource "
-                                      "for rollback %s"), log_res["id"])
+                    LOG.exception("Failed to update a logging resource "
+                                  "for rollback %s", log_res["id"])
         return log_res
 
     @log_helpers.log_method_call
@@ -107,8 +106,8 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
             self.client.create_firewall_log_postcommit(f_log_info)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create a firewall log %(f_log_id)s "
-                              "for %(log_res_id)s in Midonet:%(err)s"),
+                LOG.error("Failed to create a firewall log %(f_log_id)s "
+                          "for %(log_res_id)s in Midonet:%(err)s",
                           {"f_log_id": f_log["id"],
                            "log_res_id": logging_resource_id, "err": ex})
                 try:
@@ -117,8 +116,8 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
                         self).delete_logging_resource_firewall_log(
                             context, f_log["id"], logging_resource_id)
                 except Exception:
-                    LOG.exception(_LE("Failed to delete a "
-                                      "firewall_log %s"), f_log["id"])
+                    LOG.exception("Failed to delete a firewall_log %s",
+                                  f_log["id"])
 
         return f_log
 
@@ -142,9 +141,9 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
             self.client.update_firewall_log_postcommit(id, f_log_info)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to update a firewall log "
-                              "%(f_log_id)s in Midonet:"
-                              "%(err)s"), {"f_log_id": f_log["id"], "err": ex})
+                LOG.error("Failed to update a firewall log "
+                          "%(f_log_id)s in Midonet:%(err)s",
+                          {"f_log_id": f_log["id"], "err": ex})
                 try:
                     super(
                         MidonetLoggingResourcePlugin,
@@ -152,8 +151,8 @@ class MidonetLoggingResourcePlugin(log_res_db.LoggingResourceDbMixin):
                             context, f_log['id'],
                             logging_resource_id, backup_body)
                 except Exception:
-                    LOG.exception(_LE("Failed to update a firewall log "
-                                      "for rollback %s"), f_log["id"])
+                    LOG.exception("Failed to update a firewall log "
+                                  "for rollback %s", f_log["id"])
         return f_log
 
     @log_helpers.log_method_call

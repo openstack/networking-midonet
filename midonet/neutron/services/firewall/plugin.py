@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
 
 from neutron.api import extensions as neutron_extensions
@@ -60,14 +59,14 @@ class _MidonetFirewallDriver(object):
             self.client.create_firewall(context, firewall)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create a firewall %(fw_id)s "
-                              "in Midonet: %(err)s"),
+                LOG.error("Failed to create a firewall %(fw_id)s "
+                          "in Midonet: %(err)s",
                           {"fw_id": firewall["id"], "err": ex})
                 try:
                     self.plugin.delete_db_firewall_object(context,
                                                           firewall['id'])
                 except Exception:
-                    LOG.exception(_LE("Failed to delete firewall %s"),
+                    LOG.exception("Failed to delete firewall %s",
                                   firewall['id'])
 
         self._set_firewall_status_noerror(context, firewall)
@@ -79,14 +78,14 @@ class _MidonetFirewallDriver(object):
             self.client.update_firewall(context, firewall)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to update a firewall %(fw_id)s "
-                              "in Midonet: %(err)s"),
+                LOG.error("Failed to update a firewall %(fw_id)s "
+                          "in Midonet: %(err)s",
                           {"fw_id": firewall["id"], "err": ex})
                 try:
                     self.callbacks.set_firewall_status(context, firewall['id'],
                                                        constants.ERROR)
                 except Exception:
-                    LOG.exception(_LE("Failed to update firewall status %s"),
+                    LOG.exception("Failed to update firewall status %s",
                                   firewall['id'])
 
         self._set_firewall_status_noerror(context, firewall)
@@ -105,14 +104,14 @@ class _MidonetFirewallDriver(object):
             self.client.delete_firewall(context, firewall)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to delete a firewall %(fw_id)s "
-                              "in Midonet: %(err)s"),
+                LOG.error("Failed to delete a firewall %(fw_id)s "
+                          "in Midonet: %(err)s",
                           {"fw_id": firewall["id"], "err": ex})
                 try:
                     self.callbacks.set_firewall_status(context, firewall['id'],
                                                        constants.ERROR)
                 except Exception:
-                    LOG.exception(_LE("Failed to update firewall status %s"),
+                    LOG.exception("Failed to update firewall status %s",
                                   firewall['id'])
 
         self.callbacks.firewall_deleted(context, firewall['id'])

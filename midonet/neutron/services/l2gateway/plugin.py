@@ -15,7 +15,6 @@
 
 from neutron_lib.api import validators
 
-from midonet.neutron._i18n import _LE
 from midonet.neutron.common import constants as mido_const
 from midonet.neutron.db import l2gateway_midonet as l2gw_db
 from midonet.neutron.services.l2gateway.common import l2gw_midonet_validators
@@ -105,14 +104,14 @@ class MidonetL2GatewayPlugin(l2gw_plugin.L2GatewayPlugin,
                 context, l2_gateway_connection)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create a l2 gateway connection "
-                              "%(gw_conn_id)s in Midonet:%(err)s"),
+                LOG.error("Failed to create a l2 gateway connection "
+                          "%(gw_conn_id)s in Midonet:%(err)s",
                           {"gw_conn_id": l2_gw_conn["id"], "err": ex})
                 try:
                     l2gw_db.MidonetL2GatewayMixin.delete_l2_gateway_connection(
                         self, context, l2_gw_conn["id"])
                 except Exception:
-                    LOG.exception(_LE("Failed to delete a l2 gateway conn %s"),
+                    LOG.exception("Failed to delete a l2 gateway conn %s",
                                   l2_gw_conn["id"])
         return l2_gw_conn
 

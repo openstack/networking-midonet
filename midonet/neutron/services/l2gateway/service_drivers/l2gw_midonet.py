@@ -17,7 +17,6 @@ import abc
 
 import six
 
-from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
 
 from networking_l2gw.services.l2gateway.common import constants
@@ -84,8 +83,8 @@ class MidonetL2gwDriver(service_drivers.L2gwDriver):
                                                      gw_conn_dict)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to create L2GW Conn %(l2_gw_conn)s "
-                              "in Midonet: %(err)s"),
+                LOG.error("Failed to create L2GW Conn %(l2_gw_conn)s "
+                          "in Midonet: %(err)s",
                           {"l2_gw_conn": gw_connection, "err": ex})
 
     def delete_l2_gateway_connection(self, context, l2_gateway_connection):
@@ -94,6 +93,6 @@ class MidonetL2gwDriver(service_drivers.L2gwDriver):
                                                      l2_gateway_connection)
         except Exception as ex:
             with excutils.save_and_reraise_exception():
-                LOG.error(_LE("Failed to delete a l2 Gateway Connection"
-                              "%(l2_gw_conn_id)s in Midonet: %(err)s"),
+                LOG.error("Failed to delete a l2 Gateway Connection"
+                          "%(l2_gw_conn_id)s in Midonet: %(err)s",
                           {"l2_gw_conn_id": l2_gateway_connection, "err": ex})
