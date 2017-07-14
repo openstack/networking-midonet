@@ -39,7 +39,7 @@ if [[ "$1" == "stack" ]]; then
         # for dependencies.
         if [[ "$OFFLINE" != "True" ]]; then
             sudo $ABSOLUTE_PATH/midonet-pkg/configure_repo.sh \
-                $MIDNOET_DEB_URI $MIDNOET_DEB_SUITE $MIDNOET_DEB_COMPONENT \
+                $MIDONET_DEB_URI $MIDONET_DEB_SUITE $MIDONET_DEB_COMPONENT \
                 $MIDONET_USE_CASSANDRA
             sudo $ABSOLUTE_PATH/midonet-pkg/install_pkgs.sh \
                 $MIDONET_USE_CASSANDRA
