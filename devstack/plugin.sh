@@ -32,12 +32,19 @@ if [[ "$1" == "stack" ]]; then
         source $ABSOLUTE_PATH/functions
         source $ABSOLUTE_PATH/$Q_PLUGIN/functions
 
-        if [ "$MIDONET_USE_PACKAGE" = "True" ]; then
+        # Install MidoNet packages.
+        # NOTE(yamamoto): Do this even if MIDONET_USE_PACKAGE=False, to pull
+        # runtime dependencies like libreswan.
+        # REVISIT(yamamoto): Consider to have a separate set of scripts
+        # for dependencies.
+        if [[ "$OFFLINE" != "True" ]]; then
             sudo $ABSOLUTE_PATH/midonet-pkg/configure_repo.sh \
                 $MIDNOET_DEB_URI $MIDNOET_DEB_SUITE $MIDNOET_DEB_COMPONENT
             sudo $ABSOLUTE_PATH/midonet-pkg/install_pkgs.sh
-        else
-            # Clone and build midonet service
+        fi
+
+        if [ "$MIDONET_USE_PACKAGE" != "True" ]; then
+            # Clone MidoNet source
             if [[ "$OFFLINE" != "True" ]]; then
                 if [[ ! -d $MIDONET_DIR ]]; then
                     local orig_dir=$(pwd)
@@ -48,16 +55,24 @@ if [[ "$1" == "stack" ]]; then
                     cd ${orig_dir}
                 fi
             fi
+
+            # Build and install MidoNet packages
+            local orig_dir=$(pwd)
+            cd $MIDONET_DIR
+            find . -type f -name "*.deb" -print0 | xargs -0 -r rm
+            ./gradlew nsdb:clean  # workaround for errors after proto changes
+            install_package ruby-dev
+            install_package ruby-ronn
+            sudo gem install fpm
+            ./gradlew debian
+            find . -type f -name "*.deb" -print0 | xargs -0 sudo dpkg -i
+            cd ${orig_dir}
         fi
 
     elif [[ "$2" == "install" ]]; then
 
         # Build neutron midonet plugin
         pip_install --no-deps --editable $NETWORKING_MIDONET_DIR
-        if [ "$MIDONET_USE_PACKAGE" != "True" ]; then
-            # Build midonet client
-            pip_install --editable $MIDONET_DIR/python-midonetclient
-        fi
         # Configure midonet-cli
         configure_midonet_cli
 
@@ -68,19 +83,11 @@ if [[ "$1" == "stack" ]]; then
         tweak_neutron_initial_network_for_midonet
 
         if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
-            if [ "$MIDONET_USE_UPLINK" == "True" ]; then
-                . $ABSOLUTE_PATH/uplink/create_uplink.sh
-                if [ "$MIDONET_USE_UPLINK_NAT" == "True" ]; then
-                    . $ABSOLUTE_PATH/uplink/create_nat.sh
-                fi
-                . $ABSOLUTE_PATH/tz/create_tz.sh
-            else
-                $MIDONET_DIR/tools/devmido/create_fake_uplink_l2.sh \
-                    $EXT_NET_ID $FLOATING_RANGE $PUBLIC_NETWORK_GATEWAY
-                local ROUTER_GW_IP
-                ROUTER_GW_IP=$(openstack --os-cloud devstack-admin --os-region "$REGION_NAME" port list -c 'Fixed IP Addresses' --device-owner network:router_gateway | awk -F'ip_address'  '{ print $2 }' | cut -f2 -d\' | tr '\n' ' ')
-                sudo ip route replace ${FIXED_RANGE} via ${ROUTER_GW_IP}
+            . $ABSOLUTE_PATH/uplink/create_uplink.sh
+            if [ "$MIDONET_USE_UPLINK_NAT" == "True" ]; then
+                . $ABSOLUTE_PATH/uplink/create_nat.sh
             fi
+            . $ABSOLUTE_PATH/tz/create_tz.sh
         fi
 
         # Workaround fip64 checksum issue
@@ -127,29 +134,17 @@ if [[ "$1" == "stack" ]]; then
         fi
 
         # Run the command
-        if [ "$MIDONET_USE_PACKAGE" = "True" ]; then
-            # Create symbolic links for logs so that they will be
-            # gathered on gate.
-            ln -sf /var/log/midolman/midolman.log ${LOGDIR}
-            ln -sf /var/log/midolman/minions.log ${LOGDIR}
-            ln -sf /var/log/midolman/minions-stderr.log ${LOGDIR}
-            ln -sf /var/log/midolman/vpp.log ${LOGDIR}
-            ln -sf /var/log/midolman/vpp-stderr.log ${LOGDIR}
-            ln -sf /var/log/midolman/upstart-stderr.log ${LOGDIR}
-            ln -sf /var/log/midonet-cluster/midonet-cluster.log ${LOGDIR}
-            ln -sf /var/log/midonet-cluster/upstart-stderr.log ${LOGDIR}
-            $ABSOLUTE_PATH/midonet-pkg/configure_and_start_midonet.sh
-        else
-            ln -sf /var/log/midolman/minions/minions.log ${LOGDIR}
-            ln -sf /var/log/midolman/minions/minions-stderr.log ${LOGDIR}
-            $MIDONET_DIR/tools/devmido/mido.sh
-
-            # Set log level to DEBUG.
-            # REVISIT(yamamoto): Revisit when MNA-1025 and MI-1344 are
-            # fixed on all relevant bracnches.
-            echo agent.loggers.root: DEBUG|mn-conf set
-            echo cluster.loggers.root: DEBUG|mn-conf set
-        fi
+        # Create symbolic links for logs so that they will be
+        # gathered on gate.
+        ln -sf /var/log/midolman/midolman.log ${LOGDIR}
+        ln -sf /var/log/midolman/minions.log ${LOGDIR}
+        ln -sf /var/log/midolman/minions-stderr.log ${LOGDIR}
+        ln -sf /var/log/midolman/vpp.log ${LOGDIR}
+        ln -sf /var/log/midolman/vpp-stderr.log ${LOGDIR}
+        ln -sf /var/log/midolman/upstart-stderr.log ${LOGDIR}
+        ln -sf /var/log/midonet-cluster/midonet-cluster.log ${LOGDIR}
+        ln -sf /var/log/midonet-cluster/upstart-stderr.log ${LOGDIR}
+        $ABSOLUTE_PATH/midonet-pkg/configure_and_start_midonet.sh
 
         # copy needed neutron config (eg rootwrap filters)
         sudo cp $NETWORKING_MIDONET_DIR/etc/midonet_rootwrap.filters /etc/neutron/rootwrap.d/
@@ -184,19 +179,11 @@ elif [[ "$1" == "unstack" ]]; then
     source $ABSOLUTE_PATH/$Q_PLUGIN/functions
 
     if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
-        if [ "$MIDONET_USE_UPLINK" == "True" ]; then
-            . $ABSOLUTE_PATH/tz/delete_tz.sh
-            if [ "$MIDONET_USE_UPLINK_NAT" == "True" ]; then
-                . $ABSOLUTE_PATH/uplink/delete_nat.sh
-            fi
-            . $ABSOLUTE_PATH/uplink/delete_uplink.sh
-        else
-            $MIDONET_DIR/tools/devmido/delete_fake_uplink_l2.sh
+        . $ABSOLUTE_PATH/tz/delete_tz.sh
+        if [ "$MIDONET_USE_UPLINK_NAT" == "True" ]; then
+            . $ABSOLUTE_PATH/uplink/delete_nat.sh
         fi
+        . $ABSOLUTE_PATH/uplink/delete_uplink.sh
     fi
-    if [ "$MIDONET_USE_PACKAGE" = "True" ]; then
-        $ABSOLUTE_PATH/midonet-pkg/stop_midonet.sh
-    else
-        $MIDONET_DIR/tools/devmido/unmido.sh
-    fi
+    $ABSOLUTE_PATH/midonet-pkg/stop_midonet.sh
 fi
