@@ -108,8 +108,3 @@ fi
 
 # Don't let mido.sh configure the logging
 CONFIGURE_LOGGING=False
-
-# TODO(yamahata): bug work around
-# https://bugs.launchpad.net/devstack/+bug/1698129
-# once it's fixed. remove this.
-AGENT_BINARY=${AGENT_BINARY:-/bin/false}
