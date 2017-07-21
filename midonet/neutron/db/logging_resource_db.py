@@ -16,7 +16,7 @@
 from midonet.neutron.db import logging_resource_model as model
 from midonet.neutron.extensions import logging_resource as log_res_ext
 from neutron.db import common_db_mixin
-from neutron_fwaas.extensions import firewall as fw_ext
+from neutron_lib.exceptions import firewall_v1 as fw_exc
 
 from oslo_db import exception as db_exc
 from oslo_log import helpers as log_helpers
@@ -104,7 +104,7 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
                     firewall_id=f_log['firewall_id'])
                 context.session.add(f_log_db)
         except db_exc.DBReferenceError:
-            raise fw_ext.FirewallNotFound(firewall_id=f_log['firewall_id'])
+            raise fw_exc.FirewallNotFound(firewall_id=f_log['firewall_id'])
 
         return self._make_firewall_log_dict(f_log_db)
 
