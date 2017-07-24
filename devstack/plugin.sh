@@ -30,9 +30,6 @@ if [[ "$1" == "stack" ]]; then
 
     if [[ "$2" == "pre-install" ]]; then
 
-        source $ABSOLUTE_PATH/functions
-        source $ABSOLUTE_PATH/$Q_PLUGIN/functions
-
         # Install MidoNet packages.
         # NOTE(yamamoto): Do this even if MIDONET_USE_PACKAGE=False, to pull
         # runtime dependencies like libreswan.

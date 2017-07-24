@@ -5,3 +5,9 @@ function has_neutron_plugin_security_group {
     # 0 means True here
     return 0
 }
+
+# NOTE(yamamoto): Grenade assumes some of functions are available early.
+ABSOLUTE_PATH=$(cd `dirname "${BASH_SOURCE[0]}"` && pwd)
+Q_PLUGIN=${Q_PLUGIN:-$NEUTRON_CORE_PLUGIN}
+source $ABSOLUTE_PATH/functions
+source $ABSOLUTE_PATH/$Q_PLUGIN/functions
