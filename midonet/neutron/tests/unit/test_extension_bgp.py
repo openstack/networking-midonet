@@ -27,6 +27,7 @@ from midonet.neutron.common import constants as m_const
 from midonet.neutron import extensions as midoextensions
 from midonet.neutron.extensions import bgp_speaker_router_insertion as bsri
 from midonet.neutron.services.bgp import plugin as bgp_plugin
+from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
 from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 FAKE_SPEAKER_NAME = "bgp_spaeker_1"
@@ -67,14 +68,13 @@ class BgpTestExtensionManager(
         return []
 
 
-class BgpTestCase(test_l3.L3NatTestCaseMixin,
-                  test_mn.MidonetPluginV2TestCase):
+class BgpTestCaseMixin(test_l3.L3NatTestCaseMixin):
 
     def setUp(self, plugin=None, service_plugins=None, ext_mgr=None):
 
         service_plugins = {'bgp_plugin_name': BGP_PLUGIN_KLASS}
         bgp_mgr = BgpTestExtensionManager()
-        super(BgpTestCase, self).setUp(
+        super(BgpTestCaseMixin, self).setUp(
             service_plugins=service_plugins, ext_mgr=bgp_mgr)
         self.ext_api = test_ex.setup_extensions_middleware(bgp_mgr)
         self.bgp_plugin = bgp_plugin.MidonetBgpPlugin()
@@ -699,3 +699,11 @@ class BgpTestCase(test_l3.L3NatTestCaseMixin,
             action=action,
             subresource=subresource
         )
+
+
+class BgpTestCaseV2(BgpTestCaseMixin, test_mn.MidonetPluginV2TestCase):
+    pass
+
+
+class BgpTestCaseML2(BgpTestCaseMixin, test_mn_ml2.MidonetPluginML2TestCase):
+    pass
