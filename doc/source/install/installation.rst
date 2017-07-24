@@ -54,11 +54,8 @@ your MidoNet cluster.
   :oslo.config:option:`midonet.project_id`
 
 
-Core plugin
------------
-
 ML2 mechanism and type drivers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------
 
 networking-midonet is compatible with ML2 plugin.
 ML2 mechanism driver and type drivers for MidoNet are available::
@@ -70,20 +67,6 @@ ML2 mechanism driver and type drivers for MidoNet are available::
     tenant_network_types = midonet
     type_drivers = midonet,uplink
     mechanism_drivers = midonet
-
-
-MidoNet monolithic plugin
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. warning:: You should not use this plugin.  It will be removed soon.
-
-This plugin is provided for compatibility reasons.
-It's deprecated and will be removed in a feature release.
-
-The following entry in ``/etc/neutron/neutron.conf`` enables MidoNet as the Neutron plugin::
-
-    [DEFAULT]
-    core_plugin = midonet_v2
 
 
 L3 service plugin
@@ -300,11 +283,6 @@ Neutron server configuration file `/etc/neutron/neutron.conf`::
 
     [ml2]
     extension_drivers = qos
-
-QoS core resource extension for v2 plugin
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-No configuration is necessary.
 
 
 Horizon

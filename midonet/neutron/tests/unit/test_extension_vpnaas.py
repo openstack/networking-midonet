@@ -26,7 +26,6 @@ from neutron_vpnaas import extensions
 from neutron_vpnaas.tests.unit.db.vpn import test_vpn_db
 
 from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
-from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 
 MN_DRIVER_KLASS = ('midonet.neutron.services.vpn.service_drivers.'
@@ -240,9 +239,4 @@ class VPNTestCaseMixin(test_vpn_db.VPNTestMixin,
 
 class VPNTestCaseML2(VPNTestCaseMixin,
                      test_mn_ml2.MidonetPluginML2TestCase):
-    pass
-
-
-class VPNTestCaseV2(VPNTestCaseMixin,
-                    test_mn.MidonetPluginV2TestCase):
     pass

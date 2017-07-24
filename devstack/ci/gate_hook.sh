@@ -35,38 +35,6 @@ function load_conf_hook {
 }
 
 case $job in
-    v2)
-        # Note the actual url here is somewhat irrelevant because it
-        # caches in nodepool, however make it a valid url for
-        # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_PLUGIN=midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
-
-        # Enable MidoNet v2 architecture
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
-        _ML2=False
-        _ADV_SVC=False
-        _QOS=False
-        ;;
-    v2-full)
-        # Note the actual url here is somewhat irrelevant because it
-        # caches in nodepool, however make it a valid url for
-        # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_PLUGIN=midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
-
-        # Enable MidoNet v2 architecture
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
-        _ML2=False
-        _ADV_SVC=True
-        _QOS=True
-        ;;
     ml2)
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
@@ -78,7 +46,6 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_TYPE_DRIVERS=midonet,uplink"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_TENANT_NETWORK_TYPE=midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
-        _ML2=True
         _ADV_SVC=False
         _QOS=False
         ;;
@@ -93,11 +60,11 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_TYPE_DRIVERS=midonet,uplink"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_TENANT_NETWORK_TYPE=midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
-        _ML2=True
         _ADV_SVC=True
         _QOS=True
         ;;
     grenade-v2)
+        # NOTE(yamamoto): This job performs a migration from v2 to ML2
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
@@ -107,8 +74,6 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
-        # NOTE(yamamoto): This job performs a migration to ML2
-        _ML2=True
         _ADV_SVC=False
         _QOS=True
         load_conf_hook quotas old
@@ -118,7 +83,7 @@ case $job in
             $BASE/new/networking-midonet/devstack/midonet/functions \
             $BASE/new/devstack/lib/neutron_plugins/midonet
         ;;
-    grenade|grenade-ml2)
+    grenade-ml2)
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
@@ -131,27 +96,9 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_ZOOM=True"
         _ZOOM=True
-        _ML2=True
         _ADV_SVC=False
         _QOS=True
         load_conf_hook quotas old
-        ;;
-    rally|rally-v2)
-        # Note the actual url here is somewhat irrelevant because it
-        # caches in nodepool, however make it a valid url for
-        # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin rally git://git.openstack.org/openstack/rally"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_PLUGIN=midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
-
-        # Enable MidoNet v2 architecture
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
-        _ML2=False
-        _ADV_SVC=False
-        _QOS=False
         ;;
     rally-ml2)
         # Note the actual url here is somewhat irrelevant because it
@@ -165,7 +112,6 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_TYPE_DRIVERS=midonet,uplink"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_TENANT_NETWORK_TYPE=midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"ML2_L3_PLUGIN=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
-        _ML2=True
         _ADV_SVC=False
         _QOS=False
 esac
@@ -255,10 +201,8 @@ r="$r|(?:tempest\.api\.network\.admin\.test_agent_management\.AgentManagementTes
 r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\..*)"
 r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_agent_management\.AgentManagementTestJSON\.*)"
 
-if [ "${_ML2}" = "True" ]; then
-    # bug 1507453 1608796
-    r="$r|(?:^neutron\.tests\.tempest\.api\.test_routers\.RoutersTest\.test_router_interface_status)"
-fi
+# bug 1507453 1608796
+r="$r|(?:^neutron\.tests\.tempest\.api\.test_routers\.RoutersTest\.test_router_interface_status)"
 
 # MidoNet doesn't support a gateway port without IP. (MNP-167)
 # "Bad router request: No IPs assigned to the gateway port for router"

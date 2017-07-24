@@ -18,7 +18,6 @@ from neutron_lib import constants as n_const
 from neutron_fwaas.tests.unit.services.firewall import test_fwaas_plugin as tfp
 
 from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
-from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 # Overwrite the FWaaS plugin constant so that the MidoNet FWaaS plugin gets
 # loaded when the tests run.
@@ -151,12 +150,6 @@ class FirewallTestCaseMixin(object):
 
     def test_list_firewalls_with_filtering(self):
         pass
-
-
-class FirewallTestCaseV2(FirewallTestCaseMixin,
-                         tfp.TestFirewallPluginBase,
-                         test_mn.MidonetPluginV2TestCase):
-    pass
 
 
 class FirewallTestCaseML2(FirewallTestCaseMixin,

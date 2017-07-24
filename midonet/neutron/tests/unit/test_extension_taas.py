@@ -27,7 +27,6 @@ from neutron_taas.extensions import taas as ext_taas
 from neutron_taas.tests.unit.services.taas import test_taas_plugin  # noqa
 
 from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
-from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 # Generate uuids
 TENANT1 = uuidutils.generate_uuid()
@@ -245,11 +244,6 @@ class TestMidonetTaasCaseMixin(object):
         self.client_mock.delete_tap_flow.assert_called_with(mock.ANY, tf['id'])
         self.client_mock.delete_tap_service.assert_called_with(mock.ANY,
                                                                ts['id'])
-
-
-class TestMidonetTaasCaseV2(TestMidonetTaasCaseMixin,
-                            test_mn.MidonetPluginV2TestCase):
-    pass
 
 
 class TestMidonetTaasCaseML2(TestMidonetTaasCaseMixin,
