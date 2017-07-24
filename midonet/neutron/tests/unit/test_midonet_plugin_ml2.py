@@ -681,8 +681,3 @@ class TestMidonetExtraDHCPOpts(test_dhcpopts.TestExtraDhcpOpt,
                                MidonetPluginML2TestCase):
 
     pass
-
-
-class TestMidonetSecurityGroup(test_sg.TestSecurityGroups,
-                               MidonetPluginML2TestCase):
-    pass
