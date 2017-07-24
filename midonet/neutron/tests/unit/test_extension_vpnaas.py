@@ -25,6 +25,7 @@ from neutron.tests.unit.extensions import test_l3 as test_l3_plugin
 from neutron_vpnaas import extensions
 from neutron_vpnaas.tests.unit.db.vpn import test_vpn_db
 
+from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
 from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 
@@ -49,9 +50,8 @@ class VPNTestExtensionManager(test_l3_plugin.L3TestExtensionManager):
         return []
 
 
-class VPNTestCase(test_vpn_db.VPNTestMixin,
-                  test_l3_plugin.L3NatTestCaseMixin,
-                  test_mn.MidonetPluginV2TestCase):
+class VPNTestCaseMixin(test_vpn_db.VPNTestMixin,
+                       test_l3_plugin.L3NatTestCaseMixin):
     def setUp(self):
         service_plugins = {
             'vpn_plugin_name': DB_VPN_PLUGIN_KLASS,
@@ -64,8 +64,8 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
         manager.add_provider_configuration(
             plugin_const.VPN, provconf.ProviderConfiguration())
 
-        super(VPNTestCase, self).setUp(service_plugins=service_plugins,
-                                       ext_mgr=VPNTestExtensionManager())
+        super(VPNTestCaseMixin, self).setUp(service_plugins=service_plugins,
+                                            ext_mgr=VPNTestExtensionManager())
 
     def test_create_vpn_service(self):
         with self.vpnservice() as vpnservice:
@@ -236,3 +236,13 @@ class VPNTestCase(test_vpn_db.VPNTestMixin,
         req = self.new_list_request('ipsec-site-connections')
         res = self.deserialize(self.fmt, req.get_response(self.ext_api))
         self.assertFalse(res['ipsec_site_connections'])
+
+
+class VPNTestCaseML2(VPNTestCaseMixin,
+                     test_mn_ml2.MidonetPluginML2TestCase):
+    pass
+
+
+class VPNTestCaseV2(VPNTestCaseMixin,
+                    test_mn.MidonetPluginV2TestCase):
+    pass
