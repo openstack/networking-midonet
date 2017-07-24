@@ -15,18 +15,17 @@
 
 import itertools
 
+from neutron_lib import exceptions as nexception
+from neutron_lib.plugins import directory
 from oslo_config import cfg
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 from oslo_utils import excutils
 
-from neutron_dynamic_routing import extensions as bgp_extensions
-from neutron_dynamic_routing.extensions import bgp
-
 from neutron.api import extensions as neutron_extensions
 from neutron.db import api as db_api
-from neutron_lib import exceptions as nexception
-from neutron_lib.plugins import directory
+from neutron_dynamic_routing import extensions as bgp_extensions
+from neutron_dynamic_routing.extensions import bgp
 
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import constants as m_const

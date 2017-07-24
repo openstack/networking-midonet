@@ -17,6 +17,9 @@ from neutron_lib.api.definitions import portbindings
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 from neutron_lib.plugins.ml2 import api
+from oslo_config import cfg
+from oslo_log import helpers as log_helpers
+from oslo_log import log as logging
 
 from midonet.neutron._i18n import _
 from midonet.neutron.client import base as c_base
@@ -27,10 +30,6 @@ from midonet.neutron.db import v2_migration
 from midonet.neutron.ml2 import sg_callback
 from midonet.neutron.ml2 import util as m_util
 from midonet.neutron.services.qos import driver as qos_driver
-
-from oslo_config import cfg
-from oslo_log import helpers as log_helpers
-from oslo_log import log as logging
 
 LOG = logging.getLogger(__name__)
 

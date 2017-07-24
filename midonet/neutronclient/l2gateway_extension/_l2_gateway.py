@@ -13,12 +13,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 #
-from midonet.neutron._i18n import _
 
 from neutron_lib.utils import helpers
 
 from networking_l2gw.l2gatewayclient.l2gw_client_ext import _l2_gateway
 from neutronclient.common import extension
+
+from midonet.neutron._i18n import _
 
 
 def add_known_arguments(self, parser):

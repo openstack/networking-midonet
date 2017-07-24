@@ -13,13 +13,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from neutron_dynamic_routing.db import bgp_db
 from neutron_lib.plugins import constants
 from neutron_lib.plugins import directory
-
-from neutron.ipam import utils as ipam_utils
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
+
+from neutron.ipam import utils as ipam_utils
+from neutron_dynamic_routing.db import bgp_db
 
 LOG = logging.getLogger(__name__)
 

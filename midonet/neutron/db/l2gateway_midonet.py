@@ -13,15 +13,17 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron.common import constants as midonet_const
-from midonet.neutron.services.l2gateway.common import l2gw_midonet_validators
-from midonet.neutron.services.l2gateway import exceptions
+from neutron_lib.plugins import directory
+
 from networking_l2gw.db.l2gateway import l2gateway_db
 from networking_l2gw.db.l2gateway import l2gateway_models as models
 from networking_l2gw.services.l2gateway.common import constants
 from networking_l2gw.services.l2gateway import exceptions as l2gw_exc
 from neutron.api import extensions as neutron_extensions
-from neutron_lib.plugins import directory
+
+from midonet.neutron.common import constants as midonet_const
+from midonet.neutron.services.l2gateway.common import l2gw_midonet_validators
+from midonet.neutron.services.l2gateway import exceptions
 
 
 class MidonetL2GatewayMixin(l2gateway_db.L2GatewayMixin):

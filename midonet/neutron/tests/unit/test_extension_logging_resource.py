@@ -15,16 +15,16 @@
 
 import contextlib
 
+from oslo_utils import uuidutils
 import webob.exc
 
-from midonet.neutron import extensions as midoextensions
-from midonet.neutron.extensions import logging_resource as log_res_ext
-from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 from neutron.tests.unit.api import test_extensions as test_ex
 from neutron.tests.unit.extensions import test_l3
 from neutron_fwaas.tests.unit.services.firewall import test_fwaas_plugin as tfp
 
-from oslo_utils import uuidutils
+from midonet.neutron import extensions as midoextensions
+from midonet.neutron.extensions import logging_resource as log_res_ext
+from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 
 LOGGING_PLUGIN_KLASS = 'midonet_logging_resource'

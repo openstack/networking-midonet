@@ -15,16 +15,16 @@
 
 import contextlib
 
+from oslo_utils import uuidutils
 import webob.exc
+
+from neutron.tests.unit.api import test_extensions as test_ex
+from neutron.tests.unit.extensions import test_l3
 
 from midonet.neutron import extensions as midoextensions
 from midonet.neutron.extensions import gateway_device
 from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
 from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
-from neutron.tests.unit.api import test_extensions as test_ex
-from neutron.tests.unit.extensions import test_l3
-
-from oslo_utils import uuidutils
 
 FAKE_MANAGEMENT_IP = '10.0.0.3'
 FAKE_MANAGEMENT_PORT = 5672

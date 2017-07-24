@@ -21,15 +21,15 @@ from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
 from neutron_lib.plugins import constants
 from neutron_lib.plugins import directory
-
-from neutron.db import common_db_mixin
-from neutron.extensions import l3
 from oslo_db import exception as db_exc
 from oslo_utils import uuidutils
 import sqlalchemy as sa
 from sqlalchemy.ext import declarative
 from sqlalchemy import orm
 from sqlalchemy.orm import exc
+
+from neutron.db import common_db_mixin
+from neutron.extensions import l3
 
 from midonet.neutron.extensions import gateway_device as gw_device_ext
 

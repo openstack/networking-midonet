@@ -16,10 +16,10 @@
 from neutron_lib import exceptions as exc
 from neutron_lib.plugins.ml2 import api
 
+from neutron.tests import base
+
 from midonet.neutron.common import constants as const
 from midonet.neutron.ml2 import type_midonet
-
-from neutron.tests import base
 
 
 class MidonetTypeTest(base.BaseTestCase):

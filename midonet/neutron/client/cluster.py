@@ -13,10 +13,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import neutron.db.api as db
+
 from midonet.neutron.client import base
 from midonet.neutron.db import task_db as task
-
-import neutron.db.api as db
 
 
 class MidonetClusterClient(base.MidonetClientBase):

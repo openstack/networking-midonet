@@ -14,17 +14,18 @@
 #    under the License.
 
 from neutron_lib.api import validators
+from oslo_log import helpers as log_helpers
+from oslo_log import log as logging
+from oslo_utils import excutils
 
-from midonet.neutron.common import constants as mido_const
-from midonet.neutron.db import l2gateway_midonet as l2gw_db
-from midonet.neutron.services.l2gateway.common import l2gw_midonet_validators
 from networking_l2gw import extensions as l2gateway_ext
 from networking_l2gw.services.l2gateway.common import l2gw_validators
 from networking_l2gw.services.l2gateway import plugin as l2gw_plugin
 from neutron.api import extensions as neutron_extensions
-from oslo_log import helpers as log_helpers
-from oslo_log import log as logging
-from oslo_utils import excutils
+
+from midonet.neutron.common import constants as mido_const
+from midonet.neutron.db import l2gateway_midonet as l2gw_db
+from midonet.neutron.services.l2gateway.common import l2gw_midonet_validators
 
 LOG = logging.getLogger(__name__)
 

@@ -15,15 +15,17 @@
 import os
 
 from alembic import config as alembic_config
-from midonet.neutron._i18n import _
-import midonet.neutron.db.data_state_db as ds_db
-import midonet.neutron.db.data_version_db as dv_db
-from midonet.neutron.db import task_db
-from neutron.db.migration import cli as n_cli
 from oslo_config import cfg
 from oslo_serialization import jsonutils
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+from neutron.db.migration import cli as n_cli
+
+from midonet.neutron._i18n import _
+import midonet.neutron.db.data_state_db as ds_db
+import midonet.neutron.db.data_version_db as dv_db
+from midonet.neutron.db import task_db
 
 
 CONF = n_cli.CONF

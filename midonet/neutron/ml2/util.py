@@ -15,8 +15,9 @@
 
 import functools
 
-from neutron.plugins.ml2 import driver_context as ctx
 from neutron_lib.api.definitions import provider_net
+
+from neutron.plugins.ml2 import driver_context as ctx
 
 from midonet.neutron._i18n import _
 from midonet.neutron.common import constants as const

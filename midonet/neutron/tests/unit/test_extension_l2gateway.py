@@ -16,11 +16,9 @@
 import contextlib
 
 import mock
+from oslo_utils import uuidutils
 import webob.exc
 
-from midonet.neutron.common import constants as mido_const
-from midonet.neutron.tests.unit import test_extension_gateway_device as test_gw
-from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 from networking_l2gw.extensions import l2gateway
 from networking_l2gw.extensions import l2gatewayconnection
 from networking_l2gw.services.l2gateway.common import constants as l2gw_consts
@@ -29,7 +27,9 @@ from neutron.services import provider_configuration as provconf
 from neutron.tests.unit.api import test_extensions as test_ex
 from neutron.tests.unit.extensions import test_l3
 
-from oslo_utils import uuidutils
+from midonet.neutron.common import constants as mido_const
+from midonet.neutron.tests.unit import test_extension_gateway_device as test_gw
+from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 L2_GW_NAME = 'l2_gw1'
 L2_GW_NAME2 = 'l2_gw2'

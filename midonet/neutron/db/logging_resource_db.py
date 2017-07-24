@@ -13,16 +13,16 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from midonet.neutron.db import logging_resource_model as model
-from midonet.neutron.extensions import logging_resource as log_res_ext
-from neutron.db import common_db_mixin
 from neutron_lib.exceptions import firewall_v1 as fw_exc
-
 from oslo_db import exception as db_exc
 from oslo_log import helpers as log_helpers
 from oslo_utils import uuidutils
-
 from sqlalchemy.orm import exc
+
+from neutron.db import common_db_mixin
+
+from midonet.neutron.db import logging_resource_model as model
+from midonet.neutron.extensions import logging_resource as log_res_ext
 
 
 class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,

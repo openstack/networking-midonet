@@ -16,10 +16,11 @@
 import socket
 import uuid
 
-from midonet.neutron.common import exceptions as mexc
 from midonetclient import topology  # noqa
 from midonetclient.topology import hosts
 from midonetclient.topology import pool_members
+
+from midonet.neutron.common import exceptions as mexc
 
 
 MIDO_AGENT_NAME = 'Midonet Agent'
