@@ -26,6 +26,7 @@ from neutron_taas.common import constants as taas_const
 from neutron_taas.extensions import taas as ext_taas
 from neutron_taas.tests.unit.services.taas import test_taas_plugin  # noqa
 
+from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
 from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 # Generate uuids
@@ -51,7 +52,7 @@ class TaasExtensionManager(object):
         return []
 
 
-class TestMidonetTaasCase(test_mn.MidonetPluginV2TestCase):
+class TestMidonetTaasCaseMixin(object):
     resource_prefix_map = dict(
         (k, TAAS_PREFIX)
         for k in ext_taas.RESOURCE_ATTRIBUTE_MAP.keys()
@@ -67,7 +68,7 @@ class TestMidonetTaasCase(test_mn.MidonetPluginV2TestCase):
         manager = sdb.ServiceTypeManager.get_instance()
         manager.add_provider_configuration(
             taas_const.TAAS, provconf.ProviderConfiguration())
-        super(TestMidonetTaasCase,
+        super(TestMidonetTaasCaseMixin,
               self).setUp(service_plugins=service_plugins,
                           ext_mgr=ext_mgr)
         self.ext_api = test_ex.setup_extensions_middleware(ext_mgr)
@@ -244,3 +245,13 @@ class TestMidonetTaasCase(test_mn.MidonetPluginV2TestCase):
         self.client_mock.delete_tap_flow.assert_called_with(mock.ANY, tf['id'])
         self.client_mock.delete_tap_service.assert_called_with(mock.ANY,
                                                                ts['id'])
+
+
+class TestMidonetTaasCaseV2(TestMidonetTaasCaseMixin,
+                            test_mn.MidonetPluginV2TestCase):
+    pass
+
+
+class TestMidonetTaasCaseML2(TestMidonetTaasCaseMixin,
+                             test_mn_ml2.MidonetPluginML2TestCase):
+    pass
