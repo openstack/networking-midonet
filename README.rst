@@ -15,5 +15,5 @@ This is the official Midonet Neutron plugin.
 
 Documentation:
 
-- http://docs.openstack.org/developer/networking-midonet/
+- https://docs.openstack.org/networking-midonet/latest/
 - https://docs.midonet.org/

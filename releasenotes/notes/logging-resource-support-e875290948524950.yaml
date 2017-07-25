@@ -1,4 +1,4 @@
 ---
 features:
   - Logging Resource Service has been added.
-    See `Logging Resource Service <http://docs.openstack.org/developer/networking-midonet/installation.html#logging-resource-service>`_ for details.
+    See `Logging Resource Service <https://docs.openstack.org/networking-midonet/latest/install/installation.html#logging-resource-service>`_ for details.

@@ -1,6 +1,6 @@
 ---
 prelude: >
     During Mitaka development cycle, networking-midonet project
-    started using `reno <http://docs.openstack.org/developer/reno/>`_
+    started using `reno <https://docs.openstack.org/reno/latest/>`_
     for release notes.
-    Older upgrade notes are available in `Upgrade Notes <http://docs.openstack.org/developer/networking-midonet/upgrade.html>`_.
+    Older upgrade notes are available in `Upgrade Notes <https://docs.openstack.org/networking-midonet/latest/install/upgrade.html>`_.
