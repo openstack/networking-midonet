@@ -14,12 +14,12 @@
 #    under the License.
 
 from neutron_lib.api.definitions import portbindings
+from neutron_lib.services.qos import base
 from oslo_config import cfg
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 
 from neutron.common import constants
-from neutron.services.qos.drivers import base
 from neutron.services.qos import qos_consts
 
 from midonet.neutron.client import base as c_base
