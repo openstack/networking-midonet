@@ -31,7 +31,7 @@ class CLITestV20GatewayDeviceJSON(test_cli20.CLIExtTestV20Base):
         self.register_non_admin_status_resource('gateway_device')
 
     def test_gateway_device_cmd_loaded(self):
-        shell.NeutronShell('2.0')
+        neutron_shell = shell.NeutronShell('2.0')
         gw_device_cmd = {'gateway-device-list':
                          _gateway_device.GatewayDeviceList,
                          'gateway-device-create':
@@ -43,7 +43,9 @@ class CLITestV20GatewayDeviceJSON(test_cli20.CLIExtTestV20Base):
                          'gateway-device-show':
                          _gateway_device.GatewayDeviceShow
                          }
-        self.assertDictContainsSubset(gw_device_cmd, shell.COMMANDS['2.0'])
+        for cmd_name, cmd_class in gw_device_cmd.items():
+            found = neutron_shell.command_manager.find_command([cmd_name])
+            self.assertEqual(cmd_class, found[0])
 
     def _create_gateway_device(self, name, args,
                                position_names, position_values):

@@ -31,11 +31,13 @@ class CLITestV20L2gatewayJSON(test_cli20.CLIExtTestV20Base):
         self.register_non_admin_status_resource('l2_gateway')
 
     def test_midonet_l2gateway_cmd_loaded(self):
-        shell.NeutronShell('2.0')
+        neutron_shell = shell.NeutronShell('2.0')
         mido_l2gw_cmd = {'midonet-l2-gateway-create':
                          _l2_gateway.L2GatewayCreate,
                          }
-        self.assertDictContainsSubset(mido_l2gw_cmd, shell.COMMANDS['2.0'])
+        for cmd_name, cmd_class in mido_l2gw_cmd.items():
+            found = neutron_shell.command_manager.find_command([cmd_name])
+            self.assertEqual(cmd_class, found[0])
 
     def _create_l2gateway(self, name, args,
                           position_names, position_values):

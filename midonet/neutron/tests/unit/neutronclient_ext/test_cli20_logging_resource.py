@@ -42,7 +42,7 @@ class CLITestV20LoggingResourceJSON(test_cli20.CLIExtTestV20Base):
         self.register_non_admin_status_resource('logging_resource')
 
     def test_logging_resource_cmd_loaded(self):
-        shell.NeutronShell('2.0')
+        neutron_shell = shell.NeutronShell('2.0')
         log_res_cmd = {'logging-list':
                        _logging_resource.LoggingResourceList,
                        'logging-create':
@@ -54,7 +54,9 @@ class CLITestV20LoggingResourceJSON(test_cli20.CLIExtTestV20Base):
                        'logging-show':
                        _logging_resource.LoggingResourceShow
                        }
-        self.assertDictContainsSubset(log_res_cmd, shell.COMMANDS['2.0'])
+        for cmd_name, cmd_class in log_res_cmd.items():
+            found = neutron_shell.command_manager.find_command([cmd_name])
+            self.assertEqual(cmd_class, found[0])
 
     def _create_logging_resource(self, name, args,
                                  position_names, position_values):

@@ -39,7 +39,7 @@ class CLITestV20FirewallLogJSON(test_cli20.CLIExtTestV20Base):
         self.register_non_admin_status_resource('firewall_log')
 
     def test_firewall_log_cmd_loaded(self):
-        shell.NeutronShell('2.0')
+        neutron_shell = shell.NeutronShell('2.0')
         firewall_log_cmd = {'logging-firewall-list':
                             _firewall_log.FirewallLogList,
                             'logging-firewall-create':
@@ -50,8 +50,9 @@ class CLITestV20FirewallLogJSON(test_cli20.CLIExtTestV20Base):
                             _firewall_log.FirewallLogDelete,
                             'logging-firewall-show':
                             _firewall_log.FirewallLogShow}
-        self.assertDictContainsSubset(firewall_log_cmd,
-                                      shell.COMMANDS['2.0'])
+        for cmd_name, cmd_class in firewall_log_cmd.items():
+            found = neutron_shell.command_manager.find_command([cmd_name])
+            self.assertEqual(cmd_class, found[0])
 
     def _create_firewall_log(self, args, position_names,
                              position_values, parent_id=None):

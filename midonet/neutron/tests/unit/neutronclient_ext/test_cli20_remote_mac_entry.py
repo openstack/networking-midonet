@@ -31,7 +31,7 @@ class CLITestV20RemoteMacEntryJSON(test_cli20.CLIExtTestV20Base):
         self.register_non_admin_status_resource('remote_mac_entry')
 
     def test_remote_mac_entry_cmd_loaded(self):
-        shell.NeutronShell('2.0')
+        neutron_shell = shell.NeutronShell('2.0')
         remote_mac_entry_cmd = {'gateway-device-remote-mac-entry-list':
                                 _remote_mac_entry.RemoteMacEntryList,
                                 'gateway-device-remote-mac-entry-create':
@@ -40,8 +40,9 @@ class CLITestV20RemoteMacEntryJSON(test_cli20.CLIExtTestV20Base):
                                 _remote_mac_entry.RemoteMacEntryDelete,
                                 'gateway-device-remote-mac-entry-show':
                                 _remote_mac_entry.RemoteMacEntryShow}
-        self.assertDictContainsSubset(remote_mac_entry_cmd,
-                                      shell.COMMANDS['2.0'])
+        for cmd_name, cmd_class in remote_mac_entry_cmd.items():
+            found = neutron_shell.command_manager.find_command([cmd_name])
+            self.assertEqual(cmd_class, found[0])
 
     def _create_remote_mac_entry(self, args, position_names,
                                  position_values, parent_id=None):
