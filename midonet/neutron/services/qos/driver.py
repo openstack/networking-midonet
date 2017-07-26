@@ -15,12 +15,12 @@
 
 from neutron_lib.api.definitions import portbindings
 from neutron_lib.services.qos import base
+from neutron_lib.services.qos import constants as qos_consts
 from oslo_config import cfg
 from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 
 from neutron.common import constants
-from neutron.services.qos import qos_consts
 
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import constants as m_const
