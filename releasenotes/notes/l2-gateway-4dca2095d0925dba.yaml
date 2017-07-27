@@ -1,4 +1,4 @@
 ---
 features:
   - L2 Gateway support has been added.
-    See `L2 Gateway Service <http://docs.openstack.org/developer/networking-midonet/installation.html#l2-gateway-service>`_ for details.
+    See `L2 Gateway Service <https://docs.openstack.org/networking-midonet/latest/install/installation.html#l2-gateway-service>`_ for details.

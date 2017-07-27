@@ -124,7 +124,7 @@ References
 
 .. [#method_proxy] https://github.com/openstack/neutron/blob/2be2d97d11719db88537a9664c95f1b6b11d3707/neutron/extensions/qos.py#L225
 
-.. [#qos_rpc] http://docs.openstack.org/developer/neutron/devref/quality_of_service.html#rpc-communication
+.. [#qos_rpc] https://docs.openstack.org/neutron/latest/contributor/internals/quality_of_service.html#rpc-communication
 
 .. [#qos_driver] https://review.openstack.org/#/c/351858/
 

@@ -1,4 +1,4 @@
 ---
 features:
   - QoS extension support has been added.
-    See `QoS <http://docs.openstack.org/developer/networking-midonet/installation.html#qos>`_ for details.
+    See `QoS <https://docs.openstack.org/networking-midonet/latest/install/installation.html#qos>`_ for details.

@@ -75,10 +75,10 @@ Instructions
      redis-slave-3zy7n    1/1       Running   0          2h
      ubu8%
 
-.. [#magnum_quick_start1] http://docs.openstack.org/developer/magnum/dev/quickstart.html#exercising-the-services-using-devstack
+.. [#magnum_quick_start1] https://docs.openstack.org/magnum/latest/contributor/quickstart.html#exercising-the-services-using-devstack
 
-.. [#magnum_quick_start2] http://docs.openstack.org/developer/magnum/dev/quickstart.html#building-a-kubernetes-bay-based-on-fedora-atomic
+.. [#magnum_quick_start2] https://docs.openstack.org/magnum/latest/contributor/quickstart.html#building-a-kubernetes-cluster-based-on-fedora-atomic
 
 .. [#magnum_quick_start_issue] https://bugs.launchpad.net/magnum/+bug/1556001
 
-.. [#magnum_tls] http://docs.openstack.org/developer/magnum/tls.html
+.. [#magnum_tls] https://docs.openstack.org/magnum/latest/user/#transport-layer-security

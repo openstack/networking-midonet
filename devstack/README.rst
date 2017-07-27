@@ -3,7 +3,7 @@ DevStack external plugin
 ========================
 
 networking-midonet has its
-`devstack plugin <http://docs.openstack.org/developer/devstack/plugins.html>`_.
+`devstack plugin <https://docs.openstack.org/devstack/latest/plugins.html>`_.
 The following ``local.conf`` snippet would enable it::
 
     enable_plugin networking-midonet https://git.openstack.org/openstack/networking-midonet
