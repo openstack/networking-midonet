@@ -53,7 +53,7 @@ class MidonetInterfaceDriver(n_interface.LinuxInterfaceDriver):
         root_dev.link.set_up()
 
         cmd = ['mm-ctl', '--bind-port', port_id, device_name]
-        utils.execute(cmd, run_as_root=True)
+        utils.execute(cmd, run_as_root=True)  # nosec
 
     def unplug(self, device_name, bridge=None, namespace=None, prefix=None):
         # the port will be deleted by the dhcp agent that will call the plugin

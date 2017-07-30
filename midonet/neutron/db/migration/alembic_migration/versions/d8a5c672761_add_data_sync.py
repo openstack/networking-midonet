@@ -54,6 +54,7 @@ def upgrade():
                         ['active_version'],
                         ['midonet_data_versions.id']))
 
-    op.execute("INSERT INTO midonet_data_state (id, last_processed_task_id, "
-               "updated_at, active_version, readonly) VALUES (1, NULL, '%s', "
-               "NULL, false)" % (datetime.datetime.utcnow()))
+    op.execute(  # nosec
+        "INSERT INTO midonet_data_state (id, last_processed_task_id, "
+        "updated_at, active_version, readonly) VALUES (1, NULL, '%s', "
+        "NULL, false)" % (datetime.datetime.utcnow()))
