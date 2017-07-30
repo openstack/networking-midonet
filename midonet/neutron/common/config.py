@@ -20,7 +20,15 @@ from midonet.neutron._i18n import _
 
 mido_opts = [
     cfg.StrOpt('midonet_uri', default='http://localhost:8080/midonet-api',
-               help=_('MidoNet API server URI.')),
+               help=_('MidoNet API server URI. '
+                      'Note that, for historical reasons, the port number '
+                      'in the default value (8080) does not match the '
+                      'default of the MidoNet API in MidoNet 5.0 and later, '
+                      'which is 8181. '
+                      'Even if you configured the MidoNet API to use port '
+                      '8080, we recommend to configure this option '
+                      'explicitly because the default value may change '
+                      'in the future release of networking-midonet.')),
     cfg.StrOpt('username', default='admin',
                help=_('MidoNet admin username.')),
     cfg.StrOpt('password', default='passw0rd',
