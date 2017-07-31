@@ -106,6 +106,11 @@ case $job in
         _ML2=False
         _ADV_SVC=False
         load_conf_hook quotas old
+        # REVISIT(yamamoto): A crude workaround for bug/1700487
+        # A better fix: Iec45a33930a06b17be00e8602f2457ab6960073f
+        ln -s \
+            $BASE/new/networking-midonet/devstack/midonet/functions \
+            $BASE/new/devstack/lib/neutron_plugins/midonet
         ;;
     grenade|grenade-ml2)
         # Note the actual url here is somewhat irrelevant because it
