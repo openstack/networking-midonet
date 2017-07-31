@@ -9,6 +9,13 @@ Welcome to networking-midonet's documentation!
 Networking-midonet is a set of Neutron plugins and drivers for MidoNet.
 
 
+Supported features
+------------------
+.. toctree::
+   :maxdepth: 2
+
+   user/features
+
 Installation
 ------------
 .. toctree::
