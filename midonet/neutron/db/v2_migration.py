@@ -58,7 +58,7 @@ LOG = logging.getLogger(__name__)
 # on unknown neutron alembic versions.  This likely involves false positives
 # but it's better safe than sorry.
 _KNOWN_NEUTRON_ALEMBIC_VERSIONS = [
-    '2b42d90729da',
+    '349b6fd605a6',
     '5c85685d616d',
 ]
 
