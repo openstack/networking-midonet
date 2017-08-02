@@ -103,7 +103,8 @@ case $job in
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
-        _ML2=False
+        # NOTE(yamamoto): This job performs a migration to ML2
+        _ML2=True
         _ADV_SVC=False
         load_conf_hook quotas old
         # REVISIT(yamamoto): A crude workaround for bug/1700487
