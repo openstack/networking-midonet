@@ -15,6 +15,8 @@
 # under the License.
 
 job=$1
+pyversion=$2
+
 
 LOCAL_CONF=/tmp/late-local.conf
 
@@ -169,6 +171,10 @@ case $job in
         _ADV_SVC=False
         _QOS=False
 esac
+
+if [ "$pyversion" == "-py35" ]; then
+    export DEVSTACK_GATE_USE_PYTHON3=True
+fi
 
 # We are only interested on Neutron, so very few services are needed
 # to deploy devstack and run the tests
