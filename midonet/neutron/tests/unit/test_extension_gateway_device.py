@@ -24,7 +24,6 @@ from neutron.tests.unit.extensions import test_l3
 from midonet.neutron import extensions as midoextensions
 from midonet.neutron.extensions import gateway_device
 from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
-from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 FAKE_MANAGEMENT_IP = '10.0.0.3'
 FAKE_MANAGEMENT_PORT = 5672
@@ -697,11 +696,6 @@ class GatewayDeviceTestCase(test_l3.L3NatTestCaseMixin,
                 res = self.deserialize(
                     self.fmt, req.get_response(self.ext_api))
                 self.assertEqual(2, len(res['gateway_devices']))
-
-
-class GatewayDeviceTestCaseWithV2(GatewayDeviceTestCase,
-                                  test_mn.MidonetPluginV2TestCase):
-    pass
 
 
 class GatewayDeviceTestCaseWithML2(GatewayDeviceTestCase,

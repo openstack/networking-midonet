@@ -28,7 +28,6 @@ from midonet.neutron import extensions as midoextensions
 from midonet.neutron.extensions import bgp_speaker_router_insertion as bsri
 from midonet.neutron.services.bgp import plugin as bgp_plugin
 from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
-from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 FAKE_SPEAKER_NAME = "bgp_spaeker_1"
 FAKE_LOCAL_AS = 65000
@@ -699,10 +698,6 @@ class BgpTestCaseMixin(test_l3.L3NatTestCaseMixin):
             action=action,
             subresource=subresource
         )
-
-
-class BgpTestCaseV2(BgpTestCaseMixin, test_mn.MidonetPluginV2TestCase):
-    pass
 
 
 class BgpTestCaseML2(BgpTestCaseMixin, test_mn_ml2.MidonetPluginML2TestCase):

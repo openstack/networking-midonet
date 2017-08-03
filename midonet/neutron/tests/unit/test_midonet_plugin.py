@@ -15,6 +15,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+# Import all data models
+from networking_l2gw.db.l2gateway import l2gateway_models  # noqa
+
 from midonet.neutron.client import base as cli_base
 # Import all data models
 from midonet.neutron.common import config  # noqa

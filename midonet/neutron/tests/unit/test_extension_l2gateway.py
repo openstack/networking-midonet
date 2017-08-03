@@ -30,7 +30,6 @@ from neutron.tests.unit.extensions import test_l3
 from midonet.neutron.common import constants as mido_const
 from midonet.neutron.tests.unit import test_extension_gateway_device as test_gw
 from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
-from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 L2_GW_NAME = 'l2_gw1'
 L2_GW_NAME2 = 'l2_gw2'
@@ -577,11 +576,6 @@ class MidonetL2GatewayTestCaseMixin(test_gw.GatewayDeviceTestCaseMixin,
                 res = req.get_response(self.ext_api)
                 self.assertEqual(webob.exc.HTTPConflict.code,
                                  res.status_int)
-
-
-class MidonetL2GatewayTestCaseV2(MidonetL2GatewayTestCaseMixin,
-                                 test_mn.MidonetPluginV2TestCase):
-    pass
 
 
 class MidonetL2GatewayTestCaseML2(MidonetL2GatewayTestCaseMixin,

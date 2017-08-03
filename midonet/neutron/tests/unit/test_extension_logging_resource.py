@@ -25,7 +25,6 @@ from neutron_fwaas.tests.unit.services.firewall import test_fwaas_plugin as tfp
 from midonet.neutron import extensions as midoextensions
 from midonet.neutron.extensions import logging_resource as log_res_ext
 from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
-from midonet.neutron.tests.unit import test_midonet_plugin_v2 as test_mn
 
 
 LOGGING_PLUGIN_KLASS = 'midonet_logging_resource'
@@ -488,11 +487,6 @@ class LoggingResourceTestCaseMixin(test_l3.L3NatTestCaseMixin):
                                         f_log2['firewall_log']['id'])
             res = req.get_response(self.ext_api)
             self.assertEqual(webob.exc.HTTPNotFound.code, res.status_int)
-
-
-class LoggingResourceTestCaseV2(LoggingResourceTestCaseMixin,
-                                test_mn.MidonetPluginV2TestCase):
-    pass
 
 
 class LoggingResourceTestCaseML2(LoggingResourceTestCaseMixin,

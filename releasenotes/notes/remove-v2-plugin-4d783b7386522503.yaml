@@ -1,0 +1,7 @@
+---
+deprecations:
+  - |
+    MidoNet monolithic plugin (`midonet_v2`) has been removed.
+    Use ML2 plugin with MidoNet mechanism driver instead.
+    See `Migration from monolithic v2 plugin to ML2 plugin <https://docs.openstack.org/networking-midonet/latest/install/ml2_migration.html>`_
+    for migration procedure.
