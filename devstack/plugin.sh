@@ -57,7 +57,7 @@ if [[ "$1" == "stack" ]]; then
                 if [[ ! -d $MIDONET_DIR ]]; then
                     local orig_dir
 
-                    orig_dir =$(pwd)
+                    orig_dir=$(pwd)
                     git clone $MIDONET_REPO $MIDONET_DIR
                     cd $MIDONET_DIR
                     git checkout $MIDONET_BRANCH
