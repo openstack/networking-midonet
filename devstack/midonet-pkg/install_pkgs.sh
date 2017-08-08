@@ -16,6 +16,7 @@
 #    under the License.
 
 MIDONET_USE_CASSANDRA=$1
+PYTHON_PREFIX=$2
 
 # Remove possible reminders from the previous devmido runs
 rm -rf \
@@ -43,4 +44,4 @@ apt-get install -y --no-install-recommends --no-install-suggests \
     midonet-tools \
     midonet-cluster \
     midolman \
-    python-midonetclient
+    ${PYTHON_PREFIX}midonetclient
