@@ -58,6 +58,12 @@ Review and merge patches
   E.g. "recheck bug xxxxxxx"
   E.g. "recheck builds.midonet.org connection timeout"
 
+- Check the rendered htmls when reviewing document changes
+
+  Jenkins jobs ``gate-networking-midonet-docs-ubuntu-xenial`` and
+  ``gate-networking-midonet-releasenotes`` provide the rendered results for
+  the change.
+
 .. [#dashboards] https://docs.openstack.org/networking-midonet/latest/dashboards/index.html#gerrit-dashboards
 .. [#watched_projects] https://review.openstack.org/#/settings/projects
 .. [#neutron_irc] http://eavesdrop.openstack.org/irclogs/%23openstack-neutron/latest.log.html
