@@ -1,1 +1,5 @@
-.. release-notes:: Release Notes
+=============
+Release Notes
+=============
+
+See https://docs.openstack.org/releasenotes/networking-midonet/.
