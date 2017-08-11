@@ -38,11 +38,19 @@ if [[ "$1" == "stack" ]]; then
         # REVISIT(yamamoto): Consider to have a separate set of scripts
         # for dependencies.
         if [[ "$OFFLINE" != "True" ]]; then
-            sudo $ABSOLUTE_PATH/midonet-pkg/configure_repo.sh \
-                $MIDONET_DEB_URI $MIDONET_DEB_SUITE $MIDONET_DEB_COMPONENT \
-                $MIDONET_USE_CASSANDRA
-            sudo $ABSOLUTE_PATH/midonet-pkg/install_pkgs.sh \
-                $MIDONET_USE_CASSANDRA
+            if is_ubuntu; then
+                sudo $ABSOLUTE_PATH/midonet-pkg/configure_repo.sh \
+                    $MIDONET_DEB_URI $MIDONET_DEB_SUITE $MIDONET_DEB_COMPONENT \
+                    $MIDONET_USE_CASSANDRA
+                sudo $ABSOLUTE_PATH/midonet-pkg/install_pkgs.sh \
+                    $MIDONET_USE_CASSANDRA
+            else
+                sudo $ABSOLUTE_PATH/midonet-pkg/configure_repo_centos.sh \
+                    $MIDONET_YUM_URI \
+                    $MIDONET_USE_CASSANDRA
+                sudo $ABSOLUTE_PATH/midonet-pkg/install_pkgs_centos.sh \
+                    $MIDONET_USE_CASSANDRA
+            fi
         fi
 
         if [ "$MIDONET_USE_PACKAGE" != "True" ]; then
@@ -146,6 +154,7 @@ if [[ "$1" == "stack" ]]; then
         ln -sf /var/log/midolman/upstart-stderr.log ${LOGDIR}
         ln -sf /var/log/midonet-cluster/midonet-cluster.log ${LOGDIR}
         ln -sf /var/log/midonet-cluster/upstart-stderr.log ${LOGDIR}
+        export TOP_DIR
         $ABSOLUTE_PATH/midonet-pkg/configure_and_start_midonet.sh
 
         # copy needed neutron config (eg rootwrap filters)
@@ -167,7 +176,11 @@ cgroup_device_acl = [
     '/dev/rtc', '/dev/hpet', '/dev/net/tun',
 ]
 EOF"
-                sudo service libvirt-bin restart
+                if is_ubuntu; then
+                    restart_service libvirt-bin
+                else
+                    restart_service libvirtd
+                fi
             fi
         fi
     elif [[ "$2" == "test-config" ]]; then
