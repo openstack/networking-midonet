@@ -1,6 +1,8 @@
-=============
-Upgrade Notes
-=============
+========================
+Historical Upgrade Notes
+========================
+
+.. note:: For releases newer than Mitaka, please look at `Release Notes <https://docs.openstack.org/releasenotes/networking-midonet/>`_.
 
 This section describes changes which might impact upgrades from the previous
 releases.
