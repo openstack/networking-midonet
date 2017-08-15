@@ -71,12 +71,12 @@ if [[ "$1" == "stack" ]]; then
             orig_dir=$(pwd)
             cd $MIDONET_DIR
             find . -type f -name "*.deb" -print0 | xargs -0 -r rm
+            # We need JDK to build MidoNet (vs JRE)
+            install_package openjdk-8-jdk-headless
             ./gradlew nsdb:clean  # workaround for errors after proto changes
             install_package ruby-dev
             install_package ruby-ronn
             sudo gem install fpm
-            # Also, we need JDK to build MidoNet (vs JRE)
-            install_package openjdk-8-jdk-headless
             ./gradlew debian
             find . -type f -name "*.deb" -print0 | xargs -0 sudo dpkg -i
             cd ${orig_dir}
