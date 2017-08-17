@@ -28,6 +28,7 @@ from neutron.api import extensions as neutron_extensions
 from neutron.callbacks import events
 from neutron.callbacks import registry
 from neutron.callbacks import resources
+from neutron.db import api as db_api
 from neutron.db import common_db_mixin
 from neutron.db import extraroute_db
 # Import l3_dvr_db to get the config options required for FWaaS
@@ -103,6 +104,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
             self._validate_network_type(context, ext_gw_info['network_id'])
 
     @log_helpers.log_method_call
+    @db_api.retry_if_session_inactive()
     def create_router(self, context, router):
         with context.session.begin(subtransactions=True):
             # REVISIT(yamamoto): This should not call create_port inside
@@ -126,6 +128,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         return r
 
     @log_helpers.log_method_call
+    @db_api.retry_if_session_inactive()
     def update_router(self, context, id, router):
         with context.session.begin(subtransactions=True):
             # REVISIT(yamamoto): Updating external_gateway_info causes
@@ -157,6 +160,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         return r
 
     @log_helpers.log_method_call
+    @db_api.retry_if_session_inactive()
     def delete_router(self, context, id):
         self._check_router_not_in_use(context, id)
 
@@ -170,6 +174,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         self.client.delete_router_postcommit(id)
 
     @log_helpers.log_method_call
+    @db_api.retry_if_session_inactive()
     def add_router_interface(self, context, router_id, interface_info):
         by_port = bool(interface_info.get('port_id'))
         with context.session.begin(subtransactions=True):
@@ -196,6 +201,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         return info
 
     @log_helpers.log_method_call
+    @db_api.retry_if_session_inactive()
     def remove_router_interface(self, context, router_id, interface_info):
         with context.session.begin(subtransactions=True):
             # REVISIT(yamamoto): This should not call delete_port inside
@@ -210,6 +216,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         return info
 
     @log_helpers.log_method_call
+    @db_api.retry_if_session_inactive()
     def create_floatingip(self, context, floatingip):
         with context.session.begin(subtransactions=True):
             fip = super(MidonetL3ServicePlugin, self).create_floatingip(
@@ -230,6 +237,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         return fip
 
     @log_helpers.log_method_call
+    @db_api.retry_if_session_inactive()
     def delete_floatingip(self, context, id):
         with context.session.begin(subtransactions=True):
             # REVISIT(yamamoto): This should not call delete_port inside
@@ -241,6 +249,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         self.client.delete_floatingip_postcommit(id)
 
     @log_helpers.log_method_call
+    @db_api.retry_if_session_inactive()
     def update_floatingip(self, context, id, floatingip):
         with context.session.begin(subtransactions=True):
             fip = super(MidonetL3ServicePlugin, self).update_floatingip(
