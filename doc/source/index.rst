@@ -23,8 +23,8 @@ Installation
 
    install/installation
    install/history
-   install/upgrade
    install/ml2_migration
+   install/upgrade
 
 Configuration options
 ---------------------
