@@ -22,13 +22,14 @@ from rally.task import atomic
 from rally.task import validation
 
 
-class NetworkPlugin(utils.NeutronScenario):
+@validation.add("required_services", services=[consts.Service.NEUTRON])
+@validation.add("required_platform", platform="openstack", users=True)
+@scenario.configure(context={"cleanup": ["neutron"]},
+                    name="NetworkPlugin.create_networks")
+class CreateNetwork(utils.NeutronScenario):
     """Benchmark scenarios for Neutron."""
 
-    @validation.required_services(consts.Service.NEUTRON)
-    @validation.required_openstack(users=True)
-    @scenario.configure(context={"cleanup": ["neutron"]})
-    def create_networks(self, network_create_args=None):
+    def run(self, network_create_args=None):
         """Create a network.
 
         Measure the "neutron net-create" command performance.
@@ -40,15 +41,19 @@ class NetworkPlugin(utils.NeutronScenario):
         """
         self._create_network(network_create_args or {})
 
-    @validation.number("subnets_per_network", minval=1, integer_only=True)
-    @validation.required_services(consts.Service.NEUTRON)
-    @validation.required_openstack(users=True)
-    @scenario.configure(context={"cleanup": ["neutron"]})
-    def create_subnets(self,
-                       network_create_args=None,
-                       subnet_create_args=None,
-                       subnet_cidr_start=None,
-                       subnets_per_network=None):
+
+@validation.add("number", param_name="subnets_per_network",
+                minval=1, integer_only=True)
+@validation.add("required_services", services=[consts.Service.NEUTRON])
+@validation.add("required_platform", platform="openstack", users=True)
+@scenario.configure(context={"cleanup": ["neutron"]},
+                    name="NetworkPlugin.create_subnets")
+class CreateSubnets(utils.NeutronScenario):
+    def run(self,
+            network_create_args=None,
+            subnet_create_args=None,
+            subnet_cidr_start=None,
+            subnets_per_network=None):
         """Create a given number of subnets.
 
         The scenario creates a network and a given number of subnets.
@@ -63,16 +68,20 @@ class NetworkPlugin(utils.NeutronScenario):
         self._create_subnets(network, subnet_create_args, subnet_cidr_start,
                              subnets_per_network)
 
-    @validation.number("subnets_per_network", minval=1, integer_only=True)
-    @validation.required_services(consts.Service.NEUTRON)
-    @validation.required_openstack(users=True)
-    @scenario.configure(context={"cleanup": ["neutron"]})
-    def create_subnets_routers_interfaces(self,
-                                          network_create_args=None,
-                                          subnet_create_args=None,
-                                          subnet_cidr_start=None,
-                                          subnets_per_network=None,
-                                          router_create_args=None):
+
+@validation.add("number", param_name="subnets_per_network",
+                minval=1, integer_only=True)
+@validation.add("required_services", services=[consts.Service.NEUTRON])
+@validation.add("required_platform", platform="openstack", users=True)
+@scenario.configure(context={"cleanup": ["neutron"]},
+                    name="NetworkPlugin.create_subnets_routers_interfaces")
+class CreateSubnetsRoutersInterfaces(utils.NeutronScenario):
+    def run(self,
+            network_create_args=None,
+            subnet_create_args=None,
+            subnet_cidr_start=None,
+            subnets_per_network=None,
+            router_create_args=None):
         """
         Create a network, a given number of subnets and routers.
 
@@ -87,15 +96,19 @@ class NetworkPlugin(utils.NeutronScenario):
                                        subnet_cidr_start, subnets_per_network,
                                        router_create_args)
 
-    @validation.number("routers_per_subnet", minval=1, integer_only=True)
-    @validation.required_services(consts.Service.NEUTRON)
-    @validation.required_openstack(users=True)
-    @scenario.configure(context={"cleanup": ["neutron"]})
-    def create_routers(self,
-                       network_create_args=None,
-                       routers_per_subnet=None,
-                       router_create_args=None,
-                       port_create_args=None):
+
+@validation.add("number", param_name="routers_per_subnet",
+                minval=1, integer_only=True)
+@validation.add("required_services", services=[consts.Service.NEUTRON])
+@validation.add("required_platform", platform="openstack", users=True)
+@scenario.configure(context={"cleanup": ["neutron"]},
+                    name="NetworkPlugin.create_routers")
+class CreateRouters(utils.NeutronScenario):
+    def run(self,
+            network_create_args=None,
+            routers_per_subnet=None,
+            router_create_args=None,
+            port_create_args=None):
         """
         Create a given number of ports and routers.
 
@@ -117,14 +130,18 @@ class NetworkPlugin(utils.NeutronScenario):
         self.clients("neutron").add_interface_router(
             router["router"]["id"], {"port_id": port["port"]["id"]})
 
-    @validation.number("ports_per_network", minval=1, integer_only=True)
-    @validation.required_services(consts.Service.NEUTRON)
-    @validation.required_openstack(users=True)
-    @scenario.configure(context={"cleanup": ["neutron"]})
-    def create_ports(self,
-                     network_create_args=None,
-                     port_create_args=None,
-                     ports_per_network=None):
+
+@validation.add("number", param_name="ports_per_network",
+                minval=1, integer_only=True)
+@validation.add("required_services", services=[consts.Service.NEUTRON])
+@validation.add("required_platform", platform="openstack", users=True)
+@scenario.configure(context={"cleanup": ["neutron"]},
+                    name="NetworkPlugin.create_ports")
+class CreatePorts(utils.NeutronScenario):
+    def run(self,
+            network_create_args=None,
+            port_create_args=None,
+            ports_per_network=None):
         """Create a given number of ports.
 
         :param network_create_args: dict, POST /v2.0/networks request
