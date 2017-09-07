@@ -85,8 +85,7 @@ NETWORK_API_EXTENSIONS+=,allowed-address-pairs,extraroute,port-security
 NETWORK_API_EXTENSIONS+=,router-interface-fip
 NETWORK_API_EXTENSIONS+=,provider
 NETWORK_API_EXTENSIONS+=,multi-provider
-# quota_details is broken.  bug/1714769
-# NETWORK_API_EXTENSIONS+=,quota_details
+NETWORK_API_EXTENSIONS+=,quota_details
 NETWORK_API_EXTENSIONS+=,fip64
 NETWORK_API_EXTENSIONS+=,address-scope
 NETWORK_API_EXTENSIONS+=,default-subnetpools
