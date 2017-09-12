@@ -55,6 +55,7 @@ target/
 
 # tests
 .testrepository/
+.stestr/
 .venv/
 
 # vim
