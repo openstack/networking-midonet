@@ -49,7 +49,7 @@ load_tests = testscenarios.load_tests_apply_scenarios
 
 PLUGIN_NAME = 'neutron.plugins.ml2.plugin.Ml2Plugin'
 
-cfg.CONF.import_group('ml2', 'neutron.plugins.ml2.config')
+cfg.CONF.import_group('ml2', 'neutron.conf.plugins.ml2.config')
 
 
 class MidonetPluginConf(object):

@@ -16,7 +16,6 @@
 import mock
 from oslo_utils import uuidutils
 
-from neutron.agent.linux import interface as n_interface
 from neutron.agent.linux import utils
 from neutron.conf.agent import common as config
 from neutron.tests.unit.agent.linux import test_interface as n_test
@@ -27,7 +26,7 @@ from midonet.neutron.agent import interface
 class TestMidonetInterfaceDriver(n_test.TestBase):
     def setUp(self):
         self.conf = config.setup_conf()
-        self.conf.register_opts(n_interface.OPTS)
+        config.register_interface_opts(self.conf)
         self.driver = interface.MidonetInterfaceDriver(self.conf)
         self.network_id = uuidutils.generate_uuid()
         self.port_id = uuidutils.generate_uuid()
