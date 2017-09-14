@@ -342,6 +342,9 @@
       #   max_seconds_per_iteration: {{max_secs_per_iteration or 5}}
       #   failure_rate:
       #     max: 0
+      sla:
+        failure_rate:
+          max: 20
 
   NetworkPlugin.create_routers:
     -
@@ -371,6 +374,9 @@
       #   max_seconds_per_iteration: {{max_secs_per_iteration or 10}}
       #   failure_rate:
       #     max: 0
+      sla:
+        failure_rate:
+          max: 20
 
   NetworkPlugin.create_subnets:
     -
@@ -397,6 +403,9 @@
       #   max_seconds_per_iteration: {{max_secs_per_iteration or 5}}
       #   failure_rate:
       #     max: 0
+      sla:
+        failure_rate:
+          max: 20
 
   NetworkPlugin.create_subnets_routers_interfaces:
     -
@@ -425,6 +434,9 @@
       #   max_seconds_per_iteration: {{max_secs_per_iteration or 60}}
       #   failure_rate:
       #     max: 0
+      sla:
+        failure_rate:
+          max: 20
 
   MidonetRallyPlugin.create_midonet_router_port:
     -
