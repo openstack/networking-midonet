@@ -30,7 +30,7 @@ revision = '1612b5389e6e'
 down_revision = '27e6e3451f22'
 
 # milestone identifier, used by neutron-db-manage
-neutron_milestone = [migration.OCATA]
+neutron_milestone = [migration.OCATA, migration.PIKE]
 
 
 def upgrade():
