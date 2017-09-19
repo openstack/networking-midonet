@@ -24,7 +24,7 @@ for Overlay VTEP Router Device it is used to enable Router with VTEP
 Logical Switch management capability.
 
 
-VTEP Tunnel IPs and Remote MAC Table management is currenly supported for the 'router_vtep'
+VTEP Tunnel IPs and Remote MAC Table management is currently supported for the 'router_vtep'
 type of gateway device only.
 
 Other VTEP configurations as well as VTEP device status are out of the scope of

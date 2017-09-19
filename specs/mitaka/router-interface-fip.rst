@@ -100,7 +100,7 @@ A few interesting cases:
 * If VM-Z sends a packet "fixed-ip-Z -> floating-ip-B", it's translated to
   "fixed-ip-Z -> fixed-ip-X" by the router and VM-X will receive it.
   While this case is very similar to the above cases, the SNAT should not
-  be applied here.  The datapath can distinguish these cases by the existance
+  be applied here.  The datapath can distinguish these cases by the existence
   of the asssociation of a floating-ip via the router interface. (floating-ip-B)
   This behaviour is necessary for the primary use case. [#manila_neutron_integration]_
 

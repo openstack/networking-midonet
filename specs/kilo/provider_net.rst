@@ -45,7 +45,7 @@ could create a port on this network with binding details to control exactly
 which host interface that the port should be bound to.
 
 The 'provider network' extension lets you map a physical network to a virtual
-network by associating the virtual network with attributes decribing the
+network by associating the virtual network with attributes describing the
 physical network.  One of the attributes is called 'network_type' which
 could be 'LOCAL', 'FLAT', 'VXLAN', 'VLAN' and 'GRE'.  For the purpose of uplink
 network mapping, only the 'LOCAL' network type is accepted by the plugin

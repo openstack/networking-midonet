@@ -43,7 +43,7 @@ mechansim [#driver_manager]_, which can be used for networking-midonet
 to implement backend notifications.
 
 When Neutron QoS plugin receives API requests, it updates the
-corresponding DB rows.  After commiting the DB changes, it calls
+corresponding DB rows.  After committing the DB changes, it calls
 one of the following methods of the loaded notification drivers:
 
 * create_policy
