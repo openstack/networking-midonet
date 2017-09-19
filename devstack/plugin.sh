@@ -29,6 +29,12 @@ Q_META_DATA_IP=${Q_META_DATA_IP:-$SERVICE_HOST}
 if [[ "$1" == "stack" ]]; then
 
     if [[ "$2" == "pre-install" ]]; then
+        # Prefix for python packages
+        if [ $USE_PYTHON3 = "True" ]; then
+            PYTHON_PREFIX=python3-
+        else
+            PYTHON_PREFIX=python-
+        fi
 
         # Install MidoNet packages.
         # NOTE(yamamoto): Do this even if MIDONET_USE_PACKAGE=False, to pull
@@ -41,13 +47,15 @@ if [[ "$1" == "stack" ]]; then
                     $MIDONET_DEB_URI $MIDONET_DEB_SUITE $MIDONET_DEB_COMPONENT \
                     $MIDONET_USE_CASSANDRA
                 sudo $ABSOLUTE_PATH/midonet-pkg/install_pkgs.sh \
-                    $MIDONET_USE_CASSANDRA
+                    $MIDONET_USE_CASSANDRA \
+                    $PYTHON_PREFIX
             else
                 sudo $ABSOLUTE_PATH/midonet-pkg/configure_repo_centos.sh \
                     $MIDONET_YUM_URI \
                     $MIDONET_USE_CASSANDRA
                 sudo $ABSOLUTE_PATH/midonet-pkg/install_pkgs_centos.sh \
-                    $MIDONET_USE_CASSANDRA
+                    $MIDONET_USE_CASSANDRA \
+                    $PYTHON_PREFIX
             fi
         fi
 
@@ -78,7 +86,10 @@ if [[ "$1" == "stack" ]]; then
             install_package ruby-ronn
             sudo gem install fpm
             ./gradlew debian
-            find . -type f -name "*.deb" -print0 | xargs -0 sudo dpkg -i
+            find . -type f -name "*.deb" \
+                \( -name "python*" -o -print0 \) | xargs -0 sudo dpkg -i
+            sudo dpkg -i \
+                ./python-midonetclient/${PYTHON_PREFIX}midonetclient_*_all.deb
             cd ${orig_dir}
         fi
 

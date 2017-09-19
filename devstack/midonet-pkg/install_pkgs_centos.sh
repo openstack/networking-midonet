@@ -18,6 +18,7 @@
 # https://docs.midonet.org/docs/latest-en/quick-start-guide/rhel-7_newton-rdo/content/_midolman_installation.html
 
 MIDONET_USE_CASSANDRA=$1
+PYTHON_PREFIX=$2
 
 # Remove possible reminders from the previous devmido runs
 rm -rf \
@@ -41,4 +42,4 @@ yum -y install \
     midonet-tools \
     midonet-cluster \
     midolman \
-    python-midonetclient
+    ${PYTHON_PREFIX}midonetclient
