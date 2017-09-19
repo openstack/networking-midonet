@@ -254,7 +254,7 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
             self.assertEqual(400, res.status_int)
 
     def test_create_mido_portbinding_no_interface(self):
-        # Create binding with no interface name.  Should return an error.
+        # Create binding with no interface name.  Should successs.
         with self.network() as net:
             args = {'port': {'tenant_id': net['network']['tenant_id'],
                              'network_id': net['network']['id'],
@@ -262,7 +262,9 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
                              portbindings.HOST_ID: 'host'}}
             req = self.new_create_request('ports', args, self.fmt)
             res = req.get_response(self.api)
-            self.assertEqual(400, res.status_int)
+            self.assertEqual(201, res.status_int)
+            body = self.deserialize(self.fmt, res)
+            self.assertEqual({}, body['port'][portbindings.PROFILE])
 
     def test_create_mido_portbinding_bad_interface(self):
         # Create binding with a bad interface name.  Should return an error.
@@ -332,13 +334,15 @@ class TestMidonetPortBinding(MidonetPluginV2TestCase,
             self.assertEqual({}, res['port'][portbindings.PROFILE])
 
     def test_update_mido_portbinding_no_interface(self):
-        # Update binding with no interface name.  Should return an error.
+        # Update binding with no interface name.  Should success.
         with self.port_with_binding_profile() as port:
             args = {
                 'port': {portbindings.PROFILE: {'foo': ''}}}
             req = self.new_update_request('ports', args, port['port']['id'])
             res = req.get_response(self.api)
-            self.assertEqual(400, res.status_int)
+            self.assertEqual(200, res.status_int)
+            body = self.deserialize(self.fmt, res)
+            self.assertEqual({}, body['port'][portbindings.PROFILE])
 
     def test_update_mido_portbinding_bad_interface(self):
         # Update binding with a bad interface name.  Should return an error.

@@ -62,10 +62,10 @@ class MidonetPortBindingMixin(object):
         profile_set = validators.is_attr_set(profile)
 
         if_name = profile.get('interface_name') if profile_set else None
-        if profile_set and profile:
+        if profile_set and if_name is not None:
             # Update or create, so validate the inputs
             if not if_name:
-                msg = 'The interface name was not provided or empty'
+                msg = 'The interface name was empty'
                 raise n_exc.BadRequest(resource='port', msg=msg)
 
             if self.get_port_host(context, port_id) is None:
