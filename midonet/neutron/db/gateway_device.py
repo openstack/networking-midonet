@@ -335,7 +335,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
                 param_value=gw_dev['management_ip'])
 
     def _validate_resource_router_vtep(self, context, router_id):
-        # Check specified router existance
+        # Check specified router existence
         l3plugin = directory.get_plugin(constants.L3)
 
         try:
@@ -355,7 +355,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
                                             gw_dev['resource_id'])
 
     def _validate_resource_vlan_network(self, context, network_id):
-        # Check specified netowrk existance
+        # Check specified netowrk existence
         core_plugin = directory.get_plugin()
 
         try:
