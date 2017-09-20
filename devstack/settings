@@ -73,7 +73,10 @@ NETWORK_API_EXTENSIONS+=,network-ip-availability,auto-allocated-topology
 NETWORK_API_EXTENSIONS+=,timestamp_core,tag,service-type,rbac-policies
 NETWORK_API_EXTENSIONS+=,standard-attr-description
 NETWORK_API_EXTENSIONS+=,standard-attr-revisions
+NETWORK_API_EXTENSIONS+=,revision-if-match
 NETWORK_API_EXTENSIONS+=,standard-attr-timestamp
+NETWORK_API_EXTENSIONS+=,standard-attr-tag
+NETWORK_API_EXTENSIONS+=,tag-ext
 NETWORK_API_EXTENSIONS+=,pagination
 NETWORK_API_EXTENSIONS+=,sorting
 NETWORK_API_EXTENSIONS+=,project-id
@@ -81,7 +84,15 @@ NETWORK_API_EXTENSIONS+=,flavors
 NETWORK_API_EXTENSIONS+=,allowed-address-pairs,extraroute,port-security
 NETWORK_API_EXTENSIONS+=,router-interface-fip
 NETWORK_API_EXTENSIONS+=,provider
+NETWORK_API_EXTENSIONS+=,multi-provider
+# quota_details is broken.  bug/1714769
+# NETWORK_API_EXTENSIONS+=,quota_details
 NETWORK_API_EXTENSIONS+=,fip64
+NETWORK_API_EXTENSIONS+=,address-scope
+NETWORK_API_EXTENSIONS+=,default-subnetpools
+NETWORK_API_EXTENSIONS+=,subnet-service-types
+NETWORK_API_EXTENSIONS+=,net-mtu-writable
+NETWORK_API_EXTENSIONS+=,network_availability_zone
 if is_service_enabled q-fwaas neutron-fwaas-v1; then
     NETWORK_API_EXTENSIONS+=,fwaas,fwaasrouterinsertion
 fi
