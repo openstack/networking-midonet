@@ -24,7 +24,7 @@ from rally.task import validation
 
 @validation.add("required_services", services=[consts.Service.NEUTRON])
 @validation.add("required_platform", platform="openstack", users=True)
-@scenario.configure(context={"cleanup": ["neutron"]},
+@scenario.configure(context={"cleanup@openstack": ["neutron"]},
                     name="NetworkPlugin.create_networks")
 class CreateNetwork(utils.NeutronScenario):
     """Benchmark scenarios for Neutron."""
@@ -46,7 +46,7 @@ class CreateNetwork(utils.NeutronScenario):
                 minval=1, integer_only=True)
 @validation.add("required_services", services=[consts.Service.NEUTRON])
 @validation.add("required_platform", platform="openstack", users=True)
-@scenario.configure(context={"cleanup": ["neutron"]},
+@scenario.configure(context={"cleanup@openstack": ["neutron"]},
                     name="NetworkPlugin.create_subnets")
 class CreateSubnets(utils.NeutronScenario):
     def run(self,
@@ -73,7 +73,7 @@ class CreateSubnets(utils.NeutronScenario):
                 minval=1, integer_only=True)
 @validation.add("required_services", services=[consts.Service.NEUTRON])
 @validation.add("required_platform", platform="openstack", users=True)
-@scenario.configure(context={"cleanup": ["neutron"]},
+@scenario.configure(context={"cleanup@openstack": ["neutron"]},
                     name="NetworkPlugin.create_subnets_routers_interfaces")
 class CreateSubnetsRoutersInterfaces(utils.NeutronScenario):
     def run(self,
@@ -101,7 +101,7 @@ class CreateSubnetsRoutersInterfaces(utils.NeutronScenario):
                 minval=1, integer_only=True)
 @validation.add("required_services", services=[consts.Service.NEUTRON])
 @validation.add("required_platform", platform="openstack", users=True)
-@scenario.configure(context={"cleanup": ["neutron"]},
+@scenario.configure(context={"cleanup@openstack": ["neutron"]},
                     name="NetworkPlugin.create_routers")
 class CreateRouters(utils.NeutronScenario):
     def run(self,
@@ -135,7 +135,7 @@ class CreateRouters(utils.NeutronScenario):
                 minval=1, integer_only=True)
 @validation.add("required_services", services=[consts.Service.NEUTRON])
 @validation.add("required_platform", platform="openstack", users=True)
-@scenario.configure(context={"cleanup": ["neutron"]},
+@scenario.configure(context={"cleanup@openstack": ["neutron"]},
                     name="NetworkPlugin.create_ports")
 class CreatePorts(utils.NeutronScenario):
     def run(self,
