@@ -158,6 +158,8 @@ sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1128M/' $MINIONS_ENV_FILE
 
 restart_service midolman
 
-if ! timeout 60 sh -c 'while test -z "$(midonet-cli -e host list)"; do sleep 1; done'; then
+HOST_ID=${HOST_ID:-$(hostname)}
+export HOST_ID
+if ! timeout 60 sh -c 'while test -z "$(midonet-cli -e host list | awk \$4\ \=\=\ \"${HOST_ID}\")"; do sleep 1; done'; then
     die $LINENO "HostService didn't register the host"
 fi
