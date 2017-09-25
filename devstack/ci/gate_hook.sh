@@ -18,7 +18,7 @@ job=$1
 pyversion=$2
 
 
-LOCAL_CONF=/tmp/late-local.conf
+_DEVSTACK_LOCAL_CONFIG_TAIL=
 
 # Inject config from hook
 function load_conf_hook {
@@ -33,7 +33,7 @@ function load_conf_hook {
         echo "Skipping $GATE_HOOKS/$hook for old branch"
         return
     fi
-    $DSCONF merge_lc $LOCAL_CONF $GATE_HOOKS/$hook
+    _DEVSTACK_LOCAL_CONFIG_TAIL+=$'\n'"$(cat $GATE_HOOKS/$hook)"
 }
 
 case $job in
@@ -279,7 +279,6 @@ export DEVSTACK_LOCAL_CONFIG+=$'\n'"KEYSTONE_TOKEN_FORMAT=fernet"
 
 load_conf_hook quotas new
 
-# NOTE(yamamoto): devstack-gate merges DEVSTACK_LOCALCONF
-# after DEVSTACK_LOCAL_CONFIG
-export DEVSTACK_LOCALCONF=$(cat $LOCAL_CONF)
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"$_DEVSTACK_LOCAL_CONFIG_TAIL"
+
 $BASE/new/devstack-gate/devstack-vm-gate.sh
