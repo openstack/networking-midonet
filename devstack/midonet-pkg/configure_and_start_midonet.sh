@@ -22,7 +22,6 @@
 set -x
 set -e
 
-source $TOP_DIR/functions-common
 source $TOP_DIR/functions
 
 ## defaults
