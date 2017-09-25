@@ -130,6 +130,7 @@ fi
 s=""
 s+="mysql,rabbit"
 s+=",key"
+s+=",neutron"
 s+=",n-api,n-cond,n-cpu,n-crt,n-sch,placement-api,n-api-meta"
 s+=",g-api,g-reg"
 if [ "${_LEGACY}" = "True" ]; then
@@ -145,6 +146,39 @@ s+=",dstat"
 # Use midonet metadata proxy
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_METADATA=True"
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_METADATA_OPENSTACK_CI_TWEAK=True"
+
+# Explicitly set LOGDIR to align with the SCREEN_LOGDIR setting
+# from devstack-gate.  Otherwise, devstack infers it from LOGFILE,
+# which is not appropriate for our gate jobs.
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"LOGDIR=$BASE/new/screen-logs"
+
+# migration config
+if [[ "$DEVSTACK_GATE_TOPOLOGY" != "aio" ]]; then
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"NOVA_ALLOW_MOVE_TO_SAME_HOST=False"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"LIVE_MIGRATION_AVAILABLE=True"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"USE_BLOCK_MIGRATION_FOR_LIVE_MIGRATION=True"
+fi
+
+# subnode config
+export DEVSTACK_SUBNODE_CONFIG="$DEVSTACK_LOCAL_CONFIG"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"DATABASE_TYPE=mysql"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"DATABASE_HOST=\$SERVICE_HOST"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"RABBIT_HOST=\$SERVICE_HOST"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"disable_service mysql"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"disable_service rabbit"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"disable_service key"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"disable_service placement-api"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"disable_service n-api"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"disable_service n-api-meta"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"disable_service n-cond"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"disable_service n-crt"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"disable_service n-sch"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"disable_service g-api"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"disable_service g-reg"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"disable_service neutron-api"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"disable_service tempest"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"enable_service placement-client"
+export DEVSTACK_SUBNODE_CONFIG+=$'\n'"MIDONET_CREATE_FAKE_UPLINK=False"
 
 if [ "${_ADV_SVC}" = "True" ]; then
     # Enable FWaaS
@@ -258,11 +292,6 @@ export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS=1
 # As we exclude slow tests by the above regex, 500, which is the default
 # for "full", should be enough.
 export TEMPEST_OS_TEST_TIMEOUT=500
-
-# Explicitly set LOGDIR to align with the SCREEN_LOGDIR setting
-# from devstack-gate.  Otherwise, devstack infers it from LOGFILE,
-# which is not appropriate for our gate jobs.
-export DEVSTACK_LOCAL_CONFIG+=$'\n'"LOGDIR=$BASE/new/screen-logs"
 
 # Use fernet tokens
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"KEYSTONE_TOKEN_FORMAT=fernet"
