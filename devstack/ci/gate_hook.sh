@@ -277,7 +277,7 @@ r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_non_admin\.TestPool
 r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.ddt\..*)"
 
 # Skip non-networking api tests to save testing time
-r="$r|(?:tempest\.api\.compute\..*)"
+r="$r|(?:tempest\.api\.compute\.(?!.*migration))"
 r="$r|(?:tempest\.api\.identity\..*)"
 r="$r|(?:tempest\.api\.image\..*)"
 
