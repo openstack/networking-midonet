@@ -142,6 +142,12 @@ fi
 
 # midolman
 
+sudo mkdir -p /etc/midolman
+sudo tee /etc/midolman/midolman.conf <<EOF
+[zookeeper]
+zookeeper_hosts = ${ZOOKEEPER_HOSTS}
+EOF
+
 if [[ "$USE_METADATA" = "True" ]]; then
     configure_mn "agent.openstack.metadata.enabled" "true"
     configure_mn "agent.openstack.metadata.nova_metadata_url" \
