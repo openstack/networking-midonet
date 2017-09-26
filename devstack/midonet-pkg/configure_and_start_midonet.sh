@@ -30,7 +30,10 @@ source $TOP_DIR/functions
 SERVICE_HOST=${SERVICE_HOST:-127.0.0.1}
 
 # ZK Hosts (comma delimited)
-ZOOKEEPER_HOSTS=${ZOOKEEPER_HOSTS:-127.0.0.1:2181}
+ZOOKEEPER_HOSTS=${ZOOKEEPER_HOSTS:-${SERVICE_HOST}:2181}
+
+# Cassandra Host
+CASSANDRA_HOST=${CASSANDRA_HOST:-${SERVICE_HOST}}
 
 # MidoNet API port and URI
 API_PORT=${API_PORT:-8181}
@@ -149,7 +152,7 @@ fi
 
 configure_mn "agent.loggers.root" "DEBUG"
 configure_mn "agent.midolman.lock_memory" "false"
-configure_mn "cassandra.servers" "127.0.0.1"
+configure_mn "cassandra.servers" "${CASSANDRA_HOST}"
 
 MIDOLMAN_ENV_FILE='/etc/midolman/midolman-env.sh'
 sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1256M/' $MIDOLMAN_ENV_FILE
