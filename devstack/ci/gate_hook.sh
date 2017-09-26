@@ -238,8 +238,7 @@ export OVERRIDE_ENABLED_SERVICES="$s"
 # Begin list of exclusions.
 r="^(?!.*"
 
-# exclude the slow tag (part of the default for 'full')
-r="$r(?:.*\[.*\bslow\b.*\])"
+r="$r(?:.*\[.*\bDUMMY\b.*\])"
 
 if ! lsb_release -i 2>/dev/null | grep -iq "ubuntu"; then
     # bug 1699465
