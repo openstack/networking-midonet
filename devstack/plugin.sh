@@ -115,8 +115,8 @@ if [[ "$1" == "stack" ]]; then
             if [ "$MIDONET_USE_UPLINK_NAT" == "True" ]; then
                 . $ABSOLUTE_PATH/uplink/create_nat.sh
             fi
-            . $ABSOLUTE_PATH/tz/create_tz.sh
         fi
+        . $ABSOLUTE_PATH/tz/create_tz.sh
 
     elif [[ "$2" == "post-config" ]]; then
 
