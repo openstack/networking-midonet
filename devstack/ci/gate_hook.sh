@@ -144,17 +144,7 @@ fi
 s+=",dstat"
 # Use midonet metadata proxy
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_USE_METADATA=True"
-
-# Tweak the chain for midonet metadata proxy.
-# "metadata" interface is created by midolman for node-local use.
-# OpenStack gate slaves have a rule which would reject packets
-# forwarded to the metadata proxy:
-#   https://github.com/openstack-infra/system-config/blob/master/modules/openstack_project/manifests/single_use_slave.pp
-#   https://github.com/openstack-infra/puppet-iptables
-sudo iptables -I openstack-INPUT 1 -i metadata -j ACCEPT || :
-
-# Tweak the chain for midonet vpp downlink for fip64.
-sudo iptables -I openstack-INPUT 1 -i tun-dl-+ -j ACCEPT || :
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_METADATA_OPENSTACK_CI_TWEAK=True"
 
 if [ "${_ADV_SVC}" = "True" ]; then
     # Enable FWaaS
