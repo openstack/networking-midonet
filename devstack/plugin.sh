@@ -100,11 +100,15 @@ if [[ "$1" == "stack" ]]; then
         # Configure midonet-cli
         configure_midonet_cli
 
-        install_neutron_midonet
+        if is_service_enabled neutron-api q-svc; then
+            install_neutron_midonet
+        fi
 
     elif [[ "$2" == "extra" ]]; then
 
-        tweak_neutron_initial_network_for_midonet
+        if is_service_enabled neutron-api q-svc; then
+            tweak_neutron_initial_network_for_midonet
+        fi
 
         if [ "$MIDONET_CREATE_FAKE_UPLINK" == "True" ]; then
             . $ABSOLUTE_PATH/uplink/create_uplink.sh
@@ -116,7 +120,9 @@ if [[ "$1" == "stack" ]]; then
 
     elif [[ "$2" == "post-config" ]]; then
 
-        configure_neutron_midonet
+        if is_service_enabled neutron-api q-svc; then
+            configure_neutron_midonet
+        fi
         create_nova_conf_midonet
 
         get_or_create_role midonet-admin
@@ -165,10 +171,15 @@ if [[ "$1" == "stack" ]]; then
         export TOP_DIR
         $ABSOLUTE_PATH/midonet-pkg/configure_and_start_midonet.sh
 
-        # copy needed neutron config (eg rootwrap filters)
-        sudo cp $NETWORKING_MIDONET_DIR/etc/midonet_rootwrap.filters /etc/neutron/rootwrap.d/
+        if is_service_enabled q-l3 q-dhcp q-meta \
+                neutron-l3 neutron-dhcp neutron-metadata-agent; then
+            # copy needed neutron config (eg rootwrap filters)
+            sudo cp $NETWORKING_MIDONET_DIR/etc/midonet_rootwrap.filters /etc/neutron/rootwrap.d/
+        fi
 
-        neutron-db-manage --subproject networking-midonet upgrade head
+        if is_service_enabled neutron-api q-svc; then
+            neutron-db-manage --subproject networking-midonet upgrade head
+        fi
 
         if is_service_enabled nova; then
             sudo cp $NETWORKING_MIDONET_DIR/etc/midonet_rootwrap.filters /etc/nova/rootwrap.d/
@@ -192,11 +203,13 @@ EOF"
             fi
         fi
     elif [[ "$2" == "test-config" ]]; then
-        # MidoNet LBaaS doesn't support HTTP.
-        iniset $TEMPEST_CONFIG lbaas default_listener_protocol TCP
-        iniset $TEMPEST_CONFIG lbaas default_pool_protocol TCP
-        # MidoNet LBaaS only supports SOURCE_IP.
-        iniset $TEMPEST_CONFIG lbaas session_persistence_types SOURCE_IP
+        if is_service_enabled tempest; then
+            # MidoNet LBaaS doesn't support HTTP.
+            iniset $TEMPEST_CONFIG lbaas default_listener_protocol TCP
+            iniset $TEMPEST_CONFIG lbaas default_pool_protocol TCP
+            # MidoNet LBaaS only supports SOURCE_IP.
+            iniset $TEMPEST_CONFIG lbaas session_persistence_types SOURCE_IP
+        fi
     fi
 
 elif [[ "$1" == "unstack" ]]; then
