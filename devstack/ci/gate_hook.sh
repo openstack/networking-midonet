@@ -223,6 +223,11 @@ if ! lsb_release -i 2>/dev/null | grep -iq "ubuntu"; then
     # which doesn't seem to have the following fix:
     #     https://github.com/libvirt/libvirt/commit/07262221234af0902cc649c1c991e8f11fa350d9
     r="$r|(?:tempest\.scenario\.test_network_advanced_server_ops\.TestNetworkAdvancedServerOps\.test_server_connectivity_reboot)"
+
+    # bug 1719771
+    # The centos-7 image on gate uses libreswan-3.20-3.el7.x86_64,
+    # which doesn't seem to be compatible with MidoNet.
+    r="$r|(?:neutron_vpnaas)"
 fi
 
 # https://bugs.launchpad.net/tempest/+bug/1509590
