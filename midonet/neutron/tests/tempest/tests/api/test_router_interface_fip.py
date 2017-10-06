@@ -16,10 +16,10 @@
 import netaddr
 import testtools
 
+from tempest.common import utils
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 import tempest.lib.exceptions as lib_exc
-from tempest import test
 
 from neutron.tests.tempest.api import base
 
@@ -37,7 +37,7 @@ class ExpectedException(testtools.ExpectedException):
 
 class RouterInterfaceFip(base.BaseAdminNetworkTest):
     @classmethod
-    @test.requires_ext(extension="router-interface-fip", service="network")
+    @utils.requires_ext(extension="router-interface-fip", service="network")
     def resource_setup(cls):
         super(RouterInterfaceFip, cls).resource_setup()
 

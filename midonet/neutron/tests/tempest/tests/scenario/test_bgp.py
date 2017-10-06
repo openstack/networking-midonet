@@ -15,12 +15,11 @@
 
 import netaddr
 
+from tempest.common import utils
 from tempest.common import waiters
-
 from tempest.lib.common import ssh
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
-from tempest import test
 
 from neutron.tests.tempest import config
 from neutron.tests.tempest.scenario import base
@@ -96,8 +95,8 @@ class Bgp(BgpClientMixin, base.BaseTempestTestCase):
     credentials = ['primary', 'admin']
 
     @classmethod
-    @test.requires_ext(extension="bgp-speaker-router-insertion",
-                       service="network")
+    @utils.requires_ext(extension="bgp-speaker-router-insertion",
+                        service="network")
     def resource_setup(cls):
         super(Bgp, cls).resource_setup()
 

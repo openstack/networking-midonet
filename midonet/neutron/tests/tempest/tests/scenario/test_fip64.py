@@ -15,11 +15,10 @@
 
 import netaddr
 
+from tempest.common import utils
 from tempest.common import waiters
-
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
-from tempest import test
 
 from neutron.tests.tempest import config
 from neutron.tests.tempest.scenario import base
@@ -35,7 +34,7 @@ class Fip64(base.BaseTempestTestCase):
     _fip_ip_version = 6
 
     @classmethod
-    @test.requires_ext(extension="fip64", service="network")
+    @utils.requires_ext(extension="fip64", service="network")
     def resource_setup(cls):
         super(Fip64, cls).resource_setup()
         cls.network = cls.create_network()
