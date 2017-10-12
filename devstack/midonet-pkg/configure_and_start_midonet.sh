@@ -99,7 +99,7 @@ function configure_mn {
 
     # In some commands, mn-conf creates a local file, which requires root
     # access.  For simplicity, always call mn-conf with root for now.
-    echo $1 : "${value}" | MIDO_ZOOKEEPER_HOSTS="$ZOOKEEPER_HOSTS" sudo mn-conf set
+    echo $1 : "${value}" | MIDO_ZOOKEEPER_HOSTS="$ZOOKEEPER_HOSTS" sudo -E mn-conf set
 }
 
 # midonet-cluster
