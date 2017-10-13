@@ -15,7 +15,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-# https://docs.midonet.org/docs/latest-en/quick-start-guide/ubuntu-1404_liberty/content/_repository_configuration.html
 # https://docs.midonet.org/docs/latest-en/quick-start-guide/ubuntu-1604_mitaka/content/_repository_configuration.html
 
 MIDONET_DEB_URI=$1
@@ -32,17 +31,6 @@ deb http://debian.datastax.com/community 2.2 main
 EOL
 
     curl -L https://debian.datastax.com/debian/repo_key | apt-key add -
-fi
-
-# Configure Java 8 repository
-
-if [ "$(lsb_release -c -s)" = "trusty" ]; then
-    cat > /etc/apt/sources.list.d/openjdk-8.list <<EOL
-# OpenJDK 8
-deb http://ppa.launchpad.net/openjdk-r/ppa/ubuntu trusty main
-EOL
-
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0x86F44E2A
 fi
 
 # Configure MidoNet repositories
