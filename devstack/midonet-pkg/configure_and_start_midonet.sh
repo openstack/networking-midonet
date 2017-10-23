@@ -106,6 +106,7 @@ function configure_mn {
 
 configure_mn "cluster.loggers.root" "DEBUG"
 configure_mn "cluster.rest_api.http_port" $API_PORT
+configure_mn "cluster.state_proxy.server.address" $SERVICE_HOST
 # NOTE(yamamoto): The following configurations are commented out
 # because we don't have users of the topology api right now.
 # (The "agent" extension is the only user.  but it's incomplete.)
