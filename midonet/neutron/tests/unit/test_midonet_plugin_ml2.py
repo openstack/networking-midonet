@@ -23,6 +23,7 @@ from webob import exc
 
 from oslo_config import cfg
 
+from neutron_lib.api.definitions import external_net
 from neutron_lib.api.definitions import portbindings
 from neutron_lib.api.definitions import provider_net as pnet
 from neutron_lib import constants as n_const
@@ -30,7 +31,6 @@ from neutron_lib import context
 from neutron_lib.plugins import constants as plugin_constants
 from neutron_lib.plugins import directory
 
-from neutron.extensions import external_net
 from neutron.tests.unit import _test_extension_portbindings as test_bindings
 from neutron.tests.unit.api import test_extensions
 from neutron.tests.unit.db import test_allowedaddresspairs_db as test_addr
