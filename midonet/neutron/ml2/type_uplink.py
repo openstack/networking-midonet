@@ -17,14 +17,12 @@ from neutron_lib import exceptions as exc
 from neutron_lib.plugins.ml2 import api
 from oslo_log import log
 
-from neutron.plugins.ml2 import driver_api
-
 from midonet.neutron.common import constants as const
 
 LOG = log.getLogger(__name__)
 
 
-class UplinkTypeDriver(driver_api.ML2TypeDriver):
+class UplinkTypeDriver(api.ML2TypeDriver):
     """Type driver for Uplink networks
 
     This type driver differentiates uplinks networks from other types.
