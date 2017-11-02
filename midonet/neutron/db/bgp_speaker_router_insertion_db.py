@@ -16,6 +16,7 @@
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
+from neutron_lib.exceptions import l3 as l3_exc
 from neutron_lib.plugins import directory
 from oslo_db import exception as db_exc
 from oslo_log import helpers as log_helpers
@@ -23,7 +24,6 @@ from oslo_log import log as logging
 from sqlalchemy.orm import exc
 
 from neutron.db import api as db_api
-from neutron.extensions import l3
 from neutron_dynamic_routing.db import bgp_db as bdb
 
 from midonet.neutron.db import bgp_speaker_router_insertion_model as model
@@ -48,11 +48,11 @@ class BgpSpeakerRouterInsertionDbMixin(object):
                     router_id=r_id)
                 context.session.add(bgp_router_db)
         except db_exc.DBDuplicateEntry:
-            raise l3.RouterInUse(
+            raise l3_exc.RouterInUse(
                 router_id=r_id,
                 reason='is already associated with bgp speaker')
         except db_exc.DBReferenceError:
-            raise l3.RouterNotFound(router_id=r_id)
+            raise l3_exc.RouterNotFound(router_id=r_id)
 
     @log_helpers.log_method_call
     def get_router_associated_with_bgp_speaker(self, context, bgp_sp_id):
@@ -135,5 +135,5 @@ class BgpSpeakerRouterInsertionDbMixin(object):
         router_id = kwargs['router_id']
         context = kwargs.get('context')
         if self.get_bgp_speaker_associated_with_router(context, router_id):
-            raise l3.RouterInUse(
+            raise l3_exc.RouterInUse(
                 router_id=router_id, reason='is associated with bgp speaker')

@@ -18,17 +18,18 @@ from oslo_utils import excutils
 from oslo_utils import uuidutils
 from sqlalchemy import orm
 
+from neutron_lib.api.definitions import l3 as l3_apidef
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import exceptions
 from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
+from neutron_lib.exceptions import l3 as l3_exc
 
 from neutron.db import l3_gwmode_db
 from neutron.db.models import l3 as l3_models
 from neutron.db import models_v2
-from neutron.extensions import l3
 from neutron.plugins.common import utils as p_utils
 
 from midonet.neutron._i18n import _
@@ -49,7 +50,7 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
             with excutils.save_and_reraise_exception():
                 if len(e.errors) == 1:
                     raise e.errors[0].error
-                raise l3.RouterInUse(router_id=router_id, reason=e)
+                raise l3_exc.RouterInUse(router_id=router_id, reason=e)
 
     def get_router_for_floatingip(
             self, context, internal_port, internal_subnet,
@@ -83,7 +84,7 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
         if first_router_id:
             return first_router_id
 
-        raise l3.ExternalGatewayForFloatingIPNotFound(
+        raise l3_exc.ExternalGatewayForFloatingIPNotFound(
             subnet_id=internal_subnet['id'],
             external_network_id=external_network_id,
             port_id=internal_port['id'])
@@ -224,6 +225,7 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
             self._process_dns_floatingip_create_postcommit(context,
                                                            floatingip_dict,
                                                            dns_data)
-        self._apply_dict_extend_functions(l3.FLOATINGIPS, floatingip_dict,
+        self._apply_dict_extend_functions(l3_apidef.FLOATINGIPS,
+                                          floatingip_dict,
                                           floatingip_db)
         return floatingip_dict

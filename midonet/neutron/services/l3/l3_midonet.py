@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib.api.definitions import l3 as l3_apidef
 from neutron_lib.api.definitions import provider_net as pnet
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
@@ -31,7 +32,6 @@ from neutron.db import common_db_mixin
 from neutron.db import extraroute_db
 # Import l3_dvr_db to get the config options required for FWaaS
 from neutron.db import l3_dvr_db  # noqa
-from neutron.extensions import l3
 from neutron.extensions import multiprovidernet as mpnet
 
 from midonet.neutron.client import base as c_base
@@ -96,7 +96,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         raise n_exc.BadRequest(resource='router', msg='Incompatible network')
 
     def _validate_router_gw_network(self, context, r):
-        ext_gw_info = r.get(l3.EXTERNAL_GW_INFO)
+        ext_gw_info = r.get(l3_apidef.EXTERNAL_GW_INFO)
         if ext_gw_info:
             self._validate_network_type(context, ext_gw_info['network_id'])
 

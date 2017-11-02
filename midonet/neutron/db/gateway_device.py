@@ -19,6 +19,7 @@ from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
 from neutron_lib.db import model_base
 from neutron_lib import exceptions as n_exc
+from neutron_lib.exceptions import l3 as l3_exc
 from neutron_lib.plugins import constants
 from neutron_lib.plugins import directory
 from oslo_db import exception as db_exc
@@ -29,7 +30,6 @@ from sqlalchemy import orm
 from sqlalchemy.orm import exc
 
 from neutron.db import common_db_mixin
-from neutron.extensions import l3
 
 from midonet.neutron.extensions import gateway_device as gw_device_ext
 
@@ -340,7 +340,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
 
         try:
             l3plugin.get_router(context, router_id)
-        except l3.RouterNotFound:
+        except l3_exc.RouterNotFound:
             raise gw_device_ext.ResourceNotFound(resource_id=router_id)
 
         if self._get_gateway_device_from_resource(
