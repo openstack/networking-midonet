@@ -23,6 +23,7 @@ from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 
 from midonet.neutron.client import base as c_base
+from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as m_const
 
 
