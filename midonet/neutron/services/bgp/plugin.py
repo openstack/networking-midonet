@@ -28,6 +28,7 @@ from neutron_dynamic_routing import extensions as bgp_extensions
 from neutron_dynamic_routing.extensions import bgp
 
 from midonet.neutron.client import base as c_base
+from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as m_const
 from midonet.neutron.db import bgp_db_midonet
 from midonet.neutron.db import bgp_speaker_router_insertion_db as bsridb

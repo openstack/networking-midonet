@@ -24,6 +24,7 @@ from networking_l2gw.services.l2gateway.common import constants
 from networking_l2gw.services.l2gateway import service_drivers
 
 from midonet.neutron.client import base as c_base
+from midonet.neutron.common import config  # noqa
 
 LOG = logging.getLogger(__name__)
 
