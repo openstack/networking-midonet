@@ -24,6 +24,7 @@ from neutron.services.qos import qos_consts
 
 from midonet.neutron._i18n import _LW
 from midonet.neutron.client import base as c_base
+from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as m_const
 
 
