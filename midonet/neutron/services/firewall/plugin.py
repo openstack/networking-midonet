@@ -25,6 +25,7 @@ from neutron_fwaas import extensions
 from neutron_fwaas.services.firewall import fwaas_plugin as fw_plugin
 
 from midonet.neutron.client import base as c_base
+from midonet.neutron.common import config  # noqa
 
 LOG = logging.getLogger(__name__)
 
