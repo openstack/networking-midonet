@@ -3,7 +3,7 @@
 ===================================
 
 .. release-notes::
-   :branch: origin/stable/ocata
+   :branch: stable/ocata
    :ignore-notes:
      gateway-management-2a14ac7fd9a0cf9f.yaml,
      lbaas-haproxy-provider-3231cbffbdd26d30.yaml,
