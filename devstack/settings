@@ -112,7 +112,7 @@ fi
 # REVISIT(yamamoto): This relies on the order of plugins unless q-dr
 # is explicitly enabled in local.conf because neutron-dynamic-routing
 # uses their devstack/settings to enable services.
-if is_service_enabled q-dr; then
+if is_service_enabled q-dr neutron-dr; then
     NETWORK_API_EXTENSIONS+=,bgp
     NETWORK_API_EXTENSIONS+=,bgp-speaker-router-insertion
 fi
