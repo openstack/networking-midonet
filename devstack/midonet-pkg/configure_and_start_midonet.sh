@@ -135,8 +135,8 @@ if [ "$MIDONET_USE_KEYSTONE" = "True" ]; then
 fi
 
 MIDOENT_CLUSTER_ENV_FILE='/etc/midonet-cluster/midonet-cluster-env.sh'
-sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1128M/' $MIDOENT_CLUSTER_ENV_FILE
-sudo sed -i 's/\(HEAP_NEWSIZE=\).*$/\164M/' $MIDOENT_CLUSTER_ENV_FILE
+sudo sed -i 's/\(MAX_HEAP_SIZE=\).*$/\1256M/' $MIDOENT_CLUSTER_ENV_FILE
+sudo sed -i 's/\(HEAP_NEWSIZE=\).*$/\1128M/' $MIDOENT_CLUSTER_ENV_FILE
 
 restart_service midonet-cluster
 
