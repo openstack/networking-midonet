@@ -35,7 +35,7 @@ Review and merge patches
   E.g. "This is a trivial fix for a problem blocking other projects."
 
   Usually the reviewer who voted the second +2 also make it Workflow +1.
-  It makes the jenkins run the gate jobs for the patch and merge it
+  It makes zuul run the gate jobs for the patch and merge it
   if tests succeeded.  Of course, it's also ok for the reviewer to
   choose not to put Workflow +1.
   E.g. When he thinks more reviews are desirable.
@@ -47,12 +47,12 @@ Review and merge patches
   When you merge a patch with non-voting jobs failing, please leave
   a message to explain why.  Please make sure that there's a bug filed
   for the symptom.
-  E.g. "Jenkins failures are unrelated to this patch.  bug xxxxxx."
+  E.g. "Test failures are unrelated to this patch.  bug xxxxxx."
 
 - Document "recheck" reasons
 
   Writing a comment starting with "recheck" [#recheck_trigger]_
-  on the gerrit, you can re-trigger jenkins jobs for the patch.
+  on the gerrit, you can re-trigger test jobs for the patch.
   Please try to examine the failure and explain why a recheck
   was necessary in the comment.  A bug reference is the most appropriate.
   E.g. "recheck bug xxxxxxx"
@@ -60,11 +60,11 @@ Review and merge patches
 
 - Check the rendered htmls when reviewing document changes
 
-  Jenkins jobs ``gate-networking-midonet-docs-ubuntu-xenial`` and
-  ``gate-networking-midonet-releasenotes`` provide the rendered results for
+  Test jobs ``build-openstack-sphinx-docs`` and
+  ``build-openstack-releasenotes`` provide the rendered results for
   the change.
 
-.. [#dashboards] https://docs.openstack.org/networking-midonet/latest/dashboards/index.html#gerrit-dashboards
+.. [#dashboards] https://docs.openstack.org/networking-midonet/latest/contributor/dashboards.html#gerrit-dashboards
 .. [#watched_projects] https://review.openstack.org/#/settings/projects
 .. [#neutron_irc] http://eavesdrop.openstack.org/irclogs/%23openstack-neutron/latest.log.html
 .. [#midonet_irc] http://eavesdrop.openstack.org/irclogs/%23midonet/latest.log.html
