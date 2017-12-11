@@ -257,10 +257,10 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
 
             # Update status based on association
             if fip.get('port_id') is None:
-                fip['status'] = n_const.FLOATINGIP_STATUS_DOWN
+                new_status = n_const.FLOATINGIP_STATUS_DOWN
             else:
-                fip['status'] = n_const.FLOATINGIP_STATUS_ACTIVE
-            self.update_floatingip_status(context, id, fip['status'])
+                new_status = n_const.FLOATINGIP_STATUS_ACTIVE
+            self.update_floatingip_status(context, id, new_status)
 
         try:
             self.client.update_floatingip_postcommit(id, fip)

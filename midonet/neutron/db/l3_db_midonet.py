@@ -27,9 +27,11 @@ from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 from neutron_lib.exceptions import l3 as l3_exc
 
+from neutron.db import _resource_extend as resource_extend
 from neutron.db import l3_gwmode_db
 from neutron.db.models import l3 as l3_models
 from neutron.db import models_v2
+from neutron.objects import router as l3_obj
 from neutron.plugins.common import utils as p_utils
 
 from midonet.neutron._i18n import _
@@ -147,6 +149,7 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
     # REVISIT(bikfalvi): This method is a copy of the base class method,
     # modified to use the _port_fixed_ips hook and replace the network
     # validation from IPv4 to any IP.
+    # NOTE(yamamoto): And Floating IP QoS stuff commented out
     def _create_floatingip(self, context, floatingip,
                            initial_status=n_const.FLOATINGIP_STATUS_ACTIVE):
         fip = floatingip['floatingip']
@@ -170,13 +173,16 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
                 'device_owner': DEVICE_OWNER_FLOATINGIP,
                 'status': n_const.PORT_STATUS_NOTAPPLICABLE,
                 'name': ''}
-        if fip.get('floating_ip_address'):
-            port['fixed_ips'] = [
-                {'ip_address': fip['floating_ip_address']}]
-
-        if fip.get('subnet_id'):
-            port['fixed_ips'] = [
-                {'subnet_id': fip['subnet_id']}]
+        # Both subnet_id and floating_ip_address are accepted, if
+        # floating_ip_address is not in the subnet,
+        # InvalidIpForSubnet exception will be raised.
+        fixed_ip = {}
+        if fip['subnet_id']:
+            fixed_ip['subnet_id'] = fip['subnet_id']
+        if fip['floating_ip_address']:
+            fixed_ip['ip_address'] = fip['floating_ip_address']
+        if fixed_ip:
+            port['fixed_ips'] = [fixed_ip]
 
         # 'status' in port dict could not be updated by default, use
         # check_allow_post to stop the verification of system
@@ -195,9 +201,10 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
 
             floating_fixed_ip = external_ips[0]
             floating_ip_address = floating_fixed_ip['ip_address']
-            floatingip_db = l3_models.FloatingIP(
+            floatingip_obj = l3_obj.FloatingIP(
+                context,
                 id=fip_id,
-                tenant_id=fip['tenant_id'],
+                project_id=fip['tenant_id'],
                 status=initial_status,
                 floating_network_id=fip['floating_network_id'],
                 floating_ip_address=floating_ip_address,
@@ -205,14 +212,25 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
                 description=fip.get('description'))
             # Update association with internal port
             # and define external IP address
-            assoc_result = self._update_fip_assoc(context, fip,
-                                                  floatingip_db, external_port)
-            context.session.add(floatingip_db)
+            assoc_result = self._update_fip_assoc(
+                context, fip, floatingip_obj, external_port)
+            floatingip_obj.create()
             floatingip_dict = self._make_floatingip_dict(
-                floatingip_db, process_extensions=False)
+                floatingip_obj, process_extensions=False)
             if self._is_dns_integration_supported:
                 dns_data = self._process_dns_floatingip_create_precommit(
                     context, floatingip_dict, fip)
+            # NOTE(yamamoto): MidoNet doesn't have Floating IP QoS
+            # if self._is_fip_qos_supported:
+            #     self._process_extra_fip_qos_create(context, fip_id, fip)
+            floatingip_obj = l3_obj.FloatingIP.get_object(
+                context, id=floatingip_obj.id)
+            floatingip_db = floatingip_obj.db_obj
+
+            registry.notify(resources.FLOATING_IP, events.PRECOMMIT_CREATE,
+                            self, context=context, floatingip=fip,
+                            floatingip_id=fip_id,
+                            floatingip_db=floatingip_db)
 
         self._core_plugin.update_port(context.elevated(), external_port['id'],
                                       {'port': {'device_id': fip_id}})
@@ -225,7 +243,8 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
             self._process_dns_floatingip_create_postcommit(context,
                                                            floatingip_dict,
                                                            dns_data)
-        self._apply_dict_extend_functions(l3_apidef.FLOATINGIPS,
-                                          floatingip_dict,
-                                          floatingip_db)
+        # TODO(lujinluo): Change floatingip_db to floatingip_obj once all
+        # codes are migrated to use Floating IP OVO object.
+        resource_extend.apply_funcs(l3_apidef.FLOATINGIPS, floatingip_dict,
+                                    floatingip_db)
         return floatingip_dict

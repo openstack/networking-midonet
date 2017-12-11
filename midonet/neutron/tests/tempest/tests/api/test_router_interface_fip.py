@@ -78,7 +78,20 @@ class RouterInterfaceFip(base.BaseAdminNetworkTest):
         for k, v in expected.items():
             self.assertIn(k, fip2_updated)
             self.assertEqual(v, fip2_updated[k])
+        if 'revision_number' in fip2:
+            self.assertGreater(fip2_updated['revision_number'],
+                               fip2['revision_number'])
+        # NOTE(yamamoto): The status can be updated asynchronously.
         fip2_shown = self.client.show_floatingip(fip2['id'])['floatingip']
+        if 'revision_number' in fip2:
+            self.assertGreaterEqual(fip2_shown['revision_number'],
+                                    fip2_updated['revision_number'])
+        fip2_shown.pop('status')
+        fip2_shown.pop('updated_at')
+        fip2_shown.pop('revision_number')
+        fip2_updated.pop('status')
+        fip2_updated.pop('updated_at')
+        fip2_updated.pop('revision_number')
         self.assertEqual(fip2_updated, fip2_shown)
         with ExpectedException(lib_exc.Conflict) as ctx:
             self.client.remove_router_interface_with_subnet_id(
