@@ -28,6 +28,7 @@
           set -e
           set -x
           export PROJECTS="openstack-dev/grenade openstack/networking-midonet $PROJECTS"
+          export PROJECTS="openstack/neutron-tempest-plugin $PROJECTS"
           export PYTHONUNBUFFERED=true
           export DEVSTACK_GATE_TEMPEST=1
           export DEVSTACK_GATE_GRENADE=pullup

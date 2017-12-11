@@ -1,0 +1,7 @@
+[[local|localrc]]
+
+TEMPEST_PLUGINS="$TEMPEST_PLUGINS /opt/stack/new/neutron-dynamic-routing"
+TEMPEST_PLUGINS="$TEMPEST_PLUGINS /opt/stack/new/neutron-fwaas"
+TEMPEST_PLUGINS="$TEMPEST_PLUGINS /opt/stack/new/neutron-lbaas"
+TEMPEST_PLUGINS="$TEMPEST_PLUGINS /opt/stack/new/neutron-vpnaas"
+TEMPEST_PLUGINS="$TEMPEST_PLUGINS /opt/stack/new/tap-as-a-service"

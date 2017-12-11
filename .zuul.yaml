@@ -168,6 +168,7 @@
       - openstack/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
+      - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
       - openstack/tempest
 
@@ -183,6 +184,7 @@
       - openstack/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
+      - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
       - openstack/tempest
 
@@ -197,6 +199,7 @@
       - openstack/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
+      - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
       - openstack/tempest
 
@@ -212,6 +215,7 @@
       - openstack/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
+      - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
       - openstack/tempest
 
@@ -226,6 +230,7 @@
       - openstack/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
+      - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
       - openstack/tempest
 
@@ -240,6 +245,7 @@
       - openstack/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
+      - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
       - openstack/tempest
 
@@ -254,6 +260,7 @@
       - openstack/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
+      - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
       - openstack/tempest
 
@@ -268,6 +275,7 @@
       - openstack/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
+      - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
       - openstack/tempest
     nodeset: legacy-ubuntu-xenial-2-node
@@ -282,6 +290,7 @@
       - openstack-dev/grenade
       - openstack-infra/devstack-gate
       - openstack/networking-midonet
+      - openstack/neutron-tempest-plugin
     branches: ^(?!stable/ocata).*$
 
 - job:

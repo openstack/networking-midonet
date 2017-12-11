@@ -251,16 +251,16 @@ fi
 r="$r|(?:tempest\.api\.network\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\.test_add_remove_network_from_dhcp_agent.*)"
 r="$r|(?:tempest\.api\.network\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\.test_list_networks_hosted_by_one_dhcp.*)"
 r="$r|(?:tempest\.api\.network\.admin\.test_agent_management\.AgentManagementTestJSON.*)"
-r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\..*)"
-r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_agent_management\.AgentManagementTestJSON\.*)"
+r="$r|(?:^neutron_tempest_plugin\.api\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\..*)"
+r="$r|(?:^neutron_tempest_plugin\.api\.admin\.test_agent_management\.AgentManagementTestJSON\.*)"
 
 # bug 1507453 1608796
-r="$r|(?:^neutron\.tests\.tempest\.api\.test_routers\.RoutersTest\.test_router_interface_status)"
+r="$r|(?:^neutron_tempest_plugin\.api\.test_routers\.RoutersTest\.test_router_interface_status)"
 
 # MidoNet doesn't support a gateway port without IP. (MNP-167)
 # "Bad router request: No IPs assigned to the gateway port for router"
-r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_external_network_extension\.ExternalNetworksRBACTestJSON\.test_regular_client_shares_with_another)"
-r="$r|(?:^neutron\.tests\.tempest\.api\.admin\.test_external_network_extension\.ExternalNetworksRBACTestJSON\.test_external_update_policy_from_wildcard_to_specific_tenant)"
+r="$r|(?:^neutron_tempest_plugin\.api\.admin\.test_external_network_extension\.ExternalNetworksRBACTestJSON\.test_regular_client_shares_with_another)"
+r="$r|(?:^neutron_tempest_plugin\.api\.admin\.test_external_network_extension\.ExternalNetworksRBACTestJSON\.test_external_update_policy_from_wildcard_to_specific_tenant)"
 
 # MidoNet doesn't support HTTP_COOKIE/APP_COOKIE
 r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_admin\.TestPools\.test_update_pool_sesssion_persistence_app_cookie)"
@@ -282,14 +282,18 @@ r="$r|(?:tempest\.api\.image\..*)"
 # End list of exclusions.
 r="$r)"
 
-r="$r^(tempest\.(api|scenario)|neutron_fwaas|neutron_lbaas|neutron_vpnaas|neutron_taas|neutron|midonet)\..*$"
+r="$r^(tempest\.(api|scenario)|neutron_fwaas|neutron_lbaas|neutron_vpnaas|neutron_taas|neutron_tempest_plugin|midonet)\..*$"
 
 export DEVSTACK_GATE_TEMPEST_REGEX="$r"
-export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS=1
-# NOTE(yamamoto): Tempest "all-plugin" uses OS_TEST_TIMEOUT=1200 by default.
+export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS=0
+# NOTE(yamamoto): Tempest "all" uses OS_TEST_TIMEOUT=1200 by default.
 # As we exclude slow tests by the above regex, 500, which is the default
 # for "full", should be enough.
 export TEMPEST_OS_TEST_TIMEOUT=500
+load_conf_hook tempest_plugins_base new
+if [ "${_ADV_SVC}" = "True" ]; then
+    load_conf_hook tempest_plugins_advsvc new
+fi
 
 # Use fernet tokens
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"KEYSTONE_TOKEN_FORMAT=fernet"

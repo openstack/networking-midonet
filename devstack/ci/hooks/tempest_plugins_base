@@ -1,0 +1,5 @@
+[[local|localrc]]
+
+TEMPEST_PLUGINS="$TEMPEST_PLUGINS /opt/stack/new/neutron"
+TEMPEST_PLUGINS="$TEMPEST_PLUGINS /opt/stack/new/neutron-tempest-plugin"
+TEMPEST_PLUGINS="$TEMPEST_PLUGINS /opt/stack/new/networking-midonet"
