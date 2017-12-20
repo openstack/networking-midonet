@@ -29,6 +29,15 @@
               - ^midonet/neutron/tests/unit/.*$
               - ^setup.cfg$
               - ^specs/.*$
+        - networking-midonet-tempest-multinode-ml2:
+            voting: false
+            irrelevant-files:
+              - ^(test-|)requirements.txt$
+              - ^.*\.rst$
+              - ^doc/.*$
+              - ^midonet/neutron/tests/unit/.*$
+              - ^setup.cfg$
+              - ^specs/.*$
         - networking-midonet-tempest-aio-ml2-full:
             voting: false
             irrelevant-files:
@@ -144,17 +153,6 @@
               - ^.*\.rst$
               - ^doc/.*$
               - ^midonet/neutron/tests/unit/.*$
-              - ^specs/.*$
-    experimental:
-      jobs:
-        - networking-midonet-tempest-multinode-ml2:
-            voting: false
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^setup.cfg$
               - ^specs/.*$
 
 - job:
