@@ -2,25 +2,6 @@
     name: openstack/networking-midonet
     check:
       jobs:
-        - networking-midonet-tempest-aio-v2:
-            branches: ^stable/ocata$
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^setup.cfg$
-              - ^specs/.*$
-        - networking-midonet-tempest-aio-v2-full:
-            voting: false
-            branches: ^stable/ocata
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^setup.cfg$
-              - ^specs/.*$
         - networking-midonet-tempest-aio-ml2:
             irrelevant-files:
               - ^(test-|)requirements.txt$
@@ -83,23 +64,7 @@
               - ^midonet/neutron/tests/unit/.*$
               - ^setup.cfg$
               - ^specs/.*$
-        - networking-midonet-grenade-v2:
-            branches: ^stable/pike$
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^setup.cfg$
-              - ^specs/.*$
         - networking-midonet-rally-ml2:
-            irrelevant-files:
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^specs/.*$
-        - networking-midonet-rally-v2:
-            branches: ^stable/ocata
             irrelevant-files:
               - ^.*\.rst$
               - ^doc/.*$
@@ -107,15 +72,6 @@
               - ^specs/.*$
     gate:
       jobs:
-        - networking-midonet-tempest-aio-v2:
-            branches: ^stable/ocata$
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^setup.cfg$
-              - ^specs/.*$
         - networking-midonet-tempest-aio-ml2:
             irrelevant-files:
               - ^(test-|)requirements.txt$
@@ -132,23 +88,7 @@
               - ^midonet/neutron/tests/unit/.*$
               - ^setup.cfg$
               - ^specs/.*$
-        - networking-midonet-grenade-v2:
-            branches: ^stable/pike$
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^setup.cfg$
-              - ^specs/.*$
         - networking-midonet-rally-ml2:
-            irrelevant-files:
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^specs/.*$
-        - networking-midonet-rally-v2:
-            branches: ^stable/ocata
             irrelevant-files:
               - ^.*\.rst$
               - ^doc/.*$
@@ -233,36 +173,6 @@
       - openstack/tempest
 
 - job:
-    name: networking-midonet-tempest-aio-v2
-    parent: legacy-dsvm-base
-    run: playbooks/tempest-aio-v2/run.yaml
-    post-run: playbooks/tempest-aio-v2/post.yaml
-    timeout: 7800
-    required-projects:
-      - openstack-infra/devstack-gate
-      - openstack/networking-l2gw
-      - openstack/networking-midonet
-      - openstack/neutron-dynamic-routing
-      - openstack/neutron-tempest-plugin
-      - openstack/tap-as-a-service
-      - openstack/tempest
-
-- job:
-    name: networking-midonet-tempest-aio-v2-full
-    parent: legacy-dsvm-base
-    run: playbooks/tempest-aio-v2-full/run.yaml
-    post-run: playbooks/tempest-aio-v2-full/post.yaml
-    timeout: 7800
-    required-projects:
-      - openstack-infra/devstack-gate
-      - openstack/networking-l2gw
-      - openstack/networking-midonet
-      - openstack/neutron-dynamic-routing
-      - openstack/neutron-tempest-plugin
-      - openstack/tap-as-a-service
-      - openstack/tempest
-
-- job:
     name: networking-midonet-tempest-multinode-ml2
     parent: legacy-dsvm-base-multinode
     run: playbooks/tempest-multinode-ml2/run.yaml
@@ -292,32 +202,10 @@
     branches: ^(?!stable/ocata).*$
 
 - job:
-    name: networking-midonet-grenade-v2
-    parent: legacy-dsvm-base
-    run: playbooks/grenade-v2/run.yaml
-    post-run: playbooks/grenade-v2/post.yaml
-    timeout: 9000
-    required-projects:
-      - openstack-dev/grenade
-      - openstack-infra/devstack-gate
-      - openstack/networking-midonet
-
-- job:
     name: networking-midonet-rally-ml2
     parent: legacy-dsvm-base
     run: playbooks/rally-ml2/run.yaml
     post-run: playbooks/rally-ml2/post.yaml
-    timeout: 7800
-    required-projects:
-      - openstack-infra/devstack-gate
-      - openstack/networking-midonet
-      - openstack/rally
-
-- job:
-    name: networking-midonet-rally-v2
-    parent: legacy-dsvm-base
-    run: playbooks/rally-v2/run.yaml
-    post-run: playbooks/rally-v2/post.yaml
     timeout: 7800
     required-projects:
       - openstack-infra/devstack-gate
