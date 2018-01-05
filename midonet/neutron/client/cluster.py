@@ -25,7 +25,7 @@ class MidonetClusterClient(base.MidonetClientBase):
         self.conf = conf
 
     def initialize(self):
-        task.create_config_task(db.get_session(), dict(self.conf))
+        task.create_config_task(db.get_writer_session(), dict(self.conf))
 
     def create_network_precommit(self, context, network):
         task.create_task(context, task.CREATE, data_type=task.NETWORK,
