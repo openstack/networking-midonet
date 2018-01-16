@@ -92,9 +92,6 @@ NETWORK_API_EXTENSIONS+=,default-subnetpools
 NETWORK_API_EXTENSIONS+=,subnet-service-types
 NETWORK_API_EXTENSIONS+=,net-mtu-writable
 NETWORK_API_EXTENSIONS+=,network_availability_zone
-if is_service_enabled q-fwaas neutron-fwaas-v1; then
-    NETWORK_API_EXTENSIONS+=,fwaas,fwaasrouterinsertion
-fi
 if is_service_enabled neutron-vpnaas; then
     NETWORK_API_EXTENSIONS+=,vpnaas
     NETWORK_API_EXTENSIONS+=,vpn-endpoint-groups

@@ -19,9 +19,6 @@ from neutron.db.migration import cli as migration
 from neutron.tests.functional.db import test_migrations
 from neutron.tests.unit import testlib_api
 
-# NOTE(yamamoto): midonet_firewall_logs has a FK to firewalls.id
-import neutron_fwaas.db.firewall.firewall_db  # noqa
-
 from midonet.neutron.db.migration.models import head
 
 # List of *aaS tables to exclude

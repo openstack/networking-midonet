@@ -26,12 +26,9 @@ ENABLED_SERVICES=rabbit,mysql,key
 ENABLED_SERVICES+=,n-api,n-crt,n-obj,n-cpu,n-cond,n-sch,placement-api
 ENABLED_SERVICES+=,g-api,g-reg
 ENABLED_SERVICES+=,q-svc,neutron
-ENABLED_SERVICES+=,q-fwaas
 ENABLED_SERVICES+=,tempest
 ENABLED_SERVICES+=,horizon
 ENABLED_SERVICES+=,n-novnc,n-cauth
-enable_plugin neutron-fwaas https://github.com/openstack/neutron-fwaas
-FWAAS_PLUGIN=midonet_firewall
 
 NOVA_VNC_ENABLED=True
 

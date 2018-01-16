@@ -40,18 +40,6 @@ If you want to use the experimental Tasks based API, set the following::
     MIDONET_CLIENT=midonet.neutron.client.cluster.MidonetClusterClient
 
 
-FWaaS
------
-
-MidoNet implements Neutron FWaaS extension API.
-To configure it with devstack, make sure the following is defined
-in ``local.conf``::
-
-    enable_plugin neutron-fwaas https://github.com/openstack/neutron-fwaas
-    enable_service q-fwaas
-    FWAAS_PLUGIN=midonet_firewall
-
-
 VPNaaS
 ------
 
@@ -109,16 +97,6 @@ when running devstack, make sure the following is defined in ``local.conf``::
     BGP_PLUGIN=midonet_bgp
     enable_service q-dr
 
-
-Logging Resource Service
-------------------------
-
-Starting v5.2, MidoNet implements Neutron Logging Resource Service extension API.
-
-To configure MidoNet including Logging Resource Service when running devstack,
-make sure the following is defined in ``local.conf``::
-
-    Q_SERVICE_PLUGIN_CLASSES=midonet_logging_resource
 
 QoS
 ---

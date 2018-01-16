@@ -155,15 +155,6 @@ export DEVSTACK_SUBNODE_CONFIG+=$'\n'"enable_service placement-client"
 export DEVSTACK_SUBNODE_CONFIG+=$'\n'"MIDONET_CREATE_FAKE_UPLINK=False"
 
 if [ "${_ADV_SVC}" = "True" ]; then
-    # Enable FWaaS
-    if [ "${_LEGACY}" = "True" ]; then
-        s+=",q-fwaas"
-    else
-        s+=",neutron-fwaas-v1"
-    fi
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-fwaas https://github.com/openstack/neutron-fwaas"
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"FWAAS_PLUGIN=midonet_firewall"
-
     # Enable VPNaaS
     # NOTE(yamamoto): neutron-vpnaas devstack plugin doesn't have q- name
     s+=",neutron-vpnaas"
@@ -256,7 +247,7 @@ r="$r|(?:tempest\.api\.image\..*)"
 # End list of exclusions.
 r="$r)"
 
-r="$r^(tempest\.(api|scenario)|neutron_fwaas|neutron_lbaas|neutron_vpnaas|neutron_taas|neutron_tempest_plugin|midonet)\..*$"
+r="$r^(tempest\.(api|scenario)|neutron_lbaas|neutron_vpnaas|neutron_taas|neutron_tempest_plugin)\..*$"
 
 export DEVSTACK_GATE_TEMPEST_REGEX="$r"
 export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS=0

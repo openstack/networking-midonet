@@ -27,14 +27,6 @@ Programming HowTos and Tutorials
    testing
 
 
-Networking MidoNet Internals
-----------------------------
-.. toctree::
-   :maxdepth: 2
-
-   firewall
-
-
 Dashboards
 ----------
 .. toctree::

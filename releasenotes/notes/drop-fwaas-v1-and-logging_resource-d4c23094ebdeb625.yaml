@@ -1,0 +1,12 @@
+---
+deprecations:
+  - |
+    FWaaS v1 extensions (`fwaas` and `fwaasrouterinsertion`) have been
+    removed.  The functionality has always been experimental and
+    has been marked deprecated since Liberty.
+
+    Logging Resource extension (`logging-resource`) has also been removed
+    because it's only useful with FWaaS v1.
+
+    Unfortunately, no upgrade path is currently available for the existing
+    deployments with those extensions.

@@ -114,21 +114,6 @@ driver.::
     interface_driver = midonet
 
 
-FWaaS
------
-
-Starting v5.0, MidoNet implements Neutron FWaaS extension API.
-
-To configure it, add the following service plugin to the `service_plugins` list
-in the DEFAULT group of ``/etc/neutron/neutron.conf``::
-
-    [DEFAULT]
-    service_plugins = midonet_firewall
-
-NOTE: No need to configure `Firewall Driver` at all.  It's irrelevant
-because this plugin does not use Neutron L3 agent.
-
-
 LBaaS v2
 --------
 
@@ -220,24 +205,6 @@ in the DEFAULT group of `/etc/neutron/neutron.conf`::
 
     [DEFAULT]
     service_plugins = midonet_bgp
-
-
-Logging Resource Service
-------------------------
-
-Starting v5.2, MidoNet implements Neutron Logging Resource Service extension API.
-
-To configure it, add the following service plugin to the `service_plugins` list
-in the DEFAULT group of `/etc/neutron/neutron.conf`::
-
-    [DEFAULT]
-    service_plugins = midonet_logging_resource
-
-Firewall log is managed by Quota.
-Default value of firewall log is 10 that is same number as firewall.
-Basically, both Quota value for firewall and firewall log should be aligned.
-To tune it, change value of `quota_firewall_log` in the quotas group of
-`/etc/neutron/neutron.conf`.
 
 
 Tap-as-a-Service

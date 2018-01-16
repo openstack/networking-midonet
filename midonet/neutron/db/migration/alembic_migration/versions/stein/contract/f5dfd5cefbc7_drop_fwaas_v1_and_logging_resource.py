@@ -1,4 +1,4 @@
-# Copyright 2015 Midokura SARL
+# Copyright 2019 Midokura SARL
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,16 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from neutron.db.migration.models import head
+"""Drop FWaaS v1 and logging_resource
 
-import midonet.neutron.db.bgp_speaker_router_insertion_model  # noqa
-import midonet.neutron.db.data_state_db  # noqa
-import midonet.neutron.db.data_version_db  # noqa
-import midonet.neutron.db.gateway_device  # noqa
-import midonet.neutron.db.port_binding_db  # noqa
-import midonet.neutron.db.provider_network_db  # noqa
-import midonet.neutron.db.task_db  # noqa
+Revision ID: f5dfd5cefbc7
+Revises: 1612b5389e6e
+Create Date: 2019-02-05 15:51:24.345127
+
+"""
+
+# revision identifiers, used by Alembic.
+revision = 'f5dfd5cefbc7'
+down_revision = '1612b5389e6e'
+
+from alembic import op
 
 
-def get_metadata():
-    return head.model_base.BASEV2.metadata
+def upgrade():
+    op.drop_table('midonet_firewall_logs')
+    op.drop_table('midonet_logging_resources')
