@@ -20,9 +20,9 @@ from tempest.common import waiters
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
-from neutron.tests.tempest import config
-from neutron.tests.tempest.scenario import base
-from neutron.tests.tempest.scenario import constants
+from neutron_tempest_plugin import config
+from neutron_tempest_plugin.scenario import base
+from neutron_tempest_plugin.scenario import constants
 
 
 CONF = config.CONF

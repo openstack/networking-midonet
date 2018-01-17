@@ -21,9 +21,9 @@ from tempest.lib.common import ssh
 from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 
-from neutron.tests.tempest import config
-from neutron.tests.tempest.scenario import base
-from neutron.tests.tempest.scenario import constants
+from neutron_tempest_plugin import config
+from neutron_tempest_plugin.scenario import base
+from neutron_tempest_plugin.scenario import constants
 
 try:
     from neutron_dynamic_routing.tests.tempest import bgp_client

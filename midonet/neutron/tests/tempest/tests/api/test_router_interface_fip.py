@@ -21,7 +21,7 @@ from tempest.lib.common.utils import data_utils
 from tempest.lib import decorators
 import tempest.lib.exceptions as lib_exc
 
-from neutron.tests.tempest.api import base
+from neutron_tempest_plugin.api import base
 
 
 class ExpectedException(testtools.ExpectedException):
