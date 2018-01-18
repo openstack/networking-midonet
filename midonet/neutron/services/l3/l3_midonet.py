@@ -14,6 +14,7 @@
 #    under the License.
 
 from neutron_lib.api.definitions import l3 as l3_apidef
+from neutron_lib.api.definitions import multiprovidernet as mpnet_apidef
 from neutron_lib.api.definitions import provider_net as pnet
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
@@ -32,7 +33,6 @@ from neutron.db import common_db_mixin
 from neutron.db import extraroute_db
 # Import l3_dvr_db to get the config options required for FWaaS
 from neutron.db import l3_dvr_db  # noqa
-from neutron.extensions import multiprovidernet as mpnet
 
 from midonet.neutron.client import base as c_base
 from midonet.neutron.common import config  # noqa
@@ -81,7 +81,7 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
             yield {
                 pnet.NETWORK_TYPE: network[pnet.NETWORK_TYPE],
             }
-        segments = network.get(mpnet.SEGMENTS)
+        segments = network.get(mpnet_apidef.SEGMENTS)
         if segments:
             for seg in segments:
                 yield seg
