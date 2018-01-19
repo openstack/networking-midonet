@@ -15,6 +15,7 @@
 
 from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
+from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as midonet_const
 from midonet.neutron.db import logging_resource_db as log_res_db
 
