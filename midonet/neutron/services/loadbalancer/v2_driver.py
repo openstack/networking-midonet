@@ -28,6 +28,7 @@ from neutron_lbaas.drivers import driver_base
 from neutron_lbaas.services.loadbalancer import constants as lb_const
 
 from midonet.neutron.client import base as c_base
+from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import utils
 
 LOG = logging.getLogger(__name__)

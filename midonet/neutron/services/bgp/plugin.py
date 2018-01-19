@@ -28,6 +28,7 @@ from neutron_lib.plugins import directory
 
 from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
+from midonet.neutron.common import config  # noqa
 from midonet.neutron.common import constants as m_const
 from midonet.neutron.db import bgp_db_midonet
 from midonet.neutron.db import bgp_speaker_router_insertion_db as bsridb

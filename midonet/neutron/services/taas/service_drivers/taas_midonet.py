@@ -14,6 +14,7 @@
 #    under the License.
 from midonet.neutron._i18n import _LE
 from midonet.neutron.client import base as c_base
+from midonet.neutron.common import config  # noqa
 
 from neutron_taas.services.taas import service_drivers as taas_service_drivers
 
