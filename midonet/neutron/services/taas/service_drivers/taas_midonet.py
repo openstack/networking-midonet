@@ -21,6 +21,7 @@ from oslo_utils import excutils
 from neutron_taas.services.taas import service_drivers as taas_service_drivers
 
 from midonet.neutron.client import base as c_base
+from midonet.neutron.common import config  # noqa
 
 LOG = logging.getLogger(__name__)
 

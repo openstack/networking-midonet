@@ -23,6 +23,7 @@ from neutron_vpnaas.services.vpn.service_drivers import base_ipsec
 from neutron_vpnaas.services.vpn.service_drivers import ipsec_validator
 
 from midonet.neutron.client import base as c_base
+from midonet.neutron.common import config  # noqa
 
 LOG = logging.getLogger(__name__)
 
