@@ -1,5 +1,4 @@
 - project:
-    name: openstack/networking-midonet
     check:
       jobs:
         - networking-midonet-tempest-aio-v2:
