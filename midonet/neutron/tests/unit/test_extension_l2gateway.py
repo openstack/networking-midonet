@@ -448,7 +448,7 @@ class MidonetL2GatewayTestCaseMixin(test_gw.GatewayDeviceTestCaseMixin,
                         '',
                         l2_gw_con['l2_gateway_connection']['segmentation_id'])
 
-    def test_create_midonet_l2gateway_conn_error_delete_neutron_resouce(self):
+    def test_create_midonet_l2gateway_conn_error_delete_neutron_resource(self):
         self.client_mock.create_l2_gateway_connection.side_effect = Exception(
             "Fake Error")
         with self.gateway_device_type_router_vtep(

@@ -123,11 +123,11 @@ class VPNTestCaseMixin(test_vpn_db.VPNTestMixin,
             res = req.get_response(self.ext_api)
             self.assertEqual(204, res.status_int)
 
-    def test_delete_vpn_service_error_delete_neutron_resouce(self):
+    def test_delete_vpn_service_error_delete_neutron_resource(self):
         self.client_mock.delete_vpn_service_side_effect = Exception(
             "Fake Error")
         self.test_delete_vpnservice()
-        # check the resouce deleted in Neutron DB
+        # check the resource deleted in Neutron DB
         req = self.new_list_request('vpnservices')
         res = self.deserialize(self.fmt, req.get_response(self.ext_api))
         self.assertFalse(res['vpnservices'])
@@ -168,7 +168,7 @@ class VPNTestCaseMixin(test_vpn_db.VPNTestMixin,
                 self.assertEqual(constants.ACTIVE,
                                  ipsec_site_connection['status'])
 
-    def test_create_ipsec_site_connection_error_delete_neutron_resouce(self):
+    def test_create_ipsec_site_connection_error_delete_neutron_resource(self):
         self.client_mock.create_ipsec_site_conn.side_effect = Exception(
             "Fake Error")
         with self.vpnservice() as vpnservice, \
