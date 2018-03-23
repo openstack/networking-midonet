@@ -10,3 +10,7 @@ python-neutronclient>=6.8.0 # Apache-2.0
 # NOTE(yamamoto): Our devstack plugin installs python-midonetclient from
 # midonet repository.
 # -e git://github.com/midonet/midonet.git@master#egg=midonetclient&subdirectory=python-midonetclient
+
+# OpenStack CI will install the following projects from git
+# if they are in the required-projects list for a job:
+neutron>=12.0.0 # Apache-2.0
