@@ -26,6 +26,7 @@ from neutron_lib.callbacks import resources
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 from neutron_lib.exceptions import l3 as l3_exc
+from neutron_lib.plugins import utils as plugin_utils
 
 from neutron.db import _resource_extend as resource_extend
 from neutron.db import l3_gwmode_db
@@ -186,14 +187,15 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
 
         # 'status' in port dict could not be updated by default, use
         # check_allow_post to stop the verification of system
+        # TODO(boden): rehome create_port into neutron-lib
         external_port = p_utils.create_port(self._core_plugin,
                                             context.elevated(),
                                             {'port': port},
                                             check_allow_post=False)
 
-        with p_utils.delete_port_on_error(self._core_plugin,
-                                          context.elevated(),
-                                          external_port['id']),\
+        with plugin_utils.delete_port_on_error(
+                self._core_plugin, context.elevated(),
+                external_port['id']),\
                 context.session.begin(subtransactions=True):
             external_ips = self._port_fixed_ips_for_floatingip(external_port)
             if not external_ips:
