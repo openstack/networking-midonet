@@ -72,27 +72,6 @@ case $job in
         _QOS=True
         _LEGACY=True
         ;;
-    grenade-v2)
-        # NOTE(yamamoto): This job performs a migration from v2 to ML2
-        # Note the actual url here is somewhat irrelevant because it
-        # caches in nodepool, however make it a valid url for
-        # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_PLUGIN=midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_CLIENT=midonet.neutron.client.api.MidonetApiClient"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_SERVICE_PLUGIN_CLASSES=midonet.neutron.services.l3.l3_midonet.MidonetL3ServicePlugin"
-        _ADV_SVC=False
-        _QOS=True
-        _LEGACY=True
-        load_conf_hook quotas old
-        # REVISIT(yamamoto): A crude workaround for bug/1700487
-        # A better fix: Iec45a33930a06b17be00e8602f2457ab6960073f
-        ln -s \
-            $BASE/new/networking-midonet/devstack/midonet/functions \
-            $BASE/new/devstack/lib/neutron_plugins/midonet
-        ;;
     grenade-ml2)
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
