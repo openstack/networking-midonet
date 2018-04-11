@@ -13,7 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 import mock
-from mox3 import mox
 
 from neutronclient import shell
 from neutronclient.tests.unit import test_cli20
@@ -56,9 +55,6 @@ class CLIExtTestV20Base(test_cli20.CLITestV20Base):
     def _test_update_ext_resource(self, resource, cmd, myid, args,
                                   extrafields,
                                   cmd_resource=None, parent_id=None):
-        self.mox.StubOutWithMock(cmd, "get_client")
-        self.mox.StubOutWithMock(self.client.httpclient, "request")
-        cmd.get_client().MultipleTimes().AndReturn(self.client)
         if not cmd_resource:
             cmd_resource = resource
 
@@ -67,28 +63,29 @@ class CLIExtTestV20Base(test_cli20.CLITestV20Base):
         if parent_id:
             path = path % parent_id
         path = path % myid
-        mox_body = MyComparator(body, self.client)
-
-        self.client.httpclient.request(
-            test_cli20.MyUrlComparator(
-                test_cli20.end_url(path), self.client),
-            'PUT',
-            body=mox_body,
-            headers=mox.ContainsKeyValue(
-                'X-Auth-Token', TOKEN)).AndReturn((MyResp(204), None))
-        self.mox.ReplayAll()
+        mock_body = MyComparator(body, self.client)
+        resp = (MyResp(204), None)
         cmd_parser = cmd.get_parser("update_" + cmd_resource)
-        shell.run_command(cmd, cmd_parser, args)
-        self.mox.VerifyAll()
-        self.mox.UnsetStubs()
+
+        with mock.patch.object(cmd, 'get_client',
+                               return_value=self.client)as mock_get_client, \
+                mock.patch.object(self.client.httpclient, 'request',
+                                  return_value=resp) as mock_request:
+            shell.run_command(cmd, cmd_parser, args)
+
+        self.assert_mock_multiple_calls_with_same_arguments(
+            mock_get_client, mock.call(), None)
+        mock_request.assert_called_once_with(
+            test_cli20.end_url(path),
+            'PUT',
+            body=mock_body,
+            headers=test_cli20.ContainsKeyValue({'X-Auth-Token': TOKEN}))
+
         _str = self.fake_stdout.make_string()
         self.assertIn(myid, _str)
 
     def _test_show_ext_resource(self, resource, cmd, myid, args, fields=(),
                                 cmd_resource=None, parent_id=None):
-        self.mox.StubOutWithMock(cmd, "get_client")
-        self.mox.StubOutWithMock(self.client.httpclient, "request")
-        cmd.get_client().MultipleTimes().AndReturn(self.client)
         if not cmd_resource:
             cmd_resource = resource
 
@@ -101,40 +98,50 @@ class CLIExtTestV20Base(test_cli20.CLITestV20Base):
         if parent_id:
             path = path % parent_id
         path = path % myid
-        self.client.httpclient.request(
-            test_cli20.end_url(path, query), 'GET',
-            body=None,
-            headers=mox.ContainsKeyValue(
-                'X-Auth-Token', TOKEN)).AndReturn((MyResp(200), resstr))
-        self.mox.ReplayAll()
         cmd_parser = cmd.get_parser("show_" + cmd_resource)
-        shell.run_command(cmd, cmd_parser, args)
-        self.mox.VerifyAll()
-        self.mox.UnsetStubs()
+        resp = (MyResp(200), resstr)
+        with mock.patch.object(cmd, 'get_client',
+                               return_value=self.client)as mock_get_client, \
+                mock.patch.object(self.client.httpclient, 'request',
+                                  return_value=resp) as mock_request:
+            shell.run_command(cmd, cmd_parser, args)
+
+        self.assert_mock_multiple_calls_with_same_arguments(
+            mock_get_client, mock.call(), None)
+        mock_request.assert_called_once_with(
+            test_cli20.end_url(path, query),
+            'GET',
+            body=None,
+            headers=test_cli20.ContainsKeyValue({'X-Auth-Token': TOKEN}))
+
         _str = self.fake_stdout.make_string()
         self.assertIn(myid, _str)
         self.assertIn('myname', _str)
 
     def _test_delete_ext_resource(self, resource, cmd, myid, args,
                                   cmd_resource=None, parent_id=None):
-        self.mox.StubOutWithMock(cmd, "get_client")
-        self.mox.StubOutWithMock(self.client.httpclient, "request")
-        cmd.get_client().MultipleTimes().AndReturn(self.client)
         if not cmd_resource:
             cmd_resource = resource
         path = getattr(self.client, cmd_resource + "_path")
         if parent_id:
             path = path % parent_id
         path = path % myid
-        self.client.httpclient.request(
-            test_cli20.end_url(path), 'DELETE',
-            body=None,
-            headers=mox.ContainsKeyValue(
-                'X-Auth-Token', TOKEN)).AndReturn((MyResp(204), None))
-        self.mox.ReplayAll()
         cmd_parser = cmd.get_parser("delete_" + cmd_resource)
-        shell.run_command(cmd, cmd_parser, args)
-        self.mox.VerifyAll()
-        self.mox.UnsetStubs()
+        resp = (MyResp(204), None)
+
+        with mock.patch.object(cmd, 'get_client',
+                               return_value=self.client)as mock_get_client, \
+                mock.patch.object(self.client.httpclient, 'request',
+                                  return_value=resp) as mock_request:
+            shell.run_command(cmd, cmd_parser, args)
+
+        self.assert_mock_multiple_calls_with_same_arguments(
+            mock_get_client, mock.call(), None)
+        mock_request.assert_called_once_with(
+            test_cli20.end_url(path),
+            'DELETE',
+            body=None,
+            headers=test_cli20.ContainsKeyValue({'X-Auth-Token': TOKEN}))
+
         _str = self.fake_stdout.make_string()
         self.assertIn(myid, _str)
