@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib.db import utils as db_utils
 from neutron_lib.exceptions import firewall_v1 as fw_exc
 from oslo_db import exception as db_exc
 from oslo_log import helpers as log_helpers
@@ -55,8 +56,8 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
     def get_logging_resources(self, context, filters=None, fields=None,
                               sorts=None, limit=None, marker=None,
                               page_reverse=False):
-        marker_obj = self._get_marker_obj(context, 'logging_resource',
-                                          limit, marker)
+        marker_obj = db_utils.get_marker_obj(self, context, 'logging_resource',
+                                             limit, marker)
 
         return self._get_collection(
             context,
@@ -119,8 +120,8 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
                                            filters=None, fields=None,
                                            sorts=None, limit=None,
                                            marker=None, page_reverse=False):
-        marker_obj = self._get_marker_obj(context, 'firewall_log', limit,
-                                          marker)
+        marker_obj = db_utils.get_marker_obj(self, context, 'firewall_log',
+                                             limit, marker)
         return self._get_collection(context,
                                     model.FirewallLog,
                                     self._make_firewall_log_dict,
