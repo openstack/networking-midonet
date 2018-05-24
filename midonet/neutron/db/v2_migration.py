@@ -21,12 +21,12 @@ from oslo_utils import uuidutils
 from sqlalchemy import sql
 
 from neutron_lib import context as ctx
+from neutron_lib.objects import registry as obj_reg
 
 from neutron.db import api as db_api
 from neutron.db.models import portbinding
 from neutron.db.models import segment
 from neutron.db import models_v2
-from neutron.objects import network as network_obj
 from neutron.plugins.ml2 import models as ml2_models
 
 from midonet.neutron.db import port_binding_db
@@ -99,7 +99,8 @@ def add_segment(context, network_id, network_type):
     # NOTE(yamamoto): The code fragment is a modified copy of segments_db.py.
     # We don't want to make callback notifications.
     segment_id = uuidutils.generate_uuid()
-    netseg_obj = network_obj.NetworkSegment(
+    netseg_obj = obj_reg.new_instance(
+        'NetworkSegment',
         context,
         id=segment_id,
         network_id=network_id,

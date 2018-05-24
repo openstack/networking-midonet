@@ -26,13 +26,13 @@ from neutron_lib.callbacks import resources
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 from neutron_lib.exceptions import l3 as l3_exc
+from neutron_lib.objects import registry as obj_reg
 from neutron_lib.plugins import utils as plugin_utils
 
 from neutron.db import _resource_extend as resource_extend
 from neutron.db import l3_gwmode_db
 from neutron.db.models import l3 as l3_models
 from neutron.db import models_v2
-from neutron.objects import router as l3_obj
 
 from midonet.neutron._i18n import _
 
@@ -201,7 +201,8 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
 
             floating_fixed_ip = external_ips[0]
             floating_ip_address = floating_fixed_ip['ip_address']
-            floatingip_obj = l3_obj.FloatingIP(
+            floatingip_obj = obj_reg.new_instance(
+                'FloatingIP',
                 context,
                 id=fip_id,
                 project_id=fip['tenant_id'],
@@ -223,7 +224,7 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
             # NOTE(yamamoto): MidoNet doesn't have Floating IP QoS
             # if self._is_fip_qos_supported:
             #     self._process_extra_fip_qos_create(context, fip_id, fip)
-            floatingip_obj = l3_obj.FloatingIP.get_object(
+            floatingip_obj = obj_reg.load_class('FloatingIP').get_object(
                 context, id=floatingip_obj.id)
             floatingip_db = floatingip_obj.db_obj
 
