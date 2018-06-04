@@ -54,6 +54,17 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
     def get_router_for_floatingip(
             self, context, internal_port, internal_subnet,
             external_network_id):
+        """Find a router to handle the floating-ip association.
+
+        :param internal_port: The port for the fixed-ip.
+        :param internal_subnet: The subnet for the fixed-ip.
+        :param external_network_id: The external network for floating-ip.
+
+        :raises: ExternalGatewayForFloatingIPNotFound if no suitable router
+                 is found.
+        """
+        # REVISIT(yamamoto): The above docstring can be removed once
+        # https://review.openstack.org/#/c/577029/ is released.
         # REVISIT(yamamoto): These direct manipulation of core-plugin db
         # resources is not ideal.
         gw_port = orm.aliased(models_v2.Port, name="gw_port")

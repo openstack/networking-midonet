@@ -303,7 +303,7 @@
     required-projects:
       - openstack-infra/devstack-gate
       - openstack/networking-midonet
-      - openstack/rally
+      - {"name": "openstack/rally", "override-checkout": "0.12.1"}
 
 - job:
     name: networking-midonet-rally-v2
