@@ -14,6 +14,11 @@ ${DIR}/tox_install_project.sh tap-as-a-service neutron_taas $*
 CONSTRAINTS_FILE=$1
 shift
 
+if [ -z "$*" ]; then
+    echo "No packages to be installed."
+    exit 0
+fi
+
 install_cmd="pip install"
 if [ $CONSTRAINTS_FILE != "unconstrained" ]; then
     install_cmd="$install_cmd -c$CONSTRAINTS_FILE"

@@ -33,10 +33,34 @@ class MidoNetPlugin(plugin.PluginBase):
             ])
 
     def plug(self, vif, instance_info):
+        """Perform operations to plug the VIF properly.
+
+        :param vif: `os_vif.objects.vif.VIFBase` object.
+        :param instance_info: `os_vif.objects.instance_info.InstanceInfo`
+            object.
+        :raises: `processutils.ProcessExecutionError`. Plugins implementing
+                this method should let `processutils.ProcessExecutionError`
+                bubble up.
+        """
+
+        # REVISIT(yamamoto): The above docstring can be removed once
+        # https://review.openstack.org/#/c/577028/ is released.
         linux_net.create_tap_dev(vif.vif_name)
         _bind_port(vif.id, vif.vif_name)
 
     def unplug(self, vif, instance_info):
+        """Perform operations to unplug the VIF properly.
+
+        :param vif: `os_vif.objects.vif.VIFBase` object.
+        :param instance_info: `os_vif.objects.instance_info.InstanceInfo`
+            object.
+        :raises: `processutils.ProcessExecutionError`. Plugins implementing
+                this method should let `processutils.ProcessExecutionError`
+                bubble up.
+        """
+
+        # REVISIT(yamamoto): The above docstring can be removed once
+        # https://review.openstack.org/#/c/577028/ is released.
         _unbind_port(vif.id)
         linux_net.delete_net_dev(vif.vif_name)
 
