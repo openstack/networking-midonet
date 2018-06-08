@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import neutron.db.api as db
+from neutron_lib.db import api as db_api
 
 from midonet.neutron.client import base
 from midonet.neutron.db import task_db as task
@@ -25,7 +25,7 @@ class MidonetClusterClient(base.MidonetClientBase):
         self.conf = conf
 
     def initialize(self):
-        task.create_config_task(db.get_writer_session(), dict(self.conf))
+        task.create_config_task(db_api.get_writer_session(), dict(self.conf))
 
     def create_network_precommit(self, context, network):
         task.create_task(context, task.CREATE, data_type=task.NETWORK,
