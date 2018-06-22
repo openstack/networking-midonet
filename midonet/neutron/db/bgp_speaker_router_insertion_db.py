@@ -131,9 +131,9 @@ class BgpSpeakerRouterInsertionDbMixin(object):
                 bsp_id).delete()
 
     @registry.receives(resources.ROUTER, [events.BEFORE_DELETE])
-    def bgp_speaker_callback(self, resource, event, trigger, **kwargs):
-        router_id = kwargs['router_id']
-        context = kwargs.get('context')
+    def bgp_speaker_callback(self, resource, event, trigger, payload=None):
+        router_id = payload.resource_id
+        context = payload.context
         if self.get_bgp_speaker_associated_with_router(context, router_id):
             raise l3_exc.RouterInUse(
                 router_id=router_id, reason='is associated with bgp speaker')
