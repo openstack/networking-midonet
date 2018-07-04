@@ -1,9 +1,10 @@
 :orphan:
 
-Python API Reference
-====================
+..
+    Python API Reference
+    ====================
 
-.. toctree::
-   :maxdepth: 2
+    .. toctree::
+       :maxdepth: 2
 
-   autoindex
+       autoindex
