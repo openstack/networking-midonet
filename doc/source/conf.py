@@ -91,4 +91,6 @@ autodoc_mock_imports = [
     #    for backward compatibility. SIGUSR1 will no longer be registered
     #    in a future release, so please use SIGUSR2 to generate reports.
     'oslo_reports',
+    # "no IPRoute module for the platform" on OS X
+    'neutron.agent.linux.ip_lib',
 ]
