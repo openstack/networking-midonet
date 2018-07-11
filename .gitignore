@@ -54,7 +54,6 @@ doc/build/
 target/
 
 # tests
-.testrepository/
 .stestr/
 .venv/
 
