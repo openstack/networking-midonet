@@ -18,6 +18,7 @@ from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
 from neutron_lib.db import model_base
+from neutron_lib.db import utils as db_utils
 from neutron_lib import exceptions as n_exc
 from neutron_lib.exceptions import l3 as l3_exc
 from neutron_lib.plugins import constants
@@ -457,8 +458,8 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
     def get_gateway_devices(self, context, filters=None, fields=None,
                             sorts=None, limit=None, marker=None,
                             page_reverse=False):
-        marker_obj = self._get_marker_obj(context, 'gateway_device', limit,
-                                          marker)
+        marker_obj = db_utils.get_marker_obj(self, context, 'gateway_device',
+                                             limit, marker)
 
         return self._get_collection(context,
                                     GatewayDevice,
@@ -472,8 +473,8 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
                                               filters=None, fields=None,
                                               sorts=None, limit=None,
                                               marker=None, page_reverse=False):
-        marker_obj = self._get_marker_obj(context, 'remote_mac_entry', limit,
-                                          marker)
+        marker_obj = db_utils.get_marker_obj(self, context, 'remote_mac_entry',
+                                             limit, marker)
         filters['device_id'] = [gateway_device_id]
         return self._get_collection(context,
                                     GatewayRemoteMacTable,
