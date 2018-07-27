@@ -45,9 +45,9 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
 
     def _check_router_not_in_use(self, context, router_id):
         try:
-            kwargs = {'context': context, 'router_id': router_id}
-            registry.notify(
-                resources.ROUTER, events.BEFORE_DELETE, self, **kwargs)
+            registry.publish(
+                resources.ROUTER, events.BEFORE_DELETE, self,
+                payload=events.DBEventPayload(context, resource_id=router_id))
         except exceptions.CallbackFailure as e:
             with excutils.save_and_reraise_exception():
                 if len(e.errors) == 1:

@@ -501,13 +501,26 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
         return self._make_gateway_device_dict(gw_dev_db)
 
     @registry.receives(resources.ROUTER, [events.BEFORE_DELETE])
-    @registry.receives(resources.NETWORK, [events.PRECOMMIT_DELETE])
-    def _gateway_device_callback(self, resource, event, trigger, **kwargs):
+    def _gateway_router_device_callback(self, resource, event,
+                                        trigger, payload=None):
+        # TODO(boden): refactor this back into _gateway_device_callback once
+        # NETWORK resources use paylaods
         if resource == resources.ROUTER:
-            resource_id = kwargs['router_id']
+            resource_id = payload.resource_id
             gw_dev_type = gw_device_ext.ROUTER_DEVICE_TYPE
             resource_type = 'router'
-        elif resource == resources.NETWORK:
+        else:
+            return
+        context = payload.context
+        if self._get_gateway_device_from_resource(context,
+                                                  gw_dev_type,
+                                                  resource_id):
+            raise gw_device_ext.DeviceInUseByGatewayDevice(
+                resource_id=resource_id, resource_type=resource_type)
+
+    @registry.receives(resources.NETWORK, [events.PRECOMMIT_DELETE])
+    def _gateway_device_callback(self, resource, event, trigger, **kwargs):
+        if resource == resources.NETWORK:
             resource_id = kwargs['network_id']
             gw_dev_type = gw_device_ext.NETWORK_VLAN_TYPE
             resource_type = 'network'
