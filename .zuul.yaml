@@ -75,6 +75,7 @@
               - ^setup.cfg$
               - ^specs/.*$
         - networking-midonet-grenade-ml2:
+            voting: false
             irrelevant-files:
               - ^(test-|)requirements.txt$
               - ^.*\.rst$
@@ -90,12 +91,6 @@
               - ^doc/.*$
               - ^midonet/neutron/tests/unit/.*$
               - ^setup.cfg$
-              - ^specs/.*$
-        - networking-midonet-rally-ml2:
-            irrelevant-files:
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
               - ^specs/.*$
         - networking-midonet-rally-v2:
             branches: ^stable/ocata
@@ -123,14 +118,6 @@
               - ^midonet/neutron/tests/unit/.*$
               - ^setup.cfg$
               - ^specs/.*$
-        - networking-midonet-grenade-ml2:
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^setup.cfg$
-              - ^specs/.*$
         - networking-midonet-grenade-v2:
             branches: ^stable/pike$
             irrelevant-files:
@@ -139,12 +126,6 @@
               - ^doc/.*$
               - ^midonet/neutron/tests/unit/.*$
               - ^setup.cfg$
-              - ^specs/.*$
-        - networking-midonet-rally-ml2:
-            irrelevant-files:
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
               - ^specs/.*$
         - networking-midonet-rally-v2:
             branches: ^stable/ocata
