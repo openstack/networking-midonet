@@ -56,6 +56,7 @@
               - ^setup.cfg$
               - ^specs/.*$
         - networking-midonet-grenade-ml2:
+            voting: false
             irrelevant-files:
               - ^(test-|)requirements.txt$
               - ^.*\.rst$
@@ -72,14 +73,6 @@
     gate:
       jobs:
         - networking-midonet-tempest-aio-ml2:
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^setup.cfg$
-              - ^specs/.*$
-        - networking-midonet-grenade-ml2:
             irrelevant-files:
               - ^(test-|)requirements.txt$
               - ^.*\.rst$
