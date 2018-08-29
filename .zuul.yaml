@@ -1,4 +1,10 @@
 - project:
+    templates:
+      - check-requirements
+      - openstack-python-jobs-neutron
+      - openstack-python35-jobs-neutron
+      - publish-openstack-sphinx-docs
+      - release-notes-jobs
     check:
       jobs:
         - networking-midonet-tempest-aio-v2:
@@ -95,6 +101,48 @@
               - ^doc/.*$
               - ^midonet/neutron/tests/unit/.*$
               - ^specs/.*$
+        - build-openstack-sphinx-docs:
+            required-projects:
+              - openstack/neutron-fwaas
+              - openstack/neutron-vpnaas
+              - openstack/neutron-lbaas
+              - openstack/neutron-dynamic-routing
+              - openstack/networking-l2gw
+              - openstack/tap-as-a-service
+        - openstack-tox-pep8:
+            required-projects:
+              - openstack/neutron-fwaas
+              - openstack/neutron-vpnaas
+              - openstack/neutron-lbaas
+              - openstack/neutron-dynamic-routing
+              - openstack/networking-l2gw
+              - openstack/tap-as-a-service
+        - openstack-tox-py27:
+            required-projects:
+              - openstack/neutron-fwaas
+              - openstack/neutron-vpnaas
+              - openstack/neutron-lbaas
+              - openstack/neutron-dynamic-routing
+              - openstack/networking-l2gw
+              - openstack/tap-as-a-service
+        - openstack-tox-py35:
+            required-projects:
+              - openstack/neutron-fwaas
+              - openstack/neutron-vpnaas
+              - openstack/neutron-lbaas
+              - openstack/neutron-dynamic-routing
+              - openstack/networking-l2gw
+              - openstack/tap-as-a-service
+        - openstack-tox-cover:
+            voting: false
+            required-projects:
+              - openstack/neutron
+              - openstack/neutron-fwaas
+              - openstack/neutron-vpnaas
+              - openstack/neutron-lbaas
+              - openstack/neutron-dynamic-routing
+              - openstack/networking-l2gw
+              - openstack/tap-as-a-service
     gate:
       jobs:
         - networking-midonet-tempest-aio-v2:
@@ -144,6 +192,38 @@
               - ^doc/.*$
               - ^midonet/neutron/tests/unit/.*$
               - ^specs/.*$
+        - build-openstack-sphinx-docs:
+            required-projects:
+              - openstack/neutron-fwaas
+              - openstack/neutron-vpnaas
+              - openstack/neutron-lbaas
+              - openstack/neutron-dynamic-routing
+              - openstack/networking-l2gw
+              - openstack/tap-as-a-service
+        - openstack-tox-pep8:
+            required-projects:
+              - openstack/neutron-fwaas
+              - openstack/neutron-vpnaas
+              - openstack/neutron-lbaas
+              - openstack/neutron-dynamic-routing
+              - openstack/networking-l2gw
+              - openstack/tap-as-a-service
+        - openstack-tox-py27:
+            required-projects:
+              - openstack/neutron-fwaas
+              - openstack/neutron-vpnaas
+              - openstack/neutron-lbaas
+              - openstack/neutron-dynamic-routing
+              - openstack/networking-l2gw
+              - openstack/tap-as-a-service
+        - openstack-tox-py35:
+            required-projects:
+              - openstack/neutron-fwaas
+              - openstack/neutron-vpnaas
+              - openstack/neutron-lbaas
+              - openstack/neutron-dynamic-routing
+              - openstack/networking-l2gw
+              - openstack/tap-as-a-service
     experimental:
       jobs:
         - networking-midonet-tempest-multinode-ml2:
@@ -156,6 +236,54 @@
               - ^setup.cfg$
               - ^specs/.*$
 
+    periodic:
+      jobs:
+        - legacy-periodic-tempest-dsvm-networking-midonet-aio-v2-full-ocata:
+            irrelevant-files:
+              - ^(test-|)requirements.txt$
+              - ^.*\.rst$
+              - ^doc/.*$
+              - ^midonet/neutron/tests/unit/.*$
+              - ^setup.cfg$
+              - ^specs/.*$
+        - legacy-periodic-tempest-dsvm-networking-midonet-aio-ml2-full-ocata:
+            irrelevant-files:
+              - ^(test-|)requirements.txt$
+              - ^.*\.rst$
+              - ^doc/.*$
+              - ^midonet/neutron/tests/unit/.*$
+              - ^setup.cfg$
+              - ^specs/.*$
+    periodic-stable:
+      jobs:
+        - build-openstack-sphinx-docs:
+            required-projects:
+              - openstack/neutron
+              - openstack/neutron-fwaas
+              - openstack/neutron-vpnaas
+              - openstack/neutron-lbaas
+              - openstack/neutron-dynamic-routing
+              - openstack/networking-l2gw
+              - openstack/tap-as-a-service
+        - openstack-tox-py27:
+            required-projects:
+              - openstack/neutron
+              - openstack/neutron-fwaas
+              - openstack/neutron-vpnaas
+              - openstack/neutron-lbaas
+              - openstack/neutron-dynamic-routing
+              - openstack/networking-l2gw
+              - openstack/tap-as-a-service
+    post:
+      jobs:
+        - publish-openstack-python-branch-tarball:
+            required-projects:
+              - openstack/neutron-fwaas
+              - openstack/neutron-vpnaas
+              - openstack/neutron-lbaas
+              - openstack/neutron-dynamic-routing
+              - openstack/networking-l2gw
+              - openstack/tap-as-a-service
 - job:
     name: networking-midonet-tempest-aio-ml2
     parent: legacy-dsvm-base
