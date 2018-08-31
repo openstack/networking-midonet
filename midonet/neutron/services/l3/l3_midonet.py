@@ -279,10 +279,11 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
 
     @registry.receives(resources.ROUTER_INTERFACE, [events.BEFORE_DELETE])
     def _check_router_interface_used_as_gw_for_fip(self, resource,
-                                                   event, trigger, **kwargs):
-        context = kwargs['context']
-        router_id = kwargs['router_id']
-        subnet_id = kwargs['subnet_id']
+                                                   event, trigger,
+                                                   payload=None):
+        context = payload.context
+        router_id = payload.resource_id
+        subnet_id = payload.metadata['subnet_id']
         if self._subnet_has_fip(context, router_id, subnet_id):
             raise routerinterfacefip.RouterInterfaceInUseAsGatewayByFloatingIP(
                 router_id=router_id, subnet_id=subnet_id)
