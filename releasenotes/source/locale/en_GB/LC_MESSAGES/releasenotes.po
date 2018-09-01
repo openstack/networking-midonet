@@ -1,13 +1,14 @@
 # Andi Chandler <andi@gowling.com>, 2017. #zanata
+# Andi Chandler <andi@gowling.com>, 2018. #zanata
 msgid ""
 msgstr ""
-"Project-Id-Version: Midonet Release Notes\n"
+"Project-Id-Version: networking-midonet\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-03-28 15:32+0000\n"
+"POT-Creation-Date: 2018-08-31 10:27+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2017-10-22 09:42+0000\n"
+"PO-Revision-Date: 2018-08-08 09:01+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language-Team: English (United Kingdom)\n"
 "Language: en_GB\n"
@@ -173,6 +174,9 @@ msgid ""
 msgstr ""
 "QoS extension support has been added. See `QoS <http://docs.openstack.org/"
 "developer/networking-midonet/readme.html#qos>`_ for details."
+
+msgid "Queens Series Release Notes"
+msgstr "Queens Series Release Notes"
 
 msgid ""
 "See `BGP dynamic routing service <http://docs.openstack.org/developer/"

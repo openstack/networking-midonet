@@ -1,0 +1,352 @@
+# Andi Chandler <andi@gowling.com>, 2017. #zanata
+# Andi Chandler <andi@gowling.com>, 2018. #zanata
+msgid ""
+msgstr ""
+"Project-Id-Version: networking-midonet VERSION\n"
+"Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
+"POT-Creation-Date: 2018-08-31 10:27+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2018-08-08 09:02+0000\n"
+"Last-Translator: Andi Chandler <andi@gowling.com>\n"
+"Language-Team: English (United Kingdom)\n"
+"Language: en_GB\n"
+"X-Generator: Zanata 4.3.3\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+#, python-format
+msgid "%(param_name)s %(param_value)s %(reason)s"
+msgstr "%(param_name)s %(param_value)s %(reason)s"
+
+#, python-format
+msgid "%(resource_name)s %(resource_id)s %(reason)s"
+msgstr "%(resource_name)s %(resource_id)s %(reason)s"
+
+#, python-format
+msgid "%s prohibited for midonet provider network"
+msgstr "%s prohibited for midonet provider network"
+
+#, python-format
+msgid "%s prohibited for uplink provider network"
+msgstr "%s prohibited for uplink provider network"
+
+#, python-format
+msgid "%s: provided data are not iterable"
+msgstr "%s: provided data are not iterable"
+
+msgid ""
+"A valid network identifier must be specified when connecting a network to a "
+"network gateway. Unable to complete operation"
+msgstr ""
+"A valid network identifier must be specified when connecting a network to a "
+"network gateway. Unable to complete operation"
+
+msgid "Available commands"
+msgstr "Available commands"
+
+#, python-format
+msgid "Bgp speaker %(id)s %(reason)s"
+msgstr "BGP speaker %(id)s %(reason)s"
+
+msgid "Cannot create a gateway with an empty device list"
+msgstr "Cannot create a gateway with an empty device list"
+
+msgid "Cannot create a gateway with an empty device_id"
+msgstr "Cannot create a gateway with an empty device_id"
+
+msgid "Description of firewall log."
+msgstr "Description of firewall log."
+
+msgid "Description of logging."
+msgstr "Description of logging."
+
+msgid "Descriptive name for logical gateway."
+msgstr "Descriptive name for logical gateway."
+
+msgid ""
+"Device id and segmentation id of l2gateway. --device option can be repeated"
+msgstr ""
+"Device id and segmentation id of l2gateway. --device option can be repeated"
+
+msgid "Enable/disable for the logging. Defaults to False."
+msgstr "Enable/disable for the logging. Defaults to False."
+
+msgid "Error connecting to cluster"
+msgstr "Error connecting to cluster"
+
+msgid "Event of firewall. Defaults to ALL."
+msgstr "Event of firewall. Defaults to ALL."
+
+msgid "Exactly one device must be specified to create a gateway"
+msgstr "Exactly one device must be specified to create a gateway"
+
+#, python-format
+msgid "Firewall log %(id)s does not exist"
+msgstr "Firewall log %(id)s does not exist"
+
+msgid "Firewall to be logged"
+msgstr "Firewall to be logged"
+
+#, python-format
+msgid "Gateway device %(id)s %(reason)s"
+msgstr "Gateway device %(id)s %(reason)s"
+
+#, python-format
+msgid "Gateway device %(id)s does not exist"
+msgstr "Gateway device %(id)s does not exist"
+
+#, python-format
+msgid ""
+"Gateway device %(type)s must be specified with management_port and "
+"management_ip"
+msgstr ""
+"Gateway device %(type)s must be specified with management_port and "
+"management_ip"
+
+#, python-format
+msgid "Gateway device %(type)s must be specified with resource_id"
+msgstr "Gateway device %(type)s must be specified with resource_id"
+
+msgid "ID of the gateway device."
+msgstr "ID of the gateway device."
+
+msgid "ID of the logging_resource."
+msgstr "ID of the logging_resource."
+
+msgid "ID of the project that MidoNet admin user belongs to."
+msgstr "ID of the project that MidoNet admin user belongs to."
+
+msgid "IP address on which gateway device originates or terminates tunnel."
+msgstr "IP address on which gateway device originates or terminates tunnel."
+
+msgid "IP that the cluster service can be reached on. Currently unused."
+msgstr "IP that the cluster service can be reached on. Currently unused."
+
+msgid "Interfaces are not allowed in MidoNet L2GW"
+msgstr "Interfaces are not allowed in MidoNet L2GW"
+
+msgid "Invalid Mechanism driver context passed in."
+msgstr "Invalid Mechanism driver context passed in."
+
+#, python-format
+msgid ""
+"Invalid keys found among the ones provided in request : %(connection_attrs)s."
+msgstr ""
+"Invalid keys found among the ones provided in request : %(connection_attrs)s."
+
+#, python-format
+msgid ""
+"L2 Gateway Connection related to specified L2 Gateway %(l2_gateway_id)s "
+"already exists"
+msgstr ""
+"L2 Gateway Connection related to specified L2 Gateway %(l2_gateway_id)s "
+"already exists"
+
+#, python-format
+msgid "Logging resource %(id)s does not exist"
+msgstr "Logging resource %(id)s does not exist"
+
+msgid "Management IP to the device. Defaults to None."
+msgstr "Management IP to the device. Defaults to None."
+
+msgid "Management port to the device. Defaults to None."
+msgstr "Management port to the device. Defaults to None."
+
+msgid ""
+"Management protocol to manage the device: ovsdb or none. If management ip "
+"and port are specified, defaults to ovsdb. Otherwise to none."
+msgstr ""
+"Management protocol to manage the device: ovsdb or none. If management IP "
+"address and port are specified, defaults to ovsdb. Otherwise to none."
+
+#, python-format
+msgid "MidoNet API error: %(msg)s"
+msgstr "MidoNet API error: %(msg)s"
+
+msgid ""
+"MidoNet API server URI. Note that, for historical reasons, the port number "
+"in the default value (8080) does not match the default of the MidoNet API in "
+"MidoNet 5.0 and later, which is 8181. Even if you configured the MidoNet API "
+"to use port 8080, we recommend to configure this option explicitly because "
+"the default value may change in the future release of networking-midonet."
+msgstr ""
+"MidoNet API server URI. Note that, for historical reasons, the port number "
+"in the default value (8080) does not match the default of the MidoNet API in "
+"MidoNet 5.0 and later, which is 8181. Even if you configured the MidoNet API "
+"to use port 8080, we recommend to configure this option explicitly because "
+"the default value may change in the future release of networking-midonet."
+
+msgid "MidoNet admin password."
+msgstr "MidoNet admin password."
+
+msgid "MidoNet admin username."
+msgstr "MidoNet admin username."
+
+msgid ""
+"MidoNet client used to access MidoNet data storage. Do not change unless you "
+"want to try the experimental Task-based API."
+msgstr ""
+"MidoNet client used to access MidoNet data storage. Do not change unless you "
+"want to try the experimental Task-based API."
+
+msgid ""
+"Midonet L2 Gateway Service is unavailable because Gateway Device Management "
+"Service is disabled."
+msgstr ""
+"Midonet L2 Gateway Service is unavailable because Gateway Device Management "
+"Service is disabled."
+
+#, python-format
+msgid "Network %s does not contain any subnet"
+msgstr "Network %s does not contain any subnet"
+
+#, python-format
+msgid "Network %s is not a valid external network"
+msgstr "Network %s is not a valid external network"
+
+#, python-format
+msgid "No IPs assigned to the gateway port for router %s"
+msgstr "No IPs assigned to the gateway port for router %s"
+
+#, python-format
+msgid "No gateway ips on the subnet: %(subnet_id)s."
+msgstr "No gateway IPs on the subnet: %(subnet_id)s."
+
+#, python-format
+msgid "No ports have gateway ip on the subnet: %(subnet_id)s."
+msgstr "No ports have gateway IP on the subnet: %(subnet_id)s."
+
+#, python-format
+msgid "No subnets in the network: %(network_id)s."
+msgstr "No subnets in the network: %(network_id)s."
+
+msgid ""
+"Number of firewall logs allowed per tenant. A negative value means unlimited."
+msgstr ""
+"Number of firewall logs allowed per tenant. A negative value means unlimited."
+
+msgid "Only external network can be specified."
+msgstr "Only external network can be specified."
+
+msgid "Port that the cluster service can be reached on. Currently unused."
+msgstr "Port that the cluster service can be reached on. Currently unused."
+
+msgid "Remote MAC address"
+msgstr "Remote MAC address"
+
+#, python-format
+msgid ""
+"Remote MAC entry %(id)s does not belong to gateway device "
+"%(gateway_device_id)s"
+msgstr ""
+"Remote MAC entry %(id)s does not belong to gateway device "
+"%(gateway_device_id)s"
+
+#, python-format
+msgid "Remote MAC entry %(id)s does not exist"
+msgstr "Remote MAC entry %(id)s does not exist"
+
+msgid "Remote VTEP Tunnel IP"
+msgstr "Remote VTEP Tunnel IP"
+
+#, python-format
+msgid ""
+"Request contains duplicate remote mac address entry: mac_address "
+"%(mac_address)s."
+msgstr ""
+"Request contains duplicate remote mac address entry: mac_address "
+"%(mac_address)s."
+
+msgid ""
+"Resource UUID or None (for type router_vtep will be router UUID and for type "
+"network_vlan will be network UUID)"
+msgstr ""
+"Resource UUID or None (for type router_vtep will be router UUID and for type "
+"network_vlan will be network UUID)"
+
+#, python-format
+msgid ""
+"Router interface for subnet %(subnet_id)s on router %(router_id)s cannot be "
+"deleted, as it is required by one or more floating IPs as a gateway."
+msgstr ""
+"Router interface for subnet %(subnet_id)s on router %(router_id)s cannot be "
+"deleted, as it is required by one or more Floating IPs as a gateway."
+
+msgid "Segmentation id is out of range"
+msgstr "Segmentation id is out of range"
+
+msgid "Segmentation id must be a valid integer"
+msgstr "Segmentation id must be a valid integer"
+
+msgid "Segmentation id must be specified in create l2gateway connections"
+msgstr "Segmentation id must be specified in create l2gateway connections"
+
+msgid "Tunnel protocol used by Midonet. Currently unused."
+msgstr "Tunnel protocol used by Midonet. Currently unused."
+
+msgid ""
+"Type of the device: hw_vtep, router_vtep or network_vlan. Defaults to hw_vtep"
+msgstr ""
+"Type of the device: hw_vtep, router_vtep or network_vlan. Defaults to hw_vtep"
+
+msgid ""
+"Unable to complete operation for Gateway Device. The number of tunnel ips "
+"exceeds the maximum 1."
+msgstr ""
+"Unable to complete operation for Gateway Device. The number of tunnel IPs "
+"exceeds the maximum 1."
+
+#, python-format
+msgid ""
+"Unable to complete operation for Gateway Device. The tunnel ips are required "
+"for %(gw_type)s type."
+msgstr ""
+"Unable to complete operation for Gateway Device. The tunnel IPs are required "
+"for %(gw_type)s type."
+
+msgid ""
+"Unable to complete operation for bgp speaker. External network must be "
+"associated with bgp speaker when logical_router is not specified in bgp "
+"speaker creation."
+msgstr ""
+"Unable to complete operation for BGP speaker. External network must be "
+"associated with BGP speaker when logical_router is not specified in BGP "
+"speaker creation."
+
+#, python-format
+msgid "Unable to operate remote_mac_entry for gateway device %(type)s type."
+msgstr "Unable to operate remote_mac_entry for gateway device %(type)s type."
+
+#, python-format
+msgid "Unsupported network type %(type)s detected in a create network request."
+msgstr ""
+"Unsupported network type %(type)s detected in a create network request."
+
+msgid "User defined device name."
+msgstr "User defined device name."
+
+msgid "User defined logging name."
+msgstr "User defined logging name."
+
+msgid "VNI to be used"
+msgstr "VNI to be used"
+
+#, python-format
+msgid "bgp peer %(id)s %(reason)s"
+msgstr "BGP peer %(id)s %(reason)s"
+
+msgid ""
+"default segmentation_id should not be provided when segmentation_id is "
+"assigned during l2gateway creation"
+msgstr ""
+"default segmentation_id should not be provided when segmentation_id is "
+"assigned during l2gateway creation"
+
+#, python-format
+msgid "device %(resource_id)s (%(resource_type)s) %(reason)s"
+msgstr "device %(resource_id)s (%(resource_type)s) %(reason)s"
+
+#, python-format
+msgid "specified resource %(resource_id)s does not exist"
+msgstr "specified resource %(resource_id)s does not exist"
