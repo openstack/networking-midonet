@@ -77,14 +77,6 @@
               - ^doc/.*$
               - ^midonet/neutron/tests/unit/.*$
               - ^specs/.*$
-        - openstack-tox-docs:
-            required-projects:
-              - openstack/neutron-fwaas
-              - openstack/neutron-vpnaas
-              - openstack/neutron-lbaas
-              - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
-              - openstack/tap-as-a-service
         - openstack-tox-pep8:
             required-projects:
               - openstack/neutron-fwaas
@@ -118,7 +110,6 @@
               - openstack/networking-l2gw
               - openstack/tap-as-a-service
         - openstack-tox-cover:
-            voting: false
             required-projects:
               - openstack/neutron
               - openstack/neutron-fwaas
@@ -143,15 +134,6 @@
               - ^doc/.*$
               - ^midonet/neutron/tests/unit/.*$
               - ^specs/.*$
-
-        - openstack-tox-docs:
-            required-projects:
-              - openstack/neutron-fwaas
-              - openstack/neutron-vpnaas
-              - openstack/neutron-lbaas
-              - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
-              - openstack/tap-as-a-service
         - openstack-tox-pep8:
             required-projects:
               - openstack/neutron-fwaas
@@ -220,6 +202,7 @@
               - openstack/neutron-dynamic-routing
               - openstack/networking-l2gw
               - openstack/tap-as-a-service
+
 - job:
     name: networking-midonet-tempest-aio-ml2
     parent: legacy-dsvm-base
