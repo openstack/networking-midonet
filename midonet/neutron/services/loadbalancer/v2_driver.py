@@ -50,10 +50,15 @@ class MidonetLoadBalancerDriver(driver_base.LoadBalancerBaseDriver):
     def __init__(self, plugin):
         super(MidonetLoadBalancerDriver, self).__init__(plugin)
 
+        # pylint: disable-msg=E0110
         self.load_balancer = MidonetLoadBalancerManager(self)
+        # pylint: disable-msg=E0110
         self.listener = MidonetListenerManager(self)
+        # pylint: disable-msg=E0110
         self.pool = MidonetPoolManager(self)
+        # pylint: disable-msg=E0110
         self.member = MidonetMemberManager(self)
+        # pylint: disable-msg=E0110
         self.health_monitor = MidonetHealthMonitorManager(self)
         self._client = c_base.load_client(cfg.CONF.MIDONET)
 

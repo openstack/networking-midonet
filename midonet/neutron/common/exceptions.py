@@ -31,4 +31,4 @@ class InvalidMidonetDataState(exc.NeutronException):
 
     i.e. missing some table that should always be present.
     """
-    pass
+    message = _("MidoNet Invalid Data State error: %(issue)s")

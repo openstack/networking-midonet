@@ -58,6 +58,7 @@ def validate_gwdevice_list(data, valid_values=None):
     except TypeError:
         return (_("%s: provided data are not iterable") %
                 validate_gwdevice_list.__name__)
+    return None
 
 
 def validate_network_mapping_list_without_seg_id_validation(network_mapping,

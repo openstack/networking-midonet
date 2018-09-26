@@ -24,7 +24,7 @@ from sqlalchemy import event
 from neutron.db.migration.alembic_migrations import external
 from neutron.db.migration.models import head  # noqa
 
-from midonet.neutron.db.migration.models import head  # noqa
+from midonet.neutron.db.migration.models import head as mn_head  # noqa
 
 
 MYSQL_ENGINE = None

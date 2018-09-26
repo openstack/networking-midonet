@@ -39,10 +39,10 @@ def get_data_state(session):
         return session.query(DataState).one()
     except sa.orm.exc.NoResultFound:
         issue = "Missing Data State table"
-        raise exc.InvalidMidonetDataState(issue)
+        raise exc.InvalidMidonetDataState(issue=issue)
     except sa.orm.exc.MultipleResultsFound:
         issue = "There should be exactly one Data State table"
-        raise exc.InvalidMidonetDataState(issue)
+        raise exc.InvalidMidonetDataState(issue=issue)
 
 
 def set_data_state_readonly(session, val):

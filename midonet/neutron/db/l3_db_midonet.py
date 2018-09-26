@@ -139,6 +139,7 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
             addr = netaddr.IPAddress(fixed_ip.ip_address)
             if addr.version == fip_addr.version:
                 return fixed_ip.ip_address
+        return None
 
     def _port_fixed_ips_for_floatingip(self, port):
         # Returns the fixed IP addresses on the given port preferring IPv4

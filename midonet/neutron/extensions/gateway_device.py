@@ -112,7 +112,7 @@ class OperationRemoteMacEntryNotSupported(nexception.Conflict):
 
 def _validate_port_or_none(data, valid_values=None):
     if data is None:
-        return
+        return None
     return validators.validate_range(data, [0, 65535])
 
 
