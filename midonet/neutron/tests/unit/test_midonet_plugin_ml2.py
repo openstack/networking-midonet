@@ -352,6 +352,11 @@ class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
     def test_floatingip_with_invalid_create_port(self):
         self._test_floatingip_with_invalid_create_port(PLUGIN_NAME)
 
+    # NOTE(yamamoto): MidoNet doesn't support a gateway port without IPs.
+    # "No IPs assigned to the gateway port for router %s"
+    def test_router_add_gateway_notifications(self):
+        pass
+
 
 class TestMidonetProviderNet(MidonetPluginML2TestCase):
 
