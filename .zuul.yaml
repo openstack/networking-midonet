@@ -16,7 +16,7 @@
               - ^midonet/neutron/tests/unit/.*$
               - ^setup.cfg$
               - ^specs/.*$
-        - networking-midonet-tempest-aio-ml2-full:
+        - networking-midonet-tempest-multinode-ml2-full:
             voting: false
             irrelevant-files:
               - ^(test-|)requirements.txt$
@@ -227,10 +227,10 @@
       - openstack/tempest
 
 - job:
-    name: networking-midonet-tempest-aio-ml2-full
-    parent: legacy-dsvm-base
-    run: playbooks/tempest-aio-ml2-full/run.yaml
-    post-run: playbooks/tempest-aio-ml2-full/post.yaml
+    name: networking-midonet-tempest-multinode-ml2-full
+    parent: legacy-dsvm-base-multinode
+    run: playbooks/tempest-multinode-ml2-full/run.yaml
+    post-run: playbooks/tempest-multinode-ml2-full/post.yaml
     timeout: 7800
     required-projects:
       - openstack-infra/devstack-gate
@@ -240,6 +240,7 @@
       - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
       - openstack/tempest
+    nodeset: legacy-ubuntu-xenial-2-node
 
 - job:
     name: networking-midonet-tempest-aio-ml2-full-centos-7
