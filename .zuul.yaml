@@ -8,16 +8,7 @@
       - release-notes-jobs-python3
     check:
       jobs:
-        - networking-midonet-tempest-aio-ml2:
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^setup.cfg$
-              - ^specs/.*$
         - networking-midonet-tempest-multinode-ml2:
-            voting: false
             irrelevant-files:
               - ^(test-|)requirements.txt$
               - ^.*\.rst$
@@ -120,7 +111,7 @@
               - openstack/tap-as-a-service
     gate:
       jobs:
-        - networking-midonet-tempest-aio-ml2:
+        - networking-midonet-tempest-multinode-ml2:
             irrelevant-files:
               - ^(test-|)requirements.txt$
               - ^.*\.rst$
@@ -204,10 +195,10 @@
               - openstack/tap-as-a-service
 
 - job:
-    name: networking-midonet-tempest-aio-ml2
-    parent: legacy-dsvm-base
-    run: playbooks/tempest-aio-ml2/run.yaml
-    post-run: playbooks/tempest-aio-ml2/post.yaml
+    name: networking-midonet-tempest-multinode-ml2
+    parent: legacy-dsvm-base-multinode
+    run: playbooks/tempest-multinode-ml2/run.yaml
+    post-run: playbooks/tempest-multinode-ml2/post.yaml
     timeout: 7800
     required-projects:
       - openstack-infra/devstack-gate
@@ -217,6 +208,7 @@
       - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
       - openstack/tempest
+    nodeset: legacy-ubuntu-xenial-2-node
 
 - job:
     name: networking-midonet-tempest-aio-ml2-centos-7
@@ -279,22 +271,6 @@
       - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
       - openstack/tempest
-
-- job:
-    name: networking-midonet-tempest-multinode-ml2
-    parent: legacy-dsvm-base-multinode
-    run: playbooks/tempest-multinode-ml2/run.yaml
-    post-run: playbooks/tempest-multinode-ml2/post.yaml
-    timeout: 7800
-    required-projects:
-      - openstack-infra/devstack-gate
-      - openstack/networking-l2gw
-      - openstack/networking-midonet
-      - openstack/neutron-dynamic-routing
-      - openstack/neutron-tempest-plugin
-      - openstack/tap-as-a-service
-      - openstack/tempest
-    nodeset: legacy-ubuntu-xenial-2-node
 
 - job:
     name: networking-midonet-grenade-ml2
