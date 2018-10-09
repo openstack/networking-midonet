@@ -260,13 +260,13 @@ def _build_func(method, lb_op):
                 'method': method,
                 'obj_dict': obj_dict,
             })
-            return
+            return None
         if lb_op == 'create':
             return api_method(obj_dict)
         elif lb_op == 'update':
             return api_method(id_, obj_dict)
-        else:  # delete, refresh, stats
-            return api_method(id_)
+        # delete, refresh, stats
+        return api_method(id_)
     f.__name__ = method
     return f
 

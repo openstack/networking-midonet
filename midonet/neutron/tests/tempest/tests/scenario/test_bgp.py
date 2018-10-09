@@ -171,6 +171,7 @@ class Bgp(BgpClientMixin, base.BaseTempestTestCase):
         for ip in router['external_gateway_info']['external_fixed_ips']:
             if ip['subnet_id'] == subnet_id:
                 return ip['ip_address']
+        return None
 
     def _setup_bgp(self):
         network_id = CONF.network.public_network_id

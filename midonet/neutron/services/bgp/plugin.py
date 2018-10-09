@@ -204,7 +204,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
 
         # prepare nexthops to change nexthop of extra
         # route to IP address of router port
-        nexthops = list(set([route[1] for route in attached_routes]))
+        nexthops = list({route[1] for route in attached_routes})
 
         # figure out advertised routes from extra routes
         extra_routes = self.get_routes_from_extra_routes(
