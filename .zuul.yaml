@@ -183,16 +183,6 @@
               - openstack/neutron-dynamic-routing
               - openstack/networking-l2gw
               - openstack/tap-as-a-service
-    post:
-      jobs:
-        - publish-openstack-python-branch-tarball:
-            required-projects:
-              - openstack/neutron-fwaas
-              - openstack/neutron-vpnaas
-              - openstack/neutron-lbaas
-              - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
-              - openstack/tap-as-a-service
 
 - job:
     name: networking-midonet-tempest-multinode-ml2
