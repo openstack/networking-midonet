@@ -175,14 +175,6 @@
               - ^midonet/neutron/tests/unit/.*$
               - ^setup.cfg$
               - ^specs/.*$
-        - openstack-tox-py35-with-neutron-lib-master:
-            required-projects:
-              - openstack/neutron-fwaas
-              - openstack/neutron-vpnaas
-              - openstack/neutron-lbaas
-              - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
-              - openstack/tap-as-a-service
 
 - job:
     name: networking-midonet-tempest-multinode-ml2
