@@ -16,6 +16,7 @@
 from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
+from neutron_lib.db import api as db_api
 from neutron_lib.exceptions import l3 as l3_exc
 from neutron_lib.plugins import directory
 from oslo_db import exception as db_exc
@@ -23,7 +24,6 @@ from oslo_log import helpers as log_helpers
 from oslo_log import log as logging
 from sqlalchemy.orm import exc
 
-from neutron.db import api as db_api
 from neutron_dynamic_routing.db import bgp_db as bdb
 
 from midonet.neutron.db import bgp_speaker_router_insertion_model as model
@@ -42,7 +42,7 @@ class BgpSpeakerRouterInsertionDbMixin(object):
     def set_router_for_bgp_speaker(self, context, bgp_sp_id, r_id):
         """Sets the routers associated with the bgp speaker."""
         try:
-            with db_api.context_manager.writer.using(context):
+            with db_api.CONTEXT_WRITER.using(context):
                 bgp_router_db = model.BgpSpeakerRouterAssociation(
                     bgp_speaker_id=bgp_sp_id,
                     router_id=r_id)
@@ -115,7 +115,7 @@ class BgpSpeakerRouterInsertionDbMixin(object):
         self.set_router_for_bgp_speaker(context, bgp_sp_id, router_id)
 
     def _get_bgp_speakers_by_bgp_peer_binding(self, context, bgp_peer_id):
-        with db_api.context_manager.reader.using(context):
+        with db_api.CONTEXT_READER.using(context):
             query = context.session.query(bdb.BgpSpeaker)
             query = query.filter(
                 bdb.BgpSpeakerPeerBinding.bgp_speaker_id == bdb.BgpSpeaker.id,
@@ -123,7 +123,7 @@ class BgpSpeakerRouterInsertionDbMixin(object):
             return query.all()
 
     def delete_bgp_speaker_router_insertion(self, context, bsp_id):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             query = self._model_query(
                 context, model.BgpSpeakerRouterAssociation)
             query.filter(

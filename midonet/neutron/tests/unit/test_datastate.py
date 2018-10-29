@@ -17,8 +17,8 @@ import datetime
 
 from sqlalchemy.orm import sessionmaker
 
-from neutron.db import api as db_api
 from neutron.tests.unit import testlib_api
+from neutron_lib.db import api as db_api
 
 from midonet.neutron.db import data_state_db
 from midonet.neutron.db import data_version_db as dv_db
@@ -34,7 +34,7 @@ class TestMidonetDataState(testlib_api.SqlTestCase):
             readonly=False))
 
     def get_session(self):
-        engine = db_api.context_manager.get_legacy_facade().get_engine()
+        engine = db_api.get_context_manager().get_legacy_facade().get_engine()
         Session = sessionmaker(bind=engine)
         return Session()
 
@@ -56,7 +56,7 @@ class TestMidonetDataState(testlib_api.SqlTestCase):
 class TestMidonetDataVersion(testlib_api.SqlTestCase):
 
     def get_session(self):
-        engine = db_api.context_manager.get_legacy_facade().get_engine()
+        engine = db_api.get_context_manager().get_legacy_facade().get_engine()
         Session = sessionmaker(bind=engine)
         return Session()
 

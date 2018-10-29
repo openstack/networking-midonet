@@ -20,7 +20,7 @@ from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
 from neutron_lib import constants as n_const
-from neutron_lib.db import api as lib_db_api
+from neutron_lib.db import api as db_api
 from neutron_lib import exceptions as n_exc
 from neutron_lib.plugins import constants as plugin_constants
 from oslo_config import cfg
@@ -29,7 +29,6 @@ from oslo_log import log as logging
 from oslo_utils import excutils
 
 from neutron.api import extensions as neutron_extensions
-from neutron.db import api as db_api
 from neutron.db import common_db_mixin
 from neutron.db import extraroute_db
 # Import l3_dvr_db to get the config options required for FWaaS
@@ -102,9 +101,9 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
             self._validate_network_type(context, ext_gw_info['network_id'])
 
     @log_helpers.log_method_call
-    @lib_db_api.retry_if_session_inactive()
+    @db_api.retry_if_session_inactive()
     def create_router(self, context, router):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             # REVISIT(yamamoto): This should not call create_port inside
             # of a transaction.
             setattr(context, 'GUARD_TRANSACTION', False)
@@ -126,9 +125,9 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         return r
 
     @log_helpers.log_method_call
-    @lib_db_api.retry_if_session_inactive()
+    @db_api.retry_if_session_inactive()
     def update_router(self, context, id, router):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             # REVISIT(yamamoto): Updating external_gateway_info causes
             # create_port/delete_port.  This should not call them inside of
             # a transaction.
@@ -157,11 +156,11 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         return r
 
     @log_helpers.log_method_call
-    @lib_db_api.retry_if_session_inactive()
+    @db_api.retry_if_session_inactive()
     def delete_router(self, context, id):
         self._check_router_not_in_use(context, id)
 
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             # REVISIT(yamamoto): This should not call delete_port inside
             # of a transaction.
             setattr(context, 'GUARD_TRANSACTION', False)
@@ -171,10 +170,10 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         self.client.delete_router_postcommit(id)
 
     @log_helpers.log_method_call
-    @lib_db_api.retry_if_session_inactive()
+    @db_api.retry_if_session_inactive()
     def add_router_interface(self, context, router_id, interface_info):
         by_port = bool(interface_info.get('port_id'))
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             # REVISIT(yamamoto): This should not call create_port/update_port
             # inside of a transaction.
             setattr(context, 'GUARD_TRANSACTION', False)
@@ -198,9 +197,9 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         return info
 
     @log_helpers.log_method_call
-    @lib_db_api.retry_if_session_inactive()
+    @db_api.retry_if_session_inactive()
     def remove_router_interface(self, context, router_id, interface_info):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             # REVISIT(yamamoto): This should not call delete_port inside
             # of a transaction.
             setattr(context, 'GUARD_TRANSACTION', False)
@@ -213,9 +212,9 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         return info
 
     @log_helpers.log_method_call
-    @lib_db_api.retry_if_session_inactive()
+    @db_api.retry_if_session_inactive()
     def create_floatingip(self, context, floatingip):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             # REVISIT(yamamoto): This should not call create_port inside
             # of a transaction.
             setattr(context, 'GUARD_TRANSACTION', False)
@@ -237,9 +236,9 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         return fip
 
     @log_helpers.log_method_call
-    @lib_db_api.retry_if_session_inactive()
+    @db_api.retry_if_session_inactive()
     def delete_floatingip(self, context, id):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             # REVISIT(yamamoto): This should not call delete_port inside
             # of a transaction.
             setattr(context, 'GUARD_TRANSACTION', False)
@@ -249,9 +248,9 @@ class MidonetL3ServicePlugin(common_db_mixin.CommonDbMixin,
         self.client.delete_floatingip_postcommit(id)
 
     @log_helpers.log_method_call
-    @lib_db_api.retry_if_session_inactive()
+    @db_api.retry_if_session_inactive()
     def update_floatingip(self, context, id, floatingip):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             fip = super(MidonetL3ServicePlugin, self).update_floatingip(
                 context, id, floatingip)
             self.client.update_floatingip_precommit(context, id, fip)

@@ -15,6 +15,7 @@
 
 import itertools
 
+from neutron_lib.db import api as db_api
 from neutron_lib import exceptions as nexception
 from neutron_lib.plugins import directory
 from oslo_config import cfg
@@ -23,7 +24,6 @@ from oslo_log import log as logging
 from oslo_utils import excutils
 
 from neutron.api import extensions as neutron_extensions
-from neutron.db import api as db_api
 from neutron_dynamic_routing import extensions as bgp_extensions
 from neutron_dynamic_routing.extensions import bgp
 
@@ -69,7 +69,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
 
     @log_helpers.log_method_call
     def create_bgp_speaker(self, context, bgp_speaker):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             bgp_sp = super(MidonetBgpPlugin,
                            self).create_bgp_speaker(context, bgp_speaker)
             router_id = bgp_speaker['bgp_speaker'][m_const.LOGICAL_ROUTER]
@@ -84,7 +84,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
 
     @log_helpers.log_method_call
     def delete_bgp_speaker(self, context, bgp_speaker_id):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             bgp_sp = super(MidonetBgpPlugin, self).get_bgp_speaker(
                 context, bgp_speaker_id)
             super(MidonetBgpPlugin, self).delete_bgp_speaker(
@@ -126,7 +126,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
             raise nexception.BadRequest(
                 resource=bgp.BGP_SPEAKER_RESOURCE_NAME,
                 msg="bgp_peer_id must be specified")
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             # In MidoNet, bgp-peer can be related to only one bgp-speaker.
             if self._get_bgp_speakers_by_bgp_peer_binding(
                     context, bgp_peer_info['bgp_peer_id']):
@@ -162,7 +162,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
 
     @log_helpers.log_method_call
     def delete_bgp_peer(self, context, bgp_peer_id):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             super(MidonetBgpPlugin, self).delete_bgp_peer(
                 context, bgp_peer_id)
             self.client.delete_bgp_peer_precommit(context, bgp_peer_id)
@@ -171,7 +171,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
 
     @log_helpers.log_method_call
     def remove_bgp_peer(self, context, bgp_speaker_id, bgp_peer_info):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             bgp_peer = super(MidonetBgpPlugin, self).remove_bgp_peer(
                 context, bgp_speaker_id, bgp_peer_info)
             bgp_peer_id = bgp_peer_info['bgp_peer_id']
@@ -182,7 +182,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
 
     @log_helpers.log_method_call
     def update_bgp_peer(self, context, bgp_peer_id, bgp_peer):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             bgp_peer = super(MidonetBgpPlugin, self).update_bgp_peer(
                 context, bgp_peer_id, bgp_peer)
             updated_bgp_peer = {'bgp_peer': bgp_peer}
@@ -216,7 +216,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
 
     @log_helpers.log_method_call
     def add_gateway_network(self, context, bgp_speaker_id, network_info):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             # TODO(kengo): This validation is temporary workaround
             # until upstream adds a validation for
             # existing combination of bgp speaker and gateway network.
@@ -238,7 +238,7 @@ class MidonetBgpPlugin(bgp_db_midonet.MidonetBgpDbMixin,
 
     @log_helpers.log_method_call
     def remove_gateway_network(self, context, bgp_speaker_id, network_info):
-        with db_api.context_manager.writer.using(context):
+        with db_api.CONTEXT_WRITER.using(context):
             if self.get_bgp_peers_by_bgp_speaker(context, bgp_speaker_id):
                 raise bsri.BgpSpeakerInUse(id=bgp_speaker_id)
             info = super(MidonetBgpPlugin, self).remove_gateway_network(
