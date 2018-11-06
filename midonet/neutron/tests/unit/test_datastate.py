@@ -34,7 +34,7 @@ class TestMidonetDataState(testlib_api.SqlTestCase):
             readonly=False))
 
     def get_session(self):
-        engine = db_api.get_context_manager().get_legacy_facade().get_engine()
+        engine = db_api.get_context_manager().writer.get_engine()
         Session = sessionmaker(bind=engine)
         return Session()
 
@@ -56,7 +56,7 @@ class TestMidonetDataState(testlib_api.SqlTestCase):
 class TestMidonetDataVersion(testlib_api.SqlTestCase):
 
     def get_session(self):
-        engine = db_api.get_context_manager().get_legacy_facade().get_engine()
+        engine = db_api.get_context_manager().writer.get_engine()
         Session = sessionmaker(bind=engine)
         return Session()
 
