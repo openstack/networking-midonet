@@ -17,6 +17,7 @@ from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
 from neutron_lib.db import api as db_api
+from neutron_lib.db import model_query
 from neutron_lib.exceptions import l3 as l3_exc
 from neutron_lib.plugins import directory
 from oslo_db import exception as db_exc
@@ -59,8 +60,8 @@ class BgpSpeakerRouterInsertionDbMixin(object):
         """Gets router associated with a bgp speaker."""
         r_id = None
         try:
-            query = self._model_query(context,
-                                      model.BgpSpeakerRouterAssociation)
+            query = model_query.query_with_hooks(
+                context, model.BgpSpeakerRouterAssociation)
             bsra = query.filter(
                 model.BgpSpeakerRouterAssociation.bgp_speaker_id ==
                 bgp_sp_id).one()
@@ -76,8 +77,8 @@ class BgpSpeakerRouterInsertionDbMixin(object):
         """Gets router associated with a bgp speaker."""
         bgp_sp_id = None
         try:
-            query = self._model_query(context,
-                                      model.BgpSpeakerRouterAssociation)
+            query = model_query.query_with_hooks(
+                context, model.BgpSpeakerRouterAssociation)
             bsra = query.filter(
                 model.BgpSpeakerRouterAssociation.router_id == router_id).one()
             bgp_sp_id = bsra['bgp_speaker_id']
@@ -124,7 +125,7 @@ class BgpSpeakerRouterInsertionDbMixin(object):
 
     def delete_bgp_speaker_router_insertion(self, context, bsp_id):
         with db_api.CONTEXT_WRITER.using(context):
-            query = self._model_query(
+            query = model_query.query_with_hooks(
                 context, model.BgpSpeakerRouterAssociation)
             query.filter(
                 model.BgpSpeakerRouterAssociation.bgp_speaker_id ==
