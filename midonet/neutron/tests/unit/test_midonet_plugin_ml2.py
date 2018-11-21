@@ -214,6 +214,10 @@ class TestMidonetRouterML2(MidonetPluginML2TestCase,
 class TestMidonetL3NatExtraRoute(test_ext_route.ExtraRouteDBIntTestCase,
                                  MidonetPluginML2TestCase):
 
+    def test__notify_gateway_port_ip_changed(self):
+        # MidoNet doesn't support fixed_ips updates on a router gateway port.
+        pass
+
     def test_router_update_gateway_upon_subnet_create_max_ips_ipv6(self):
         # MidoNet doesn't support IPv6.
         # MidoNet doesn't support fixed_ips updates on a router gateway port.
