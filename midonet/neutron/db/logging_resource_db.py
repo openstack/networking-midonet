@@ -13,6 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from neutron_lib.db import model_query
 from neutron_lib.db import utils as db_utils
 from neutron_lib.exceptions import firewall_v1 as fw_exc
 from oslo_db import exception as db_exc
@@ -149,7 +150,8 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
 
     def _get_logging_resource(self, context, id):
         try:
-            query = self._model_query(context, model.LoggingResource)
+            query = model_query.query_with_hooks(
+                context, model.LoggingResource)
             log_res_db = query.filter(model.LoggingResource.id == id).one()
 
         except exc.NoResultFound:
@@ -158,17 +160,17 @@ class LoggingResourceDbMixin(log_res_ext.LoggingResourcePluginBase,
         return log_res_db
 
     def _get_fw_logs_from_tenant(self, context, tenant_id):
-        query = self._model_query(context, model.FirewallLog)
+        query = model_query.query_with_hooks(context, model.FirewallLog)
         return query.filter(model.FirewallLog.tenant_id == tenant_id).all()
 
     def _logging_resource_has_logs(self, context, log_res_id):
-        query = self._model_query(context, model.FirewallLog)
+        query = model_query.query_with_hooks(context, model.FirewallLog)
         return bool(query.filter(
             model.FirewallLog.logging_resource_id == log_res_id).all())
 
     def _get_firewall_log(self, context, id):
         try:
-            query = self._model_query(context, model.FirewallLog)
+            query = model_query.query_with_hooks(context, model.FirewallLog)
             f_log_db = query.filter(model.FirewallLog.id == id).one()
 
         except exc.NoResultFound:

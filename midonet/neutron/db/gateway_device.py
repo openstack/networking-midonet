@@ -18,6 +18,7 @@ from neutron_lib.callbacks import events
 from neutron_lib.callbacks import registry
 from neutron_lib.callbacks import resources
 from neutron_lib.db import model_base
+from neutron_lib.db import model_query
 from neutron_lib.db import utils as db_utils
 from neutron_lib import exceptions as n_exc
 from neutron_lib.exceptions import l3 as l3_exc
@@ -177,7 +178,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
 
     def _get_gateway_device(self, context, id):
         try:
-            query = self._model_query(context, GatewayDevice)
+            query = model_query.query_with_hooks(context, GatewayDevice)
             gw_dev_db = query.filter(GatewayDevice.id == id).one()
 
         except exc.NoResultFound:
@@ -189,7 +190,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
                                           resource_id):
         try:
             device_model = get_type_model_map()[resource_type]
-            query = self._model_query(context, device_model)
+            query = model_query.query_with_hooks(context, device_model)
             gw_dev_db = query.filter(
                 device_model.resource_id == resource_id).one()
 
@@ -201,7 +202,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
 
     def _get_hw_vtep_from_management_ip(self, context, management_ip):
         try:
-            query = self._model_query(context, GatewayHwVtepDevice)
+            query = model_query.query_with_hooks(context, GatewayHwVtepDevice)
             gw_hw_vtep_db = query.filter(
                 GatewayHwVtepDevice.management_ip == management_ip).one()
 
@@ -213,7 +214,8 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
 
     def _get_remote_mac_entry(self, context, id, gateway_device_id):
         try:
-            query = self._model_query(context, GatewayRemoteMacTable)
+            query = model_query.query_with_hooks(
+                context, GatewayRemoteMacTable)
             rmt_db = query.filter(GatewayRemoteMacTable.id == id).one()
             if rmt_db.device_id != gateway_device_id:
                 raise gw_device_ext.RemoteMacEntryWrongGatewayDevice(
@@ -226,7 +228,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
 
     def _get_tunnel_ip_from_ip_address(self, context, ip):
         try:
-            query = self._model_query(context, GatewayTunnelIp)
+            query = model_query.query_with_hooks(context, GatewayTunnelIp)
             gw_tun_ip_db = query.filter(
                 GatewayTunnelIp.tunnel_ip == ip).one()
 
