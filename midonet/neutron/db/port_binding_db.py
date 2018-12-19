@@ -16,12 +16,12 @@ from neutron_lib.api.definitions import port as port_def
 from neutron_lib.api.definitions import portbindings
 from neutron_lib.api import validators
 from neutron_lib.db import model_base
+from neutron_lib.db import resource_extend
 from neutron_lib import exceptions as n_exc
 from neutron_lib.plugins import directory
 import sqlalchemy as sa
 from sqlalchemy import orm
 
-from neutron.db import _resource_extend as resource_extend
 from neutron.db import models_v2
 
 
