@@ -18,8 +18,7 @@ import types
 import six
 
 from neutron_lib import constants as n_const
-
-from neutron.common import exceptions as n_exc
+from neutron_lib import exceptions as n_exc
 
 
 def check_update_port(orig, new):
