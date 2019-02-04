@@ -55,7 +55,7 @@ def main(argv):
     root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     venv = os.path.join(root, '.venv')
     pip_requires = os.path.join(root, 'requirements.txt')
-    test_requires = os.path.join(root, 'test-requirements.txt')
+    test_requires = os.path.join(root, 'tox-test-requirements.txt')
     py_version = "python%s.%s" % (sys.version_info[0], sys.version_info[1])
     project = 'Neutron'
     install = install_venv.InstallVenv(root, venv, pip_requires, test_requires,
