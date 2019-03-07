@@ -29,6 +29,7 @@ from oslo_log import log as logging
 from oslo_utils import excutils
 
 from neutron.api import extensions as neutron_extensions
+from neutron.db import dns_db
 from neutron.db import extraroute_db
 # Import l3_dvr_db to get the config options required for FWaaS
 from neutron.db import l3_dvr_db  # noqa
@@ -45,7 +46,8 @@ LOG = logging.getLogger(__name__)
 
 @registry.has_registry_receivers
 class MidonetL3ServicePlugin(extraroute_db.ExtraRoute_db_mixin,
-                             l3_db_midonet.MidonetL3DBMixin):
+                             l3_db_midonet.MidonetL3DBMixin,
+                             dns_db.DNSDbMixin):
 
     """Implements L3 Router service plugin for Midonet."""
 
