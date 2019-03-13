@@ -35,6 +35,12 @@ class MidonetTypeDriver(api.ML2TypeDriver):
     def initialize(self):
         pass
 
+    def initialize_network_segment_range_support(self):
+        pass
+
+    def update_network_segment_range_allocations(self):
+        pass
+
     def get_type(self):
         return const.TYPE_MIDONET
 
@@ -47,10 +53,10 @@ class MidonetTypeDriver(api.ML2TypeDriver):
                 msg = _("%s prohibited for midonet provider network") % key
                 raise exc.InvalidInput(error_message=msg)
 
-    def reserve_provider_segment(self, context, segment):
+    def reserve_provider_segment(self, context, segment, filters=None):
         return segment
 
-    def allocate_tenant_segment(self, context):
+    def allocate_tenant_segment(self, context, filters=None):
         return {api.NETWORK_TYPE: const.TYPE_MIDONET}
 
     def release_segment(self, context, segment):
