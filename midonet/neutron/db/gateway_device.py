@@ -31,8 +31,6 @@ from sqlalchemy.ext import declarative
 from sqlalchemy import orm
 from sqlalchemy.orm import exc
 
-from neutron.db import common_db_mixin
-
 from midonet.neutron.extensions import gateway_device as gw_device_ext
 
 GATEWAY_DEVICES = 'midonet_gateway_devices'
@@ -159,8 +157,7 @@ class GatewayRemoteMacTable(model_base.BASEV2):
 
 
 @registry.has_registry_receivers
-class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
-                      common_db_mixin.CommonDbMixin):
+class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase):
     """Mixin class to add gateway device."""
 
     __native_bulk_support = False
@@ -251,7 +248,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
             res['management_protocol'] = None
             res['resource_id'] = gw_dev_db.vlan_network[0]['resource_id']
             # tunnel_ips and remote_mac_entries are not set
-            return self._fields(res, fields)
+            return db_utils.resource_fields(res, fields)
 
         if gw_dev_db['type'] == gw_device_ext.HW_VTEP_TYPE:
             hw_vtep = gw_dev_db.hw_vtep[0]
@@ -273,7 +270,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
                      'segmentation_id': item['segmentation_id']}
             res['remote_mac_entries'].append(entry)
 
-        return self._fields(res, fields)
+        return db_utils.resource_fields(res, fields)
 
     def _make_remote_mac_dict(self, gw_rme_db, fields=None):
         res = {'id': gw_rme_db['id'],
@@ -281,7 +278,7 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
                'vtep_address': gw_rme_db['vtep_address'],
                'segmentation_id': gw_rme_db['segmentation_id'],
                'device_id': gw_rme_db['device_id']}
-        return self._fields(res, fields)
+        return db_utils.resource_fields(res, fields)
 
     def _tunnel_ip_db_add(self, context, gw_dev_id, add_ips):
         for ip in add_ips:
@@ -463,13 +460,13 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
         marker_obj = db_utils.get_marker_obj(self, context, 'gateway_device',
                                              limit, marker)
 
-        return self._get_collection(context,
-                                    GatewayDevice,
-                                    self._make_gateway_device_dict,
-                                    filters=filters, fields=fields,
-                                    sorts=sorts,
-                                    limit=limit, marker_obj=marker_obj,
-                                    page_reverse=page_reverse)
+        return model_query.get_collection(context,
+                                          GatewayDevice,
+                                          self._make_gateway_device_dict,
+                                          filters=filters, fields=fields,
+                                          sorts=sorts,
+                                          limit=limit, marker_obj=marker_obj,
+                                          page_reverse=page_reverse)
 
     def get_gateway_device_remote_mac_entries(self, context, gateway_device_id,
                                               filters=None, fields=None,
@@ -478,13 +475,13 @@ class GwDeviceDbMixin(gw_device_ext.GwDevicePluginBase,
         marker_obj = db_utils.get_marker_obj(self, context, 'remote_mac_entry',
                                              limit, marker)
         filters['device_id'] = [gateway_device_id]
-        return self._get_collection(context,
-                                    GatewayRemoteMacTable,
-                                    self._make_remote_mac_dict,
-                                    filters=filters, fields=fields,
-                                    sorts=sorts,
-                                    limit=limit, marker_obj=marker_obj,
-                                    page_reverse=page_reverse)
+        return model_query.get_collection(context,
+                                          GatewayRemoteMacTable,
+                                          self._make_remote_mac_dict,
+                                          filters=filters, fields=fields,
+                                          sorts=sorts,
+                                          limit=limit, marker_obj=marker_obj,
+                                          page_reverse=page_reverse)
 
     def get_gateway_device_remote_mac_entry(self, context, id,
                                             gateway_device_id, fields=None):
