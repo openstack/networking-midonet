@@ -41,7 +41,7 @@ case $job in
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
+        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://git.openstack.org/openstack/networking-midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
         _ADV_SVC=False
         _LEGACY=False
@@ -51,7 +51,7 @@ case $job in
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
+        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://git.openstack.org/openstack/networking-midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
         _ADV_SVC=True
         _LEGACY=False
@@ -61,7 +61,7 @@ case $job in
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
+        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://git.openstack.org/openstack/networking-midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_PLUGIN=ml2"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_MECHANISM_DRIVERS=midonet"
@@ -77,7 +77,7 @@ case $job in
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
+        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://git.openstack.org/openstack/networking-midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_PLUGIN=midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"MIDONET_PLUGIN=midonet.neutron.plugin_v2.MidonetPluginV2"
@@ -97,7 +97,7 @@ case $job in
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
+        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://git.openstack.org/openstack/networking-midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_PLUGIN=ml2"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_MECHANISM_DRIVERS=midonet"
@@ -113,8 +113,8 @@ case $job in
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet git://git.openstack.org/openstack/networking-midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin rally git://git.openstack.org/openstack/rally"
+        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://git.openstack.org/openstack/networking-midonet"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin rally https://git.openstack.org/openstack/rally"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
         _ADV_SVC=False
         _LEGACY=False
