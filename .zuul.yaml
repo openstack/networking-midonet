@@ -169,7 +169,6 @@
       - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
       - openstack/tempest
-    nodeset: legacy-ubuntu-xenial-2-node
 
 - job:
     name: networking-midonet-tempest-aio-ml2-centos-7
@@ -201,7 +200,6 @@
       - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
       - openstack/tempest
-    nodeset: legacy-ubuntu-xenial-2-node
 
 - job:
     name: networking-midonet-tempest-aio-ml2-full-centos-7
