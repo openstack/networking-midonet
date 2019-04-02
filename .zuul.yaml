@@ -199,6 +199,7 @@
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
+      - openstack/tap-as-a-service-tempest-plugin
       - openstack/tempest
 
 - job:
@@ -215,6 +216,7 @@
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
+      - openstack/tap-as-a-service-tempest-plugin
       - openstack/tempest
 
 - job:
@@ -230,6 +232,7 @@
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
       - openstack/tap-as-a-service
+      - openstack/tap-as-a-service-tempest-plugin
       - openstack/tempest
 
 - job:
