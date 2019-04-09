@@ -434,11 +434,23 @@ class TestMidonetProviderNet(MidonetPluginML2TestCase):
         # Update including the network type is not supported
         with self.provider_net() as net:
             args = {"network": {"name": "foo",
-                                pnet.NETWORK_TYPE: m_const.TYPE_UPLINK}}
+                                pnet.NETWORK_TYPE: m_const.TYPE_MIDONET}}
             req = self.new_update_request('networks', args,
                                           net['network']['id'])
             res = req.get_response(self.api)
             self.assertEqual(400, res.status_int)
+
+    def test_update_provider_net_unchanged(self):
+        # Update including the network type is supported if
+        # it doesn't actually change the value
+        with self.provider_net() as net:
+            network_type = net['network'][pnet.NETWORK_TYPE]
+            args = {"network": {"name": "foo",
+                                pnet.NETWORK_TYPE: network_type}}
+            req = self.new_update_request('networks', args,
+                                          net['network']['id'])
+            res = req.get_response(self.api)
+            self.assertEqual(200, res.status_int)
 
     def test_delete_provider_net(self):
         with self.provider_net() as net:
