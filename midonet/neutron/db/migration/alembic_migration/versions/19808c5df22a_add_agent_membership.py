@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from alembic import op
+import sqlalchemy as sa
 """add agent membership
 
 Revision ID: 19808c5df22a
@@ -24,8 +26,6 @@ Create Date: 2015-02-26 14:39:25.219125
 revision = '19808c5df22a'
 down_revision = 'd8a5c672761'
 
-from alembic import op
-import sqlalchemy as sa
 
 
 def upgrade():
