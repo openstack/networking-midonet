@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from alembic import op
 """Drop FWaaS v1 and logging_resource
 
 Revision ID: f5dfd5cefbc7
@@ -24,7 +25,6 @@ Create Date: 2019-02-05 15:51:24.345127
 revision = 'f5dfd5cefbc7'
 down_revision = '1612b5389e6e'
 
-from alembic import op
 
 
 def upgrade():
