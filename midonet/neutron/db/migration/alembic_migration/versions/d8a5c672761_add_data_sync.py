@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+from alembic import op
+import sqlalchemy as sa
 """add data sync
 
 Revision ID: d8a5c672761
@@ -24,10 +27,7 @@ Create Date: 2015-03-16 06:04:40.695379
 revision = 'd8a5c672761'
 down_revision = '25aeae45d4ad'
 
-import datetime
 
-from alembic import op
-import sqlalchemy as sa
 
 
 def upgrade():
