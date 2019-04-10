@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from alembic import op
+import sqlalchemy as sa
 """add gateway device management
 
 Revision ID: cfe0dea89aa
@@ -23,8 +25,6 @@ Create Date: 2015-12-21 11:06:46.155138
 revision = 'cfe0dea89aa'
 down_revision = '4f3b347ea1c2'
 
-from alembic import op
-import sqlalchemy as sa
 
 
 def upgrade():
