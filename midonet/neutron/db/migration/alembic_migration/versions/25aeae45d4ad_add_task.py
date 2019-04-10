@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from alembic import op
+import sqlalchemy as sa
 """add task
 
 Revision ID: 25aeae45d4ad
@@ -24,8 +26,6 @@ Create Date: 2014-10-27 13:26:15.053541
 revision = '25aeae45d4ad'
 down_revision = 'start_neutron_midonet'
 
-from alembic import op
-import sqlalchemy as sa
 
 
 def upgrade():
