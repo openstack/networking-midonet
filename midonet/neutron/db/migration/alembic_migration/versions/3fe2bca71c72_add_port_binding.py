@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from alembic import op
+import sqlalchemy as sa
 """add port binding
 
 Revision ID: 3fe2bca71c72
@@ -24,8 +26,6 @@ Create Date: 2015-02-16 05:24:01.270141
 revision = '3fe2bca71c72'
 down_revision = '19808c5df22a'
 
-from alembic import op
-import sqlalchemy as sa
 
 
 def upgrade():
