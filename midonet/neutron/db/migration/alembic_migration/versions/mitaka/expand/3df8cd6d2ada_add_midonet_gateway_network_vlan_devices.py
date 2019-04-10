@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from alembic import op
+import sqlalchemy as sa
 """add midonet gateway network vlan devices
 
 Revision ID: 3df8cd6d2ada
@@ -24,8 +26,6 @@ Create Date: 2016-04-13 07:03:39.557871
 revision = '3df8cd6d2ada'
 down_revision = 'cfe0dea89aa'
 
-from alembic import op
-import sqlalchemy as sa
 
 
 def upgrade():
