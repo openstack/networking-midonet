@@ -83,7 +83,7 @@
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
               - openstack/networking-l2gw
-              - openstack/tap-as-a-service
+              - x/tap-as-a-service
         - openstack-tox-pep8:
             required-projects:
               - openstack/neutron-fwaas
@@ -91,7 +91,7 @@
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
               - openstack/networking-l2gw
-              - openstack/tap-as-a-service
+              - x/tap-as-a-service
         - openstack-tox-py27:
             required-projects:
               - openstack/neutron-fwaas
@@ -99,7 +99,7 @@
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
               - openstack/networking-l2gw
-              - openstack/tap-as-a-service
+              - x/tap-as-a-service
         - openstack-tox-py35:
             required-projects:
               - openstack/neutron-fwaas
@@ -107,7 +107,7 @@
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
               - openstack/networking-l2gw
-              - openstack/tap-as-a-service
+              - x/tap-as-a-service
         - openstack-tox-cover:
             voting: false
             required-projects:
@@ -117,7 +117,7 @@
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
               - openstack/networking-l2gw
-              - openstack/tap-as-a-service
+              - x/tap-as-a-service
     gate:
       jobs:
         - networking-midonet-tempest-aio-ml2:
@@ -142,7 +142,7 @@
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
               - openstack/networking-l2gw
-              - openstack/tap-as-a-service
+              - x/tap-as-a-service
         - openstack-tox-pep8:
             required-projects:
               - openstack/neutron-fwaas
@@ -150,7 +150,7 @@
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
               - openstack/networking-l2gw
-              - openstack/tap-as-a-service
+              - x/tap-as-a-service
         - openstack-tox-py27:
             required-projects:
               - openstack/neutron-fwaas
@@ -158,7 +158,7 @@
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
               - openstack/networking-l2gw
-              - openstack/tap-as-a-service
+              - x/tap-as-a-service
         - openstack-tox-py35:
             required-projects:
               - openstack/neutron-fwaas
@@ -166,7 +166,7 @@
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
               - openstack/networking-l2gw
-              - openstack/tap-as-a-service
+              - x/tap-as-a-service
     periodic:
       jobs:
         - legacy-periodic-tempest-dsvm-networking-midonet-aio-v2-full-ocata:
@@ -194,7 +194,7 @@
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
               - openstack/networking-l2gw
-              - openstack/tap-as-a-service
+              - x/tap-as-a-service
 - job:
     name: networking-midonet-tempest-aio-ml2
     parent: legacy-dsvm-base
@@ -202,12 +202,12 @@
     post-run: playbooks/tempest-aio-ml2/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
-      - openstack/tap-as-a-service
+      - x/tap-as-a-service
       - openstack/tempest
 
 - job:
@@ -218,12 +218,12 @@
     timeout: 7800
     nodeset: legacy-centos-7
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
-      - openstack/tap-as-a-service
+      - x/tap-as-a-service
       - openstack/tempest
 
 - job:
@@ -233,12 +233,12 @@
     post-run: playbooks/tempest-aio-ml2-full/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
-      - openstack/tap-as-a-service
+      - x/tap-as-a-service
       - openstack/tempest
 
 - job:
@@ -249,12 +249,12 @@
     timeout: 7800
     nodeset: legacy-centos-7
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
-      - openstack/tap-as-a-service
+      - x/tap-as-a-service
       - openstack/tempest
 
 - job:
@@ -264,12 +264,12 @@
     post-run: playbooks/tempest-aio-ml2-full-legacy/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
-      - openstack/tap-as-a-service
+      - x/tap-as-a-service
       - openstack/tempest
 
 - job:
@@ -279,12 +279,12 @@
     post-run: playbooks/tempest-multinode-ml2/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
-      - openstack/tap-as-a-service
+      - x/tap-as-a-service
       - openstack/tempest
     nodeset: legacy-ubuntu-xenial-2-node
 
@@ -295,8 +295,8 @@
     post-run: playbooks/grenade-ml2/post.yaml
     timeout: 9000
     required-projects:
-      - openstack-dev/grenade
-      - openstack-infra/devstack-gate
+      - openstack/grenade
+      - openstack/devstack-gate
       - openstack/networking-midonet
       - openstack/neutron-tempest-plugin
     branches: ^(?!stable/ocata).*$
@@ -308,6 +308,6 @@
     post-run: playbooks/rally-ml2/post.yaml
     timeout: 7800
     required-projects:
-      - openstack-infra/devstack-gate
+      - openstack/devstack-gate
       - openstack/networking-midonet
       - openstack/rally
