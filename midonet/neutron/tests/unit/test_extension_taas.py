@@ -24,6 +24,7 @@ from neutron.services import provider_configuration as provconf
 from neutron.tests.unit.api import test_extensions as test_ex
 from neutron_taas.common import constants as taas_const
 from neutron_taas.extensions import taas as ext_taas
+from neutron_taas.extensions import vlan_filter as ext_taas_vlan_filter
 from neutron_taas.tests.unit.services.taas import test_taas_plugin  # noqa
 
 from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
@@ -42,6 +43,8 @@ MN_TAAS_DRIVER_KLASS = ('midonet.neutron.services.taas.service_drivers.'
 class TaasExtensionManager(object):
 
     def get_resources(self):
+        ext_taas.RESOURCE_ATTRIBUTE_MAP['tap_flows'].update(
+            ext_taas_vlan_filter.EXTENDED_ATTRIBUTES_2_0['tap_flows'])
         return ext_taas.Taas.get_resources()
 
     def get_actions(self):
