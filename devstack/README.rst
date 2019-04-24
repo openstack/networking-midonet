@@ -6,7 +6,7 @@ networking-midonet has its
 `devstack plugin <https://docs.openstack.org/devstack/latest/plugins.html>`_.
 The following ``local.conf`` snippet would enable it::
 
-    enable_plugin networking-midonet https://git.openstack.org/openstack/networking-midonet
+    enable_plugin networking-midonet https://opendev.org/openstack/networking-midonet
 
 
 local.conf examples
@@ -16,7 +16,7 @@ ML2 Plugin with MidoNet drivers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can find an example at `devstack/ml2/local.conf.sample
-<https://git.openstack.org/cgit/openstack/networking-midonet/plain/devstack/ml2/local.conf.sample>`_
+<https://opendev.org/openstack/networking-midonet/raw/branch/master/devstack/ml2/local.conf.sample>`_
 in the source tree.
 
 .. literalinclude:: ../../../devstack/ml2/local.conf.sample
@@ -47,7 +47,7 @@ Starting v5.1, MidoNet implements Neutron VPNaaS extension API.
 To configure MidoNet as the VPNaaS driver when running devstack, make sure the
 following is defined in ``local.conf``::
 
-    enable_plugin neutron-vpnaas https://github.com/openstack/neutron-vpnaas
+    enable_plugin neutron-vpnaas https://opendev.org/openstack/neutron-vpnaas
     enable_service neutron-vpnaas
     NEUTRON_VPNAAS_SERVICE_PROVIDER="VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default"
 
@@ -74,7 +74,7 @@ Neutron L2 Gateway Management Service extension API.
 To configure MidoNet including L2 Gateway Management Service
 when running devstack, make sure the following is defined in ``local.conf``::
 
-    enable_plugin networking-l2gw https://github.com/openstack/networking-l2gw
+    enable_plugin networking-l2gw https://opendev.org/openstack/networking-l2gw
     enable_service l2gw-plugin
     Q_PLUGIN_EXTRA_CONF_PATH=/etc/neutron
     Q_PLUGIN_EXTRA_CONF_FILES=(l2gw_plugin.ini)
@@ -92,7 +92,7 @@ In MidoNet, router treated as bgp-speaker must be specified.
 To configure MidoNet including BGP dynamic routing service
 when running devstack, make sure the following is defined in ``local.conf``::
 
-    enable_plugin neutron-dynamic-routing https://git.openstack.org/openstack/neutron-dynamic-routing
+    enable_plugin neutron-dynamic-routing https://opendev.org/openstack/neutron-dynamic-routing
     DR_MODE=dr_plugin
     BGP_PLUGIN=midonet_bgp
     enable_service q-dr
@@ -104,7 +104,7 @@ QoS
 The following ``local.conf`` snippet would enable QoS extension with
 MidoNet driver::
 
-    enable_plugin neutron https://github.com/openstack/neutron
+    enable_plugin neutron https://opendev.org/openstack/neutron
     enable_service q-qos
 
 
@@ -114,7 +114,7 @@ LBaaS v2
 The following ``local.conf`` snippet would enable LBaaS v2 extension with
 MidoNet driver::
 
-    enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas
+    enable_plugin neutron-lbaas https://opendev.org/openstack/neutron-lbaas
     enable_service q-lbaasv2
     NEUTRON_LBAAS_SERVICE_PROVIDERV2="LOADBALANCERV2:Midonet:midonet.neutron.services.loadbalancer.v2_driver.MidonetLoadBalancerDriver:default"
 
@@ -124,6 +124,6 @@ Tap as a service
 
 The following ``local.conf`` snippet would enable Tap-as-a-service support::
 
-    enable_plugin tap-as-a-service https://git.openstack.org/openstack/tap-as-a-service
+    enable_plugin tap-as-a-service https://opendev.org/openstack/tap-as-a-service
     enable_service taas
     TAAS_SERVICE_DRIVER="TAAS:Midonet:midonet.neutron.services.taas.service_drivers.taas_midonet.MidonetTaasDriver:default"

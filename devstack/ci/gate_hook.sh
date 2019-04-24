@@ -41,7 +41,7 @@ case $job in
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://git.openstack.org/openstack/networking-midonet"
+        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://opendev.org/openstack/networking-midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
         _ADV_SVC=False
         _LEGACY=False
@@ -51,7 +51,7 @@ case $job in
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://git.openstack.org/openstack/networking-midonet"
+        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://opendev.org/openstack/networking-midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
         _ADV_SVC=True
         _LEGACY=False
@@ -61,7 +61,7 @@ case $job in
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://git.openstack.org/openstack/networking-midonet"
+        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://opendev.org/openstack/networking-midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_PLUGIN=ml2"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"Q_ML2_PLUGIN_MECHANISM_DRIVERS=midonet"
@@ -76,7 +76,7 @@ case $job in
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://git.openstack.org/openstack/networking-midonet"
+        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://opendev.org/openstack/networking-midonet"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
         _ADV_SVC=False
         _LEGACY=False
@@ -87,8 +87,8 @@ case $job in
         # Note the actual url here is somewhat irrelevant because it
         # caches in nodepool, however make it a valid url for
         # documentation purposes.
-        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://git.openstack.org/openstack/networking-midonet"
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin rally https://git.openstack.org/openstack/rally"
+        export DEVSTACK_LOCAL_CONFIG="enable_plugin networking-midonet https://opendev.org/openstack/networking-midonet"
+        export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin rally https://opendev.org/openstack/rally"
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"TEMPEST_RUN_VALIDATION=True"
         _ADV_SVC=False
         _LEGACY=False
@@ -162,7 +162,7 @@ if [ "${_ADV_SVC}" = "True" ]; then
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_VPNAAS_SERVICE_PROVIDER=\"VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default\""
 
     # Enable LBaaSv2
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-lbaas https://git.openstack.org/openstack/neutron-lbaas"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-lbaas https://opendev.org/openstack/neutron-lbaas"
     if [ "${_LEGACY}" = "True" ]; then
         export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service q-lbaasv2"
     else
@@ -171,12 +171,12 @@ if [ "${_ADV_SVC}" = "True" ]; then
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_LBAAS_SERVICE_PROVIDERV2=\"LOADBALANCERV2:Midonet:midonet.neutron.services.loadbalancer.v2_driver.MidonetLoadBalancerDriver:default\""
 
     # Enable Tap as a service
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin tap-as-a-service https://git.openstack.org/openstack/tap-as-a-service"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin tap-as-a-service https://opendev.org/openstack/tap-as-a-service"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service taas"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"TAAS_SERVICE_DRIVER=\"TAAS:Midonet:midonet.neutron.services.taas.service_drivers.taas_midonet.MidonetTaasDriver:default\""
 
     # Enable neutron-dynamic-routing
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-dynamic-routing https://git.openstack.org/openstack/neutron-dynamic-routing"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-dynamic-routing https://opendev.org/openstack/neutron-dynamic-routing"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"DR_MODE=dr_plugin"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"BGP_PLUGIN=midonet_bgp"
     # See REVISIT comment in devstack/settings
