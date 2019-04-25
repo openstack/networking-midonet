@@ -19,6 +19,14 @@ PROJ=$1
 MOD=$2
 shift 2
 
+# as the git repos moved to OpenDev tap-as-a-service is now
+# x/tap-as-a-service instead of openstack/tap-as-a-service
+if [ "$PROJ" == "tap-as-a-service" ]; then
+    NAMESPACE=x
+else
+    NAMESPACE=openstack
+fi
+
 ZUUL_CLONER=/usr/zuul-env/bin/zuul-cloner
 neutron_installed=$(echo "import ${MOD}" | python 2>/dev/null ; echo $?)
 BRANCH_NAME=stable/pike
@@ -50,9 +58,9 @@ elif [ -x "$ZUUL_CLONER" ]; then
     $ZUUL_CLONER --cache-dir \
         /opt/git \
         --branch ${BRANCH_NAME} \
-        https://git.openstack.org \
-        openstack/${PROJ}
-    cd openstack/${PROJ}
+        https://opendev.org \
+        ${NAMESPACE}/${PROJ}
+    cd ${NAMESPACE}/${PROJ}
     $install_cmd -e .
     popd
 else
