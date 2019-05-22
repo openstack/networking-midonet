@@ -158,7 +158,7 @@ if [ "${_ADV_SVC}" = "True" ]; then
     # Enable VPNaaS
     # NOTE(yamamoto): neutron-vpnaas devstack plugin doesn't have q- name
     s+=",neutron-vpnaas"
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-vpnaas https://github.com/openstack/neutron-vpnaas"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-vpnaas https://opendev.org/openstack/neutron-vpnaas"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_VPNAAS_SERVICE_PROVIDER=\"VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default\""
 
     # Enable LBaaSv2
@@ -189,7 +189,7 @@ fi
 
 if [ "${_QOS}" = "True" ]; then
     # Enable QoS
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron https://github.com/openstack/neutron"
+    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron https://opendev.org/openstack/neutron"
     if [ "${_LEGACY}" = "True" ]; then
         s+=",q-qos"
     else

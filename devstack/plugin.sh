@@ -136,8 +136,7 @@ if [[ "$1" == "stack" ]]; then
             # "metadata" interface is created by midolman for node-local use.
             # OpenStack gate slaves have a rule which would reject packets
             # forwarded to the metadata proxy:
-            #   https://github.com/openstack-infra/system-config/blob/master/modules/openstack_project/manifests/single_use_slave.pp
-            #   https://github.com/openstack-infra/puppet-iptables
+            #   https://opendev.org/opendev/puppet-iptables
             sudo iptables -I openstack-INPUT 1 -i metadata -j ACCEPT || :
 
             # Tweak the chain for midonet vpp downlink for fip64.

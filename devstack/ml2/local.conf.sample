@@ -11,7 +11,7 @@ Q_ML2_PLUGIN_TYPE_DRIVERS=midonet,uplink
 Q_ML2_TENANT_NETWORK_TYPE=midonet
 ML2_L3_PLUGIN=midonet_l3
 
-enable_plugin networking-midonet http://github.com/openstack/networking-midonet.git
+enable_plugin networking-midonet https://opendev.org/openstack/networking-midonet
 
 # Set all the passwords
 DATABASE_PASSWORD=midonet
@@ -68,7 +68,7 @@ NOVA_VNC_ENABLED=True
 
 # If you want to use L2 Gateway Management Service,
 # uncomment the following lines.
-# enable_plugin networking-l2gw https://github.com/openstack/networking-l2gw
+# enable_plugin networking-l2gw https://opendev.org/openstack/networking-l2gw
 # enable_service l2gw-plugin
 # L2GW_PLUGIN="midonet_l2gw"
 # NETWORKING_L2GW_SERVICE_DRIVER="L2GW:Midonet:midonet.neutron.services.l2gateway.service_drivers.l2gw_midonet.MidonetL2gwDriver:default"
@@ -76,7 +76,7 @@ NOVA_VNC_ENABLED=True
 # If you want to use VPNaaS, uncomment the following lines and manually install
 # ipsec package "libreswan".
 #
-# enable_plugin neutron-vpnaas https://github.com/openstack/neutron-vpnaas
+# enable_plugin neutron-vpnaas https://opendev.org/openstack/neutron-vpnaas
 # enable_service neutron-vpnaas
 # NEUTRON_VPNAAS_SERVICE_PROVIDER="VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default"
 
@@ -88,6 +88,6 @@ NOVA_VNC_ENABLED=True
 # Q_SERVICE_PLUGIN_CLASSES+=,midonet_logging_resource
 
 # If you want to use Tap as a Service, uncomment the following lines.
-# enable_plugin tap-as-a-service https://github.com/openstack/tap-as-a-service
+# enable_plugin tap-as-a-service https://opendev.org/x/tap-as-a-service
 # enable_service taas
 # TAAS_SERVICE_DRIVER="TAAS:Midonet:midonet.neutron.services.taas.service_drivers.taas_midonet.MidonetTaasDriver:default"
