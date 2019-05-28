@@ -161,15 +161,6 @@ if [ "${_ADV_SVC}" = "True" ]; then
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-vpnaas https://opendev.org/openstack/neutron-vpnaas"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_VPNAAS_SERVICE_PROVIDER=\"VPN:Midonet:midonet.neutron.services.vpn.service_drivers.midonet_ipsec.MidonetIPsecVPNDriver:default\""
 
-    # Enable LBaaSv2
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin neutron-lbaas https://opendev.org/openstack/neutron-lbaas"
-    if [ "${_LEGACY}" = "True" ]; then
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service q-lbaasv2"
-    else
-        export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service neutron-lbaasv2"
-    fi
-    export DEVSTACK_LOCAL_CONFIG+=$'\n'"NEUTRON_LBAAS_SERVICE_PROVIDERV2=\"LOADBALANCERV2:Midonet:midonet.neutron.services.loadbalancer.v2_driver.MidonetLoadBalancerDriver:default\""
-
     # Enable Tap as a service
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_plugin tap-as-a-service https://opendev.org/openstack/tap-as-a-service"
     export DEVSTACK_LOCAL_CONFIG+=$'\n'"enable_service taas"
@@ -227,18 +218,6 @@ r="$r|(?:^neutron_tempest_plugin\.api\.test_routers\.RoutersTest\.test_router_in
 r="$r|(?:^neutron_tempest_plugin\.api\.admin\.test_external_network_extension\.ExternalNetworksRBACTestJSON\.test_regular_client_shares_with_another)"
 r="$r|(?:^neutron_tempest_plugin\.api\.admin\.test_external_network_extension\.ExternalNetworksRBACTestJSON\.test_external_update_policy_from_wildcard_to_specific_tenant)"
 
-# MidoNet doesn't support HTTP_COOKIE/APP_COOKIE
-r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_admin\.TestPools\.test_update_pool_sesssion_persistence_app_cookie)"
-r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_admin\.TestPools\.test_update_pool_sesssion_persistence_app_to_http)"
-r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_non_admin\.TestPools\.test_create_pool_with_session_persistence_http_cookie)"
-r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_non_admin\.TestPools\.test_create_pool_with_session_persistence_app_cookie)"
-r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_non_admin\.TestPools\.test_create_pool_with_session_persistence_redundant_cookie_name)"
-r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.api\.test_pools_non_admin\.TestPools\.test_create_pool_with_session_persistence_without_cookie_name)"
-
-# DDT tests have protocol=HTTP hardcoded.  MidoNet doesn't support it.
-# Also, they often exceed the quota of loadbalancer
-r="$r|(?:^neutron_lbaas\.tests\.tempest\.v2\.ddt\..*)"
-
 # Skip non-networking api tests to save testing time
 r="$r|(?:tempest\.api\.compute\.(?!.*migration))"
 r="$r|(?:tempest\.api\.identity\..*)"
@@ -247,7 +226,7 @@ r="$r|(?:tempest\.api\.image\..*)"
 # End list of exclusions.
 r="$r)"
 
-r="$r^(tempest\.(api|scenario)|neutron_lbaas|neutron_vpnaas|neutron_taas_tempest_plugin|neutron_tempest_plugin)\..*$"
+r="$r^(tempest\.(api|scenario)|neutron_vpnaas|neutron_taas_tempest_plugin|neutron_tempest_plugin)\..*$"
 
 export DEVSTACK_GATE_TEMPEST_REGEX="$r"
 export DEVSTACK_GATE_TEMPEST_ALL_PLUGINS=0

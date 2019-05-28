@@ -108,17 +108,6 @@ MidoNet driver::
     enable_service q-qos
 
 
-LBaaS v2
---------
-
-The following ``local.conf`` snippet would enable LBaaS v2 extension with
-MidoNet driver::
-
-    enable_plugin neutron-lbaas https://opendev.org/openstack/neutron-lbaas
-    enable_service q-lbaasv2
-    NEUTRON_LBAAS_SERVICE_PROVIDERV2="LOADBALANCERV2:Midonet:midonet.neutron.services.loadbalancer.v2_driver.MidonetLoadBalancerDriver:default"
-
-
 Tap as a service
 ----------------
 

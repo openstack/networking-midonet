@@ -114,23 +114,6 @@ driver.::
     interface_driver = midonet
 
 
-LBaaS v2
---------
-
-Starting v5.4, MidoNet implements Neutron LBaaS v2 extension API.
-
-MidoNet plugin provides LBaaS v2 service driver.
-
-To configure it, add the following entries in the Neutron configuration
-file ``/etc/neutron/neutron.conf``::
-
-    [DEFAULT]
-    service_plugins = lbaasv2
-
-    [service_providers]
-    service_provider=LOADBALANCERV2:Midonet:midonet.neutron.services.loadbalancer.v2_driver.MidonetLoadBalancerDriver:default
-
-
 VPNaaS
 ------
 
