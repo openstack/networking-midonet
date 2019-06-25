@@ -235,25 +235,6 @@
               - ^midonet/neutron/tests/unit/.*$
               - ^setup.cfg$
               - ^specs/.*$
-
-    periodic:
-      jobs:
-        - legacy-periodic-tempest-dsvm-networking-midonet-aio-v2-full-ocata:
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^setup.cfg$
-              - ^specs/.*$
-        - legacy-periodic-tempest-dsvm-networking-midonet-aio-ml2-full-ocata:
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^setup.cfg$
-              - ^specs/.*$
     periodic-stable:
       jobs:
         - build-openstack-sphinx-docs:
@@ -284,6 +265,7 @@
               - openstack/neutron-dynamic-routing
               - openstack/networking-l2gw
               - x/tap-as-a-service
+
 - job:
     name: networking-midonet-tempest-aio-ml2
     parent: legacy-dsvm-base
