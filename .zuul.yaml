@@ -81,12 +81,6 @@
               - openstack/neutron-dynamic-routing
               - openstack/networking-l2gw
               - x/tap-as-a-service
-        - openstack-tox-py35:
-            required-projects:
-              - openstack/neutron-vpnaas
-              - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
-              - x/tap-as-a-service
         - openstack-tox-py36:
             required-projects:
               - openstack/neutron-vpnaas
