@@ -30,7 +30,7 @@ if [ "${MIDONET_USE_CASSANDRA}" = True ]; then
 deb http://debian.datastax.com/community 2.2 main
 EOL
 
-    curl -L https://debian.datastax.com/debian/repo_key | apt-key add -
+    curl -L http://debian.datastax.com/debian/repo_key | apt-key add -
 fi
 
 # Configure MidoNet repositories
@@ -43,6 +43,6 @@ deb $MIDONET_DEB_URI $MIDONET_DEB_SUITE $MIDONET_DEB_COMPONENT
 deb http://builds.midonet.org/misc stable main
 EOL
 
-curl -L https://builds.midonet.org/midorepo.key | apt-key add -
+curl -L http://builds.midonet.org/midorepo.key | apt-key add -
 
 apt-get update
