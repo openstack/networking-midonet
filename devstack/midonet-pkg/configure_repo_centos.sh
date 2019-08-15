@@ -42,12 +42,12 @@ name=MidoNet
 baseurl=${MIDONET_YUM_URI}
 enabled=1
 gpgcheck=1
-gpgkey=http://builds.midonet.org/midorepo.key
+gpgkey=https://builds.midonet.org/midorepo.key
 
 [midonet-misc]
 name=MidoNet 3rd Party Tools and Libraries
 baseurl=http://builds.midonet.org/misc/stable/el7/
 enabled=1
 gpgcheck=1
-gpgkey=http://builds.midonet.org/midorepo.key
+gpgkey=https://builds.midonet.org/midorepo.key
 EOL
