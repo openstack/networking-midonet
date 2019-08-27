@@ -72,12 +72,16 @@ htmlhelp_basename = '%sdoc' % project
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass
-# [howto/manual]).
+# [howto/manual], torctree_only).
 latex_documents = [
     ('index',
      '%s.tex' % project,
      u'%s Documentation' % project,
-     u'OpenStack Foundation', 'manual'),
+     u'OpenStack Foundation',
+     'manual',
+     # Specify toctree_only=True for a better document structure of
+     # the generated PDF file.
+     True),
 ]
 
 # Example configuration for intersphinx: refer to the Python standard library.
