@@ -174,7 +174,6 @@
       - openstack/devstack-gate
       - openstack/networking-midonet
       - openstack/neutron-tempest-plugin
-    branches: ^(?!stable/ocata).*$
 
 - job:
     name: networking-midonet-rally-ml2
