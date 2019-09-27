@@ -226,7 +226,7 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
             # Update association with internal port
             # and define external IP address
             assoc_result = self._update_fip_assoc(
-                context, fip, floatingip_obj, external_port)
+                context, fip, floatingip_obj)
             floatingip_obj.create()
             floatingip_dict = self._make_floatingip_dict(
                 floatingip_obj, process_extensions=False)
