@@ -40,7 +40,9 @@ class MidonetMechanismDriver(api.MechanismDriver):
     def __init__(self):
         self.vif_type = const.VIF_TYPE_MIDONET
         self.supported_vnic_types = [portbindings.VNIC_NORMAL]
-        self.vif_details = {portbindings.CAP_PORT_FILTER: True}
+        self.vif_details = {portbindings.CAP_PORT_FILTER: True,
+                            portbindings.VIF_DETAILS_CONNECTIVITY:
+                                portbindings.CONNECTIVITY_L2}
 
         self.client = c_base.load_client(cfg.CONF.MIDONET)
         self.client.initialize()
