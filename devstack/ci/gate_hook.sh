@@ -218,6 +218,10 @@ r="$r|(?:^neutron_tempest_plugin\.api\.test_routers\.RoutersTest\.test_router_in
 r="$r|(?:^neutron_tempest_plugin\.api\.admin\.test_external_network_extension\.ExternalNetworksRBACTestJSON\.test_regular_client_shares_with_another)"
 r="$r|(?:^neutron_tempest_plugin\.api\.admin\.test_external_network_extension\.ExternalNetworksRBACTestJSON\.test_external_update_policy_from_wildcard_to_specific_tenant)"
 
+# neutron-dynamic-routing:
+# Run only bgp-speaker-router-insertion tests for now
+r="$r|(?:^neutron_tempest_plugin\.neutron_dynamic_routing\.(?!.*test_simple_bgp))"
+
 # Skip non-networking api tests to save testing time
 r="$r|(?:tempest\.api\.compute\.(?!.*migration))"
 r="$r|(?:tempest\.api\.identity\..*)"
