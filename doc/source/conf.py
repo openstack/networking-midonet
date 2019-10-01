@@ -75,8 +75,8 @@ htmlhelp_basename = '%sdoc' % project
 # [howto/manual], torctree_only).
 latex_documents = [
     ('index',
-     '%s.tex' % project,
-     u'%s Documentation' % project,
+     'doc-%s.tex' % project,
+     u'Networking Midonet Documentation',
      u'OpenStack Foundation',
      'manual',
      # Specify toctree_only=True for a better document structure of
