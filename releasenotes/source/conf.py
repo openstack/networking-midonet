@@ -123,7 +123,6 @@ html_theme = 'openstackdocs'
 repository_name = 'openstack/%s' % project
 bug_project = project
 bug_tag = 'doc'
-html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -220,20 +219,6 @@ html_static_path = ['_static']
 htmlhelp_basename = 'networking-midonetdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
-
-latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    # 'papersize': 'letterpaper',
-
-    # The font size ('10pt', '11pt' or '12pt').
-    # 'pointsize': '10pt',
-
-    # Additional stuff for the LaTeX preamble.
-    # 'preamble': '',
-
-    # Latex figure (float) alignment
-    # 'figure_align': 'htbp',
-}
 
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,

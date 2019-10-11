@@ -65,7 +65,6 @@ html_theme = 'openstackdocs'
 repository_name = 'openstack/%s' % project
 bug_project = project
 bug_tag = 'doc'
-html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = '%sdoc' % project
