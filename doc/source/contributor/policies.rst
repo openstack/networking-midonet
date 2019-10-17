@@ -65,7 +65,7 @@ Review and merge patches
   the change.
 
 .. [#dashboards] https://docs.openstack.org/networking-midonet/latest/contributor/dashboards.html#gerrit-dashboards
-.. [#watched_projects] https://review.openstack.org/#/settings/projects
+.. [#watched_projects] https://review.opendev.org/#/settings/projects
 .. [#neutron_irc] http://eavesdrop.openstack.org/irclogs/%23openstack-neutron/latest.log.html
 .. [#midonet_irc] http://eavesdrop.openstack.org/irclogs/%23midonet/latest.log.html
 .. [#recheck_trigger] https://opendev.org/opendev/project-config/src/commit/cef92ba2d9abc000fb5a35b85904e8dc2bf6be1a/zuul.d/pipelines.yaml#L16-L17
