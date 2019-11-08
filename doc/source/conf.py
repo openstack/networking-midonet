@@ -25,6 +25,8 @@ extensions = [
     # 'sphinx.ext.intersphinx',
     'openstackdocstheme',
     'oslo_config.sphinxext',
+    'oslo_policy.sphinxext',
+    'oslo_policy.sphinxpolicygen',
 ]
 
 # autodoc generation is a bit aggressive and a nuisance when doing heavy
@@ -97,3 +99,8 @@ autodoc_mock_imports = [
     # "no IPRoute module for the platform" on OS X
     'neutron.agent.linux.ip_lib',
 ]
+
+# -- Options for oslo_policy.sphinxpolicygen ---------------------------------
+
+policy_generator_config_file = '../../etc/oslo-policy-generator/policy.conf'
+sample_policy_basename = '_static/networking-midonet'
