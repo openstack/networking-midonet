@@ -246,6 +246,9 @@ fi
 # Use fernet tokens
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"KEYSTONE_TOKEN_FORMAT=fernet"
 
+# bug 1855512
+export DEVSTACK_LOCAL_CONFIG+=$'\n'"USE_PYTHON3=False"
+
 load_conf_hook quotas new
 
 export DEVSTACK_LOCAL_CONFIG+=$'\n'"$_DEVSTACK_LOCAL_CONFIG_TAIL"
