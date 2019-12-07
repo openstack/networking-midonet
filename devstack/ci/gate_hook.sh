@@ -210,6 +210,9 @@ r="$r|(?:tempest\.api\.network\.admin\.test_agent_management\.AgentManagementTes
 r="$r|(?:^neutron_tempest_plugin\.api\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\..*)"
 r="$r|(?:^neutron_tempest_plugin\.api\.admin\.test_agent_management\.AgentManagementTestJSON\.*)"
 
+# bug 1839169
+r="$r|(?:tempest\.api\.compute\.admin\.test_migrations\.MigrationsAdminTest\.test_resize_server_revert_deleted_flavor)"
+
 # bug 1507453 1608796
 r="$r|(?:^neutron_tempest_plugin\.api\.test_routers\.RoutersTest\.test_router_interface_status)"
 
