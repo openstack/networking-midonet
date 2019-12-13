@@ -206,7 +206,6 @@ fi
 # https://bugs.launchpad.net/tempest/+bug/1509590
 r="$r|(?:tempest\.api\.network\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\.test_add_remove_network_from_dhcp_agent.*)"
 r="$r|(?:tempest\.api\.network\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\.test_list_networks_hosted_by_one_dhcp.*)"
-r="$r|(?:tempest\.api\.network\.admin\.test_agent_management\.AgentManagementTestJSON.*)"
 r="$r|(?:^neutron_tempest_plugin\.api\.admin\.test_dhcp_agent_scheduler\.DHCPAgentSchedulersTestJSON\..*)"
 r="$r|(?:^neutron_tempest_plugin\.api\.admin\.test_agent_management\.AgentManagementTestJSON\.*)"
 
