@@ -1,37 +1,12 @@
 - project:
     templates:
       - check-requirements
-      - openstack-python-jobs-neutron
       - openstack-python3-ussuri-jobs-neutron
       - publish-openstack-docs-pti
       - release-notes-jobs-python3
     check:
       jobs:
-        - networking-midonet-tempest-aio-ml2-centos-7:
-            voting: false
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^setup.cfg$
-              - ^specs/.*$
-        - networking-midonet-tempest-aio-ml2-full-centos-7:
-            voting: false
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^midonet/neutron/tests/unit/.*$
-              - ^setup.cfg$
-              - ^specs/.*$
         - openstack-tox-pep8:
-            required-projects:
-              - openstack/neutron-vpnaas
-              - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
-              - x/tap-as-a-service
-        - openstack-tox-py27:
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
@@ -59,12 +34,6 @@
     gate:
       jobs:
         - openstack-tox-pep8:
-            required-projects:
-              - openstack/neutron-vpnaas
-              - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
-              - x/tap-as-a-service
-        - openstack-tox-py27:
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing

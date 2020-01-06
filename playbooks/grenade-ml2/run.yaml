@@ -33,6 +33,7 @@
           export PYTHONUNBUFFERED=true
           export DEVSTACK_GATE_TEMPEST=1
           export DEVSTACK_GATE_GRENADE=pullup
+          export DEVSTACK_GATE_USE_PYTHON3=True
           export GRENADE_PLUGINRC="enable_grenade_plugin networking-midonet https://opendev.org/openstack/networking-midonet"
           export DEVSTACK_GATE_NEUTRON=1
           export BRANCH_OVERRIDE=default
