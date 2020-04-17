@@ -42,7 +42,8 @@ class TestMidonetInterfaceDriver(n_test.TestBase):
 
         root_dev = mock.Mock()
         ns_dev = mock.Mock()
-        self.ip().add_veth = mock.Mock(return_value=(root_dev, ns_dev))
+        mock_add_veth = mock.Mock(return_value=(root_dev, ns_dev))
+        self.ip().add_veth = mock_add_veth
         with mock.patch.object(utils, 'execute') as execute:
             self.driver.plug(
                 self.network_id, self.port_id,
@@ -50,8 +51,7 @@ class TestMidonetInterfaceDriver(n_test.TestBase):
                 self.bridge, self.namespace)
             execute.assert_called_once_with(cmd, run_as_root=True)
 
-        expected = [mock.call(), mock.call(),
-                    mock.call().add_veth(self.device_name,
+        expected = [mock.call().add_veth(self.device_name,
                                          self.device_name,
                                          namespace2=self.namespace)]
 
@@ -61,7 +61,7 @@ class TestMidonetInterfaceDriver(n_test.TestBase):
         root_dev.assert_has_calls(
             [mock.call.disable_ipv6(), mock.call.link.set_up()])
         ns_dev.assert_has_calls([mock.call.link.set_up()])
-        self.ip.assert_has_calls(expected, True)
+        mock_add_veth.assert_has_calls(expected, True)
 
     def test_unplug(self):
         self.driver.unplug(self.device_name, self.bridge, self.namespace)
