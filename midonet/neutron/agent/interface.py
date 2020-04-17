@@ -27,7 +27,8 @@ LOG = logging.getLogger(__name__)
 class MidonetInterfaceDriver(n_interface.LinuxInterfaceDriver):
 
     def plug_new(self, network_id, port_id, device_name, mac_address,
-                 bridge=None, namespace=None, prefix=None, mtu=None):
+                 bridge=None, namespace=None, prefix=None, mtu=None,
+                 link_up=None):
         """Plug an interface.
 
         This method is called by the Dhcp agent or by the L3 agent

@@ -50,13 +50,17 @@ OP_FLUSH = 'FLUSH'
 TASK_STATE_TABLE = 'midonet_task_state'
 
 
+def LongText():
+    return sa.Text().with_variant(sa.dialects.mysql.LONGTEXT(), 'mysql')
+
+
 class Task(model_base.BASEV2, model_base.HasProjectNoIndex):
     __tablename__ = 'midonet_tasks'
 
     id = sa.Column(sa.Integer(), primary_key=True)
     type = sa.Column(sa.String(length=36))
     data_type = sa.Column(sa.String(length=36))
-    data = sa.Column(sa.Text())
+    data = sa.Column(LongText())
     resource_id = sa.Column(sa.String(36))
     transaction_id = sa.Column(sa.String(40), nullable=False)
     created_at = sa.Column(sa.DateTime(), default=datetime.datetime.utcnow,
