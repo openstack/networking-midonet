@@ -14,8 +14,8 @@
 #    under the License.
 
 import contextlib
+from unittest import mock
 
-import mock
 from oslo_utils import uuidutils
 import webob.exc
 
