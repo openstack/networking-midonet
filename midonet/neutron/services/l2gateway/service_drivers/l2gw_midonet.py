@@ -18,7 +18,6 @@ import abc
 from oslo_config import cfg
 from oslo_log import log as logging
 from oslo_utils import excutils
-import six
 
 from networking_l2gw.services.l2gateway.common import constants
 from networking_l2gw.services.l2gateway import service_drivers
@@ -33,8 +32,7 @@ LOG = logging.getLogger(__name__)
 # and override precommit methods for task-based api.
 
 
-@six.add_metaclass(abc.ABCMeta)
-class MidonetL2gwDriver(service_drivers.L2gwDriver):
+class MidonetL2gwDriver(service_drivers.L2gwDriver, metaclass=abc.ABCMeta):
     """L2GW MidoNet Service Driver class."""
 
     def __init__(self, service_plugin, validator=None):

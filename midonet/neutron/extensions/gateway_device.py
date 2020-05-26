@@ -21,7 +21,6 @@ from neutron_lib.db import constants as db_const
 from neutron_lib import exceptions as nexception
 from neutron_lib.plugins import directory
 from oslo_log import log as logging
-import six
 
 from neutron.api import extensions
 from neutron.api.v2 import base
@@ -282,8 +281,7 @@ class Gateway_device(api_extensions.ExtensionDescriptor):
             return {}
 
 
-@six.add_metaclass(abc.ABCMeta)
-class GwDevicePluginBase(object):
+class GwDevicePluginBase(object, metaclass=abc.ABCMeta):
 
     path_prefix = GATEWAY_DEVICE_PREFIX
 

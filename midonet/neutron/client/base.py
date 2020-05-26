@@ -15,8 +15,6 @@
 
 import abc
 
-import six
-
 from oslo_log import log as logging
 from oslo_utils import excutils
 from oslo_utils import importutils
@@ -35,8 +33,7 @@ def load_client(conf):
                           {'client': conf.client})
 
 
-@six.add_metaclass(abc.ABCMeta)
-class MidonetClientBase(object):
+class MidonetClientBase(object, metaclass=abc.ABCMeta):
     """Neutron MidoNet client base class.
 
     This class abstracts the communication between Neutron and MidoNet as there

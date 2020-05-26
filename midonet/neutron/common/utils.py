@@ -13,10 +13,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import types
-
-import six
-
 from neutron_lib import constants as n_const
 from neutron_lib import exceptions as n_exc
 
@@ -35,9 +31,6 @@ def check_update_port(orig, new):
 
 
 def unboundmethod(func, cls):
-    if six.PY3:
-        # python 3.x doesn't have unbound methods
-        func.__qualname__ = cls.__qualname__ + '.' + func.__name__  # PEP 3155
-        return func
-    else:  # python 2.x
-        return types.MethodType(func, None, cls)
+    # python 3.x doesn't have unbound methods
+    func.__qualname__ = cls.__qualname__ + '.' + func.__name__  # PEP 3155
+    return func
