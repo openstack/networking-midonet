@@ -16,7 +16,6 @@
 """Utility functions used for REST APIs"""
 
 
-from __future__ import print_function
 
 import ConfigParser
 import os

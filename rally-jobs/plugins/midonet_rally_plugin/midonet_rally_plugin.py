@@ -15,8 +15,6 @@
 
 """Rally Plugin to manage MidoNet resources"""
 
-from __future__ import print_function
-
 import netaddr
 import random
 import string
