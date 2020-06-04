@@ -10,11 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import mock
-import testtools
+from unittest import mock
 
 from os_vif import objects
 from oslo_concurrency import processutils
+import testtools
 
 from midonet.os_vif import linux_net
 from midonet.os_vif import privsep

@@ -15,8 +15,8 @@
 
 import contextlib
 import functools
+from unittest import mock
 
-import mock
 import testscenarios
 import testtools
 from webob import exc

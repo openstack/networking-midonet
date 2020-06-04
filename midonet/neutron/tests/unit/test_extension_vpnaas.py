@@ -12,18 +12,17 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
-import mock
-from neutron_lib import constants
-from neutron_lib.plugins import constants as plugin_const
-import webob.exc
+from unittest import mock
 
 from neutron.db import servicetype_db as sdb
 from neutron import extensions as nextensions
 from neutron.services import provider_configuration as provconf
 from neutron.tests.unit.extensions import test_l3 as test_l3_plugin
+from neutron_lib import constants
+from neutron_lib.plugins import constants as plugin_const
 from neutron_vpnaas import extensions
 from neutron_vpnaas.tests.unit.db.vpn import test_vpn_db
+import webob.exc
 
 from midonet.neutron.tests.unit import test_midonet_plugin_ml2 as test_mn_ml2
 
