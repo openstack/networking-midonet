@@ -68,7 +68,7 @@ NOVA_VNC_ENABLED=True
 
 # If you want to use L2 Gateway Management Service,
 # uncomment the following lines.
-# enable_plugin networking-l2gw https://opendev.org/openstack/networking-l2gw
+# enable_plugin networking-l2gw https://opendev.org/x/networking-l2gw
 # enable_service l2gw-plugin
 # L2GW_PLUGIN="midonet_l2gw"
 # NETWORKING_L2GW_SERVICE_DRIVER="L2GW:Midonet:midonet.neutron.services.l2gateway.service_drivers.l2gw_midonet.MidonetL2gwDriver:default"
