@@ -74,7 +74,7 @@ Neutron L2 Gateway Management Service extension API.
 To configure MidoNet including L2 Gateway Management Service
 when running devstack, make sure the following is defined in ``local.conf``::
 
-    enable_plugin networking-l2gw https://opendev.org/openstack/networking-l2gw
+    enable_plugin networking-l2gw https://opendev.org/x/networking-l2gw
     enable_service l2gw-plugin
     Q_PLUGIN_EXTRA_CONF_PATH=/etc/neutron
     Q_PLUGIN_EXTRA_CONF_FILES=(l2gw_plugin.ini)

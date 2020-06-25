@@ -43,7 +43,7 @@
           export PROJECTS="openstack/networking-midonet $PROJECTS"
           export PROJECTS="openstack/neutron-dynamic-routing $PROJECTS"
           export PROJECTS="openstack/neutron-tempest-plugin $PROJECTS"
-          export PROJECTS="openstack/networking-l2gw $PROJECTS"
+          export PROJECTS="x/networking-l2gw $PROJECTS"
           export PROJECTS="x/tap-as-a-service $PROJECTS"
           export PROJECTS="x/tap-as-a-service-tempest-plugin $PROJECTS"
 
