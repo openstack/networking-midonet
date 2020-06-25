@@ -107,7 +107,7 @@
               - openstack/neutron-vpnaas
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
+              - x/networking-l2gw
               - x/tap-as-a-service
         - openstack-tox-pep8:
             required-projects:
@@ -115,7 +115,7 @@
               - openstack/neutron-vpnaas
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
+              - x/networking-l2gw
               - x/tap-as-a-service
         - openstack-tox-py27:
             required-projects:
@@ -123,7 +123,7 @@
               - openstack/neutron-vpnaas
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
+              - x/networking-l2gw
               - x/tap-as-a-service
         - openstack-tox-py35:
             required-projects:
@@ -131,7 +131,7 @@
               - openstack/neutron-vpnaas
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
+              - x/networking-l2gw
               - x/tap-as-a-service
         - openstack-tox-cover:
             voting: false
@@ -141,7 +141,7 @@
               - openstack/neutron-vpnaas
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
+              - x/networking-l2gw
               - x/tap-as-a-service
     gate:
       jobs:
@@ -198,7 +198,7 @@
               - openstack/neutron-vpnaas
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
+              - x/networking-l2gw
               - x/tap-as-a-service
         - openstack-tox-pep8:
             required-projects:
@@ -206,7 +206,7 @@
               - openstack/neutron-vpnaas
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
+              - x/networking-l2gw
               - x/tap-as-a-service
         - openstack-tox-py27:
             required-projects:
@@ -214,7 +214,7 @@
               - openstack/neutron-vpnaas
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
+              - x/networking-l2gw
               - x/tap-as-a-service
         - openstack-tox-py35:
             required-projects:
@@ -222,7 +222,7 @@
               - openstack/neutron-vpnaas
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
+              - x/networking-l2gw
               - x/tap-as-a-service
     experimental:
       jobs:
@@ -244,7 +244,7 @@
               - openstack/neutron-vpnaas
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
+              - x/networking-l2gw
               - x/tap-as-a-service
         - openstack-tox-py27:
             required-projects:
@@ -253,7 +253,7 @@
               - openstack/neutron-vpnaas
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
+              - x/networking-l2gw
               - x/tap-as-a-service
     post:
       jobs:
@@ -263,7 +263,7 @@
               - openstack/neutron-vpnaas
               - openstack/neutron-lbaas
               - openstack/neutron-dynamic-routing
-              - openstack/networking-l2gw
+              - x/networking-l2gw
               - x/tap-as-a-service
 
 - job:
@@ -274,8 +274,8 @@
     timeout: 7800
     required-projects:
       - openstack/devstack-gate
-      - openstack/networking-l2gw
       - openstack/networking-midonet
+      - x/networking-l2gw
       - openstack/neutron-dynamic-routing
       - x/tap-as-a-service
       - openstack/tempest
@@ -289,7 +289,7 @@
     nodeset: legacy-centos-7
     required-projects:
       - openstack/devstack-gate
-      - openstack/networking-l2gw
+      - x/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - x/tap-as-a-service
@@ -303,7 +303,7 @@
     timeout: 7800
     required-projects:
       - openstack/devstack-gate
-      - openstack/networking-l2gw
+      - x/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - x/tap-as-a-service
@@ -318,7 +318,7 @@
     nodeset: legacy-centos-7
     required-projects:
       - openstack/devstack-gate
-      - openstack/networking-l2gw
+      - x/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - x/tap-as-a-service
@@ -332,7 +332,7 @@
     timeout: 7800
     required-projects:
       - openstack/devstack-gate
-      - openstack/networking-l2gw
+      - x/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - x/tap-as-a-service
@@ -346,7 +346,7 @@
     timeout: 7800
     required-projects:
       - openstack/devstack-gate
-      - openstack/networking-l2gw
+      - x/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - x/tap-as-a-service
@@ -360,7 +360,7 @@
     timeout: 7800
     required-projects:
       - openstack/devstack-gate
-      - openstack/networking-l2gw
+      - x/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - x/tap-as-a-service
@@ -374,7 +374,7 @@
     timeout: 7800
     required-projects:
       - openstack/devstack-gate
-      - openstack/networking-l2gw
+      - x/networking-l2gw
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - x/tap-as-a-service
