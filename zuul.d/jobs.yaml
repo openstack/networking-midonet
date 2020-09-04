@@ -1,0 +1,124 @@
+- job:
+    name: networking-midonet-ml2-tempest-base
+    description: Base job for tempest to test networking-midonet
+    parent: devstack-tempest
+    abstract: true
+    timeout: 10800
+    required-projects:
+      - opendev.org/openstack/networking-midonet
+      - opendev.org/openstack/neutron-dynamic-routing
+      - opendev.org/openstack/neutron-tempest-plugin
+      - opendev.org/x/tap-as-a-service
+      - opendev.org/x/networking-l2gw
+    vars:
+      tempest_concurrency: 4
+      devstack_localrc:
+        FORCE_CONFIG_DRIVE: true
+        Q_PLUGIN: ml2
+        Q_AGENT: none
+        Q_ML2_PLUGIN_MECHANISM_DRIVERS: midonet
+        Q_ML2_PLUGIN_TYPE_DRIVERS: midonet,uplink
+        Q_ML2_TENANT_NETWORK_TYPE: midonet
+        ML2_L3_PLUGIN: midonet_l3
+      devstack_plugins:
+        networking-midonet: https://opendev.org/openstack/networking-midonet
+      devstack_services:
+        c-api: false
+        c-bak: false
+        c-sch: false
+        c-vol: false
+        cinder: false
+        s-account: false
+        s-container: false
+        s-object: false
+        s-proxy: false
+        q-agt: false
+        q-l3: false
+      zuul_copy_output:
+        '/var/log/midonet-cluster': 'logs'
+        '/var/log/midolman': 'logs'
+    irrelevant-files:
+      - ^(test-|)requirements.txt$
+      - ^.*\.rst$
+      - ^doc/.*$
+      - ^midonet/neutron/tests/unit/.*$
+      - ^setup.cfg$
+      - ^specs/.*$
+
+
+- job:
+    name: networking-midonet-ml2-tempest-aio
+    description: Tempest networking-midonet ml2
+    parent: networking-midonet-ml2-tempest-base
+
+
+- job:
+    name: networking-midonet-ml2-tempest-aio-centos8
+    description: Tempest networking-midonet ml2
+    parent: networking-midonet-ml2-tempest-base
+    nodeset: devstack-single-node-centos-8
+    voting: false
+
+
+- job:
+    name: networking-midonet-ml2-tempest-multinode
+    description: Tempest networking-midonet ml2
+    parent: networking-midonet-ml2-tempest-base
+    nodeset: openstack-two-node-bionic-midonet
+    group-vars:
+      subnode:
+        devstack_services:
+          c-bak: false
+          c-vol: false
+          q-agt: false
+          neutron: true
+        devstack_localrc:
+          MIDONET_CREATE_FAKE_UPLINK: False
+        devstack_plugins:
+          networking-midonet: https://opendev.org/openstack/networking-midonet
+
+
+- job:
+    name: networking-midonet-ml2-grenade
+    parent: grenade
+    voting: false
+    required-projects:
+      - opendev.org/openstack/networking-midonet
+      - opendev.org/openstack/neutron-dynamic-routing
+      - opendev.org/openstack/neutron-tempest-plugin
+      - opendev.org/x/tap-as-a-service
+      - opendev.org/x/networking-l2gw
+    vars:
+      grenade_devstack_localrc:
+        shared:
+          FORCE_CONFIG_DRIVE: true
+          Q_PLUGIN: ml2
+          Q_AGENT: none
+          Q_ML2_PLUGIN_MECHANISM_DRIVERS: midonet
+          Q_ML2_PLUGIN_TYPE_DRIVERS: midonet,uplink
+          Q_ML2_TENANT_NETWORK_TYPE: midonet
+          ML2_L3_PLUGIN: midonet_l3
+      devstack_plugins:
+        networking-midonet: https://opendev.org/openstack/networking-midonet
+      devstack_services:
+        c-api: false
+        c-bak: false
+        c-sch: false
+        c-vol: false
+        cinder: false
+        s-account: false
+        s-container: false
+        s-object: false
+        s-proxy: false
+        q-agt: false
+        q-l3: false
+      zuul_copy_output:
+        '/var/log/midonet-cluster': 'logs'
+        '/var/log/midolman': 'logs'
+    irrelevant-files:
+      - ^(test-|)requirements.txt$
+      - ^.*\.rst$
+      - ^doc/.*$
+      - ^midonet/neutron/tests/unit/.*$
+      - ^setup.cfg$
+      - ^specs/.*$

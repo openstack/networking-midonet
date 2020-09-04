@@ -28,7 +28,7 @@ rm -rf \
     /usr/local/bin/mm-meter \
     /usr/local/bin/mm-trace
 
-yum -y install java-1.8.0-openjdk-headless
+install_package java-1.8.0-openjdk-headless
 
 if [ "${MIDONET_USE_CASSANDRA}" = True ]; then
     CASSANDRA_PKG=dsc22
@@ -36,10 +36,6 @@ else
     CASSANDRA_PKG=
 fi
 
-yum -y install \
-    zookeeper \
-    ${CASSANDRA_PKG} \
-    midonet-tools \
-    midonet-cluster \
-    midolman \
-    ${PYTHON_PREFIX}midonetclient
+install_package zookeeper ${CASSANDRA_PKG} midonet-tools midonet-cluster midolman \
+                ${PYTHON_PREFIX}midonetclient
+

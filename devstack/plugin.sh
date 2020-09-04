@@ -95,6 +95,11 @@ if [[ "$1" == "stack" ]]; then
 
     elif [[ "$2" == "install" ]]; then
 
+        if is_ubuntu; then
+            sudo $ABSOLUTE_PATH/midonet-pkg/install_pkgs_client.sh \
+                 $PYTHON_PREFIX
+        fi
+
         # Build neutron midonet plugin
         pip_install --no-deps --editable $NETWORKING_MIDONET_DIR
         # Configure midonet-cli
@@ -170,16 +175,6 @@ if [[ "$1" == "stack" ]]; then
         fi
 
         # Run the command
-        # Create symbolic links for logs so that they will be
-        # gathered on gate.
-        ln -sf /var/log/midolman/midolman.log ${LOGDIR}
-        ln -sf /var/log/midolman/minions.log ${LOGDIR}
-        ln -sf /var/log/midolman/minions-stderr.log ${LOGDIR}
-        ln -sf /var/log/midolman/vpp.log ${LOGDIR}
-        ln -sf /var/log/midolman/vpp-stderr.log ${LOGDIR}
-        ln -sf /var/log/midolman/upstart-stderr.log ${LOGDIR}
-        ln -sf /var/log/midonet-cluster/midonet-cluster.log ${LOGDIR}
-        ln -sf /var/log/midonet-cluster/upstart-stderr.log ${LOGDIR}
         export TOP_DIR
         $ABSOLUTE_PATH/midonet-pkg/configure_and_start_midonet.sh
 

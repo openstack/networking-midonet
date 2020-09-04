@@ -1,0 +1,21 @@
+- nodeset:
+    name: openstack-two-node-bionic-midonet
+    nodes:
+      - name: controller
+        label: ubuntu-bionic
+      - name: compute1
+        label: ubuntu-bionic
+    groups:
+      # Node where tests are executed and test results collected
+      - name: tempest
+        nodes:
+          - controller
+      # Nodes running the compute service
+      - name: compute
+        nodes:
+          - controller
+          - compute1
+      # Nodes that are not the controller
+      - name: subnode
+        nodes:
+          - compute1

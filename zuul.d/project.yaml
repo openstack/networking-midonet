@@ -1,0 +1,57 @@
+- project:
+    templates:
+      - check-requirements
+      - openstack-python3-victoria-jobs-neutron
+      - publish-openstack-docs-pti
+      - release-notes-jobs-python3
+    check:
+      jobs:
+        - openstack-tox-pep8:
+            required-projects:
+              - openstack/neutron-vpnaas
+              - openstack/neutron-dynamic-routing
+              - x/networking-l2gw
+              - x/tap-as-a-service
+        - openstack-tox-py36:
+            required-projects:
+              - openstack/neutron-vpnaas
+              - openstack/neutron-dynamic-routing
+              - x/networking-l2gw
+              - x/tap-as-a-service
+        - openstack-tox-py38:
+            required-projects:
+              - openstack/neutron-vpnaas
+              - openstack/neutron-dynamic-routing
+              - x/networking-l2gw
+              - x/tap-as-a-service
+        - openstack-tox-cover:
+            required-projects:
+              - openstack/neutron
+              - openstack/neutron-vpnaas
+              - openstack/neutron-dynamic-routing
+              - x/networking-l2gw
+              - x/tap-as-a-service
+        - networking-midonet-ml2-tempest-aio
+        - networking-midonet-ml2-tempest-aio-centos8
+        - networking-midonet-ml2-tempest-multinode
+        - networking-midonet-ml2-grenade
+    gate:
+      jobs:
+        - openstack-tox-pep8:
+            required-projects:
+              - openstack/neutron-vpnaas
+              - openstack/neutron-dynamic-routing
+              - x/networking-l2gw
+              - x/tap-as-a-service
+        - openstack-tox-py36:
+            required-projects:
+              - openstack/neutron-vpnaas
+              - openstack/neutron-dynamic-routing
+              - x/networking-l2gw
+              - x/tap-as-a-service
+        - openstack-tox-py38:
+            required-projects:
+              - openstack/neutron-vpnaas
+              - openstack/neutron-dynamic-routing
+              - x/networking-l2gw
+              - x/tap-as-a-service

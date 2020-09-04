@@ -42,7 +42,7 @@ name=MidoNet
 baseurl=${MIDONET_YUM_URI}
 enabled=1
 gpgcheck=1
-gpgkey=https://builds.midonet.org/midorepo.key
+gpgkey=http://download.rc.nectar.org.au/nectar-archive-key-2016.gpg
 
 [midonet-misc]
 name=MidoNet 3rd Party Tools and Libraries

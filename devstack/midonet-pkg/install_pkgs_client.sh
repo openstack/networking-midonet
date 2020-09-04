@@ -15,32 +15,10 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-MIDONET_USE_CASSANDRA=$1
-PYTHON_PREFIX=$2
-
-# Remove possible reminders from the previous devmido runs
-rm -rf \
-    /usr/local/bin/mn-conf \
-    /usr/local/bin/mm-ctl \
-    /usr/local/bin/mm-dpctl \
-    /usr/local/bin/mm-meter \
-    /usr/local/bin/mm-trace
+PYTHON_PREFIX=$1
 
 DEBIAN_FRONTEND=noninteractive
 export DEBIAN_FRONTEND
 
 apt-get install -y --no-install-recommends --no-install-suggests \
-    openjdk-8-jre-headless
-
-if [ "${MIDONET_USE_CASSANDRA}" = True ]; then
-    CASSANDRA_PKG=dsc22
-else
-    CASSANDRA_PKG=
-fi
-
-apt-get install -y --no-install-recommends --no-install-suggests \
-    zookeeperd \
-    ${CASSANDRA_PKG} \
-    midonet-tools \
-    midonet-cluster \
-    midolman
+    ${PYTHON_PREFIX}midonetclient
