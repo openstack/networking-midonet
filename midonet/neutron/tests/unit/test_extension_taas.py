@@ -63,8 +63,8 @@ class TestMidonetTaasCaseMixin(object):
     def setUp(self, plugin=None, service_plugins=None, ext_mgr=None):
         ext_mgr = TaasExtensionManager()
         service_plugins = {'taas_plugin_name': DB_TAAS_PLUGIN_KLASS}
-        taas_provider = (taas_const.TAAS + ':Midonet:' + MN_TAAS_DRIVER_KLASS
-                         + ':default')
+        taas_provider = (taas_const.TAAS + ':Midonet:' + MN_TAAS_DRIVER_KLASS +
+                         ':default')
         mock.patch.object(provconf.NeutronModule, 'service_providers',
                           return_value=[taas_provider]).start()
         manager = sdb.ServiceTypeManager.get_instance()
@@ -177,7 +177,8 @@ class TestMidonetTaasCaseMixin(object):
                 req = self.new_list_request('tap_services')
                 res = self.deserialize(self.fmt,
                                        req.get_response(self.ext_api))
-                self.assertFalse(res['tap_services'])
+                for service in res['tap_services']:
+                    self.assertEqual('DOWN', service['status'])
 
     @contextlib.contextmanager
     def create_tap_service_and_tap_flow(self):
@@ -232,7 +233,8 @@ class TestMidonetTaasCaseMixin(object):
                              res.status_int)
             req = self.new_list_request('tap_flows')
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            self.assertFalse(res['tap_flows'])
+            for flow in res['tap_flows']:
+                self.assertEqual('DOWN', flow['status'])
 
     def test_delete_tap_service_with_tap_flow(self):
         with self.create_tap_service_and_tap_flow() as tf:

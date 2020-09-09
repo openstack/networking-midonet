@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from alembic import op
+import sqlalchemy as sa
+
+
 """bgp speaker router insertion
 
 Revision ID: f8b289f2644f
@@ -23,9 +27,6 @@ Create Date: 2016-05-13 10:14:14.939657
 # revision identifiers, used by Alembic.
 revision = 'f8b289f2644f'
 down_revision = '3df8cd6d2ada'
-
-from alembic import op
-import sqlalchemy as sa
 
 
 def upgrade():

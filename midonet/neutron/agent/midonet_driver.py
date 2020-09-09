@@ -38,7 +38,6 @@ class DhcpNoOpDriver(dhcp.DhcpLocalProcess):
 
     def reload_allocations(self):
         """Force the DHCP server to reload the assignment database."""
-        pass
 
     def spawn_process(self):
         pass

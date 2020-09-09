@@ -30,4 +30,3 @@ TEST_MN_CLIENT = ('midonet.neutron.tests.unit.test_midonet_plugin.'
 
 class NoopMidonetClient(cli_base.MidonetClientBase):
     """Dummy midonet client used for the unit tests"""
-    pass

@@ -32,15 +32,15 @@ def add_known_arguments(self, parser):
 
 
 def args2body(self, parsed_args):
-        if parsed_args.devices:
-            devices = parsed_args.devices
-        else:
-            devices = []
-        body = {'l2_gateway': {'devices': devices}}
-        if parsed_args.name:
-            l2gw_name = parsed_args.name
-            body['l2_gateway']['name'] = l2gw_name
-        return body
+    if parsed_args.devices:
+        devices = parsed_args.devices
+    else:
+        devices = []
+    body = {'l2_gateway': {'devices': devices}}
+    if parsed_args.name:
+        l2gw_name = parsed_args.name
+        body['l2_gateway']['name'] = l2gw_name
+    return body
 
 
 class L2Gateway(_l2_gateway.L2Gateway):
@@ -48,8 +48,6 @@ class L2Gateway(_l2_gateway.L2Gateway):
 
     This class loads parameters for L2Gateway.
     """
-
-    pass
 
 
 class L2GatewayCreate(extension.ClientExtensionCreate, L2Gateway):

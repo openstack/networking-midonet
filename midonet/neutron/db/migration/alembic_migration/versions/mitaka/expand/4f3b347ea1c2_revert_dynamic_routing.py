@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from alembic import op
+
+
 """Revert dynamic routing
 
 Revision ID: 4f3b347ea1c2
@@ -23,8 +26,6 @@ Create Date: 2015-12-04 15:01:34.026502
 # revision identifiers, used by Alembic.
 revision = '4f3b347ea1c2'
 down_revision = '29cbb88b092'
-
-from alembic import op
 
 
 def upgrade():

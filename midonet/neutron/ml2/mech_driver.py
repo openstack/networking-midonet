@@ -132,8 +132,8 @@ class MidonetMechanismDriver(api.MechanismDriver):
         self.client.create_port_precommit(context, port)
 
     def _validate_port_create(self, port):
-        if (port.get('device_owner') == n_const.DEVICE_OWNER_ROUTER_GW
-                and not port['fixed_ips']):
+        if (port.get('device_owner') == n_const.DEVICE_OWNER_ROUTER_GW and
+                not port['fixed_ips']):
             msg = (_("No IPs assigned to the gateway port for"
                      " router %s") % port['device_id'])
             raise n_exc.BadRequest(resource='router', msg=msg)
@@ -173,12 +173,12 @@ class MidonetMechanismDriver(api.MechanismDriver):
     @log_helpers.log_method_call
     def bind_port(self, context):
         for segment in context.segments_to_bind:
-            if segment['network_type'] in const.MIDONET_NET_TYPES:
+            if not segment['network_type'] in const.MIDONET_NET_TYPES:
+                LOG.debug(('midonet mechanism driver did NOT bind '
+                           'port for segment %r'), segment)
+            else:
                 context.set_binding(segment[api.ID],
                                     self.vif_type,
                                     self.vif_details,
                                     n_const.PORT_STATUS_ACTIVE)
                 break
-            else:
-                LOG.debug(('midonet mechanism driver did NOT bind '
-                           'port for segment %r'), segment)

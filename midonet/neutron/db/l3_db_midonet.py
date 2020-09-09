@@ -168,6 +168,9 @@ class MidonetL3DBMixin(l3_gwmode_db.L3_NAT_db_mixin):
         fip_id = uuidutils.generate_uuid()
 
         f_net_id = fip['floating_network_id']
+        # Ensure network exists
+        self._core_plugin.get_network(context, f_net_id)
+
         if not self._core_plugin._network_is_external(context, f_net_id):
             msg = _("Network %s is not a valid external network") % f_net_id
             raise n_exc.BadRequest(resource='floatingip', msg=msg)

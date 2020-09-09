@@ -11,6 +11,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+from alembic import op
+import sqlalchemy as sa
+
+from neutron.db import migration
+
+
 """add network binding table
 
 Revision ID: 422da2897701
@@ -19,10 +26,6 @@ Create Date: 2015-06-05 03:23:00.000000
 
 """
 
-from alembic import op
-import sqlalchemy as sa
-
-from neutron.db import migration
 
 # revision identifiers, used by Alembic.
 revision = '422da2897701'

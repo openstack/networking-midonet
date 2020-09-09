@@ -54,8 +54,8 @@ class VPNTestCaseMixin(test_vpn_db.VPNTestMixin,
         service_plugins = {
             'vpn_plugin_name': DB_VPN_PLUGIN_KLASS,
             'flavors_plugin': FLAVOR_PLUGIN_KLASS}
-        vpnaas_provider = (plugin_const.VPN + ':vpnaas:' + MN_DRIVER_KLASS
-                           + ':default')
+        vpnaas_provider = (plugin_const.VPN + ':vpnaas:' + MN_DRIVER_KLASS +
+                           ':default')
         mock.patch.object(provconf.NeutronModule, 'service_providers',
                           return_value=[vpnaas_provider]).start()
         manager = sdb.ServiceTypeManager.get_instance()
@@ -151,7 +151,7 @@ class VPNTestCaseMixin(test_vpn_db.VPNTestMixin,
             # Check there are two ipsec site connections
             req = self.new_list_request('ipsec-site-connections')
             res = self.deserialize(self.fmt, req.get_response(self.ext_api))
-            self.assertTrue(len(res['ipsec_site_connections']) == 2)
+            self.assertEqual(2, len(res['ipsec_site_connections']))
             self.assertNotEqual(res['ipsec_site_connections'][0]['id'],
                                 res['ipsec_site_connections'][1]['id'])
 
