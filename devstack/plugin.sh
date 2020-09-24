@@ -202,11 +202,7 @@ cgroup_device_acl = [
     '/dev/rtc', '/dev/hpet', '/dev/net/tun',
 ]
 EOF"
-                if is_ubuntu; then
-                    restart_service libvirt-bin
-                else
-                    restart_service libvirtd
-                fi
+                restart_service libvirtd
             fi
         fi
     fi
