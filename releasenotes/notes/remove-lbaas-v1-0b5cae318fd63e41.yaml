@@ -1,8 +1,0 @@
----
-upgrade:
-  - LBaaS v1 support has been removed.
-    Please consider to use LBaaS v2 instead.
-    No easy upgrade path (eg. v1 -> v2 migration script) is
-    currently available.
-deprecations:
-  - LBaaS v1 support has been removed.

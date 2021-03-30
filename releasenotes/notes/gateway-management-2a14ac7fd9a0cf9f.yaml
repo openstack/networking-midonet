@@ -1,4 +1,0 @@
----
-features:
-  - Gateway Management service plugin has been added.
-    See `Gateway Device Service <https://docs.openstack.org/networking-midonet/latest/install/installation.html#gateway-device-service>`_ for details.

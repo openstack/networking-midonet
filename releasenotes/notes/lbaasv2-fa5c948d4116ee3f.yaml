@@ -1,4 +1,0 @@
----
-features:
-  - LBaaS v2 driver has been added.
-    See `LBaaS v2 <https://docs.openstack.org/networking-midonet/latest/install/installation.html#lbaas-v2>`_ for details.

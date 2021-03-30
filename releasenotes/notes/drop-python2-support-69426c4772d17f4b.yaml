@@ -1,4 +1,0 @@
----
-upgrade:
-  - |
-    Python 2 is no longer supported. Python 3 is required.

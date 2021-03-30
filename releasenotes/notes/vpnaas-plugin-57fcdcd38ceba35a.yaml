@@ -1,4 +1,0 @@
----
-features:
-  - VPNaaS support has been added.
-    See `VPNaaS <https://docs.openstack.org/networking-midonet/latest/install/installation.html#vpnaas>`_ for details.

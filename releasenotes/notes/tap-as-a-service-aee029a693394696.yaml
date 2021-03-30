@@ -1,4 +1,0 @@
----
-features:
-  - Tap-as-a-Service support has been added.
-    See `Tap-as-a-Service <https://docs.openstack.org/networking-midonet/latest/install/installation.html#tap-as-a-service>`_ for details.
