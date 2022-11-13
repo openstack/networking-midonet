@@ -1,57 +1,69 @@
 - project:
     templates:
-      - check-requirements
+      # NOTE(ralonsoh): removed until the job is fixed.
+      #- check-requirements
       - openstack-python3-victoria-jobs-neutron
-      - publish-openstack-docs-pti
-      - release-notes-jobs-python3
+      # NOTE(ralonsoh): removed until the job is fixed.
+      #- publish-openstack-docs-pti
+      # NOTE(ralonsoh): removed until the job is fixed.
+      #- release-notes-jobs-python3
     check:
       jobs:
         - openstack-tox-pep8:
+            voting: false
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service
         - openstack-tox-py36:
+            voting: false
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service
         - openstack-tox-py38:
+            voting: false
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service
         - openstack-tox-cover:
+            voting: false
             required-projects:
               - openstack/neutron
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
-        - networking-midonet-ml2-tempest-aio
-        - networking-midonet-ml2-tempest-aio-centos8
-        - networking-midonet-ml2-tempest-multinode
-        - networking-midonet-ml2-grenade
+              - openstack/tap-as-a-service
+        - networking-midonet-ml2-tempest-aio:
+            voting: false
+        - networking-midonet-ml2-tempest-multinode:
+            voting: false
+        - networking-midonet-ml2-grenade:
+            voting: false
     gate:
       jobs:
         - openstack-tox-pep8:
+            voting: false
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service
         - openstack-tox-py36:
+            voting: false
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service
         - openstack-tox-py38:
+            voting: false
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service

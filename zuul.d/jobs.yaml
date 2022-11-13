@@ -8,7 +8,7 @@
       - opendev.org/openstack/networking-midonet
       - opendev.org/openstack/neutron-dynamic-routing
       - opendev.org/openstack/neutron-tempest-plugin
-      - opendev.org/x/tap-as-a-service
+      - opendev.org/openstack/tap-as-a-service
       - opendev.org/x/networking-l2gw
     vars:
       tempest_concurrency: 4
@@ -53,14 +53,6 @@
 
 
 - job:
-    name: networking-midonet-ml2-tempest-aio-centos8
-    description: Tempest networking-midonet ml2
-    parent: networking-midonet-ml2-tempest-base
-    nodeset: devstack-single-node-centos-8
-    voting: false
-
-
-- job:
     name: networking-midonet-ml2-tempest-multinode
     description: Tempest networking-midonet ml2
     parent: networking-midonet-ml2-tempest-base
@@ -86,7 +78,7 @@
       - opendev.org/openstack/networking-midonet
       - opendev.org/openstack/neutron-dynamic-routing
       - opendev.org/openstack/neutron-tempest-plugin
-      - opendev.org/x/tap-as-a-service
+      - opendev.org/openstack/tap-as-a-service
       - opendev.org/x/networking-l2gw
     vars:
       grenade_devstack_localrc:
