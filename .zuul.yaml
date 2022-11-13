@@ -1,10 +1,10 @@
 - project:
     templates:
-      - check-requirements
+      # - check-requirements
       - openstack-python-jobs-neutron
       - openstack-python3-train-jobs-neutron
       - publish-openstack-docs-pti
-      - release-notes-jobs-python3
+      # - release-notes-jobs-python3
     check:
       jobs:
         - networking-midonet-tempest-aio-ml2-centos-7:
@@ -26,62 +26,71 @@
               - ^setup.cfg$
               - ^specs/.*$
         - openstack-tox-pep8:
+            voting: false
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service
         - openstack-tox-py27:
+            voting: false
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service
         - openstack-tox-py36:
+            voting: false
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service
         - openstack-tox-py37:
+            voting: false
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service
         - openstack-tox-cover:
+            voting: false
             required-projects:
               - openstack/neutron
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service
     gate:
       jobs:
         - openstack-tox-pep8:
+            voting: false
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service
         - openstack-tox-py27:
+            voting: false
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service
         - openstack-tox-py36:
+            voting: false
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service
         - openstack-tox-py37:
+            voting: false
             required-projects:
               - openstack/neutron-vpnaas
               - openstack/neutron-dynamic-routing
               - x/networking-l2gw
-              - x/tap-as-a-service
+              - openstack/tap-as-a-service
 
 - job:
     name: networking-midonet-tempest-multinode-ml2
@@ -95,7 +104,7 @@
       - x/networking-l2gw
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
-      - x/tap-as-a-service
+      - openstack/tap-as-a-service
       - openstack/tempest
 
 - job:
@@ -111,7 +120,7 @@
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
-      - x/tap-as-a-service
+      - openstack/tap-as-a-service
       - openstack/tempest
 
 - job:
@@ -126,7 +135,7 @@
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
-      - x/tap-as-a-service
+      - openstack/tap-as-a-service
       - x/tap-as-a-service-tempest-plugin
       - openstack/tempest
 
@@ -143,7 +152,7 @@
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
-      - x/tap-as-a-service
+      - openstack/tap-as-a-service
       - x/tap-as-a-service-tempest-plugin
       - openstack/tempest
 
@@ -159,7 +168,7 @@
       - openstack/networking-midonet
       - openstack/neutron-dynamic-routing
       - openstack/neutron-tempest-plugin
-      - x/tap-as-a-service
+      - openstack/tap-as-a-service
       - x/tap-as-a-service-tempest-plugin
       - openstack/tempest
 
